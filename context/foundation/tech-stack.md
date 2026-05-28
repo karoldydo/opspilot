@@ -26,18 +26,24 @@ hints:
 
 ## Why this stack
 
-Solo developer building a self-hosted homelab tool over an 8-week after-hours
-timeline, with a user-specified stack from idea-notes.md: Angular 21 frontend +
-NestJS backend + Drizzle/SQLite + shared Zod schemas, shipped as one multi-arch
-container. Two TypeScript apps plus a shared validation library in one repo is
-the canonical monorepo case, so the hand-off anchors on `nx` — the only
-registry starter with first-class Angular (`@nx/angular`) and Nest (`@nx/nest`)
-generators. The stack clears all four agent-friendly gates (typed, convention-
-based, popular within the JS family, well-documented), so no quality override.
-Self-host is the deployment default (Cloudflare Tunnel/Access is a transparent
-edge layer outside the app, not edge compute — long-running SSH connections,
-SSE live narration, and background agent runs all need a persistent Node
-server, ruling out edge-first starters). Feature flags auth/AI/realtime/
-background-jobs are set; payments is out of scope per PRD non-goals. Known
-friction: the nx card's default `cmd_template` uses `--preset react-monorepo`;
-bootstrapper must instead init with the Angular + Nest plugins.
+Solo developer building a self-hosted homelab tool over an 8-week
+after-hours timeline. The user-specified stack from idea-notes.md is
+Angular 21 + spartan/ng + Tailwind v4 on the frontend, NestJS exposing
+REST + SSE on the backend, Drizzle ORM over SQLite (WAL), Zod shared
+FE↔BE, Better Auth in-app (Drizzle adapter), Vercel AI SDK driving the
+agent (`generateText` + tool-calling, `generateObject` + Zod for the
+structured synthesis), node-ssh behind an `IExecutor`, async-mutex for
+per-device concurrency, nmap/arp-scan for LAN discovery, and Vitest +
+Playwright for tests — shipped as one multi-arch container through
+GitHub Actions to GHCR. Two TypeScript apps plus a shared validation
+library is the canonical monorepo case, so the hand-off anchors on
+`nx` — the only registry starter with first-class Angular
+(`@nx/angular`) and Nest (`@nx/nest`) generators. Self-host is the
+deployment default; Cloudflare Tunnel/Access is a transparent edge
+layer outside the app, not edge compute — long-running SSH, SSE
+narration, and background agent runs need a persistent Node server,
+ruling out edge-first starters. The stack clears all four
+agent-friendly gates, so no quality override; feature flags
+auth/AI/realtime/background-jobs set, payments out of scope. Known
+friction: the nx card's `--preset react-monorepo` default is wrong;
+init with the Angular + Nest plugins instead.
