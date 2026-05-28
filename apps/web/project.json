@@ -1,80 +1,80 @@
 {
-  "name": "web",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "projectType": "application",
+  "name": "web",
   "prefix": "app",
+  "projectType": "application",
   "sourceRoot": "apps/web/src",
   "tags": ["scope:web"],
   "targets": {
     "build": {
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true
+        },
+        "production": {
+          "budgets": [
+            {
+              "maximumError": "1mb",
+              "maximumWarning": "500kb",
+              "type": "initial"
+            },
+            {
+              "maximumError": "8kb",
+              "maximumWarning": "4kb",
+              "type": "anyComponentStyle"
+            }
+          ],
+          "outputHashing": "all"
+        }
+      },
+      "defaultConfiguration": "production",
       "executor": "@angular/build:application",
-      "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/web",
-        "browser": "apps/web/src/main.ts",
-        "tsConfig": "apps/web/tsconfig.app.json",
-        "inlineStyleLanguage": "scss",
         "assets": [
           {
             "glob": "**/*",
             "input": "apps/web/public"
           }
         ],
-        "styles": ["apps/web/src/styles.scss"]
+        "browser": "apps/web/src/main.ts",
+        "inlineStyleLanguage": "scss",
+        "outputPath": "dist/apps/web",
+        "styles": ["apps/web/src/styles.scss"],
+        "tsConfig": "apps/web/tsconfig.app.json"
       },
-      "configurations": {
-        "production": {
-          "budgets": [
-            {
-              "type": "initial",
-              "maximumWarning": "500kb",
-              "maximumError": "1mb"
-            },
-            {
-              "type": "anyComponentStyle",
-              "maximumWarning": "4kb",
-              "maximumError": "8kb"
-            }
-          ],
-          "outputHashing": "all"
-        },
-        "development": {
-          "optimization": false,
-          "extractLicenses": false,
-          "sourceMap": true
-        }
-      },
-      "defaultConfiguration": "production"
-    },
-    "serve": {
-      "continuous": true,
-      "executor": "@angular/build:dev-server",
-      "configurations": {
-        "production": {
-          "buildTarget": "web:build:production"
-        },
-        "development": {
-          "buildTarget": "web:build:development"
-        }
-      },
-      "defaultConfiguration": "development"
+      "outputs": ["{options.outputPath}"]
     },
     "lint": {
       "executor": "@nx/eslint:lint"
     },
-    "test": {
-      "executor": "@angular/build:unit-test",
-      "options": {
-        "watch": false
-      }
+    "serve": {
+      "configurations": {
+        "development": {
+          "buildTarget": "web:build:development"
+        },
+        "production": {
+          "buildTarget": "web:build:production"
+        }
+      },
+      "continuous": true,
+      "defaultConfiguration": "development",
+      "executor": "@angular/build:dev-server"
     },
     "serve-static": {
       "continuous": true,
       "executor": "@nx/web:file-server",
       "options": {
         "buildTarget": "web:build",
-        "staticFilePath": "dist/apps/web/browser",
-        "spa": true
+        "spa": true,
+        "staticFilePath": "dist/apps/web/browser"
+      }
+    },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "watch": false
       }
     }
   }

@@ -1,0 +1,4 @@
+{
+  "**/*.{json,html,scss}": ["nx format:write --files"],
+  "**/*.{ts,js,mjs}": ["eslint --fix", "nx format:write --files"]
+}
