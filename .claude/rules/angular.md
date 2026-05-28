@@ -7,28 +7,26 @@ paths:
 
 # Angular Development Guidelines
 
-Use modern Angular patterns and keep implementations maintainable and performant.
+## Project rules (deviate from / sharpen Angular defaults)
 
-## Guidelines
-
-- Prefer standalone components, directives, and pipes. Do NOT set `standalone: true` explicitly — it is the default in Angular v20+.
-- Prefer signals for local reactive state and `computed()` for derived state. Use `update()` / `set()` on signals; do NOT use `mutate()`.
-- Use `ChangeDetectionStrategy.OnPush` for all components.
-- Prefer `input()` / `output()` functions over `@Input()` / `@Output()` decorators.
-- Prefer `inject()` when it improves readability and avoids constructor noise.
+- Do NOT set `standalone: true` explicitly — it is the default in Angular v20+.
 - Do NOT use `@HostBinding` / `@HostListener` decorators; use the `host` object in `@Component` / `@Directive` instead.
-- Keep components focused and small (single responsibility).
-- Keep templates simple; move complex logic to TypeScript.
-- Prefer new control flow syntax (`@if`, `@for`, `@switch`) over legacy structural directives when appropriate.
-- Avoid `ngClass` and `ngStyle` where native `[class.*]` and `[style.*]` bindings are sufficient.
-- Avoid `any`; use strict, explicit typing and `unknown` where needed.
-- Use lazy loading and performance-friendly defaults.
-- Prefer Reactive Forms over Template-driven forms.
-- Use `NgOptimizedImage` for static images.
-- Avoid `providedIn: 'root'`; provide services at the appropriate module or component level to keep scope explicit and traceable.
-- Prefer `DestroyRef` with `onDestroy()` or `takeUntilDestroyed()` over `ngOnDestroy` / `implements OnDestroy` for cleanup logic.
-- Prefer `afterNextRender()` over `ngAfterViewInit` for one-time DOM initialization that requires rendered elements.
-- Define `effect()` as named class fields (`private readonly someEffect = effect(() => { ... })`), not inside methods or unnamed in the constructor. This improves traceability and makes effect ownership explicit.
+- Avoid `providedIn: 'root'`; provide services at the appropriate route or component level to keep scope explicit and traceable.
+- Use `DestroyRef` with `onDestroy()` or `takeUntilDestroyed()` for cleanup; do NOT implement `ngOnDestroy` / `OnDestroy`.
+- Use `afterNextRender()` for one-time DOM init that needs rendered elements; do NOT use `ngAfterViewInit`.
+- Define `effect()` as named class fields (`private readonly someEffect = effect(() => { ... })`), never inside methods or unnamed in the constructor — keeps effect ownership explicit and traceable.
+- On signals use `update()` / `set()`; do NOT use `mutate()`.
+- Always use the new control flow (`@if`, `@for`, `@switch`); `*ngIf` / `*ngFor` / `*ngSwitch` only in code you are mid-migrating.
+
+## Local thresholds (checkable on a diff)
+
+- A component over ~150 lines of TS, or with more than one primary responsibility, must be split. *(assumed threshold — confirm)*
+- In templates use only property/signal access and pipes; move any expression with a method call or conditional logic into a `computed()` or a component method.
+- Lazy-load feature routes via `loadComponent` / `loadChildren`. Do not eager-load feature areas from the root routes.
+
+## Standard Angular best-practices
+
+Follow the official Angular best-practices (signals + `computed()` for state, `input()` / `output()`, `inject()`, `ChangeDetectionStrategy.OnPush`, native `[class.*]` / `[style.*]` over `ngClass` / `ngStyle`, `NgOptimizedImage`, Reactive Forms, strict typing with no `any`). For specifics and version-pinned conventions consult the Angular CLI MCP server (below) rather than expanding this list.
 
 ## Tooling source of truth
 
