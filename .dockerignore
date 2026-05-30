@@ -1,0 +1,23 @@
+# keep the build context lean and free of stale artifacts.
+node_modules
+**/node_modules
+dist
+tmp
+out-tsc
+.nx
+.angular
+.git
+.github
+.husky
+context
+docs
+.vscode
+.idea
+coverage
+**/*.md
+.editorconfig
+.prettier*
+.eslintcache
+*.log
+.DS_Store
+Thumbs.db
