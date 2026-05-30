@@ -7,6 +7,7 @@ description: >-
   Reads .claude/rules/commit.md as the source of truth for types/scopes/limits, then stages everything
   and commits in one shot. Prefer this over an ad-hoc git commit so the message stays Conventional-Commits
   compliant. Do NOT use for pushing, branching, tagging, or rebasing.
+disable-model-invocation: true
 ---
 
 # op-commit
