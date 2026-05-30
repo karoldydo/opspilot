@@ -1,6 +1,8 @@
 # host artifact — NOT a repo/runtime file. upload to the synology nas at
-# /volume1/docker/opspilot/compose.yaml together with a sibling .env (chmod 600,
-# TUNNEL_TOKEN=..., never committed). staged here per deploy-plan.md phase 3.
+# /volume1/docker/opspilot/compose.yaml. staged here per deploy-plan.md phase 3.
+# no sibling .env needed: this stack does not run its own cloudflared — a shared
+# host-mode cloudflare-tunnel (its own TUNNEL_TOKEN) already fronts the nas and
+# routes opspilot.<domain> -> http://localhost:8080 via a cloudflare public hostname.
 #
 # first run on the host:
 #   cd /volume1/docker/opspilot
@@ -11,7 +13,8 @@ services:
   opspilot:
     image: ghcr.io/karoldydo/opspilot:latest
     restart: unless-stopped
-    # loopback only — cloudflared reaches the app over the internal bridge,
+    # loopback only — the shared host-mode cloudflare-tunnel reaches the app via
+    # the host loopback (http://localhost:8080), not over a docker bridge.
     # nothing else on the lan should hit 8080 directly.
     ports:
       - '127.0.0.1:8080:8080'
@@ -37,7 +40,8 @@ services:
       - internal
 
 networks:
-  # existing, manually-created external bridge on the nas (same one watchtower uses).
-  # service-name dns over the bridge lets cloudflared target http://opspilot:8080.
+  # existing, manually-created external bridge shared by the nas fleet. the tunnel
+  # is host-mode and does NOT use this bridge (it reaches the app via loopback);
+  # membership is kept for future container-to-container links (db, sidecars).
   internal:
     external: true
