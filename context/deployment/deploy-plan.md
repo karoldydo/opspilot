@@ -99,7 +99,7 @@ Over SSH. Commands run **without `sudo`** (user is in the `docker` group); in a 
 
 - **`opspilot`**: `image: ghcr.io/karoldydo/opspilot:latest`, `restart: unless-stopped`, `ports: ["127.0.0.1:8080:8080"]` (host loopback only), `volumes: /volume1/docker/opspilot/data:/data`, `cap_add: [NET_RAW, NET_ADMIN]` (pre-wire for nmap), `healthcheck` on `http://127.0.0.1:8080/api/`, **`labels: ["com.centurylinklabs.watchtower.enable=true"]`** (so the shared Watchtower watches it - the instance has `WATCHTOWER_LABEL_ENABLE=true`).
 - **`cloudflared`**: `image: cloudflare/cloudflared:2026.5.2` (pinned), `command: tunnel --no-autoupdate run`, `TUNNEL_TOKEN=${TUNNEL_TOKEN}`, `depends_on: [opspilot]`. **No** Watchtower label → not watched (we control its version manually, per `infrastructure.md`).
-- **Network**: both services join the **existing, external `internal` network** (created manually on the NAS — the same one Watchtower runs on). ✅ Verified: driver `bridge`, subnet `172.18.0.0/16`, with egress (cloudflared reaches the edge). In `compose.yaml`: `networks: { internal: { external: true } }` and attaching both services to `internal`; the bridge provides service-name DNS, so cloudflared reaches `http://opspilot:8080`. `network_mode: host` only once LAN-discovery features land (nmap/arp-scan need L2 visibility that NAT doesn't give) — then `opspilot` leaves `internal` (host mode is exclusive) and cloudflared targets `http://127.0.0.1:8080`. Document as a one-line change.
+- **Network**: both services join the **existing, external `internal` network** (created manually on the NAS - the same one Watchtower runs on). ✅ Verified: driver `bridge`, subnet `172.18.0.0/16`, with egress (cloudflared reaches the edge). In `compose.yaml`: `networks: { internal: { external: true } }` and attaching both services to `internal`; the bridge provides service-name DNS, so cloudflared reaches `http://opspilot:8080`. `network_mode: host` only once LAN-discovery features land (nmap/arp-scan need L2 visibility that NAT doesn't give) - then `opspilot` leaves `internal` (host mode is exclusive) and cloudflared targets `http://127.0.0.1:8080`. Document as a one-line change.
 
 ### Updates (Watchtower monitor-only + triggered pull)
 
@@ -145,29 +145,29 @@ Over SSH. Commands run **without `sudo`** (user is in the `docker` group); in a 
 
 - Subdomain (`opspilot.<domain>`) - the user will provide it.
 - Whether the GHCR package should be private (PAT login on the host) or public.
-- ✅ **Resolved**: the Synology host is verified (DS725+, x86_64, DSM 7.3.2, Docker 24.0.2, Compose v2.20.1, CLI honors `--network host`/`NET_RAW`) — we deploy on Synology, no GMK fallback.
+- ✅ **Resolved**: the Synology host is verified (DS725+, x86_64, DSM 7.3.2, Docker 24.0.2, Compose v2.20.1, CLI honors `--network host`/`NET_RAW`) - we deploy on Synology, no GMK fallback.
 - No dedicated `/api/health` - for now the healthcheck = `GET /api/`; add one with real features.
 - Optional: update the risk-register row in `infrastructure.md` (Diun/containrrr → Watchtower monitor-only on the maintained fork).
 
-## As-built — deviations from plan (2026-05-30)
+## As-built - deviations from plan (2026-05-30)
 
 > The body above is the original plan ("what was supposed to happen"). This section records the **actual** end state, so downstream milestone planning reads correct ground truth. Pipeline Phase 0–5 ran green; `https://opspilot.example.com` is live behind Cloudflare Access.
 
-### Ingress — the biggest divergence
+### Ingress - the biggest divergence
 
 The plan assumed a **per-app `cloudflared`** service inside OpsPilot's `compose.yaml`, reachable over the external `internal` bridge via service-name DNS (`http://opspilot:8080`), fed by a `TUNNEL_TOKEN` in a host-side `.env`. **None of that is the case.** Reality:
 
 - OpsPilot's `compose.yaml` contains **only the `opspilot` service** (+ the `internal` network membership). There is **no `cloudflared` service** in it.
 - Ingress is provided by a **pre-existing, shared `cloudflare-tunnel` container** on the NAS (`/volume1/docker/cloudflare-tunnel`): **token-based** (`tunnel run` + its own `TUNNEL_TOKEN`), running in **`network_mode: host`**.
-- Because it is host-mode, the tunnel reaches the app over the **host loopback `http://localhost:8080`** — *not* over the `internal` bridge. OpsPilot's published `127.0.0.1:8080:8080` is what makes that work. The `internal` membership is retained only for possible future container-to-container links; the tunnel does not use it.
-- **No `.env` / `TUNNEL_TOKEN` exists in `/volume1/docker/opspilot/`** and none is needed. Phase 3 step 4 (upload `.env`) and Phase 4 step 2 (create tunnel + token) **did not happen** — there were no new secrets to wire on OpsPilot's side.
+- Because it is host-mode, the tunnel reaches the app over the **host loopback `http://localhost:8080`** - *not* over the `internal` bridge. OpsPilot's published `127.0.0.1:8080:8080` is what makes that work. The `internal` membership is retained only for possible future container-to-container links; the tunnel does not use it.
+- **No `.env` / `TUNNEL_TOKEN` exists in `/volume1/docker/opspilot/`** and none is needed. Phase 3 step 4 (upload `.env`) and Phase 4 step 2 (create tunnel + token) **did not happen** - there were no new secrets to wire on OpsPilot's side.
 - Cloudflare Public Hostname `opspilot.example.com` → **`localhost:8080`** (HTTP). The DNS CNAME was **auto-created** by adding the Public Hostname in the Zero Trust dashboard, so the explicit `cloudflared tunnel route dns` step (Phase 4 step 4) was unnecessary.
 
 ### Build / runtime deviations
 
-- **Node 24-alpine** everywhere (not 22) — user decision; bonus: the npm 11 lockfile stays untouched (no npm 10↔11 dedup conflict).
-- **`npx nx prune api` is skipped** in the Dockerfile — the `prune` target is broken (expects a non-existent `apps/api/package.json`). webpack's `generatePackageJson: true` already emits `dist/apps/api/package.json` + lockfile. `workspace_modules/` is created with `mkdir -p` as a guard so the `COPY` never fails (nothing from `@opspilot/*` is imported yet).
-- Runtime adds **`apk add --no-cache --upgrade expat … libgcc`** — without force-upgrading the pre-installed `expat`, `supervisord` in `nginx:1.27-alpine` crashes on a `pyexpat` ABI mismatch.
+- **Node 24-alpine** everywhere (not 22) - user decision; bonus: the npm 11 lockfile stays untouched (no npm 10↔11 dedup conflict).
+- **`npx nx prune api` is skipped** in the Dockerfile - the `prune` target is broken (expects a non-existent `apps/api/package.json`). webpack's `generatePackageJson: true` already emits `dist/apps/api/package.json` + lockfile. `workspace_modules/` is created with `mkdir -p` as a guard so the `COPY` never fails (nothing from `@opspilot/*` is imported yet).
+- Runtime adds **`apk add --no-cache --upgrade expat … libgcc`** - without force-upgrading the pre-installed `expat`, `supervisord` in `nginx:1.27-alpine` crashes on a `pyexpat` ABI mismatch.
 
 ### CI / registry
 
@@ -176,9 +176,9 @@ The plan assumed a **per-app `cloudflared`** service inside OpsPilot's `compose.
 
 ### Deploy tooling not in the original plan
 
-- `scripts/deploy.sh` (committed) — uploads `compose.yaml` to the NAS over an SSH alias. Uses **`scp -O`** (legacy SCP protocol) because DSM has the SFTP subsystem disabled while SSH exec works; default scp fails with "connection closed".
+- `scripts/deploy.sh` (committed) - uploads `compose.yaml` to the NAS over an SSH alias. Uses **`scp -O`** (legacy SCP protocol) because DSM has the SFTP subsystem disabled while SSH exec works; default scp fails with "connection closed".
 
 ### Still pending (genuine Phase 5 / later)
 
-- The target runtime stack (Drizzle + SQLite, Better Auth, node-ssh, AI SDK, SSE) is **not yet wired** — that's app implementation, not infra.
+- The target runtime stack (Drizzle + SQLite, Better Auth, node-ssh, AI SDK, SSE) is **not yet wired** - that's app implementation, not infra.
 - **SSE through the tunnel is not yet truly verified** (no `text/event-stream` endpoint exists). nginx is prepared (`proxy_buffering off`, `chunked_transfer_encoding on`, 3600s timeouts); confirm on the first streaming route.

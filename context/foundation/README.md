@@ -8,7 +8,7 @@ Cross-change living documents that span multiple changes. Each project picks whi
 
 ## Archive convention
 
-When a foundation doc is fully superseded — replaced by a new approach rather than refined — move it to `foundation/archive/YYYY-MM-DD-<doc>.md` and write the replacement at the original path. The archive folder is a historical record; nothing reads from it routinely.
+When a foundation doc is fully superseded - replaced by a new approach rather than refined - move it to `foundation/archive/YYYY-MM-DD-<doc>.md` and write the replacement at the original path. The archive folder is a historical record; nothing reads from it routinely.
 
 ## Anti-pattern
 

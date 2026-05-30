@@ -1,6 +1,6 @@
-# host artifact — NOT a repo/runtime file. upload to the synology nas at
+# host artifact - NOT a repo/runtime file. upload to the synology nas at
 # /volume1/docker/opspilot/compose.yaml. staged here per deploy-plan.md phase 3.
-# no sibling .env needed: this stack does not run its own cloudflared — a shared
+# no sibling .env needed: this stack does not run its own cloudflared - a shared
 # host-mode cloudflare-tunnel (its own TUNNEL_TOKEN) already fronts the nas and
 # routes opspilot.<domain> -> http://localhost:8080 via a cloudflare public hostname.
 #
@@ -13,7 +13,7 @@ services:
   opspilot:
     image: ghcr.io/karoldydo/opspilot:latest
     restart: unless-stopped
-    # loopback only — the shared host-mode cloudflare-tunnel reaches the app via
+    # loopback only - the shared host-mode cloudflare-tunnel reaches the app via
     # the host loopback (http://localhost:8080), not over a docker bridge.
     # nothing else on the lan should hit 8080 directly.
     ports:

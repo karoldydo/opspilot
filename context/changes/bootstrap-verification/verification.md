@@ -49,12 +49,12 @@ hints:
 > timeline, with a user-specified stack from idea-notes.md: Angular 21 frontend +
 > NestJS backend + Drizzle/SQLite + shared Zod schemas, shipped as one multi-arch
 > container. Two TypeScript apps plus a shared validation library in one repo is
-> the canonical monorepo case, so the hand-off anchors on `nx` — the only
+> the canonical monorepo case, so the hand-off anchors on `nx` - the only
 > registry starter with first-class Angular (`@nx/angular`) and Nest (`@nx/nest`)
 > generators. The stack clears all four agent-friendly gates (typed, convention-
 > based, popular within the JS family, well-documented), so no quality override.
 > Self-host is the deployment default (Cloudflare Tunnel/Access is a transparent
-> edge layer outside the app, not edge compute — long-running SSH connections,
+> edge layer outside the app, not edge compute - long-running SSH connections,
 > SSE live narration, and background agent runs all need a persistent Node
 > server, ruling out edge-first starters). Feature flags auth/AI/realtime/
 > background-jobs are set; payments is out of scope per PRD non-goals. Known
@@ -66,7 +66,7 @@ hints:
 | Signal      | Value                                                        | Severity | Notes                                                            |
 |-------------|--------------------------------------------------------------|----------|------------------------------------------------------------------|
 | npm package | `create-nx-workspace` v22.7.4 published 2026-05-25T19:09:45Z | fresh    | resolved from cmd_template; published one day before this run    |
-| GitHub repo | not run                                                      | —        | card `docs_url` is `https://nx.dev` (not a `github.com/...` URL) |
+| GitHub repo | not run                                                      | -        | card `docs_url` is `https://nx.dev` (not a `github.com/...` URL) |
 
 No stale signals. Proceeded with no heads-up.
 
@@ -125,10 +125,10 @@ npm add -D drizzle-kit @types/better-sqlite3
 `vitest-angular`, used here to match the workspace's vitest setup.)
 
 **Final projects**: `web` (Angular 21, zoneless/standalone, SCSS, no SSR),
-`api` (NestJS 11), `shared` (`@nx/js` library, `@org/shared` path alias — intended
+`api` (NestJS 11), `shared` (`@nx/js` library, `@org/shared` path alias - intended
 home for shared Zod schemas).
 
-**Template cruft removed before move-up** (outside v1 scope — agent context + CI):
+**Template cruft removed before move-up** (outside v1 scope - agent context + CI):
 `AGENTS.md`, `CLAUDE.md` (template copy; the project's own `CLAUDE.md` in cwd was
 untouched), `.cursor/`, `.gemini/`, `.codex/`, `.opencode/`, `.agents/`,
 `opencode.json`, `.github/` (Nx demo CI workflow + Nx helper skills), and the
@@ -147,7 +147,7 @@ block appended under a `# --- from nx scaffold ---` separator)
 
 ## Post-scaffold audit
 
-**Tool**: `npm audit --json` (exit code 1 — npm exits non-zero when advisories
+**Tool**: `npm audit --json` (exit code 1 - npm exits non-zero when advisories
 exist; not treated as a halt)
 **Summary**: 0 CRITICAL, 1 HIGH, 37 MODERATE, 0 LOW (total 38)
 **Direct vs transitive**: direct = 1 HIGH + 17 MODERATE; transitive = 0 HIGH +
@@ -159,7 +159,7 @@ None.
 
 #### HIGH findings
 
-- **`@angular/platform-server`** — direct dependency, vulnerable range
+- **`@angular/platform-server`** - direct dependency, vulnerable range
   `21.0.0-next.0 - 21.2.12`. Pulled in by the `@nx/angular:app` generator. The app
   was generated with `--ssr=false`, so `@angular/platform-server` is likely
   unused and could be removed from `package.json`, or bumped once a patched
@@ -182,7 +182,7 @@ Every hint bootstrapper read from the hand-off but did not act on in v1.
 
 | Hint                    | Value                                                                                                                                                                 |
 |-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| bootstrapper_confidence | verified — note: "verified" describes the card's default `react-monorepo` command, not the Angular + Nest correction taken here, which required manual demo-stripping |
+| bootstrapper_confidence | verified - note: "verified" describes the card's default `react-monorepo` command, not the Angular + Nest correction taken here, which required manual demo-stripping |
 | quality_override        | false                                                                                                                                                                 |
 | path_taken              | custom                                                                                                                                                                |
 | self_check_answers      | typed: true, from_official_starter: true, conventions: true, docs_current: true, can_judge_agent: true                                                                |
@@ -198,13 +198,13 @@ Every hint bootstrapper read from the hand-off but did not act on in v1.
 
 ## Next steps
 
-Next: a future skill will set up agent context (CLAUDE.md, AGENTS.md). For now, your project is scaffolded and verified — happy hacking.
+Next: a future skill will set up agent context (CLAUDE.md, AGENTS.md). For now, your project is scaffolded and verified - happy hacking.
 
 Useful manual steps in the meantime:
 
-- `git init` is not needed — this directory already has a `.git/` repo. Review and commit the scaffolded files when ready.
+- `git init` is not needed - this directory already has a `.git/` repo. Review and commit the scaffolded files when ready.
 - The workspace `package.json` name is `@org/source` (Nx default) and path aliases use the `@org` scope (e.g. `@org/shared`). Rename to an `@opspilot` scope if you prefer.
 - Wire the stack the hand-off named: define your shared **Zod** schemas in `libs/shared/src`, and configure **Drizzle/SQLite** (`drizzle-orm` + `better-sqlite3` + `drizzle-kit`, already installed) in `apps/api` with a `drizzle.config.ts`.
-- Address audit findings per your risk tolerance — the full breakdown is above. The single HIGH (`@angular/platform-server`) is likely removable since SSR is off.
+- Address audit findings per your risk tolerance - the full breakdown is above. The single HIGH (`@angular/platform-server`) is likely removable since SSR is off.
 - CI was intentionally not scaffolded in v1. When you want it, `nx g @nx/workspace:ci-workflow --ci=github` generates a GitHub Actions pipeline.
 - No `.scaffold` siblings were created this run, so there is nothing to diff/reconcile.
