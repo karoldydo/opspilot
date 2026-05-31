@@ -566,27 +566,27 @@ path or destructive SQLite operations stay human-only.
 
 #### Automated
 
-- [x] 3.1 api tests pass incl. migration test: `npx nx test api`
-- [x] 3.2 api builds and emits migrations asset: `npx nx build api` then `test -d dist/apps/api/migrations`
-- [x] 3.3 Lint passes: `npx nx lint api`
+- [x] 3.1 api tests pass incl. migration test: `npx nx test api` — 31cb80f
+- [x] 3.2 api builds and emits migrations asset: `npx nx build api` then `test -d dist/apps/api/migrations` — 31cb80f
+- [x] 3.3 Lint passes: `npx nx lint api` — 31cb80f
 
 #### Manual
 
-- [x] 3.4 `npx nx serve api` logs a clean migration no-op on first boot
-- [x] 3.5 Second boot with an existing dev DB creates and logs a `*.bak` file
-- [x] 3.6 `docker build .` succeeds and the runtime image contains `/app/migrations`
+- [x] 3.4 `npx nx serve api` logs a clean migration no-op on first boot — 31cb80f
+- [x] 3.5 Second boot with an existing dev DB creates and logs a `*.bak` file — 31cb80f
+- [x] 3.6 `docker build .` succeeds and the runtime image contains `/app/migrations` — 31cb80f
 
 ### Phase 4: ZodValidationPipe + /api/health
 
 #### Automated
 
-- [ ] 4.1 api tests pass incl. health + ZodValidationPipe tests: `npx nx test api`
-- [ ] 4.2 Lint passes: `npx nx lint api`
-- [ ] 4.3 api builds: `npx nx build api`
-- [ ] 4.4 Full workspace green: `npx nx run-many -t test lint`
+- [x] 4.1 api tests pass incl. health + ZodValidationPipe tests: `npx nx test api`
+- [x] 4.2 Lint passes: `npx nx lint api`
+- [x] 4.3 api builds: `npx nx build api`
+- [x] 4.4 Full workspace green: `npx nx run-many -t test lint`
 
 #### Manual
 
-- [ ] 4.5 `GET /api/health` returns `200` with `{ status: 'ok', db: 'up', timestamp }`
-- [ ] 4.6 `db: 'down'` branch exercised by a simulated failed `SELECT 1` (closed handle / mocked driver), returning `503` + `{ status: 'error', db: 'down' }`
-- [ ] 4.7 The compose healthcheck (`/api/`) still returns `200` (unchanged)
+- [x] 4.5 `GET /api/health` returns `200` with `{ status: 'ok', db: 'up', timestamp }`
+- [x] 4.6 `db: 'down'` branch exercised by a simulated failed `SELECT 1` (closed handle / mocked driver), returning `503` + `{ status: 'error', db: 'down' }`
+- [x] 4.7 The compose healthcheck (`/api/`) still returns `200` (unchanged)
