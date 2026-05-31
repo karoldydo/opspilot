@@ -19,7 +19,7 @@ jobs:
       packages: write
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # arm64 emulation for the multi-arch build.
       - name: set up qemu
