@@ -29,9 +29,12 @@ FROM node:24-alpine AS api-deps
 RUN apk add --no-cache python3 make g++ libc6-compat
 WORKDIR /app
 COPY --from=builder /workspace/dist/apps/api/package.json ./
-COPY --from=builder /workspace/dist/apps/api/package-lock.json ./
 COPY --from=builder /workspace/dist/apps/api/workspace_modules ./workspace_modules
-RUN npm ci --omit=dev
+# nx generatePackageJson emits a pruned package-lock.json that misplaces deeply
+# nested duplicate versions (content-type 1.x top-level vs 2.x under
+# platform-express -> type-is), so npm ci rejects it as out of sync. resolve the
+# small production tree fresh from the generated package.json instead.
+RUN npm install --omit=dev --no-audit --no-fund
 
 # ---- stage: runtime ----
 # nginx serves the spa + proxies /api; node runs nestjs; supervisor keeps both up.
