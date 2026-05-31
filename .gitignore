@@ -6,6 +6,13 @@ dist
 tmp
 out-tsc
 
+# local sqlite data + wal/shm sidecars + migration backups
+data/
+*.db
+*.db-wal
+*.db-shm
+*.bak
+
 # dependencies
 node_modules
 

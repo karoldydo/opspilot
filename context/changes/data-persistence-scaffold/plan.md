@@ -538,29 +538,29 @@ path or destructive SQLite operations stay human-only.
 
 #### Automated
 
-- [x] 1.1 Shared unit tests pass: `npx nx test shared`
-- [x] 1.2 Lint passes: `npx nx lint shared`
-- [x] 1.3 Type checking / build passes: `npx nx build shared`
-- [x] 1.4 Module-boundary lint clean (no `@angular/*` / `@nestjs/*` in shared)
+- [x] 1.1 Shared unit tests pass: `npx nx test shared` — b9841b5
+- [x] 1.2 Lint passes: `npx nx lint shared` — b9841b5
+- [x] 1.3 Type checking / build passes: `npx nx build shared` — b9841b5
+- [x] 1.4 Module-boundary lint clean (no `@angular/*` / `@nestjs/*` in shared) — b9841b5
 
 #### Manual
 
-- [x] 1.5 `docs/reference/contract-surfaces.md` lists both contract names with correct paths
-- [x] 1.6 Both schemas importable via `@opspilot/shared` (no relative-path imports)
+- [x] 1.5 `docs/reference/contract-surfaces.md` lists both contract names with correct paths — b9841b5
+- [x] 1.6 Both schemas importable via `@opspilot/shared` (no relative-path imports) — b9841b5
 
 ### Phase 2: Config + Database module
 
 #### Automated
 
-- [ ] 2.1 api tests pass: `npx nx test api`
-- [ ] 2.2 Lint passes: `npx nx lint api`
-- [ ] 2.3 api builds: `npx nx build api`
-- [ ] 2.4 `npx drizzle-kit generate` runs without error (no migration produced)
+- [x] 2.1 api tests pass: `npx nx test api`
+- [x] 2.2 Lint passes: `npx nx lint api`
+- [x] 2.3 api builds: `npx nx build api`
+- [x] 2.4 `npx drizzle-kit generate` runs without error (no migration produced)
 
 #### Manual
 
-- [ ] 2.5 `npx nx serve api` boots and creates `./data/opspilot.db` (+ `-wal`) in dev
-- [ ] 2.6 No `process.env` reads remain outside the config module (except `main.ts` bootstrap)
+- [x] 2.5 `npx nx serve api` boots and creates `./data/opspilot.db` (+ `-wal`) in dev
+- [x] 2.6 No `process.env` reads remain outside the config module (except `main.ts` bootstrap)
 
 ### Phase 3: Migration runner + backup gate + packaging
 
