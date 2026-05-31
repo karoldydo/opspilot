@@ -43,7 +43,12 @@ These are owned by their own rule files - follow them, don't duplicate them here
 
 ## Config
 
-- Centralize configuration access: read environment through a single `@Global()` config module/provider rather than scattering `process.env` across services; inject the typed config where needed. Do not assume `@nestjs/config` unless it has been added to the stack.
+Use **`@nestjs/config`** + **Joi** - never a hand-rolled `ConfigService` over `process.env`.
+
+- Register once with `ConfigModule.forRoot({ isGlobal: true, load: [...], validationSchema, validationOptions })`; group vars into `registerAs('name', () => ({ ... }))` factories loaded via `load`.
+- Validate all env at boot: `validationSchema: Joi.object<EnvConfig>({ ... })`, each var typed + bounded + `.required()` or `.default(...)`, with `validationOptions: { abortEarly: false, allowUnknown: true }` (re-declare `allowUnknown` - a custom options object drops the Joi defaults).
+- Joi guards env only; HTTP payloads/DTOs stay on Zod (`zod.md` / `contracts.md`).
+- Read via injected `ConfigService<EnvConfig>` with `config.get('KEY', { infer: true })`; no `process.env` outside the config layer (`main.ts` included). Dependent modules wire async: `forRootAsync({ inject: [ConfigService], useFactory: (config: ConfigService<EnvConfig>) => ({ ... }) })`.
 
 ## Errors & async
 
