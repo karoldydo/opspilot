@@ -552,29 +552,29 @@ path or destructive SQLite operations stay human-only.
 
 #### Automated
 
-- [x] 2.1 api tests pass: `npx nx test api`
-- [x] 2.2 Lint passes: `npx nx lint api`
-- [x] 2.3 api builds: `npx nx build api`
-- [x] 2.4 `npx drizzle-kit generate` runs without error (no migration produced)
+- [x] 2.1 api tests pass: `npx nx test api` — 26f46d4
+- [x] 2.2 Lint passes: `npx nx lint api` — 26f46d4
+- [x] 2.3 api builds: `npx nx build api` — 26f46d4
+- [x] 2.4 `npx drizzle-kit generate` runs without error (no migration produced) — 26f46d4
 
 #### Manual
 
-- [x] 2.5 `npx nx serve api` boots and creates `./data/opspilot.db` (+ `-wal`) in dev
-- [x] 2.6 No `process.env` reads remain outside the config module (except `main.ts` bootstrap)
+- [x] 2.5 `npx nx serve api` boots and creates `./data/opspilot.db` (+ `-wal`) in dev — 26f46d4
+- [x] 2.6 No `process.env` reads remain outside the config module (except `main.ts` bootstrap) — 26f46d4
 
 ### Phase 3: Migration runner + backup gate + packaging
 
 #### Automated
 
-- [ ] 3.1 api tests pass incl. migration test: `npx nx test api`
-- [ ] 3.2 api builds and emits migrations asset: `npx nx build api` then `test -d dist/apps/api/migrations`
-- [ ] 3.3 Lint passes: `npx nx lint api`
+- [x] 3.1 api tests pass incl. migration test: `npx nx test api`
+- [x] 3.2 api builds and emits migrations asset: `npx nx build api` then `test -d dist/apps/api/migrations`
+- [x] 3.3 Lint passes: `npx nx lint api`
 
 #### Manual
 
-- [ ] 3.4 `npx nx serve api` logs a clean migration no-op on first boot
-- [ ] 3.5 Second boot with an existing dev DB creates and logs a `*.bak` file
-- [ ] 3.6 `docker build .` succeeds and the runtime image contains `/app/migrations`
+- [x] 3.4 `npx nx serve api` logs a clean migration no-op on first boot
+- [x] 3.5 Second boot with an existing dev DB creates and logs a `*.bak` file
+- [x] 3.6 `docker build .` succeeds and the runtime image contains `/app/migrations`
 
 ### Phase 4: ZodValidationPipe + /api/health
 

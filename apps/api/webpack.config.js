@@ -15,7 +15,11 @@ module.exports = {
       compiler: 'tsc',
       main: './src/main.ts',
       tsConfig: './tsconfig.app.json',
-      assets: ['./src/assets'],
+      // explicit object form so migrations land deterministically at
+      // dist/apps/api/migrations (the bundle-relative path the runner resolves).
+      // the leading './' resolves input against the project root, not the
+      // workspace root — without it nx looks for <workspaceRoot>/migrations.
+      assets: ['./src/assets', { input: './migrations', output: 'migrations', glob: '**/*' }],
       optimization: false,
       outputHashing: 'none',
       generatePackageJson: true,

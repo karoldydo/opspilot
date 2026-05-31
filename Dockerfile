@@ -46,6 +46,8 @@ RUN apk add --no-cache --upgrade expat supervisor tini libstdc++ libgcc libc6-co
 # api bundle + production node_modules.
 WORKDIR /app
 COPY --from=builder /workspace/dist/apps/api/main.js ./main.js
+# migrations land next to main.js so the boot-time migrate() resolves them via __dirname.
+COPY --from=builder /workspace/dist/apps/api/migrations ./migrations
 COPY --from=api-deps /app/node_modules ./node_modules
 
 # spa static files.
