@@ -580,13 +580,13 @@ path or destructive SQLite operations stay human-only.
 
 #### Automated
 
-- [x] 4.1 api tests pass incl. health + ZodValidationPipe tests: `npx nx test api`
-- [x] 4.2 Lint passes: `npx nx lint api`
-- [x] 4.3 api builds: `npx nx build api`
-- [x] 4.4 Full workspace green: `npx nx run-many -t test lint`
+- [x] 4.1 api tests pass incl. health + ZodValidationPipe tests: `npx nx test api` — 0b8b63c
+- [x] 4.2 Lint passes: `npx nx lint api` — 0b8b63c
+- [x] 4.3 api builds: `npx nx build api` — 0b8b63c
+- [x] 4.4 Full workspace green: `npx nx run-many -t test lint` — 0b8b63c
 
 #### Manual
 
-- [x] 4.5 `GET /api/health` returns `200` with `{ status: 'ok', db: 'up', timestamp }`
-- [x] 4.6 `db: 'down'` branch exercised by a simulated failed `SELECT 1` (closed handle / mocked driver), returning `503` + `{ status: 'error', db: 'down' }`
-- [x] 4.7 The compose healthcheck (`/api/`) still returns `200` (unchanged)
+- [x] 4.5 `GET /api/health` returns `200` with `{ status: 'ok', db: 'up', timestamp }` — 0b8b63c
+- [x] 4.6 `db: 'down'` branch exercised by a simulated failed `SELECT 1` (closed handle / mocked driver), returning `503` + `{ status: 'error', db: 'down' }` — 0b8b63c
+- [x] 4.7 The compose healthcheck (`/api/`) still returns `200` (unchanged) — 0b8b63c
