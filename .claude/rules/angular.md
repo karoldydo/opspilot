@@ -7,7 +7,22 @@ paths:
 
 # Angular Development Guidelines
 
+This file is **Angular framework rules only**. Styling lives in `tailwind.md` + `spartan.md`,
+auth client in `better-auth.md`, live streams in `sse.md`, and the `FE ↔ BE` data contract in
+`contracts.md` - don't restate those here.
+
+## Data & contracts
+
+- Type API responses and form models from the shared Zod schema with `z.infer` - never declare
+  a parallel `interface` for a shape that already lives in `@opspilot/shared`. See `contracts.md`.
+- Fetch from `/api` with `httpResource()` (reactive, signal-based status/data/error). It is
+  experimental in v21 and graduates to stable in v22; use `HttpClient` directly when you need
+  full control. Do not hand-roll bare `fetch` in components.
+
 ## Project rules (deviate from / sharpen Angular defaults)
+
+- Angular 21 is **zoneless by default** - no Zone.js in new projects; change detection is driven
+  by signals and template events. Do NOT add Zone.js or `provideZoneChangeDetection`.
 
 - Do NOT set `standalone: true` explicitly — it is the default in Angular v20+.
 - Do NOT use `@HostBinding` / `@HostListener` decorators; use the `host` object in `@Component` / `@Directive` instead.
@@ -24,9 +39,14 @@ paths:
 - In templates use only property/signal access and pipes; move any expression with a method call or conditional logic into a `computed()` or a component method.
 - Lazy-load feature routes via `loadComponent` / `loadChildren`. Do not eager-load feature areas from the root routes.
 
+## Structure (recommendation, not enforced)
+
+- Prefer **feature/domain cohesion** over a layer-by-type topology (avoid `components/`/`services/`/`models/` god-folders); consult the Angular CLI MCP for the idiomatic skeleton.
+- Web↔backend domain/feature alignment is owned by `contracts.md`; don't restate it here.
+
 ## Standard Angular best-practices
 
-Follow the official Angular best-practices (signals + `computed()` for state, `input()` / `output()`, `inject()`, `ChangeDetectionStrategy.OnPush`, native `[class.*]` / `[style.*]` over `ngClass` / `ngStyle`, `NgOptimizedImage`, Reactive Forms, strict typing with no `any`). For specifics and version-pinned conventions consult the Angular CLI MCP server (below) rather than expanding this list.
+Hard requirements, checkable on a diff: every new component uses `ChangeDetectionStrategy.OnPush`; state via `signal()` / `computed()`; component I/O via `input()` / `output()`; DI via `inject()`; strict typing with no `any` (enforced by ESLint). For the rest of the official best-practices (native `[class.*]` / `[style.*]` over `ngClass` / `ngStyle`, `NgOptimizedImage`, Reactive Forms) and version-pinned conventions, consult the Angular CLI MCP server (below) rather than expanding this list here.
 
 ## Tooling source of truth
 

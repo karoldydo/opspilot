@@ -8,7 +8,7 @@ OpsPilot is a self-hosted homelab ops tool. The repo is an **Nx 22 monorepo (npm
 
 - `apps/web` — Angular 21 SPA (standalone components, `@angular/build` application builder, scss styles).
 - `apps/api` — NestJS 11 service, built with webpack via `@nx/webpack`, global route prefix `/api`, default port `3000`.
-- `libs/shared` — pure-TS library exposed as `@opspilot/shared` (path alias in `tsconfig.base.json`).
+- `libs/shared` — framework-agnostic pure-TS library exposed as `@opspilot/shared` (path alias in `tsconfig.base.json`), consumed by both `api` and `web`.
 
 The PRD/tech-stack hand-off in `@context/foundation/prd.md` and `@context/foundation/tech-stack.md` describes the *target* stack (Drizzle + SQLite, spartan/ng + Tailwind v4, Vercel AI SDK, Better Auth, node-ssh, SSE, Playwright). Most of those are not yet wired up — the current source tree is the Nx scaffold output plus the shared lib. Treat the foundation docs as direction, not as already-implemented architecture.
 
@@ -50,9 +50,23 @@ Nx caching is enabled for `build`, `lint`, `test`, and the esbuild/tsc/vitest ta
 ## Conventions
 
 - Prettier with `singleQuote: true` (see `.prettierrc`); `.editorconfig` sets 2-space indent, LF, final newline. Run `npm run format` before committing if you've touched many files.
-- Angular components use the `app-` prefix (set in `apps/web/project.json`) and scss styles (`nx.json` `generators` defaults).
+- Angular components use the `app-` prefix (set in `apps/web/project.json`). Component styles default to scss (`nx.json` `generators`), but the target styling direction is Tailwind v4 utilities + spartan/ng primitives — see `.claude/rules/tailwind.md` and `.claude/rules/spartan.md`.
 - Commit subjects follow conventional-commit style with a lower-case type prefix (`chore: …`, `feat: …`) — match the existing history.
-- Windows is the primary dev environment (PowerShell). Use forward slashes in code and avoid hard-coding `\` path separators in TS; the Nx plugins handle path normalization.
+
+## AI rule files
+
+Per-area guidance lives in `.claude/rules/*.md`. Files with a `paths:` frontmatter auto-attach
+when you touch a matching file; files without it (e.g. `commit.md`, `shell.md`) are always on.
+**One file per technology** — keep a rule in its own file rather than duplicating it across areas.
+
+- **`contracts.md`** — the load-bearing rule: every request/response shape and domain type is a
+  Zod schema defined **once** in `@opspilot/shared`; `api` and `web` consume it via `z.infer` and
+  never redefine shapes. Each app's folder structure follows its own framework conventions; the
+  shared contract is the binding rule. Read this before adding any type that crosses the FE↔BE
+  boundary.
+- Framework: `angular.md`, `nestjs.md`, `shared-library.md`. Cross-cutting tech: `zod.md`,
+  `drizzle.md`, `better-auth.md`, `tailwind.md`, `spartan.md`, `vercel-ai-sdk.md`, `sse.md`,
+  `node-ssh.md`. Workflow: `comments.md`, `commit.md`, `shell.md`, `ssh.md`.
 
 <!-- BEGIN @przeprogramowani/10x-cli -->
 
