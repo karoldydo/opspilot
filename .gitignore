@@ -42,9 +42,12 @@ yarn-error.log
 testem.log
 /typings
 
-# System Files
+# system files
 .DS_Store
 Thumbs.db
+
+# claude code scheduled-tasks runtime lock (ephemeral pid/session marker)
+.claude/scheduled_tasks.lock
 
 .nx/cache
 .nx/workspace-data

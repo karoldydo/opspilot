@@ -4,32 +4,32 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { ConfigModule } from '../config/config.module';
-import { ConfigService } from '../config/config.service';
+import { databaseConfig } from '../config/database.config';
 import { DatabaseModule } from './database.module';
-import { DATABASE, DatabaseConnection } from './database.providers';
+import { DATABASE_CONNECTION, DatabaseConnection } from './providers/database-connection.provider';
 
 // integration: prove the connection opens against a temp-file db, the wal pragma
 // is set, and a trivial query runs — the contract every later slice depends on.
 describe('DatabaseModule', () => {
-  let moduleRef: TestingModule;
-  let db: DatabaseConnection;
+  let testingModule: TestingModule;
+  let databaseConnection: DatabaseConnection;
   let dbPath: string;
 
   beforeEach(async () => {
     // temp-db seam: never let the default ./data/opspilot.db be opened in ci.
     dbPath = join(tmpdir(), `opspilot-db-test-${process.pid}-${Date.now()}.db`);
-    moduleRef = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       imports: [ConfigModule, DatabaseModule],
     })
-      .overrideProvider(ConfigService)
-      .useValue({ databasePath: dbPath, port: 3000 })
+      .overrideProvider(databaseConfig.KEY)
+      .useValue({ path: dbPath })
       .compile();
-    db = moduleRef.get<DatabaseConnection>(DATABASE);
+    databaseConnection = testingModule.get<DatabaseConnection>(DATABASE_CONNECTION);
   });
 
   afterEach(async () => {
-    db.$client.close();
-    await moduleRef.close();
+    databaseConnection.$client.close();
+    await testingModule.close();
     // clean up the temp file + wal/shm sidecars.
     for (const suffix of ['', '-wal', '-shm']) {
       const path = `${dbPath}${suffix}`;
@@ -40,11 +40,11 @@ describe('DatabaseModule', () => {
   });
 
   it('opens the connection in WAL journal mode', () => {
-    expect(db.$client.pragma('journal_mode', { simple: true })).toBe('wal');
+    expect(databaseConnection.$client.pragma('journal_mode', { simple: true })).toBe('wal');
   });
 
   it('runs a trivial query against the connection', () => {
-    const row = db.$client.prepare('SELECT 1 AS value').get() as { value: number };
+    const row = databaseConnection.$client.prepare('SELECT 1 AS value').get() as { value: number };
     expect(row.value).toBe(1);
   });
 });

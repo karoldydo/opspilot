@@ -18,6 +18,11 @@ services:
     # nothing else on the lan should hit 8080 directly.
     ports:
       - '127.0.0.1:8080:8080'
+    # pin the sqlite path to the bind-mounted /data volume, independent of NODE_ENV.
+    # without this the app falls back to ./data in the writable container layer and
+    # loses the db on every container recreation (watchtower/redeploy).
+    environment:
+      - DATABASE_PATH=/data/opspilot.db
     volumes:
       # local btrfs, never a network share. future sqlite file lives here.
       - /volume1/docker/opspilot/data:/data

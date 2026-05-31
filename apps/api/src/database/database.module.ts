@@ -1,13 +1,20 @@
 import { Global, Module } from '@nestjs/common';
 
-import { DATABASE, databaseFilePreexistedProvider, databaseProvider } from './database.providers';
-import { MigrationService } from './migration.service';
+import { DatabaseService } from './database.service';
+import { MigrationService } from './migration/migration.service';
+import { DATABASE_CONNECTION, databaseConnectionProvider } from './providers/database-connection.provider';
+import { databaseExistedProvider } from './providers/database-existed.provider';
+import { migrationsFolderProvider } from './providers/migrations-folder.provider';
 
-// @Global so every later feature module injects the same app-scoped connection.
-// MigrationService runs migrate() on bootstrap behind the backup gate.
 @Global()
 @Module({
-  exports: [DATABASE],
-  providers: [databaseFilePreexistedProvider, databaseProvider, MigrationService],
+  exports: [DATABASE_CONNECTION],
+  providers: [
+    databaseExistedProvider,
+    databaseConnectionProvider,
+    migrationsFolderProvider,
+    MigrationService,
+    DatabaseService,
+  ],
 })
 export class DatabaseModule {}

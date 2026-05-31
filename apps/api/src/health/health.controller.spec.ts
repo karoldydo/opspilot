@@ -7,18 +7,18 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { ConfigModule } from '../config/config.module';
-import { ConfigService } from '../config/config.service';
+import { databaseConfig } from '../config/database.config';
 import { DatabaseModule } from '../database/database.module';
-import { DATABASE, DatabaseConnection } from '../database/database.providers';
+import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { HealthController } from './health.controller';
 import { HealthModule } from './health.module';
 
 // integration: prove /api/health returns a schema-valid body with db: 'up'
 // against a live temp db — the end-to-end shared → api → db wiring assertion.
 describe('HealthController', () => {
-  let moduleRef: TestingModule;
-  let controller: HealthController;
-  let db: DatabaseConnection;
+  let testingModule: TestingModule;
+  let healthController: HealthController;
+  let databaseConnection: DatabaseConnection;
   let dbPath: string;
 
   // minimal passthrough Response stub capturing the status code the handler sets.
@@ -36,21 +36,21 @@ describe('HealthController', () => {
   beforeEach(async () => {
     // temp-db seam: never let the default ./data/opspilot.db be opened in ci.
     dbPath = join(tmpdir(), `opspilot-health-test-${process.pid}-${Date.now()}.db`);
-    moduleRef = await Test.createTestingModule({
+    testingModule = await Test.createTestingModule({
       imports: [ConfigModule, DatabaseModule, HealthModule],
     })
-      .overrideProvider(ConfigService)
-      .useValue({ databasePath: dbPath, port: 3000 })
+      .overrideProvider(databaseConfig.KEY)
+      .useValue({ path: dbPath })
       .compile();
-    controller = moduleRef.get(HealthController);
-    db = moduleRef.get<DatabaseConnection>(DATABASE);
+    healthController = testingModule.get(HealthController);
+    databaseConnection = testingModule.get<DatabaseConnection>(DATABASE_CONNECTION);
   });
 
   afterEach(async () => {
-    if (db.$client.open) {
-      db.$client.close();
+    if (databaseConnection.$client.open) {
+      databaseConnection.$client.close();
     }
-    await moduleRef.close();
+    await testingModule.close();
     // clean up the temp file + wal/shm sidecars.
     for (const suffix of ['', '-wal', '-shm']) {
       const path = `${dbPath}${suffix}`;
@@ -63,7 +63,7 @@ describe('HealthController', () => {
   it('returns a schema-valid body with db up and 200 against a live db', () => {
     const { captured, res } = mockResponse();
 
-    const result = controller.check(res);
+    const result = healthController.check(res);
 
     expect(healthResponseSchema.parse(result)).toEqual(result);
     expect(result.status).toBe('ok');
@@ -74,10 +74,10 @@ describe('HealthController', () => {
   it('reports db down with 503 when the connection fails', () => {
     // simulate a failed SELECT 1 on a live connection by closing the handle —
     // exercises the caught-error branch (manual 4.6) without an unwritable path.
-    db.$client.close();
+    databaseConnection.$client.close();
     const { captured, res } = mockResponse();
 
-    const result = controller.check(res);
+    const result = healthController.check(res);
 
     expect(healthResponseSchema.parse(result)).toEqual(result);
     expect(result.status).toBe('error');

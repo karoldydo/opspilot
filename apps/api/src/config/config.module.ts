@@ -1,11 +1,17 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
 
-import { ConfigService } from './config.service';
+import { databaseConfig } from './database.config';
+import { envSchema } from './env.schema';
 
-// @Global so any module injects ConfigService without re-importing this module.
-@Global()
 @Module({
-  exports: [ConfigService],
-  providers: [ConfigService],
+  imports: [
+    NestConfigModule.forRoot({
+      isGlobal: true,
+      load: [databaseConfig],
+      validationOptions: { abortEarly: false, allowUnknown: true },
+      validationSchema: envSchema,
+    }),
+  ],
 })
 export class ConfigModule {}
