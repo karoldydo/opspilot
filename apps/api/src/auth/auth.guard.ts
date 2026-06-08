@@ -3,8 +3,8 @@ import { Reflector } from '@nestjs/core';
 import { fromNodeHeaders } from 'better-auth/node';
 import { Request } from 'express';
 
+import { IS_PUBLIC_KEY } from '../common/public.decorator';
 import { AUTH_INSTANCE, AuthInstance } from './providers/auth.provider';
-import { IS_PUBLIC_KEY } from './public.decorator';
 
 // request augmented with the validated session, attached by the guard so
 // downstream handlers read the authenticated identity without re-querying.

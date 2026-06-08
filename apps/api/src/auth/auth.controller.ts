@@ -2,8 +2,8 @@ import { All, Controller, Inject, Req, Res } from '@nestjs/common';
 import { toNodeHandler } from 'better-auth/node';
 import { Request, Response } from 'express';
 
+import { Public } from '../common/public.decorator';
 import { AUTH_INSTANCE, AuthInstance } from './providers/auth.provider';
-import { Public } from './public.decorator';
 
 @Public()
 @Controller('auth')

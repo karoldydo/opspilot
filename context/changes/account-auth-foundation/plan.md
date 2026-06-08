@@ -616,17 +616,17 @@ pre-migration backup the gate produced.
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npx nx typecheck api`
-- [x] 2.2 Linting passes: `npx nx lint api`
-- [x] 2.3 Guard unit tests pass: `npx nx test api`
-- [x] 2.4 API builds: `npm run build:api`
+- [x] 2.1 Type checking passes: `npx nx typecheck api` — 3bf70d1
+- [x] 2.2 Linting passes: `npx nx lint api` — 3bf70d1
+- [x] 2.3 Guard unit tests pass: `npx nx test api` — 3bf70d1
+- [x] 2.4 API builds: `npm run build:api` — 3bf70d1
 
 #### Manual
 
-- [x] 2.5 `GET /api/health` returns 200 without a session
-- [x] 2.6 Non-public endpoint returns 401 without a session
-- [x] 2.7 Same endpoint returns 200 with a valid session
-- [x] 2.8 `/api/auth/*` still works (not blocked by the guard)
+- [x] 2.5 `GET /api/health` returns 200 without a session — 3bf70d1
+- [x] 2.6 Non-public endpoint returns 401 without a session — 3bf70d1
+- [x] 2.7 Same endpoint returns 200 with a valid session — 3bf70d1
+- [x] 2.8 `/api/auth/*` still works (not blocked by the guard) — 3bf70d1
 
 ### Phase 3: Shared Auth Contracts
 
