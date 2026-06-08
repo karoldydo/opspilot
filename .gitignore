@@ -6,6 +6,11 @@ dist
 tmp
 out-tsc
 
+# local env (secrets) — keep .env.example tracked
+.env
+.env.*
+!.env.example
+
 # local sqlite data + wal/shm sidecars + migration backups
 data/
 *.db

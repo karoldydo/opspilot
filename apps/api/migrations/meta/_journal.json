@@ -1,1 +1,13 @@
-{ "dialect": "sqlite", "entries": [], "version": "7" }
+{
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "breakpoints": true,
+      "idx": 0,
+      "tag": "0000_low_taskmaster",
+      "version": "6",
+      "when": 1780950124918
+    }
+  ],
+  "version": "7"
+}

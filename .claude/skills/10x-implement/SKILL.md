@@ -197,8 +197,6 @@ After implementing a phase:
 
      <short body listing touched files>
      <Refs: issue/task references, if applicable>
-
-     Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
      EOF
      )"
      ```
@@ -302,7 +300,7 @@ When every `- [ ]` in the entire `## Progress` section is now `- [x]`:
    1. Stage exactly `context/changes/<change-id>/plan.md` and `context/changes/<change-id>/change.md` (explicit paths, no `git add -A`).
    2. Run `git diff --cached --quiet`; if exit code 0, skip the epilogue (nothing trailing to commit) and stop here.
    3. Propose subject `chore(<change-id>): close out plan (epilogue)` with a short body noting the plan's final SHA write-back + change.md → implemented, plus the `Refs:` line from "Tracking issue/task references for commits" when applicable. Use AskUserQuestion to approve as proposed / edit subject / override entirely (same options as the phase ritual).
-   4. Commit via heredoc per the global protocol (`Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>` trailer; never `--no-verify` / `--amend`).
+   4. Commit via heredoc per the global protocol (never `--no-verify` / `--amend`).
    5. Do NOT write the epilogue's own SHA back into the plan — its only job is to land the trailing edits cleanly.
 
 ### "Where am I?" — derived, not stored

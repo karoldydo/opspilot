@@ -1,3 +1,5 @@
-// empty schema barrel — f-01 deliberately defines no domain tables.
-// the first table lands in f-02; drizzle.config.ts points here as its schema target.
-export {};
+// schema barrel — drizzle.config.ts points here as its generate target and the
+// runtime drizzle(sqlite, { schema }) typing reads this module.
+// the first domain tables (better-auth: user/session/account/verification) land
+// in f-02, generated via @better-auth/cli (see ../../better-auth.config.ts).
+export * from './auth.schema';

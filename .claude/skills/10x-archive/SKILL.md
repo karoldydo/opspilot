@@ -188,8 +188,6 @@ If no warnings were queued, skip the prompt and proceed directly.
    ```bash
    git commit -m "$(cat <<'EOF'
    chore(archive): close <change-id>
-
-   Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
    EOF
    )"
    ```

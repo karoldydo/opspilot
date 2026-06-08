@@ -5,7 +5,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // bodyParser disabled globally so better-auth's node handler receives the raw,
+  // unparsed request body. this affects every controller — a future non-auth
+  // endpoint that needs parsed json must opt back in locally.
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
   app.enableShutdownHooks();
