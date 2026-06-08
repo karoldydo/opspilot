@@ -3,11 +3,9 @@ import { toNodeHandler } from 'better-auth/node';
 import { Request, Response } from 'express';
 
 import { AUTH_INSTANCE, AuthInstance } from './providers/auth.provider';
+import { Public } from './public.decorator';
 
-// thin pass-through: forwards the raw req/res to the better-auth node handler.
-// '*splat' is a named wildcard — nest 11 runs on express 5 / path-to-regexp 8,
-// where an unnamed '*' throws at route registration. effective mount is
-// /api/auth/* (global '/api' prefix + @Controller('auth')).
+@Public()
 @Controller('auth')
 export class AuthController {
   constructor(@Inject(AUTH_INSTANCE) private readonly authInstance: AuthInstance) {}

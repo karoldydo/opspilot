@@ -599,34 +599,34 @@ pre-migration backup the gate produced.
 
 #### Automated
 
-- [x] 1.1 Type checking passes: `npx nx typecheck api`
-- [x] 1.2 Linting passes: `npx nx lint api`
-- [x] 1.3 API builds: `npm run build:api`
-- [x] 1.4 Migration files exist (generated SQL + barrel re-exports auth tables)
-- [x] 1.5 App boots without migration error (`npm run start:api`)
+- [x] 1.1 Type checking passes: `npx nx typecheck api` — 3291d7a
+- [x] 1.2 Linting passes: `npx nx lint api` — 3291d7a
+- [x] 1.3 API builds: `npm run build:api` — 3291d7a
+- [x] 1.4 Migration files exist (generated SQL + barrel re-exports auth tables) — 3291d7a
+- [x] 1.5 App boots without migration error (`npm run start:api`) — 3291d7a
 
 #### Manual
 
-- [x] 1.6 `POST /api/auth/sign-up` creates a user + returns a session cookie (no double prefix, raw body works)
-- [x] 1.7 `sign-in` + `get-session` round-trip succeeds
-- [x] 1.8 SQLite contains `user`/`session`/`account`/`verification` tables
-- [x] 1.9 Missing/short `BETTER_AUTH_SECRET` fails fast at boot (Joi)
+- [x] 1.6 `POST /api/auth/sign-up` creates a user + returns a session cookie (no double prefix, raw body works) — 3291d7a
+- [x] 1.7 `sign-in` + `get-session` round-trip succeeds — 3291d7a
+- [x] 1.8 SQLite contains `user`/`session`/`account`/`verification` tables — 3291d7a
+- [x] 1.9 Missing/short `BETTER_AUTH_SECRET` fails fast at boot (Joi) — 3291d7a
 
 ### Phase 2: Global Guard + Access Posture
 
 #### Automated
 
-- [ ] 2.1 Type checking passes: `npx nx typecheck api`
-- [ ] 2.2 Linting passes: `npx nx lint api`
-- [ ] 2.3 Guard unit tests pass: `npx nx test api`
-- [ ] 2.4 API builds: `npm run build:api`
+- [x] 2.1 Type checking passes: `npx nx typecheck api`
+- [x] 2.2 Linting passes: `npx nx lint api`
+- [x] 2.3 Guard unit tests pass: `npx nx test api`
+- [x] 2.4 API builds: `npm run build:api`
 
 #### Manual
 
-- [ ] 2.5 `GET /api/health` returns 200 without a session
-- [ ] 2.6 Non-public endpoint returns 401 without a session
-- [ ] 2.7 Same endpoint returns 200 with a valid session
-- [ ] 2.8 `/api/auth/*` still works (not blocked by the guard)
+- [x] 2.5 `GET /api/health` returns 200 without a session
+- [x] 2.6 Non-public endpoint returns 401 without a session
+- [x] 2.7 Same endpoint returns 200 with a valid session
+- [x] 2.8 `/api/auth/*` still works (not blocked by the guard)
 
 ### Phase 3: Shared Auth Contracts
 
