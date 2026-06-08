@@ -394,6 +394,13 @@ Re-export all from the barrel. Framework-agnostic (no `@nestjs/*`/`@angular/*`).
 Install and wire Tailwind v4 + spartan/ng so the login/register screens (Phase 5) are built on the
 target styling stack rather than retrofitted later. This is the first consumer of the stack.
 
+> **Addendum (impl-review, 2026-06-09):** the helm primitives were generated as a single Nx
+> library `libs/ui` (project `ui-helm`, spartan "entrypoint" mode, tagged `scope:web`) rather than
+> the loosely-suggested `apps/web/src/app/`. Phase 5 imports them via the `@spartan-ng/helm/*`
+> path aliases (e.g. `@spartan-ng/helm/button`, `/input`, `/label`, `/card`), **not** relative
+> paths. Spartan CLI config lives in `components.json`; theme tokens (neutral) live in
+> `apps/web/src/styles.scss`. This was a user-approved, idiomatic Nx structural choice.
+
 ### Changes Required:
 
 #### 1. Tailwind v4 install + PostCSS wiring
@@ -645,30 +652,30 @@ pre-migration backup the gate produced.
 
 #### Automated
 
-- [x] 4.1 Web builds with Tailwind active: `npm run build:web`
-- [x] 4.2 Linting passes: `npx nx lint web`
-- [x] 4.3 `.postcssrc.json` exists referencing `@tailwindcss/postcss`
-- [x] 4.4 `styles.scss` imports Tailwind; deps listed in `package.json`
+- [x] 4.1 Web builds with Tailwind active: `npm run build:web` — b37e5b3
+- [x] 4.2 Linting passes: `npx nx lint web` — b37e5b3
+- [x] 4.3 `.postcssrc.json` exists referencing `@tailwindcss/postcss` — b37e5b3
+- [x] 4.4 `styles.scss` imports Tailwind; deps listed in `package.json` — b37e5b3
 
 #### Manual
 
-- [x] 4.5 A Tailwind utility class renders styled in the running app
-- [x] 4.6 A generated spartan helm primitive renders correctly
+- [x] 4.5 A Tailwind utility class renders styled in the running app — b37e5b3
+- [x] 4.6 A generated spartan helm primitive renders correctly — b37e5b3
 
 ### Phase 5: Web — Auth Client, Guard, Interceptor + Login/Register UI
 
 #### Automated
 
-- [ ] 5.1 Type checking / build passes: `npm run build:web`
-- [ ] 5.2 Linting passes: `npx nx lint web`
-- [ ] 5.3 Guard + interceptor unit tests pass: `npx nx test web`
-- [ ] 5.4 Module boundaries hold (no web→api import)
-- [ ] 5.5 Full build passes: `npm run build`
+- [x] 5.1 Type checking / build passes: `npm run build:web`
+- [x] 5.2 Linting passes: `npx nx lint web`
+- [x] 5.3 Guard + interceptor unit tests pass: `npx nx test web`
+- [x] 5.4 Module boundaries hold (no web→api import)
+- [x] 5.5 Full build passes: `npm run build`
 
 #### Manual
 
-- [ ] 5.6 Guarded route while logged out redirects to `/login`
-- [ ] 5.7 Registering logs in and lands on the guarded area
-- [ ] 5.8 Valid login reaches guarded area; invalid shows an error
-- [ ] 5.9 A forced `401` redirects to `/login`
-- [ ] 5.10 Login/register screens are styled, responsive, keyboard-accessible
+- [x] 5.6 Guarded route while logged out redirects to `/login`
+- [x] 5.7 Registering logs in and lands on the guarded area
+- [x] 5.8 Valid login reaches guarded area; invalid shows an error
+- [x] 5.9 A forced `401` redirects to `/login`
+- [x] 5.10 Login/register screens are styled, responsive, keyboard-accessible

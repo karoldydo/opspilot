@@ -60,7 +60,10 @@
       },
       "continuous": true,
       "defaultConfiguration": "development",
-      "executor": "@angular/build:dev-server"
+      "executor": "@angular/build:dev-server",
+      "options": {
+        "proxyConfig": "apps/web/proxy.conf.json"
+      }
     },
     "serve-static": {
       "continuous": true,
