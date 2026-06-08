@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "spartan-ng": {
+      "args": ["-y", "spartan-ng-mcp"],
+      "command": "npx",
+      "type": "stdio"
+    }
+  }
+}

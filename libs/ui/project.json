@@ -1,0 +1,13 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "ui-helm",
+  "prefix": "hlm",
+  "projectType": "library",
+  "sourceRoot": "libs/ui/src",
+  "tags": ["scope:web"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

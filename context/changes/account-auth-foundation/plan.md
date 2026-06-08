@@ -645,15 +645,15 @@ pre-migration backup the gate produced.
 
 #### Automated
 
-- [ ] 4.1 Web builds with Tailwind active: `npm run build:web`
-- [ ] 4.2 Linting passes: `npx nx lint web`
-- [ ] 4.3 `.postcssrc.json` exists referencing `@tailwindcss/postcss`
-- [ ] 4.4 `styles.scss` imports Tailwind; deps listed in `package.json`
+- [x] 4.1 Web builds with Tailwind active: `npm run build:web`
+- [x] 4.2 Linting passes: `npx nx lint web`
+- [x] 4.3 `.postcssrc.json` exists referencing `@tailwindcss/postcss`
+- [x] 4.4 `styles.scss` imports Tailwind; deps listed in `package.json`
 
 #### Manual
 
-- [ ] 4.5 A Tailwind utility class renders styled in the running app
-- [ ] 4.6 A generated spartan helm primitive renders correctly
+- [x] 4.5 A Tailwind utility class renders styled in the running app
+- [x] 4.6 A generated spartan helm primitive renders correctly
 
 ### Phase 5: Web — Auth Client, Guard, Interceptor + Login/Register UI
 
