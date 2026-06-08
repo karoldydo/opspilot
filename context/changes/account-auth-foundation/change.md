@@ -1,7 +1,7 @@
 ---
 change_id: account-auth-foundation
 title: Account auth foundation
-status: impl_reviewed
+status: implemented
 created: 2026-06-07
 updated: 2026-06-09
 archived_at: null

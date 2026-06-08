@@ -666,16 +666,16 @@ pre-migration backup the gate produced.
 
 #### Automated
 
-- [x] 5.1 Type checking / build passes: `npm run build:web`
-- [x] 5.2 Linting passes: `npx nx lint web`
-- [x] 5.3 Guard + interceptor unit tests pass: `npx nx test web`
-- [x] 5.4 Module boundaries hold (no web→api import)
-- [x] 5.5 Full build passes: `npm run build`
+- [x] 5.1 Type checking / build passes: `npm run build:web` — 6d29d6a
+- [x] 5.2 Linting passes: `npx nx lint web` — 6d29d6a
+- [x] 5.3 Guard + interceptor unit tests pass: `npx nx test web` — 6d29d6a
+- [x] 5.4 Module boundaries hold (no web→api import) — 6d29d6a
+- [x] 5.5 Full build passes: `npm run build` — 6d29d6a
 
 #### Manual
 
-- [x] 5.6 Guarded route while logged out redirects to `/login`
-- [x] 5.7 Registering logs in and lands on the guarded area
-- [x] 5.8 Valid login reaches guarded area; invalid shows an error
-- [x] 5.9 A forced `401` redirects to `/login`
-- [x] 5.10 Login/register screens are styled, responsive, keyboard-accessible
+- [x] 5.6 Guarded route while logged out redirects to `/login` — 6d29d6a
+- [x] 5.7 Registering logs in and lands on the guarded area — 6d29d6a
+- [x] 5.8 Valid login reaches guarded area; invalid shows an error — 6d29d6a
+- [x] 5.9 A forced `401` redirects to `/login` — 6d29d6a
+- [x] 5.10 Login/register screens are styled, responsive, keyboard-accessible — 6d29d6a
