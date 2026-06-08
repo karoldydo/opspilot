@@ -632,14 +632,14 @@ pre-migration backup the gate produced.
 
 #### Automated
 
-- [x] 3.1 Type checking passes: `npx nx typecheck shared`
-- [x] 3.2 Linting passes: `npx nx lint shared`
-- [x] 3.3 Schema unit tests pass: `npx nx test shared`
-- [x] 3.4 Barrel exports resolve from `@opspilot/shared` in both apps
+- [x] 3.1 Type checking passes: `npx nx typecheck shared` — 6a3e747
+- [x] 3.2 Linting passes: `npx nx lint shared` — 6a3e747
+- [x] 3.3 Schema unit tests pass: `npx nx test shared` — 6a3e747
+- [x] 3.4 Barrel exports resolve from `@opspilot/shared` in both apps — 6a3e747
 
 #### Manual
 
-- [x] 3.5 Schemas match exactly the fields the Phase 5 forms use
+- [x] 3.5 Schemas match exactly the fields the Phase 5 forms use — 6a3e747
 
 ### Phase 4: Web Styling Stack (Tailwind v4 + spartan/ng)
 
