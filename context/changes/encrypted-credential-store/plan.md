@@ -489,14 +489,14 @@ cheap path to a future rotation change without a schema migration.
 
 #### Automated
 
-- [x] 4.1 API service tests pass: `npx nx test api -- src/credential/credential.service.spec.ts`
-- [x] 4.2 Shared tests pass: `npx nx test shared`
-- [x] 4.3 Lint passes: `npx nx lint api` and `npx nx lint shared`
-- [x] 4.4 Build passes: `npm run build:api`
-- [x] 4.5 Module-boundary lint clean (no Drizzle types in shared): `npm run lint`
+- [x] 4.1 API service tests pass: `npx nx test api -- src/credential/credential.service.spec.ts` — 4e16f20
+- [x] 4.2 Shared tests pass: `npx nx test shared` — 4e16f20
+- [x] 4.3 Lint passes: `npx nx lint api` and `npx nx lint shared` — 4e16f20
+- [x] 4.4 Build passes: `npm run build:api` — 4e16f20
+- [x] 4.5 Module-boundary lint clean (no Drizzle types in shared): `npm run lint` — 4e16f20
 
 #### Manual
 
-- [x] 4.6 `db:studio` shows only ciphertext in the credential row (no plaintext)
-- [x] 4.7 `getDecryptedSecret` equals the original input
-- [x] 4.8 Returned `Credential` has no `ciphertext`/`iv`/`authTag`/`secret`/`keyVersion`
+- [x] 4.6 `db:studio` shows only ciphertext in the credential row (no plaintext) — 4e16f20
+- [x] 4.7 `getDecryptedSecret` equals the original input — 4e16f20
+- [x] 4.8 Returned `Credential` has no `ciphertext`/`iv`/`authTag`/`secret`/`keyVersion` — 4e16f20

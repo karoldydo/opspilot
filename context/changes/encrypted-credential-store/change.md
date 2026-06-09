@@ -1,7 +1,7 @@
 ---
 change_id: encrypted-credential-store
 title: Encrypted credential store
-status: implementing
+status: implemented
 created: 2026-06-09
 updated: 2026-06-09
 archived_at: null
