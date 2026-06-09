@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HlmButton } from '@spartan-ng/helm/button';
 
 import { AuthStore } from '../core/stores/auth.store';
@@ -8,7 +8,7 @@ import { AuthStore } from '../core/stores/auth.store';
 // confirms the guard + session state land an authenticated user here.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HlmButton],
+  imports: [HlmButton, RouterLink],
   selector: 'app-home',
   templateUrl: './home.component.html',
 })

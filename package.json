@@ -37,6 +37,8 @@
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@ng-icons/core": ">=32.0.0 <34.0.0",
+    "@ng-icons/lucide": ">=32.0.0 <34.0.0",
     "@ngrx/signals": "21.1.1",
     "@spartan-ng/brain": "0.0.1-alpha.707",
     "@tailwindcss/postcss": "4.3.0",

@@ -1,0 +1,76 @@
+<main class="mx-auto flex min-h-svh max-w-4xl flex-col gap-6 p-8">
+  <header class="flex items-center justify-between gap-4">
+    <div class="flex flex-col gap-1">
+      <h1 class="text-foreground text-2xl font-semibold">Devices</h1>
+      <p class="text-muted-foreground text-sm">Shared inventory of every device and its SSH credentials.</p>
+    </div>
+    <button type="button" (click)="openCreate()" hlmBtn>Add device</button>
+  </header>
+
+  @if (store.error(); as error) {
+    <p class="text-destructive text-sm" role="alert">{{ error }}</p>
+  }
+
+  @if (store.isEmpty()) {
+    <hlm-empty>
+      <hlm-empty-header>
+        <h2 hlmEmptyTitle>No devices yet</h2>
+        <p hlmEmptyDescription>Add your first device to start managing it from OpsPilot.</p>
+      </hlm-empty-header>
+      <hlm-empty-content>
+        <button type="button" (click)="openCreate()" hlmBtn variant="outline">Add device</button>
+      </hlm-empty-content>
+    </hlm-empty>
+  } @else {
+    <div hlmTableContainer>
+      <table hlmTable>
+        <thead hlmTHead>
+          <tr hlmTr>
+            <th hlmTh>Name</th>
+            <th hlmTh>Host</th>
+            <th hlmTh>Created</th>
+            <th hlmTh>Updated</th>
+            <th class="text-right" hlmTh>Actions</th>
+          </tr>
+        </thead>
+        <tbody hlmTBody>
+          @for (device of store.devices(); track device.id) {
+            <tr hlmTr>
+              <td class="font-medium" hlmTd>{{ device.name }}</td>
+              <td hlmTd>{{ device.host }}</td>
+              <td hlmTd>{{ device.createdAt | date: 'short' }}</td>
+              <td hlmTd>{{ device.updatedAt | date: 'short' }}</td>
+              <td class="flex justify-end gap-2" hlmTd>
+                <button type="button" (click)="openEdit(device)" hlmBtn size="sm" variant="outline">Edit</button>
+                <button
+                  type="button"
+                  (click)="requestDelete(device, deleteDialog)"
+                  hlmBtn
+                  size="sm"
+                  variant="destructive"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</main>
+
+<hlm-alert-dialog #deleteDialog="hlmAlertDialog">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Delete device?</h2>
+      <p hlmAlertDialogDescription>
+        This permanently removes {{ deviceToDelete()?.name }} and its stored SSH credentials. This cannot be undone.
+      </p>
+    </hlm-alert-dialog-header>
+    <hlm-alert-dialog-footer>
+      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>Cancel</button>
+      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>Delete</button>
+    </hlm-alert-dialog-footer>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>

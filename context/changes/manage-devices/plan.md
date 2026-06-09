@@ -513,34 +513,34 @@ SQL in Phase 2; if it does, a schema change crept in unintentionally.
 
 #### Automated
 
-- [x] 2.1 API builds: `npx nx build api`
-- [x] 2.2 API tests pass: `npx nx test api`
-- [x] 2.3 Lint passes: `npx nx lint api`
-- [x] 2.4 Migration check: `npm run db:generate` produces no new migration
+- [x] 2.1 API builds: `npx nx build api` — b0f0b91
+- [x] 2.2 API tests pass: `npx nx test api` — b0f0b91
+- [x] 2.3 Lint passes: `npx nx lint api` — b0f0b91
+- [x] 2.4 Migration check: `npm run db:generate` produces no new migration — b0f0b91
 
 #### Manual
 
-- [x] 2.5 Device + encrypted credential stored via the two-call flow (DB row encrypted)
-- [x] 2.6 GET responses contain no secret material
-- [x] 2.7 Invalid body returns a shaped `apiError` via the global filter
-- [x] 2.8 `limit` above the ceiling is rejected/clamped
-- [x] 2.9 `DELETE /api/devices/:id` cascades and removes the credential
+- [x] 2.5 Device + encrypted credential stored via the two-call flow (DB row encrypted) — b0f0b91
+- [x] 2.6 GET responses contain no secret material — b0f0b91
+- [x] 2.7 Invalid body returns a shaped `apiError` via the global filter — b0f0b91
+- [x] 2.8 `limit` above the ceiling is rejected/clamped — b0f0b91
+- [x] 2.9 `DELETE /api/devices/:id` cascades and removes the credential — b0f0b91
 
 ### Phase 3: Web — DevicesStore + Devices UI
 
 #### Automated
 
-- [ ] 3.1 Web builds: `npx nx build web`
-- [ ] 3.2 Web tests pass: `npx nx test web`
-- [ ] 3.3 Lint passes: `npx nx lint web`
-- [ ] 3.4 Format check passes: `npm run format:check`
+- [x] 3.1 Web builds: `npx nx build web`
+- [x] 3.2 Web tests pass: `npx nx test web`
+- [x] 3.3 Lint passes: `npx nx lint web`
+- [x] 3.4 Format check passes: `npm run format:check`
 
 #### Manual
 
-- [ ] 3.5 Add device with `password` auth (single-line secret) in one step
+- [x] 3.5 Add device with `password` auth (single-line secret) in one step
 - [ ] 3.6 Add device with `key` auth shows multiline control and stores it
 - [ ] 3.7 Credential-call failure rolls back the device (no orphan) and shows an error
-- [ ] 3.8 Edit name/host persists; replace secret works via delete+recreate
-- [ ] 3.9 Delete asks for confirmation, then removes device + credential
-- [ ] 3.10 List shows all devices regardless of creator (shared model)
+- [x] 3.8 Edit name/host persists; replace secret works via delete+recreate
+- [x] 3.9 Delete asks for confirmation, then removes device + credential
+- [x] 3.10 List shows all devices regardless of creator (shared model)
 - [ ] 3.11 No secret material in any network response
