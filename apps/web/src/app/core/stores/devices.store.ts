@@ -108,15 +108,18 @@ export class DevicesStore {
     return { error: null };
   }
 
-  // there is no credential rotation endpoint — replacing a secret is delete +
-  // recreate. discover the device's existing credentials, drop them, then store
-  // the new one. the device-before-credential ordering already holds (the device
-  // exists), so no rollback is needed here.
+  // there is no credential rotation endpoint — replacing a secret is recreate +
+  // delete. store the new credential first, then drop the prior ones only on
+  // success, so a failed create never leaves the device with zero credentials.
   async replaceCredential(deviceId: string, credentialInput: CredentialInput): Promise<DeviceActionResult> {
     try {
       const existing = await this.client.listCredentials(deviceId);
-      await Promise.all(existing.map((credential) => this.client.removeCredential(deviceId, credential.id)));
-      await this.client.createCredential(deviceId, { ...credentialInput, deviceId });
+      const created = await this.client.createCredential(deviceId, { ...credentialInput, deviceId });
+      await Promise.all(
+        existing
+          .filter((credential) => credential.id !== created.id)
+          .map((credential) => this.client.removeCredential(deviceId, credential.id))
+      );
     } catch (error) {
       return { error: errorMessage(error, 'could not replace credentials') };
     }

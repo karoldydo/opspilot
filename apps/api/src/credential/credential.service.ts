@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Credential, CredentialCreateRequest, credentialSchema } from '@opspilot/shared';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
 import { CryptoService } from '../crypto/crypto.service';
@@ -61,9 +61,18 @@ export class CredentialService {
     return rows.map((row) => this.toContract(row));
   }
 
-  // delete a credential by id (enables the web delete+recreate edit flow).
-  async remove(id: string): Promise<void> {
-    this.requireRow(id);
+  // delete a credential scoped to its device (the nested route's :deviceId is the
+  // source of truth). a credential that doesn't belong to the device yields a
+  // 404, never a cross-device delete. enables the web delete+recreate edit flow.
+  async remove(deviceId: string, id: string): Promise<void> {
+    const row = this.db
+      .select()
+      .from(credential)
+      .where(and(eq(credential.id, id), eq(credential.deviceId, deviceId)))
+      .get();
+    if (!row) {
+      throw new NotFoundException(`credential ${id} not found`);
+    }
     this.db.delete(credential).where(eq(credential.id, id)).run();
   }
 

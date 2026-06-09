@@ -13,6 +13,8 @@ import { DeviceService } from './device.service';
 })
 export class DeviceModule implements NestModule {
   configure(middlewareConsumer: MiddlewareConsumer): void {
+    // the global body parser is disabled (main.ts: bodyParser false) so better-auth's
+    // catch-all node handler receives the raw body; domain routes must re-apply json().
     middlewareConsumer.apply(json()).forRoutes(DeviceController, DeviceCredentialController);
   }
 }

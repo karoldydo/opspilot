@@ -539,7 +539,7 @@ SQL in Phase 2; if it does, a schema change crept in unintentionally.
 
 - [x] 3.5 Add device with `password` auth (single-line secret) in one step — 3f99ef6
 - [x] 3.6 Add device with `key` auth shows multiline control and stores it — 3f99ef6
-- [ ] 3.7 Credential-call failure rolls back the device (no orphan) and shows an error
+- [x] 3.7 Credential-call failure rolls back the device (no orphan) and shows an error — covered by devices.store.spec.ts (impl-review)
 - [x] 3.8 Edit name/host persists; replace secret works via delete+recreate — 3f99ef6
 - [x] 3.9 Delete asks for confirmation, then removes device + credential — 3f99ef6
 - [x] 3.10 List shows all devices regardless of creator (shared model) — 3f99ef6

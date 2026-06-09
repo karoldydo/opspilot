@@ -55,7 +55,7 @@ export class DeviceCredentialController {
 
   @Delete(':credentialId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('credentialId') credentialId: string): Promise<void> {
-    return this.credentialService.remove(credentialId);
+  remove(@Param('deviceId') deviceId: string, @Param('credentialId') credentialId: string): Promise<void> {
+    return this.credentialService.remove(deviceId, credentialId);
   }
 }

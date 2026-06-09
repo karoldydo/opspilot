@@ -32,7 +32,14 @@ export class DeviceService {
 
   async update(id: string, input: DeviceUpdateRequest): Promise<Device> {
     this.requireRow(id);
-    const row = this.db.update(device).set(input).where(eq(device.id, id)).returning().get();
+    // project explicit columns (never spread the dto); drizzle ignores undefined
+    // so a partial patch only touches the fields the caller sent.
+    const row = this.db
+      .update(device)
+      .set({ host: input.host, name: input.name })
+      .where(eq(device.id, id))
+      .returning()
+      .get();
     return this.toContract(row);
   }
 
