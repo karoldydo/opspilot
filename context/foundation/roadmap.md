@@ -3,7 +3,7 @@ project: opspilot
 version: 1
 status: draft
 created: 2026-05-30
-updated: 2026-06-09
+updated: 2026-06-10
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -46,7 +46,7 @@ end, and the sequencing goal (`market-feedback`) says prove that before anything
 | F-01 | data-persistence-scaffold        | (foundation) DB + shared validation contract is wired         | -             | NFR: SSH not plaintext (supports) | done     |
 | F-02 | account-auth-foundation          | (foundation) accounts/login/session + unauth is locked out    | F-01          | FR-001, Access Control            | done     |
 | F-03 | encrypted-credential-store       | (foundation) SSH credentials are encrypted at-rest            | F-01          | FR-013, NFR: no plaintext         | done     |
-| S-01 | manage-devices                   | add (address + SSH creds), edit, delete a device              | F-02, F-03    | FR-002                            | proposed |
+| S-01 | manage-devices                   | add (address + SSH creds), edit, delete a device              | F-02, F-03    | FR-002                            | done     |
 | S-02 | scan-and-add-services            | scan a device's containers and curate managed services        | S-01          | FR-004, FR-007                    | proposed |
 | S-03 | configure-llm-provider           | configure their own LLM provider (endpoint + credentials)     | F-02          | FR-012                            | proposed |
 | S-04 | diagnose-service-synthesis       | diagnose a service and get a structured 4-field synthesis     | S-02, S-03    | US-01, FR-008, FR-009, FR-007     | proposed |
@@ -134,7 +134,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** the first stored secret; depends on F-03 being a real contract, not a TODO - if F-03 slips, this slice must not ship a plaintext fallback. Connection-verification on add gives early signal that credentials work before any skill runs.
-- **Status:** proposed
+- **Status:** done
 
 ### S-02: Scan and add services
 
@@ -276,3 +276,4 @@ This table is the clean handoff to Jira/Linear or any MCP-backed backlog. One ro
 - **F-01: (foundation) a working DB connection with migration tooling is wired, and the shared validation library is ready to carry FE↔BE contracts - no domain tables defined yet.** — Archived 2026-06-09 → `context/archive/2026-05-31-data-persistence-scaffold/`. Lesson: —.
 - **F-02: (foundation) a user can register, log in, and hold a session; unauthenticated requests reach no operational function. Flat model - no roles.** — Archived 2026-06-09 → `context/archive/2026-06-07-account-auth-foundation/`. Lesson: —.
 - **F-03: (foundation) a credential-encryption contract is in place so SSH credentials are never written in plaintext at rest.** — Archived 2026-06-09 → `context/archive/2026-06-09-encrypted-credential-store/`. Lesson: —.
+- **S-01: a user can add a device manually (address + SSH credentials), edit it, and delete it.** — Archived 2026-06-10 → `context/archive/2026-06-09-manage-devices/`. Lesson: —.
