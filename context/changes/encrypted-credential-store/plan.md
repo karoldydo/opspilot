@@ -462,28 +462,28 @@ cheap path to a future rotation change without a schema migration.
 
 #### Automated
 
-- [x] 2.1 Unit tests pass: `npx nx test api -- src/crypto/crypto.service.spec.ts`
-- [x] 2.2 Lint passes: `npx nx lint api`
-- [x] 2.3 Build passes: `npm run build:api`
+- [x] 2.1 Unit tests pass: `npx nx test api -- src/crypto/crypto.service.spec.ts` — 3ee7b83
+- [x] 2.2 Lint passes: `npx nx lint api` — 3ee7b83
+- [x] 2.3 Build passes: `npm run build:api` — 3ee7b83
 
 #### Manual
 
-- [x] 2.4 Same plaintext twice yields different ciphertext (random IV)
-- [x] 2.5 Flipping a ciphertext byte makes decryption throw
+- [x] 2.4 Same plaintext twice yields different ciphertext (random IV) — 3ee7b83
+- [x] 2.5 Flipping a ciphertext byte makes decryption throw — 3ee7b83
 
 ### Phase 3: Schema & Migration (device + credential tables)
 
 #### Automated
 
-- [ ] 3.1 Migration generated: `npm run db:generate` emits `migrations/0001_*.sql`
-- [ ] 3.2 Build passes (schema typechecks): `npm run build:api`
-- [ ] 3.3 Lint passes: `npx nx lint api`
-- [ ] 3.4 Existing migration/backup tests still pass: `npx nx test api`
+- [x] 3.1 Migration generated: `npm run db:generate` emits `migrations/0001_*.sql`
+- [x] 3.2 Build passes (schema typechecks): `npm run build:api`
+- [x] 3.3 Lint passes: `npx nx lint api`
+- [x] 3.4 Existing migration/backup tests still pass: `npx nx test api`
 
 #### Manual
 
-- [ ] 3.5 Fresh boot applies `0000_*` then `0001_*`; tables/FK/index present
-- [ ] 3.6 Boot against existing `0000_*` DB triggers auto-backup before `0001_*`
+- [x] 3.5 Fresh boot applies `0000_*` then `0001_*`; tables/FK/index present
+- [x] 3.6 Boot against existing `0000_*` DB triggers auto-backup before `0001_*`
 
 ### Phase 4: Shared Contracts & CredentialService
 
