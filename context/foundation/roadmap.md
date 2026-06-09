@@ -45,7 +45,7 @@ end, and the sequencing goal (`market-feedback`) says prove that before anything
 |------|----------------------------------|---------------------------------------------------------------|---------------|-----------------------------------|----------|
 | F-01 | data-persistence-scaffold        | (foundation) DB + shared validation contract is wired         | -             | NFR: SSH not plaintext (supports) | done     |
 | F-02 | account-auth-foundation          | (foundation) accounts/login/session + unauth is locked out    | F-01          | FR-001, Access Control            | done     |
-| F-03 | encrypted-credential-store       | (foundation) SSH credentials are encrypted at-rest            | F-01          | FR-013, NFR: no plaintext         | proposed |
+| F-03 | encrypted-credential-store       | (foundation) SSH credentials are encrypted at-rest            | F-01          | FR-013, NFR: no plaintext         | done     |
 | S-01 | manage-devices                   | add (address + SSH creds), edit, delete a device              | F-02, F-03    | FR-002                            | proposed |
 | S-02 | scan-and-add-services            | scan a device's containers and curate managed services        | S-01          | FR-004, FR-007                    | proposed |
 | S-03 | configure-llm-provider           | configure their own LLM provider (endpoint + credentials)     | F-02          | FR-012                            | proposed |
@@ -120,7 +120,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Where does the encryption key live relative to the data, and against what threat does at-rest encryption protect? - Owner: user. Block: no (`infrastructure.md` already proposes a default: the key in env vars / Docker secrets on the host; protects a leaked backup/DB file, not host takeover). See Open Roadmap Question 1.
 - **Risk:** SSH creds in plaintext is a critical regression (guardrail), so the crypto contract must exist before S-01 ever writes a credential. Kept to a small crypto helper + key sourcing, not a key-management product.
-- **Status:** proposed
+- **Status:** done
 
 ## Slices
 
@@ -275,3 +275,4 @@ This table is the clean handoff to Jira/Linear or any MCP-backed backlog. One ro
 
 - **F-01: (foundation) a working DB connection with migration tooling is wired, and the shared validation library is ready to carry FE↔BE contracts - no domain tables defined yet.** — Archived 2026-06-09 → `context/archive/2026-05-31-data-persistence-scaffold/`. Lesson: —.
 - **F-02: (foundation) a user can register, log in, and hold a session; unauthenticated requests reach no operational function. Flat model - no roles.** — Archived 2026-06-09 → `context/archive/2026-06-07-account-auth-foundation/`. Lesson: —.
+- **F-03: (foundation) a credential-encryption contract is in place so SSH credentials are never written in plaintext at rest.** — Archived 2026-06-09 → `context/archive/2026-06-09-encrypted-credential-store/`. Lesson: —.
