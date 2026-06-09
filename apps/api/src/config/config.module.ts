@@ -4,13 +4,14 @@ import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { authConfig } from './auth.config';
 import { cryptoConfig } from './crypto.config';
 import { databaseConfig } from './database.config';
+import { deviceConfig } from './device.config';
 import { envSchema } from './env.schema';
 
 @Module({
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
-      load: [authConfig, cryptoConfig, databaseConfig],
+      load: [authConfig, cryptoConfig, databaseConfig, deviceConfig],
       validationOptions: { abortEarly: false, allowUnknown: true },
       validationSchema: envSchema,
     }),

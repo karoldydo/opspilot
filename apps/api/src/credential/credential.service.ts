@@ -61,6 +61,12 @@ export class CredentialService {
     return rows.map((row) => this.toContract(row));
   }
 
+  // delete a credential by id (enables the web delete+recreate edit flow).
+  async remove(id: string): Promise<void> {
+    this.requireRow(id);
+    this.db.delete(credential).where(eq(credential.id, id)).run();
+  }
+
   // read the row or fail with an entity-naming 404 (nestjs.md error rule).
   private requireRow(id: string): CredentialRow {
     const row = this.db.select().from(credential).where(eq(credential.id, id)).get();

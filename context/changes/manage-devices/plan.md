@@ -499,32 +499,32 @@ SQL in Phase 2; if it does, a schema change crept in unintentionally.
 
 #### Automated
 
-- [x] 1.1 Shared lib builds: `npx nx build shared`
-- [x] 1.2 Shared tests pass: `npx nx test shared`
-- [x] 1.3 Lint passes: `npx nx lint shared`
-- [x] 1.4 Type checking passes across consumers: `npm run build`
+- [x] 1.1 Shared lib builds: `npx nx build shared` — fe3bf27
+- [x] 1.2 Shared tests pass: `npx nx test shared` — fe3bf27
+- [x] 1.3 Lint passes: `npx nx lint shared` — fe3bf27
+- [x] 1.4 Type checking passes across consumers: `npm run build` — fe3bf27
 
 #### Manual
 
-- [x] 1.5 `deviceSchema` rejects unknown keys and normalizes `Date` to ISO string
-- [x] 1.6 `credentialListQuerySchema` rejects `limit` above the ceiling
+- [x] 1.5 `deviceSchema` rejects unknown keys and normalizes `Date` to ISO string — fe3bf27
+- [x] 1.6 `credentialListQuerySchema` rejects `limit` above the ceiling — fe3bf27
 
 ### Phase 2: API — DeviceModule, Credential Sub-resource, Global Exception Filter
 
 #### Automated
 
-- [ ] 2.1 API builds: `npx nx build api`
-- [ ] 2.2 API tests pass: `npx nx test api`
-- [ ] 2.3 Lint passes: `npx nx lint api`
-- [ ] 2.4 Migration check: `npm run db:generate` produces no new migration
+- [x] 2.1 API builds: `npx nx build api`
+- [x] 2.2 API tests pass: `npx nx test api`
+- [x] 2.3 Lint passes: `npx nx lint api`
+- [x] 2.4 Migration check: `npm run db:generate` produces no new migration
 
 #### Manual
 
-- [ ] 2.5 Device + encrypted credential stored via the two-call flow (DB row encrypted)
-- [ ] 2.6 GET responses contain no secret material
-- [ ] 2.7 Invalid body returns a shaped `apiError` via the global filter
-- [ ] 2.8 `limit` above the ceiling is rejected/clamped
-- [ ] 2.9 `DELETE /api/devices/:id` cascades and removes the credential
+- [x] 2.5 Device + encrypted credential stored via the two-call flow (DB row encrypted)
+- [x] 2.6 GET responses contain no secret material
+- [x] 2.7 Invalid body returns a shaped `apiError` via the global filter
+- [x] 2.8 `limit` above the ceiling is rejected/clamped
+- [x] 2.9 `DELETE /api/devices/:id` cascades and removes the credential
 
 ### Phase 3: Web — DevicesStore + Devices UI
 
