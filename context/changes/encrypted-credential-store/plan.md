@@ -449,27 +449,27 @@ cheap path to a future rotation change without a schema migration.
 
 #### Automated
 
-- [x] 1.1 Type checking / build passes: `npm run build:api`
-- [x] 1.2 Lint passes: `npx nx lint api`
-- [x] 1.3 Boot fails fast on absent/wrong-length `ENCRYPTION_KEY`: `npx nx test api`
+- [x] 1.1 Type checking / build passes: `npm run build:api` — e21ce9e
+- [x] 1.2 Lint passes: `npx nx lint api` — e21ce9e
+- [x] 1.3 Boot fails fast on absent/wrong-length `ENCRYPTION_KEY`: `npx nx test api` — e21ce9e
 
 #### Manual
 
-- [x] 1.4 API without `ENCRYPTION_KEY` aborts at boot with a Joi error naming `ENCRYPTION_KEY`
-- [x] 1.5 A valid 44-char base64 key boots normally
+- [x] 1.4 API without `ENCRYPTION_KEY` aborts at boot with a Joi error naming `ENCRYPTION_KEY` — e21ce9e
+- [x] 1.5 A valid 44-char base64 key boots normally — e21ce9e
 
 ### Phase 2: Crypto Module (AES-256-GCM)
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass: `npx nx test api -- src/crypto/crypto.service.spec.ts`
-- [ ] 2.2 Lint passes: `npx nx lint api`
-- [ ] 2.3 Build passes: `npm run build:api`
+- [x] 2.1 Unit tests pass: `npx nx test api -- src/crypto/crypto.service.spec.ts`
+- [x] 2.2 Lint passes: `npx nx lint api`
+- [x] 2.3 Build passes: `npm run build:api`
 
 #### Manual
 
-- [ ] 2.4 Same plaintext twice yields different ciphertext (random IV)
-- [ ] 2.5 Flipping a ciphertext byte makes decryption throw
+- [x] 2.4 Same plaintext twice yields different ciphertext (random IV)
+- [x] 2.5 Flipping a ciphertext byte makes decryption throw
 
 ### Phase 3: Schema & Migration (device + credential tables)
 
