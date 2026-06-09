@@ -3,7 +3,7 @@ project: opspilot
 version: 1
 status: draft
 created: 2026-05-30
-updated: 2026-05-30
+updated: 2026-06-09
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -43,7 +43,7 @@ end, and the sequencing goal (`market-feedback`) says prove that before anything
 
 | ID   | Change ID                        | Outcome (user can …)                                          | Prerequisites | PRD refs                          | Status   |
 |------|----------------------------------|---------------------------------------------------------------|---------------|-----------------------------------|----------|
-| F-01 | data-persistence-scaffold        | (foundation) DB + shared validation contract is wired         | -             | NFR: SSH not plaintext (supports) | ready    |
+| F-01 | data-persistence-scaffold        | (foundation) DB + shared validation contract is wired         | -             | NFR: SSH not plaintext (supports) | done     |
 | F-02 | account-auth-foundation          | (foundation) accounts/login/session + unauth is locked out    | F-01          | FR-001, Access Control            | proposed |
 | F-03 | encrypted-credential-store       | (foundation) SSH credentials are encrypted at-rest            | F-01          | FR-013, NFR: no plaintext         | proposed |
 | S-01 | manage-devices                   | add (address + SSH creds), edit, delete a device              | F-02, F-03    | FR-002                            | proposed |
@@ -93,7 +93,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** everything persists here; per `infrastructure.md` the SQLite volume must sit on a **local** disk (WAL needs same-kernel file locking) - getting that right now avoids "database is locked" corruption later. Kept minimal (connection + migration runner + shared schema setup), so each slice still adds its own tables.
-- **Status:** ready
+- **Status:** done
 
 ### F-02: Account auth + route guard
 
@@ -272,3 +272,5 @@ This table is the clean handoff to Jira/Linear or any MCP-backed backlog. One ro
 ## Done
 
 (Empty on first generation. `/10x-archive` appends an entry here - and flips that item's `Status` to `done` - when a change whose `Change ID` matches the item is archived. Do NOT pre-populate.)
+
+- **F-01: (foundation) a working DB connection with migration tooling is wired, and the shared validation library is ready to carry FE↔BE contracts - no domain tables defined yet.** — Archived 2026-06-09 → `context/archive/2026-05-31-data-persistence-scaffold/`. Lesson: —.
