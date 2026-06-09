@@ -530,17 +530,17 @@ SQL in Phase 2; if it does, a schema change crept in unintentionally.
 
 #### Automated
 
-- [x] 3.1 Web builds: `npx nx build web`
-- [x] 3.2 Web tests pass: `npx nx test web`
-- [x] 3.3 Lint passes: `npx nx lint web`
-- [x] 3.4 Format check passes: `npm run format:check`
+- [x] 3.1 Web builds: `npx nx build web` — 3f99ef6
+- [x] 3.2 Web tests pass: `npx nx test web` — 3f99ef6
+- [x] 3.3 Lint passes: `npx nx lint web` — 3f99ef6
+- [x] 3.4 Format check passes: `npm run format:check` — 3f99ef6
 
 #### Manual
 
-- [x] 3.5 Add device with `password` auth (single-line secret) in one step
-- [ ] 3.6 Add device with `key` auth shows multiline control and stores it
+- [x] 3.5 Add device with `password` auth (single-line secret) in one step — 3f99ef6
+- [x] 3.6 Add device with `key` auth shows multiline control and stores it — 3f99ef6
 - [ ] 3.7 Credential-call failure rolls back the device (no orphan) and shows an error
-- [x] 3.8 Edit name/host persists; replace secret works via delete+recreate
-- [x] 3.9 Delete asks for confirmation, then removes device + credential
-- [x] 3.10 List shows all devices regardless of creator (shared model)
-- [ ] 3.11 No secret material in any network response
+- [x] 3.8 Edit name/host persists; replace secret works via delete+recreate — 3f99ef6
+- [x] 3.9 Delete asks for confirmation, then removes device + credential — 3f99ef6
+- [x] 3.10 List shows all devices regardless of creator (shared model) — 3f99ef6
+- [x] 3.11 No secret material in any network response — 3f99ef6
