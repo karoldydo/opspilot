@@ -44,7 +44,7 @@ end, and the sequencing goal (`market-feedback`) says prove that before anything
 | ID   | Change ID                        | Outcome (user can …)                                          | Prerequisites | PRD refs                          | Status   |
 |------|----------------------------------|---------------------------------------------------------------|---------------|-----------------------------------|----------|
 | F-01 | data-persistence-scaffold        | (foundation) DB + shared validation contract is wired         | -             | NFR: SSH not plaintext (supports) | done     |
-| F-02 | account-auth-foundation          | (foundation) accounts/login/session + unauth is locked out    | F-01          | FR-001, Access Control            | proposed |
+| F-02 | account-auth-foundation          | (foundation) accounts/login/session + unauth is locked out    | F-01          | FR-001, Access Control            | done     |
 | F-03 | encrypted-credential-store       | (foundation) SSH credentials are encrypted at-rest            | F-01          | FR-013, NFR: no plaintext         | proposed |
 | S-01 | manage-devices                   | add (address + SSH creds), edit, delete a device              | F-02, F-03    | FR-002                            | proposed |
 | S-02 | scan-and-add-services            | scan a device's containers and curate managed services        | S-01          | FR-004, FR-007                    | proposed |
@@ -106,7 +106,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** "unauth has no access" is the whole access-control posture; building the guard before any operational slice avoids retrofitting auth across every endpoint later. Minimal scope - registration/login/session/guard only, no roles or recovery flows.
-- **Status:** proposed
+- **Status:** done
 
 ### F-03: Encrypted credential store
 
@@ -274,3 +274,4 @@ This table is the clean handoff to Jira/Linear or any MCP-backed backlog. One ro
 (Empty on first generation. `/10x-archive` appends an entry here - and flips that item's `Status` to `done` - when a change whose `Change ID` matches the item is archived. Do NOT pre-populate.)
 
 - **F-01: (foundation) a working DB connection with migration tooling is wired, and the shared validation library is ready to carry FE↔BE contracts - no domain tables defined yet.** — Archived 2026-06-09 → `context/archive/2026-05-31-data-persistence-scaffold/`. Lesson: —.
+- **F-02: (foundation) a user can register, log in, and hold a session; unauthenticated requests reach no operational function. Flat model - no roles.** — Archived 2026-06-09 → `context/archive/2026-06-07-account-auth-foundation/`. Lesson: —.
