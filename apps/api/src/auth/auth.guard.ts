@@ -6,14 +6,10 @@ import { Request } from 'express';
 import { IS_PUBLIC_KEY } from '../common/public.decorator';
 import { AUTH_INSTANCE, AuthInstance } from './providers/auth.provider';
 
-// request augmented with the validated session, attached by the guard so
-// downstream handlers read the authenticated identity without re-querying.
 export interface AuthenticatedRequest extends Request {
   session?: NonNullable<AuthSession>;
 }
 
-// the resolved session shape better-auth returns for a valid cookie; null when
-// there is no session. derived from the instance so it never drifts from runtime.
 export type AuthSession = Awaited<ReturnType<AuthInstance['api']['getSession']>>;
 
 @Injectable()

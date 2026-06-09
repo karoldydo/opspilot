@@ -11,8 +11,6 @@ describe('AuthAppGuard', () => {
   let authGuard: AuthAppGuard;
   let actualRequest: AuthenticatedRequest;
 
-  // minimal ExecutionContext exposing the request and the handler/class the
-  // reflector reads. headers are the only field the guard forwards.
   const mockContext = (request: AuthenticatedRequest): ExecutionContext =>
     ({
       getClass: () => class {},

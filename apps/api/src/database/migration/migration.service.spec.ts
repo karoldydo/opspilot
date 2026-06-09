@@ -11,9 +11,6 @@ import { DATABASE_CONNECTION, DatabaseConnection } from '../providers/database-c
 import { MIGRATIONS_FOLDER } from '../providers/migrations-folder.provider';
 import { MigrationService } from './migration.service';
 
-// integration: prove migrate() runs clean against the empty journal, that the
-// backup gate fires only when migrations are pending, and that snapshots are
-// pruned to the retention cap.
 describe('MigrationService', () => {
   let moduleRef: TestingModule;
   let db: DatabaseConnection;

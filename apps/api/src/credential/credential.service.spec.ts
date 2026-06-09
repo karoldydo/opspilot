@@ -15,10 +15,6 @@ import { credential, device } from '../database/schema/device.schema';
 import { CredentialModule } from './credential.module';
 import { CredentialService } from './credential.service';
 
-// integration: real temp sqlite (boot migrations apply device + credential
-// tables) + the real CryptoService with a fixed test key. proves the
-// write→encrypt→store→read→decrypt loop, that the row stores ciphertext (never
-// plaintext), and that the returned contract carries no secret material.
 describe('CredentialService', () => {
   // a fixed 32-byte key (0x01 * 32) base64-encoded to 44 chars.
   const inputKey = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=';

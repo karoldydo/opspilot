@@ -7,15 +7,9 @@ import { CryptoService } from '../crypto/crypto.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { credential } from '../database/schema/device.schema';
 
-// the drizzle row shape (typed via $inferSelect) carries secret columns + dates;
-// it is node/db-bound and never leaves this service — rows map to the shared
-// credential contract by projection before they cross the /api boundary.
 type CredentialRow = typeof credential.$inferSelect;
 
-// the current key version every row writes — forward-compat for a future rotation
-// flow that is out of scope here.
 const KEY_VERSION = 1;
-// default page size for list(); callers can narrow via the offset/limit params.
 const LIST_LIMIT = 50;
 
 @Injectable()

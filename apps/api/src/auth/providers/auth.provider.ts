@@ -8,9 +8,6 @@ export const AUTH_INSTANCE = 'AUTH_INSTANCE';
 
 export type AuthInstance = ReturnType<typeof createAuth>;
 
-// the singleton better-auth instance, built on the shared db connection and the
-// joi-validated auth config. injected by the catch-all controller and the
-// global guard.
 export const authProvider: Provider = {
   inject: [DATABASE_CONNECTION, authConfig.KEY],
   provide: AUTH_INSTANCE,

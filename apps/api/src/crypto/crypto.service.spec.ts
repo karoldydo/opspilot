@@ -5,9 +5,6 @@ import { cryptoConfig } from '../config/crypto.config';
 import { CryptoModule } from './crypto.module';
 import { CryptoService } from './crypto.service';
 
-// unit: prove the aes-256-gcm round-trip, the non-deterministic iv, the gcm
-// integrity guarantees (tampered tag/ciphertext throws), and the fail-fast
-// wrong-size key assertion at construction.
 describe('CryptoService', () => {
   // a fixed 32-byte key (0x01 * 32) base64-encoded to 44 chars.
   const inputKey = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=';
