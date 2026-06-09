@@ -5,6 +5,7 @@ export interface EnvConfig {
   BETTER_AUTH_URL: string;
   DATABASE_BACKUP_RETENTION: number;
   DATABASE_PATH: string;
+  ENCRYPTION_KEY: string;
   NODE_ENV: 'development' | 'production' | 'test';
   PORT: number;
   SESSION_EXPIRES_IN: number;
@@ -19,6 +20,8 @@ export const envSchema = Joi.object<EnvConfig>({
   BETTER_AUTH_URL: Joi.string().uri().required(),
   DATABASE_BACKUP_RETENTION: Joi.number().integer().min(1).default(5),
   DATABASE_PATH: Joi.string().min(1).default('./data/opspilot.db'),
+  // no default — master aes-256 key, 32 raw bytes as base64 (44 chars). must fail fast at boot.
+  ENCRYPTION_KEY: Joi.string().base64().length(44).required(),
   NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
   PORT: Joi.number().port().default(3000),
   // session lifetimes in seconds — better-auth defaults (7 days / 1 day).
