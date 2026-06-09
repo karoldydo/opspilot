@@ -475,28 +475,28 @@ cheap path to a future rotation change without a schema migration.
 
 #### Automated
 
-- [x] 3.1 Migration generated: `npm run db:generate` emits `migrations/0001_*.sql`
-- [x] 3.2 Build passes (schema typechecks): `npm run build:api`
-- [x] 3.3 Lint passes: `npx nx lint api`
-- [x] 3.4 Existing migration/backup tests still pass: `npx nx test api`
+- [x] 3.1 Migration generated: `npm run db:generate` emits `migrations/0001_*.sql` — 336c147
+- [x] 3.2 Build passes (schema typechecks): `npm run build:api` — 336c147
+- [x] 3.3 Lint passes: `npx nx lint api` — 336c147
+- [x] 3.4 Existing migration/backup tests still pass: `npx nx test api` — 336c147
 
 #### Manual
 
-- [x] 3.5 Fresh boot applies `0000_*` then `0001_*`; tables/FK/index present
-- [x] 3.6 Boot against existing `0000_*` DB triggers auto-backup before `0001_*`
+- [x] 3.5 Fresh boot applies `0000_*` then `0001_*`; tables/FK/index present — 336c147
+- [x] 3.6 Boot against existing `0000_*` DB triggers auto-backup before `0001_*` — 336c147
 
 ### Phase 4: Shared Contracts & CredentialService
 
 #### Automated
 
-- [ ] 4.1 API service tests pass: `npx nx test api -- src/credential/credential.service.spec.ts`
-- [ ] 4.2 Shared tests pass: `npx nx test shared`
-- [ ] 4.3 Lint passes: `npx nx lint api` and `npx nx lint shared`
-- [ ] 4.4 Build passes: `npm run build:api`
-- [ ] 4.5 Module-boundary lint clean (no Drizzle types in shared): `npm run lint`
+- [x] 4.1 API service tests pass: `npx nx test api -- src/credential/credential.service.spec.ts`
+- [x] 4.2 Shared tests pass: `npx nx test shared`
+- [x] 4.3 Lint passes: `npx nx lint api` and `npx nx lint shared`
+- [x] 4.4 Build passes: `npm run build:api`
+- [x] 4.5 Module-boundary lint clean (no Drizzle types in shared): `npm run lint`
 
 #### Manual
 
-- [ ] 4.6 `db:studio` shows only ciphertext in the credential row (no plaintext)
-- [ ] 4.7 `getDecryptedSecret` equals the original input
-- [ ] 4.8 Returned `Credential` has no `ciphertext`/`iv`/`authTag`/`secret`/`keyVersion`
+- [x] 4.6 `db:studio` shows only ciphertext in the credential row (no plaintext)
+- [x] 4.7 `getDecryptedSecret` equals the original input
+- [x] 4.8 Returned `Credential` has no `ciphertext`/`iv`/`authTag`/`secret`/`keyVersion`
