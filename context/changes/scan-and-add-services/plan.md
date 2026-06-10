@@ -619,10 +619,10 @@ confirmation. This is the final phase — confirm the full scan → curate → m
 
 #### Manual
 
-- [ ] 2.5 `execute(deviceId, 'echo hi')` against a real device returns `hi`
-- [ ] 2.6 Unreachable host → connect error within ~connect-timeout (no hang)
-- [ ] 2.7 Long command killed at ~command-timeout with timeout error
-- [ ] 2.8 Wrong stored secret → legible auth/decrypt error
+- [x] 2.5 `execute(deviceId, 'echo hi')` against a real device returns `hi` — 5a4cf28
+- [x] 2.6 Unreachable host → connect error within ~connect-timeout (no hang) — 5a4cf28
+- [x] 2.7 Long command killed at ~command-timeout with timeout error — 5a4cf28
+- [x] 2.8 Wrong stored secret → legible auth/decrypt error — 5a4cf28
 
 ### Phase 3: Service Domain (backend)
 
@@ -643,15 +643,15 @@ confirmation. This is the final phase — confirm the full scan → curate → m
 
 #### Automated
 
-- [x] 4.1 Type checking passes (`npx nx typecheck web` / `npm run build:web`)
-- [x] 4.2 Linting passes (`npx nx lint web`)
-- [x] 4.3 Web unit tests pass (store mutate-then-refetch + batch-add partial failure; client schema parse)
-- [x] 4.4 Format check passes (`npm run format:check`)
+- [x] 4.1 Type checking passes (`npx nx typecheck web` / `npm run build:web`) — d39166a
+- [x] 4.2 Linting passes (`npx nx lint web`) — d39166a
+- [x] 4.3 Web unit tests pass (store mutate-then-refetch + batch-add partial failure; client schema parse) — d39166a
+- [x] 4.4 Format check passes (`npm run format:check`) — d39166a
 
 #### Manual
 
-- [x] 4.5 Scan opens dialog and lists live containers
-- [x] 4.6 Curated subset persists exactly; list refreshes
-- [x] 4.7 Edit name + delete (with confirm) work
-- [x] 4.8 Unreachable / docker-less / stopped-daemon scan shows distinct legible error
-- [x] 4.9 Partial batch-add failure surfaces the failed container without losing successes
+- [x] 4.5 Scan opens dialog and lists live containers — d39166a
+- [x] 4.6 Curated subset persists exactly; list refreshes — d39166a
+- [x] 4.7 Edit name + delete (with confirm) work — d39166a
+- [x] 4.8 Unreachable / docker-less / stopped-daemon scan shows distinct legible error — d39166a
+- [x] 4.9 Partial batch-add failure surfaces the failed container without losing successes — d39166a
