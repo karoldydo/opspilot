@@ -37,6 +37,9 @@ describe('LlmProviderController (e2e)', () => {
   }
 
   beforeEach(async () => {
+    // create/update run the live test-call probe; stub fetch to a 200 ok so the
+    // http-level crud tests pass without the network (probe mapping → probe.spec).
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, status: 200 } as Response));
     dbPath = join(tmpdir(), `opspilot-llm-ctrl-test-${process.pid}-${Date.now()}.db`);
     moduleRef = await Test.createTestingModule({
       imports: [ConfigModule, DatabaseModule, LlmProviderModule],
@@ -55,6 +58,7 @@ describe('LlmProviderController (e2e)', () => {
   afterEach(async () => {
     await app?.close();
     cleanupTempFiles();
+    vi.unstubAllGlobals();
   });
 
   const server = () => app.getHttpServer();

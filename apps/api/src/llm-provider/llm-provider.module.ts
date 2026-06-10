@@ -3,13 +3,14 @@ import { json } from 'express';
 
 import { CryptoModule } from '../crypto/crypto.module';
 import { LlmProviderController } from './llm-provider.controller';
+import { LlmProviderProbe } from './llm-provider.probe';
 import { LlmProviderService } from './llm-provider.service';
 
 @Module({
   controllers: [LlmProviderController],
   exports: [LlmProviderService],
   imports: [CryptoModule],
-  providers: [LlmProviderService],
+  providers: [LlmProviderProbe, LlmProviderService],
 })
 export class LlmProviderModule implements NestModule {
   configure(middlewareConsumer: MiddlewareConsumer): void {

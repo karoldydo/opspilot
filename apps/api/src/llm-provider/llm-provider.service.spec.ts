@@ -24,6 +24,7 @@ describe('LlmProviderService', () => {
   let db: DatabaseConnection;
   let service: LlmProviderService;
   let dbPath: string;
+  let mockFetch: ReturnType<typeof vi.fn>;
 
   // remove the temp db plus its -wal/-shm sidecars and any *.bak snapshots.
   function cleanupTempFiles(): void {
@@ -37,6 +38,10 @@ describe('LlmProviderService', () => {
   }
 
   beforeEach(async () => {
+    // the create/update probe runs a live test-call; stub fetch to a 200 ok so the
+    // crud tests exercise persistence, not the network (probe mapping → probe.spec).
+    mockFetch = vi.fn().mockResolvedValue({ ok: true, status: 200 } as Response);
+    vi.stubGlobal('fetch', mockFetch);
     dbPath = join(tmpdir(), `opspilot-llm-test-${process.pid}-${Date.now()}.db`);
     moduleRef = await Test.createTestingModule({
       imports: [ConfigModule, DatabaseModule, LlmProviderModule],
@@ -56,6 +61,7 @@ describe('LlmProviderService', () => {
     db?.$client.close();
     await moduleRef?.close();
     cleanupTempFiles();
+    vi.unstubAllGlobals();
   });
 
   it('creates a provider and returns the secret-free, iso-normalized contract', async () => {
@@ -146,6 +152,36 @@ describe('LlmProviderService', () => {
     await service.update(created.id, { apiKey: 'sk-new' });
 
     expect(await service.getDecryptedApiKey(created.id)).toBe('sk-new');
+  });
+
+  it('reject-on-fail: a probe error in create leaves no row persisted', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('ECONNREFUSED'));
+
+    await expect(service.create({ ...baseInput, apiKey: 'sk-bad' })).rejects.toThrow();
+    expect(await service.findAll()).toHaveLength(0);
+  });
+
+  it('reject-on-fail: a probe error in update leaves the stored row untouched', async () => {
+    const created = await service.create({ ...baseInput, apiKey: 'sk-keep' });
+    mockFetch.mockRejectedValueOnce(new Error('ECONNREFUSED'));
+
+    await expect(service.update(created.id, { model: 'gpt-4o-mini' })).rejects.toThrow();
+
+    const unchanged = await service.findOne(created.id);
+    expect(unchanged.model).toBe('gpt-4o');
+    expect(await service.getDecryptedApiKey(created.id)).toBe('sk-keep');
+  });
+
+  it('update without apiKey probes the decrypted stored key against the effective baseURL', async () => {
+    const created = await service.create({ ...baseInput, apiKey: 'sk-stored' });
+    mockFetch.mockClear();
+
+    await service.update(created.id, { model: 'gpt-4o-mini' });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${baseInput.baseURL}/models`,
+      expect.objectContaining({ headers: { authorization: 'Bearer sk-stored' } })
+    );
   });
 
   it('throws NotFoundException for a missing id on findOne', async () => {

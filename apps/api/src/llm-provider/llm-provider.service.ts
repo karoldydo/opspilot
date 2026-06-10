@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { CryptoService } from '../crypto/crypto.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { llmProvider } from '../database/schema/llm-provider.schema';
+import { LlmProviderProbe } from './llm-provider.probe';
 
 type LlmProviderRow = typeof llmProvider.$inferSelect;
 
@@ -15,11 +16,14 @@ const KEY_VERSION = 1;
 export class LlmProviderService {
   constructor(
     @Inject(DATABASE_CONNECTION) private readonly db: DatabaseConnection,
-    @Inject(CryptoService) private readonly crypto: CryptoService
+    @Inject(CryptoService) private readonly crypto: CryptoService,
+    @Inject(LlmProviderProbe) private readonly probe: LlmProviderProbe
   ) {}
 
   async create(input: LlmProviderCreateRequest): Promise<LlmProvider> {
-    // the test-call probe lands here in phase 3, BEFORE encrypt/insert (reject-on-fail).
+    // reject-on-fail: validate the provider with a live test-call BEFORE persisting,
+    // so a bad key/url/timeout never leaves an unvalidated row behind.
+    await this.probe.verify(input.baseURL, input.apiKey);
     // auto-active-first: the very first provider is active; later ones are not (the
     // user activates manually via the activate endpoint).
     const active = this.db.select().from(llmProvider).all().length === 0;
@@ -52,7 +56,13 @@ export class LlmProviderService {
   }
 
   async update(id: string, input: LlmProviderUpdateRequest): Promise<LlmProvider> {
-    this.requireRow(id);
+    const row = this.requireRow(id);
+    // reject-on-fail: probe the effective config BEFORE the db mutation. an absent
+    // baseURL/apiKey falls back to the stored row (the patch tests the merged state,
+    // and an absent key tests the decrypted stored secret against the new baseURL).
+    const effectiveBaseURL = input.baseURL ?? row.baseURL;
+    const effectiveApiKey = input.apiKey ?? (await this.getDecryptedApiKey(id));
+    await this.probe.verify(effectiveBaseURL, effectiveApiKey);
     // project explicit columns (never spread the dto); drizzle ignores undefined,
     // so a partial patch only touches the fields the caller sent. re-encrypt only
     // when a new apiKey is supplied — an absent key keeps the stored ciphertext.
@@ -64,8 +74,8 @@ export class LlmProviderService {
       patch.iv = iv;
       patch.keyVersion = KEY_VERSION;
     }
-    const row = this.db.update(llmProvider).set(patch).where(eq(llmProvider.id, id)).returning().get();
-    return this.toContract(row);
+    const updated = this.db.update(llmProvider).set(patch).where(eq(llmProvider.id, id)).returning().get();
+    return this.toContract(updated);
   }
 
   async activate(id: string): Promise<LlmProvider> {

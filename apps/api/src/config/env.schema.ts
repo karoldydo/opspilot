@@ -7,6 +7,7 @@ export interface EnvConfig {
   DATABASE_PATH: string;
   DEVICE_CREDENTIAL_LIST_LIMIT: number;
   ENCRYPTION_KEY: string;
+  LLM_TEST_TIMEOUT_MS: number;
   NODE_ENV: 'development' | 'production' | 'test';
   PORT: number;
   SESSION_EXPIRES_IN: number;
@@ -28,6 +29,8 @@ export const envSchema = Joi.object<EnvConfig>({
   DEVICE_CREDENTIAL_LIST_LIMIT: Joi.number().integer().min(1).max(100).default(50),
   // no default — master aes-256 key, 32 raw bytes as base64 (44 chars). must fail fast at boot.
   ENCRYPTION_KEY: Joi.string().base64().length(44).required(),
+  // bound on the outbound provider test-call (fetch + AbortSignal.timeout); non-secret tunable with a default.
+  LLM_TEST_TIMEOUT_MS: Joi.number().integer().min(1000).default(5000),
   NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
   PORT: Joi.number().port().default(3000),
   // session lifetimes in seconds — better-auth defaults (7 days / 1 day).

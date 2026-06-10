@@ -564,35 +564,35 @@ mutate-then-refetch and maps the error.
 
 #### Automated
 
-- [x] 2.1 API tests pass: `npx nx test api`
-- [x] 2.2 API lint clean: `npx nx lint api`
-- [x] 2.3 API build (webpack): `npx nx build api`
-- [x] 2.4 Migration `0003_*.sql` generated and present
+- [x] 2.1 API tests pass: `npx nx test api` — 3e5fdea
+- [x] 2.2 API lint clean: `npx nx lint api` — 3e5fdea
+- [x] 2.3 API build (webpack): `npx nx build api` — 3e5fdea
+- [x] 2.4 Migration `0003_*.sql` generated and present — 3e5fdea
 
 #### Manual
 
-- [x] 2.5 Two `POST` → first active, second not
-- [x] 2.6 `activate` the second → exactly one active
-- [x] 2.7 `DELETE` the active one → zero active, no error
-- [x] 2.8 Migration applies cleanly at boot
-- [x] 2.9 The response never contains the key; `hasApiKey: true`
+- [x] 2.5 Two `POST` → first active, second not — 3e5fdea
+- [x] 2.6 `activate` the second → exactly one active — 3e5fdea
+- [x] 2.7 `DELETE` the active one → zero active, no error — 3e5fdea
+- [x] 2.8 Migration applies cleanly at boot — 3e5fdea
+- [x] 2.9 The response never contains the key; `hasApiKey: true` — 3e5fdea
 
 ### Phase 3: API — test-call mechanism
 
 #### Automated
 
-- [ ] 3.1 API tests pass: `npx nx test api`
-- [ ] 3.2 API lint clean: `npx nx lint api`
-- [ ] 3.3 API build: `npx nx build api`
-- [ ] 3.4 Boot with `LLM_TEST_TIMEOUT_MS` does not fail Joi
+- [x] 3.1 API tests pass: `npx nx test api`
+- [x] 3.2 API lint clean: `npx nx lint api`
+- [x] 3.3 API build: `npx nx build api`
+- [x] 3.4 Boot with `LLM_TEST_TIMEOUT_MS` does not fail Joi
 
 #### Manual
 
-- [ ] 3.5 `POST` a valid provider → save OK
-- [ ] 3.6 `POST` a bad key → 502, no row
-- [ ] 3.7 `POST` an unreachable URL → 503, no row
-- [ ] 3.8 `POST` a hanging URL → 504 after timeout
-- [ ] 3.9 `PATCH` only `model` → the probe uses the stored key
+- [x] 3.5 `POST` a valid provider → save OK
+- [x] 3.6 `POST` a bad key → 502, no row
+- [x] 3.7 `POST` an unreachable URL → 503, no row
+- [x] 3.8 `POST` a hanging URL → 504 after timeout
+- [x] 3.9 `PATCH` only `model` → the probe uses the stored key
 
 ### Phase 4: Web feature
 
