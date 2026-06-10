@@ -581,32 +581,32 @@ mutate-then-refetch and maps the error.
 
 #### Automated
 
-- [x] 3.1 API tests pass: `npx nx test api`
-- [x] 3.2 API lint clean: `npx nx lint api`
-- [x] 3.3 API build: `npx nx build api`
-- [x] 3.4 Boot with `LLM_TEST_TIMEOUT_MS` does not fail Joi
+- [x] 3.1 API tests pass: `npx nx test api` — 982251e
+- [x] 3.2 API lint clean: `npx nx lint api` — 982251e
+- [x] 3.3 API build: `npx nx build api` — 982251e
+- [x] 3.4 Boot with `LLM_TEST_TIMEOUT_MS` does not fail Joi — 982251e
 
 #### Manual
 
-- [x] 3.5 `POST` a valid provider → save OK
-- [x] 3.6 `POST` a bad key → 502, no row
-- [x] 3.7 `POST` an unreachable URL → 503, no row
-- [x] 3.8 `POST` a hanging URL → 504 after timeout
-- [x] 3.9 `PATCH` only `model` → the probe uses the stored key
+- [x] 3.5 `POST` a valid provider → save OK — 982251e
+- [x] 3.6 `POST` a bad key → 502, no row — 982251e
+- [x] 3.7 `POST` an unreachable URL → 503, no row — 982251e
+- [x] 3.8 `POST` a hanging URL → 504 after timeout — 982251e
+- [x] 3.9 `PATCH` only `model` → the probe uses the stored key — 982251e
 
 ### Phase 4: Web feature
 
 #### Automated
 
-- [ ] 4.1 Web tests pass: `npx nx test web`
-- [ ] 4.2 Web lint clean: `npx nx lint web`
-- [ ] 4.3 Web build: `npx nx build web`
-- [ ] 4.4 Format: `npm run format:check`
+- [x] 4.1 Web tests pass: `npx nx test web`
+- [x] 4.2 Web lint clean: `npx nx lint web`
+- [x] 4.3 Web build: `npx nx build web`
+- [x] 4.4 Format: `npm run format:check`
 
 #### Manual
 
-- [ ] 4.5 Route `/llm-providers` protected by authGuard, list renders
-- [ ] 4.6 Adding a provider → on the list with an active badge
-- [ ] 4.7 Toggling active → the badge jumps
-- [ ] 4.8 Edit without `apiKey` keeps the key; a test-call error in the UI
-- [ ] 4.9 Deleting the active one without auto-promotion
+- [x] 4.5 Route `/llm-providers` protected by authGuard, list renders
+- [x] 4.6 Adding a provider → on the list with an active badge
+- [x] 4.7 Toggling active → the badge jumps
+- [x] 4.8 Edit without `apiKey` keeps the key; a test-call error in the UI
+- [x] 4.9 Deleting the active one without auto-promotion

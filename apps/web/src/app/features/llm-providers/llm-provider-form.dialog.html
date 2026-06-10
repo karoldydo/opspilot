@@ -1,0 +1,62 @@
+<hlm-dialog-header>
+  <h2 hlmDialogTitle>{{ isEdit ? 'Edit provider' : 'Add provider' }}</h2>
+  <p hlmDialogDescription>
+    {{ isEdit ? 'Update the provider; leave the API key blank to keep the current one.' : 'Enter the endpoint, model,
+    and API key. The provider is validated with a live test-call before it is saved.' }}
+  </p>
+</hlm-dialog-header>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="flex flex-col gap-4 py-2">
+    <div class="flex flex-col gap-2">
+      <label for="kind" hlmLabel>Kind</label>
+      <hlm-select [itemToString]="kindLabel" formControlName="kind">
+        <hlm-select-trigger class="w-full" buttonId="kind">
+          <hlm-select-value placeholder="Select a kind" />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          <hlm-select-group>
+            <hlm-select-item value="openai-compatible">OpenAI-compatible</hlm-select-item>
+          </hlm-select-group>
+        </hlm-select-content>
+      </hlm-select>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="baseURL" hlmLabel>Base URL</label>
+      <input id="baseURL" type="text" formControlName="baseURL" hlmInput placeholder="https://api.openai.com/v1" />
+      @if (form.controls.baseURL.touched && form.controls.baseURL.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.baseURL.getError('zod') }}</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="model" hlmLabel>Model</label>
+      <input id="model" type="text" formControlName="model" hlmInput placeholder="gpt-4o-mini" />
+      @if (form.controls.model.touched && form.controls.model.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.model.getError('zod') }}</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="apiKey" hlmLabel>API key</label>
+      <input id="apiKey" type="password" autocomplete="off" formControlName="apiKey" hlmInput />
+      @if (form.controls.apiKey.touched && form.controls.apiKey.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.apiKey.getError('zod') }}</p>
+      } @if (isEdit) {
+      <p class="text-muted-foreground text-sm">Leave blank to keep the current API key.</p>
+      }
+    </div>
+
+    @if (errorMessage()) {
+    <p class="text-destructive text-sm" role="alert">{{ errorMessage() }}</p>
+    }
+  </div>
+
+  <hlm-dialog-footer>
+    <button type="button" (click)="cancel()" hlmBtn variant="outline">Cancel</button>
+    <button type="submit" [disabled]="submitting()" hlmBtn>
+      {{ submitting() ? 'Saving…' : isEdit ? 'Save changes' : 'Add provider' }}
+    </button>
+  </hlm-dialog-footer>
+</form>

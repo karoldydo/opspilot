@@ -13,6 +13,7 @@
       "@opspilot/shared": ["./libs/shared/src/index.ts"],
       "@spartan-ng/helm": ["./libs/ui/src/index.ts"],
       "@spartan-ng/helm/alert-dialog": ["./libs/ui/alert-dialog/src/index.ts"],
+      "@spartan-ng/helm/badge": ["./libs/ui/badge/src/index.ts"],
       "@spartan-ng/helm/button": ["./libs/ui/button/src/index.ts"],
       "@spartan-ng/helm/card": ["./libs/ui/card/src/index.ts"],
       "@spartan-ng/helm/checkbox": ["./libs/ui/checkbox/src/index.ts"],

@@ -20,6 +20,14 @@ export const appRoutes: Route[] = [
   },
   {
     canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/llm-providers/llm-providers.component').then(
+        ({ LlmProvidersComponent }) => LlmProvidersComponent
+      ),
+    path: 'llm-providers',
+  },
+  {
+    canActivate: [authGuard],
     loadComponent: () => import('./home/home.component').then(({ HomeComponent }) => HomeComponent),
     path: '',
   },

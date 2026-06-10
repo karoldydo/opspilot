@@ -51,6 +51,9 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# playwright
+.playwright-mcp
+
 # claude code scheduled-tasks runtime lock (ephemeral pid/session marker)
 .claude/scheduled_tasks.lock
 

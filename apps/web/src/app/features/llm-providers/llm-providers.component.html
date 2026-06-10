@@ -1,0 +1,90 @@
+<main class="mx-auto flex min-h-svh max-w-4xl flex-col gap-6 p-8">
+  <header class="flex items-center justify-between gap-4">
+    <div class="flex flex-col gap-1">
+      <h1 class="text-foreground text-2xl font-semibold">LLM providers</h1>
+      <p class="text-muted-foreground text-sm">
+        Configure your own LLM endpoints and API keys — exactly one is active.
+      </p>
+    </div>
+    <button type="button" (click)="openCreate()" hlmBtn>Add provider</button>
+  </header>
+
+  @if (store.error(); as error) {
+    <p class="text-destructive text-sm" role="alert">{{ error }}</p>
+  }
+
+  @if (store.isEmpty()) {
+    <hlm-empty>
+      <hlm-empty-header>
+        <h2 hlmEmptyTitle>No providers yet</h2>
+        <p hlmEmptyDescription>Add your first LLM provider to power OpsPilot's agent features.</p>
+      </hlm-empty-header>
+      <hlm-empty-content>
+        <button type="button" (click)="openCreate()" hlmBtn variant="outline">Add provider</button>
+      </hlm-empty-content>
+    </hlm-empty>
+  } @else {
+    <div hlmTableContainer>
+      <table hlmTable>
+        <thead hlmTHead>
+          <tr hlmTr>
+            <th hlmTh>Status</th>
+            <th hlmTh>Base URL</th>
+            <th hlmTh>Model</th>
+            <th hlmTh>Updated</th>
+            <th class="text-right" hlmTh>Actions</th>
+          </tr>
+        </thead>
+        <tbody hlmTBody>
+          @for (provider of store.providers(); track provider.id) {
+            <tr hlmTr>
+              <td hlmTd>
+                @if (provider.active) {
+                  <span hlmBadge>Active</span>
+                } @else {
+                  <span hlmBadge variant="outline">Inactive</span>
+                }
+              </td>
+              <td class="font-medium" hlmTd>{{ provider.baseURL }}</td>
+              <td hlmTd>{{ provider.model }}</td>
+              <td hlmTd>{{ provider.updatedAt | date: 'short' }}</td>
+              <td class="flex justify-end gap-2" hlmTd>
+                @if (!provider.active) {
+                  <button type="button" (click)="activate(provider)" hlmBtn size="sm" variant="outline">
+                    Activate
+                  </button>
+                }
+                <button type="button" (click)="openEdit(provider)" hlmBtn size="sm" variant="outline">Edit</button>
+                <button
+                  type="button"
+                  (click)="requestDelete(provider, deleteDialog)"
+                  hlmBtn
+                  size="sm"
+                  variant="destructive"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</main>
+
+<hlm-alert-dialog #deleteDialog="hlmAlertDialog">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Delete provider?</h2>
+      <p hlmAlertDialogDescription>
+        This permanently removes {{ providerToDelete()?.baseURL }} and its stored API key. Deleting the active provider
+        leaves none active. This cannot be undone.
+      </p>
+    </hlm-alert-dialog-header>
+    <hlm-alert-dialog-footer>
+      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>Cancel</button>
+      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>Delete</button>
+    </hlm-alert-dialog-footer>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>
