@@ -550,15 +550,15 @@ mutate-then-refetch and maps the error.
 
 #### Automated
 
-- [ ] 1.1 Shared tests pass: `npx nx test shared`
-- [ ] 1.2 Shared lint clean: `npx nx lint shared`
-- [ ] 1.3 Shared build (`z.infer` types): `npx nx build shared`
-- [ ] 1.4 Format: `npm run format:check`
+- [x] 1.1 Shared tests pass: `npx nx test shared`
+- [x] 1.2 Shared lint clean: `npx nx lint shared`
+- [x] 1.3 Shared build (`z.infer` types): `npx nx build shared`
+- [x] 1.4 Format: `npm run format:check`
 
 #### Manual
 
-- [ ] 1.5 `strictObject` rejects a secret leak (spec proves it)
-- [ ] 1.6 `kind` has a default and is extensible
+- [x] 1.5 `strictObject` rejects a secret leak (spec proves it)
+- [x] 1.6 `kind` has a default and is extensible
 
 ### Phase 2: API — persistence + single-active invariant
 
