@@ -42,6 +42,9 @@ export class SshExecutor implements IExecutor {
     let timer: NodeJS.Timeout | undefined;
     try {
       try {
+        // accepted risk: no hostVerifier/hostHash, so node-ssh trusts any host key on first
+        // contact. opspilot is a homelab tool talking to devices on a trusted lan, so tofu key
+        // pinning is deliberately out of scope here — see .claude/rules/node-ssh.md "host keys".
         await ssh.connect({
           host: device.host,
           readyTimeout: this.config.connectTimeoutMs,
@@ -66,7 +69,13 @@ export class SshExecutor implements IExecutor {
       if (timer !== undefined) {
         clearTimeout(timer);
       }
-      ssh.dispose();
+      // swallow dispose errors: when connect() threw, dispose runs on an unconnected client and
+      // must not mask the original mapped connect error.
+      try {
+        ssh.dispose();
+      } catch {
+        // intentionally ignored
+      }
     }
   }
 
@@ -103,6 +112,10 @@ export class SshExecutor implements IExecutor {
   }
 
   private mutexFor(deviceId: string): Mutex {
+    // get-or-create is race-free: node's single-threaded loop never interleaves another call
+    // between this get and set (no await in between), so two concurrent executes on one device
+    // share the same mutex. the map grows one entry per device id ever seen — unbounded but tiny
+    // at homelab scale; add eviction only if device churn ever becomes real.
     let mutex = this.mutexes.get(deviceId);
     if (!mutex) {
       mutex = new Mutex();

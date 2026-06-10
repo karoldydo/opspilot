@@ -25,3 +25,10 @@ I/O; see `shared-library.md`).
 - Give every command a timeout and dispose the connection after use - no run hangs indefinitely.
 - Serialize only the per-device SSH path (the async-mutex above); leave genuinely independent
   work concurrent.
+
+## Host keys (accepted risk)
+
+- The executor connects **without** a `hostVerifier`/`hostHash`, so node-ssh trusts any host key
+  on first contact. This is a deliberate homelab tradeoff: devices live on a trusted LAN, so TOFU
+  key pinning is out of scope. If a device ever sits outside the LAN, revisit this and add a
+  `hostVerifier` backed by a stored/pinned key before connecting.
