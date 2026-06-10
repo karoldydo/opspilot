@@ -11,6 +11,8 @@ export interface EnvConfig {
   PORT: number;
   SESSION_EXPIRES_IN: number;
   SESSION_UPDATE_AGE: number;
+  SSH_COMMAND_TIMEOUT_MS: number;
+  SSH_CONNECT_TIMEOUT_MS: number;
   TRUSTED_ORIGINS: string;
 }
 
@@ -31,6 +33,10 @@ export const envSchema = Joi.object<EnvConfig>({
   // session lifetimes in seconds — better-auth defaults (7 days / 1 day).
   SESSION_EXPIRES_IN: Joi.number().integer().min(60).default(604800),
   SESSION_UPDATE_AGE: Joi.number().integer().min(60).default(86400),
+  // per-command timeout for the hand-rolled execCommand race (node-ssh has none).
+  SSH_COMMAND_TIMEOUT_MS: Joi.number().integer().min(1000).default(30000),
+  // node-ssh readyTimeout bound on the connect/handshake so an unreachable host fails fast.
+  SSH_CONNECT_TIMEOUT_MS: Joi.number().integer().min(1000).default(10000),
   // comma-separated list of origins better-auth trusts — required, no default.
   TRUSTED_ORIGINS: Joi.string().min(1).required(),
 });

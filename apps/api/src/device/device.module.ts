@@ -8,6 +8,7 @@ import { DeviceService } from './device.service';
 
 @Module({
   controllers: [DeviceController, DeviceCredentialController],
+  exports: [DeviceService],
   imports: [CredentialModule],
   providers: [DeviceService],
 })

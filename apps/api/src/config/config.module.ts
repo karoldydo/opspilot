@@ -6,12 +6,13 @@ import { cryptoConfig } from './crypto.config';
 import { databaseConfig } from './database.config';
 import { deviceConfig } from './device.config';
 import { envSchema } from './env.schema';
+import { sshConfig } from './ssh.config';
 
 @Module({
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
-      load: [authConfig, cryptoConfig, databaseConfig, deviceConfig],
+      load: [authConfig, cryptoConfig, databaseConfig, deviceConfig, sshConfig],
       validationOptions: { abortEarly: false, allowUnknown: true },
       validationSchema: envSchema,
     }),

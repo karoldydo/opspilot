@@ -598,24 +598,24 @@ confirmation. This is the final phase — confirm the full scan → curate → m
 
 #### Automated
 
-- [x] 1.1 Type checking passes (`npx nx typecheck shared` / `npm run build`)
-- [x] 1.2 Linting passes (`npx nx lint shared`)
-- [x] 1.3 Shared unit tests pass (`npx nx test shared`)
-- [x] 1.4 Schemas importable from `@opspilot/shared` (no relative imports)
+- [x] 1.1 Type checking passes (`npx nx typecheck shared` / `npm run build`) — 57fbbb6
+- [x] 1.2 Linting passes (`npx nx lint shared`) — 57fbbb6
+- [x] 1.3 Shared unit tests pass (`npx nx test shared`) — 57fbbb6
+- [x] 1.4 Schemas importable from `@opspilot/shared` (no relative imports) — 57fbbb6
 
 #### Manual
 
-- [x] 1.5 `serviceSchema` rejects unknown key + normalizes Date → ISO
-- [x] 1.6 `scannedContainerSchema` parses a representative `docker ps` NDJSON line
+- [x] 1.5 `serviceSchema` rejects unknown key + normalizes Date → ISO — 57fbbb6
+- [x] 1.6 `scannedContainerSchema` parses a representative `docker ps` NDJSON line — 57fbbb6
 
 ### Phase 2: SSH Executor
 
 #### Automated
 
-- [ ] 2.1 Type checking passes (`npx nx typecheck api`)
-- [ ] 2.2 Linting passes (`npx nx lint api`)
-- [ ] 2.3 API unit tests pass incl. `ssh.executor.spec.ts` (serialization, timeout, dispose, wrapped decrypt error)
-- [ ] 2.4 Bad SSH timeout env value fails fast at boot
+- [x] 2.1 Type checking passes (`npx nx typecheck api`)
+- [x] 2.2 Linting passes (`npx nx lint api`)
+- [x] 2.3 API unit tests pass incl. `ssh.executor.spec.ts` (serialization, timeout, dispose, wrapped decrypt error)
+- [x] 2.4 Bad SSH timeout env value fails fast at boot
 
 #### Manual
 
