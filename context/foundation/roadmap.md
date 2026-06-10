@@ -47,7 +47,7 @@ end, and the sequencing goal (`market-feedback`) says prove that before anything
 | F-02 | account-auth-foundation          | (foundation) accounts/login/session + unauth is locked out    | F-01          | FR-001, Access Control            | done     |
 | F-03 | encrypted-credential-store       | (foundation) SSH credentials are encrypted at-rest            | F-01          | FR-013, NFR: no plaintext         | done     |
 | S-01 | manage-devices                   | add (address + SSH creds), edit, delete a device              | F-02, F-03    | FR-002                            | done     |
-| S-02 | scan-and-add-services            | scan a device's containers and curate managed services        | S-01          | FR-004, FR-007                    | proposed |
+| S-02 | scan-and-add-services            | scan a device's containers and curate managed services        | S-01          | FR-004, FR-007                    | done     |
 | S-03 | configure-llm-provider           | configure their own LLM provider (endpoint + credentials)     | F-02          | FR-012                            | proposed |
 | S-04 | diagnose-service-synthesis       | diagnose a service and get a structured 4-field synthesis     | S-02, S-03    | US-01, FR-008, FR-009, FR-007     | proposed |
 | S-05 | live-narration-and-replay        | watch an agent run live and replay a saved transcript         | S-04          | US-01, FR-010                     | proposed |
@@ -146,7 +146,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** the first SSH-out operation; the per-command timeout + connection disposal born here is what satisfies the "no skill run hangs indefinitely" NFR and protects every later skill. Curating a managed subset (not showing all containers) is a deliberate choice to limit the agent's reach.
-- **Status:** proposed
+- **Status:** done
 
 ### S-03: Configure LLM provider
 
@@ -277,3 +277,4 @@ This table is the clean handoff to Jira/Linear or any MCP-backed backlog. One ro
 - **F-02: (foundation) a user can register, log in, and hold a session; unauthenticated requests reach no operational function. Flat model - no roles.** — Archived 2026-06-09 → `context/archive/2026-06-07-account-auth-foundation/`. Lesson: —.
 - **F-03: (foundation) a credential-encryption contract is in place so SSH credentials are never written in plaintext at rest.** — Archived 2026-06-09 → `context/archive/2026-06-09-encrypted-credential-store/`. Lesson: —.
 - **S-01: a user can add a device manually (address + SSH credentials), edit it, and delete it.** — Archived 2026-06-10 → `context/archive/2026-06-09-manage-devices/`. Lesson: —.
+- **S-02: a user can scan the containers on a device and curate the managed set (add selected, edit, delete).** — Archived 2026-06-10 → `context/archive/2026-06-10-scan-and-add-services/`. Lesson: —.
