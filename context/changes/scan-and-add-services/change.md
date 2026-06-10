@@ -1,7 +1,7 @@
 ---
 change_id: scan-and-add-services
 title: Scan and add services
-status: new
+status: implementing
 created: 2026-06-10
 updated: 2026-06-10
 archived_at: null

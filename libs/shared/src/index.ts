@@ -9,3 +9,7 @@ export * from './lib/schemas/device-create-request.schema';
 export * from './lib/schemas/device-update-request.schema';
 export * from './lib/schemas/device.schema';
 export * from './lib/schemas/health-response.schema';
+export * from './lib/schemas/scan-result.schema';
+export * from './lib/schemas/service-create-request.schema';
+export * from './lib/schemas/service-update-request.schema';
+export * from './lib/schemas/service.schema';
