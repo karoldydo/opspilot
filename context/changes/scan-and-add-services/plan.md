@@ -612,10 +612,10 @@ confirmation. This is the final phase — confirm the full scan → curate → m
 
 #### Automated
 
-- [x] 2.1 Type checking passes (`npx nx typecheck api`)
-- [x] 2.2 Linting passes (`npx nx lint api`)
-- [x] 2.3 API unit tests pass incl. `ssh.executor.spec.ts` (serialization, timeout, dispose, wrapped decrypt error)
-- [x] 2.4 Bad SSH timeout env value fails fast at boot
+- [x] 2.1 Type checking passes (`npx nx typecheck api`) — 5a4cf28
+- [x] 2.2 Linting passes (`npx nx lint api`) — 5a4cf28
+- [x] 2.3 API unit tests pass incl. `ssh.executor.spec.ts` (serialization, timeout, dispose, wrapped decrypt error) — 5a4cf28
+- [x] 2.4 Bad SSH timeout env value fails fast at boot — 5a4cf28
 
 #### Manual
 
@@ -628,16 +628,16 @@ confirmation. This is the final phase — confirm the full scan → curate → m
 
 #### Automated
 
-- [ ] 3.1 Migration applies cleanly at boot
-- [ ] 3.2 Type checking passes (`npx nx typecheck api`)
-- [ ] 3.3 Linting passes (`npx nx lint api`)
-- [ ] 3.4 API unit tests pass incl. `service.service.spec.ts` + `service.controller.spec.ts` (NDJSON parse, docker-error mapping, CRUD, duplicate conflict, cross-device 404, body-vs-path mismatch)
+- [x] 3.1 Migration applies cleanly at boot
+- [x] 3.2 Type checking passes (`npx nx typecheck api`)
+- [x] 3.3 Linting passes (`npx nx lint api`)
+- [x] 3.4 API unit tests pass incl. `service.service.spec.ts` + `service.controller.spec.ts` (NDJSON parse, docker-error mapping, CRUD, duplicate conflict, cross-device 404, body-vs-path mismatch)
 
 #### Manual
 
-- [ ] 3.5 `POST /devices/:id/scan` against a real device returns live container list
-- [ ] 3.6 Four error classes each return a distinct legible body
-- [ ] 3.7 Persisted `service` row carries no runtime status; re-scan does not mutate managed rows
+- [x] 3.5 `POST /devices/:id/scan` against a real device returns live container list
+- [x] 3.6 Four error classes each return a distinct legible body
+- [x] 3.7 Persisted `service` row carries no runtime status; re-scan does not mutate managed rows
 
 ### Phase 4: Web Feature
 

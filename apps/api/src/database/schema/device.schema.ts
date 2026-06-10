@@ -1,6 +1,8 @@
 import { relations, sql } from 'drizzle-orm';
 import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
+import { service } from './service.schema';
+
 export const device = sqliteTable('device', {
   createdAt: integer('created_at', { mode: 'timestamp_ms' })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
@@ -45,6 +47,7 @@ export const credential = sqliteTable(
 
 export const deviceRelations = relations(device, ({ many }) => ({
   credentials: many(credential),
+  services: many(service),
 }));
 
 export const credentialRelations = relations(credential, ({ one }) => ({

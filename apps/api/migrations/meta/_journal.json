@@ -14,6 +14,13 @@
       "tag": "0001_chief_fixer",
       "version": "6",
       "when": 1781035337703
+    },
+    {
+      "breakpoints": true,
+      "idx": 2,
+      "tag": "0002_watery_senator_kelly",
+      "version": "6",
+      "when": 1781111680272
     }
   ],
   "version": "7"

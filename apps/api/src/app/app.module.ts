@@ -9,12 +9,13 @@ import { CredentialModule } from '../credential/credential.module';
 import { DatabaseModule } from '../database/database.module';
 import { DeviceModule } from '../device/device.module';
 import { HealthModule } from '../health/health.module';
+import { ServiceModule } from '../service/service.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 @Module({
   controllers: [AppController],
-  imports: [AuthModule, ConfigModule, CredentialModule, DatabaseModule, DeviceModule, HealthModule],
+  imports: [AuthModule, ConfigModule, CredentialModule, DatabaseModule, DeviceModule, HealthModule, ServiceModule],
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: AuthAppGuard },
