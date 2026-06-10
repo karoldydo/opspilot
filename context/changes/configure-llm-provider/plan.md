@@ -180,7 +180,7 @@ the rest). The response spec **must** include a "parse throws when `apiKey`/`cip
 
 - [ ] Shared tests pass: `npx nx test shared`
 - [ ] Shared lint clean: `npx nx lint shared`
-- [ ] Shared build (`z.infer` types): `npx nx build shared`
+- [ ] Shared typecheck (`z.infer` types): `npx nx typecheck shared`
 - [ ] Format: `npm run format:check`
 
 #### Manual Verification:
@@ -552,7 +552,7 @@ mutate-then-refetch and maps the error.
 
 - [x] 1.1 Shared tests pass: `npx nx test shared` — e8215f1
 - [x] 1.2 Shared lint clean: `npx nx lint shared` — e8215f1
-- [x] 1.3 Shared build (`z.infer` types): `npx nx build shared` — e8215f1
+- [x] 1.3 Shared typecheck (`z.infer` types): `npx nx typecheck shared` — e8215f1
 - [x] 1.4 Format: `npm run format:check` — e8215f1
 
 #### Manual

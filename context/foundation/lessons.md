@@ -29,3 +29,10 @@
 - **Problem**: The Nx daemon's file-watcher keeps an open handle on the workspace tree, so renaming/moving the folder fails with `Permission denied` — both `git mv` and the plain `mv` fallback. Hit while archiving `encrypted-credential-store` right after the test/build runs in `/10x-impl-review`; the move only succeeded after the daemon was stopped.
 - **Rule**: On Windows, if a folder `git mv`/`mv` fails with `Permission denied`, run `npx nx reset` to stop the Nx daemon and release its watchers, then retry the move. When archiving immediately after `nx test`/`build`/`lint`, reset proactively before the move.
 - **Applies to**: implement, impl-review
+
+## Compute-then-write invariants belong in one transaction, not two statements
+
+- **Context**: `apps/api` Drizzle/better-sqlite3 services that derive a column value from a count/read of the table and then insert/update based on it — e.g. the auto-active-first ("the first row is active") in `llm-provider.service.ts:create`.
+- **Problem**: A `select(...).length === 0` read followed by a separate `insert(...)` is two statements with a gap between them. Two concurrent creates can both observe an empty table and both write `active: true`, breaking an app-enforced single-active invariant that has no DB-level partial-unique-index to catch the double-write. Synchronous better-sqlite3 hides it within one request, but an `await` before the read (e.g. the test-call probe) reopens the window.
+- **Rule**: When a write's value is computed from a read of the same table to maintain an invariant, wrap the read and the write in one `this.db.transaction((tx) => { ... })` and run both through `tx`. The activation path already does this (unset-all + set-one); the create path must too.
+- **Applies to**: implement, impl-review

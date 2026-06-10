@@ -1,4 +1,9 @@
-import { BadGatewayException, GatewayTimeoutException, ServiceUnavailableException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  GatewayTimeoutException,
+  InternalServerErrorException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 
 // the test-call error taxonomy: each extends a distinct http exception so the
 // global filter surfaces a legible status without per-controller formatting
@@ -9,6 +14,15 @@ import { BadGatewayException, GatewayTimeoutException, ServiceUnavailableExcepti
 export class LlmProviderAuthError extends BadGatewayException {
   constructor(baseURL: string) {
     super(`provider at ${baseURL} rejected the api key`);
+  }
+}
+
+// the stored ciphertext failed to decrypt (corrupt key material / a rotated
+// ENCRYPTION_KEY) — an internal data-integrity fault (500), surfaced legibly
+// instead of leaking a raw node:crypto stack trace through the global filter.
+export class LlmProviderKeyDecryptError extends InternalServerErrorException {
+  constructor(id: string) {
+    super(`stored api key for llm provider ${id} could not be decrypted`);
   }
 }
 

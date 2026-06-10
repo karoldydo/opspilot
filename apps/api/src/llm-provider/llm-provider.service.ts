@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { CryptoService } from '../crypto/crypto.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { llmProvider } from '../database/schema/llm-provider.schema';
+import { LlmProviderKeyDecryptError } from './llm-provider.errors';
 import { LlmProviderProbe } from './llm-provider.probe';
 
 type LlmProviderRow = typeof llmProvider.$inferSelect;
@@ -24,25 +25,30 @@ export class LlmProviderService {
     // reject-on-fail: validate the provider with a live test-call BEFORE persisting,
     // so a bad key/url/timeout never leaves an unvalidated row behind.
     await this.probe.verify(input.baseURL, input.apiKey);
-    // auto-active-first: the very first provider is active; later ones are not (the
-    // user activates manually via the activate endpoint).
-    const active = this.db.select().from(llmProvider).all().length === 0;
     const { authTag, ciphertext, iv } = this.crypto.encrypt(input.apiKey);
-    const row = this.db
-      .insert(llmProvider)
-      .values({
-        active,
-        authTag,
-        baseURL: input.baseURL,
-        ciphertext,
-        id: randomUUID(),
-        iv,
-        keyVersion: KEY_VERSION,
-        kind: input.kind,
-        model: input.model,
-      })
-      .returning()
-      .get();
+    // auto-active-first: the very first provider is active; later ones are not (the
+    // user activates manually via the activate endpoint). the count read and the
+    // insert run in one transaction so two concurrent creates cannot both observe
+    // an empty table and both insert active: true (the single-active invariant is
+    // app-enforced — no partial-index to catch a double-active at the db level).
+    const row = this.db.transaction((tx) => {
+      const active = tx.select().from(llmProvider).all().length === 0;
+      return tx
+        .insert(llmProvider)
+        .values({
+          active,
+          authTag,
+          baseURL: input.baseURL,
+          ciphertext,
+          id: randomUUID(),
+          iv,
+          keyVersion: KEY_VERSION,
+          kind: input.kind,
+          model: input.model,
+        })
+        .returning()
+        .get();
+    });
     return this.toContract(row);
   }
 
@@ -101,7 +107,12 @@ export class LlmProviderService {
   // be wired to a controller — decrypted plaintext does not cross the /api boundary.
   async getDecryptedApiKey(id: string): Promise<string> {
     const row = this.requireRow(id);
-    return this.crypto.decrypt({ authTag: row.authTag, ciphertext: row.ciphertext, iv: row.iv });
+    try {
+      return this.crypto.decrypt({ authTag: row.authTag, ciphertext: row.ciphertext, iv: row.iv });
+    } catch {
+      // corrupt ciphertext / rotated key → a legible 500, not a raw crypto throw.
+      throw new LlmProviderKeyDecryptError(id);
+    }
   }
 
   // read the row or fail with an entity-naming 404 (nestjs.md error rule).
