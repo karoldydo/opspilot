@@ -550,32 +550,32 @@ mutate-then-refetch and maps the error.
 
 #### Automated
 
-- [x] 1.1 Shared tests pass: `npx nx test shared`
-- [x] 1.2 Shared lint clean: `npx nx lint shared`
-- [x] 1.3 Shared build (`z.infer` types): `npx nx build shared`
-- [x] 1.4 Format: `npm run format:check`
+- [x] 1.1 Shared tests pass: `npx nx test shared` — e8215f1
+- [x] 1.2 Shared lint clean: `npx nx lint shared` — e8215f1
+- [x] 1.3 Shared build (`z.infer` types): `npx nx build shared` — e8215f1
+- [x] 1.4 Format: `npm run format:check` — e8215f1
 
 #### Manual
 
-- [x] 1.5 `strictObject` rejects a secret leak (spec proves it)
-- [x] 1.6 `kind` has a default and is extensible
+- [x] 1.5 `strictObject` rejects a secret leak (spec proves it) — e8215f1
+- [x] 1.6 `kind` has a default and is extensible — e8215f1
 
 ### Phase 2: API — persistence + single-active invariant
 
 #### Automated
 
-- [ ] 2.1 API tests pass: `npx nx test api`
-- [ ] 2.2 API lint clean: `npx nx lint api`
-- [ ] 2.3 API build (webpack): `npx nx build api`
-- [ ] 2.4 Migration `0003_*.sql` generated and present
+- [x] 2.1 API tests pass: `npx nx test api`
+- [x] 2.2 API lint clean: `npx nx lint api`
+- [x] 2.3 API build (webpack): `npx nx build api`
+- [x] 2.4 Migration `0003_*.sql` generated and present
 
 #### Manual
 
-- [ ] 2.5 Two `POST` → first active, second not
-- [ ] 2.6 `activate` the second → exactly one active
-- [ ] 2.7 `DELETE` the active one → zero active, no error
-- [ ] 2.8 Migration applies cleanly at boot
-- [ ] 2.9 The response never contains the key; `hasApiKey: true`
+- [x] 2.5 Two `POST` → first active, second not
+- [x] 2.6 `activate` the second → exactly one active
+- [x] 2.7 `DELETE` the active one → zero active, no error
+- [x] 2.8 Migration applies cleanly at boot
+- [x] 2.9 The response never contains the key; `hasApiKey: true`
 
 ### Phase 3: API — test-call mechanism
 

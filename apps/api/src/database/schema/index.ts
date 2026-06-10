@@ -4,4 +4,5 @@
 // in f-02, generated via @better-auth/cli (see ../../better-auth.config.ts).
 export * from './auth.schema';
 export * from './device.schema';
+export * from './llm-provider.schema';
 export * from './service.schema';
