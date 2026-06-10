@@ -53,6 +53,11 @@
                 </button>
               </td>
             </tr>
+            <tr hlmTr>
+              <td class="bg-muted/30 p-4" colspan="5" hlmTd>
+                <app-device-services [deviceId]="device.id" [deviceName]="device.name" />
+              </td>
+            </tr>
           }
         </tbody>
       </table>

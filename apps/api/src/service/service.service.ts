@@ -43,7 +43,7 @@ export class ServiceService {
   async scan(deviceId: string): Promise<ScanResult> {
     const result = await this.executor.execute(deviceId, SCAN_COMMAND);
     if (result.code !== 0) {
-      throw this.mapDockerError(deviceId, result.stderr);
+      throw this.mapDockerError(deviceId, result.code, result.stderr);
     }
     const containers = result.stdout
       .split('\n')
@@ -98,12 +98,16 @@ export class ServiceService {
   }
 
   // map docker's non-zero exit + stderr to the docker half of the taxonomy. check
-  // daemon-down first (its message is more specific), then the missing-binary case.
-  private mapDockerError(deviceId: string, stderr: string): ServiceUnavailableException {
+  // daemon-down first (docker's own cli message is english regardless of host
+  // locale), then the missing-binary case. exit code 127 is the shell's
+  // locale-independent "command not found" — the stderr text is localized (e.g.
+  // polish "nie odnaleziono polecenia"), so the code is the robust signal; keep the
+  // english regex as a secondary fallback.
+  private mapDockerError(deviceId: string, code: null | number, stderr: string): ServiceUnavailableException {
     if (/cannot connect to the docker daemon/i.test(stderr)) {
       return new DockerDaemonDownError(deviceId);
     }
-    if (/not found/i.test(stderr)) {
+    if (code === 127 || /not found/i.test(stderr)) {
       return new DockerNotFoundError(deviceId);
     }
     return new ServiceUnavailableException(`docker ps failed on device ${deviceId}: ${stderr.trim()}`);

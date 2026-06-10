@@ -1,0 +1,25 @@
+<hlm-dialog-header>
+  <h2 hlmDialogTitle>Rename service</h2>
+  <p hlmDialogDescription>Change the display name for {{ containerName }}. The container identity stays the same.</p>
+</hlm-dialog-header>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="flex flex-col gap-4 py-2">
+    <div class="flex flex-col gap-2">
+      <label for="name" hlmLabel>Name</label>
+      <input id="name" type="text" formControlName="name" hlmInput placeholder="web-01" />
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.name.getError('zod') }}</p>
+      }
+    </div>
+
+    @if (errorMessage()) {
+    <p class="text-destructive text-sm" role="alert">{{ errorMessage() }}</p>
+    }
+  </div>
+
+  <hlm-dialog-footer>
+    <button type="button" (click)="cancel()" hlmBtn variant="outline">Cancel</button>
+    <button type="submit" [disabled]="submitting()" hlmBtn>{{ submitting() ? 'Saving…' : 'Save' }}</button>
+  </hlm-dialog-footer>
+</form>

@@ -9,6 +9,7 @@ import { HlmTableImports } from '@spartan-ng/helm/table';
 
 import { DevicesClient } from '../../core/clients/devices.client';
 import { DevicesStore } from '../../core/stores/devices.store';
+import { DeviceServicesComponent } from '../services/device-services.component';
 import { DeviceFormDialog, type DeviceFormDialogContext } from './device-form.dialog';
 
 // the shared device inventory view: a table of every device with edit/delete row
@@ -19,7 +20,14 @@ import { DeviceFormDialog, type DeviceFormDialogContext } from './device-form.di
 // injector, so the list passes the store instance via dialog context.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, HlmButton, ...HlmTableImports, ...HlmAlertDialogImports, ...HlmEmptyImports],
+  imports: [
+    DatePipe,
+    HlmButton,
+    ...HlmTableImports,
+    ...HlmAlertDialogImports,
+    ...HlmEmptyImports,
+    DeviceServicesComponent,
+  ],
   providers: [DevicesClient, DevicesStore],
   selector: 'app-devices',
   templateUrl: './devices.component.html',

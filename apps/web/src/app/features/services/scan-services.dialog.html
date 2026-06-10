@@ -1,0 +1,52 @@
+<hlm-dialog-header>
+  <h2 hlmDialogTitle>Scan {{ deviceName }}</h2>
+  <p hlmDialogDescription>Select the containers to manage as services. Live status is read fresh from the host.</p>
+</hlm-dialog-header>
+
+<div class="flex flex-col gap-4 py-2">
+  @if (store.loading()) {
+  <p class="text-muted-foreground text-sm">Scanning…</p>
+  } @else if (store.error()) {
+  <p class="text-destructive text-sm" role="alert">{{ store.error() }}</p>
+  } @else if (store.scan(); as containers) { @if (containers.length === 0) {
+  <p class="text-muted-foreground text-sm">No containers detected on this host.</p>
+  } @else {
+  <div hlmTableContainer>
+    <table hlmTable>
+      <thead hlmTHead>
+        <tr hlmTr>
+          <th class="w-12" hlmTh></th>
+          <th hlmTh>Container</th>
+          <th hlmTh>Image</th>
+          <th hlmTh>Status</th>
+        </tr>
+      </thead>
+      <tbody hlmTBody>
+        @for (container of containers; track container.containerName) {
+        <tr hlmTr>
+          <td hlmTd>
+            <hlm-checkbox
+              [attr.aria-label]="'Select ' + container.containerName"
+              [checked]="isSelected(container)"
+              (checkedChange)="toggle(container, $event)"
+            />
+          </td>
+          <td class="font-medium" hlmTd>{{ container.containerName }}</td>
+          <td hlmTd>{{ container.image }}</td>
+          <td hlmTd>{{ container.status }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  } } @if (errorMessage()) {
+  <p class="text-destructive text-sm" role="alert">{{ errorMessage() }}</p>
+  }
+</div>
+
+<hlm-dialog-footer>
+  <button type="button" (click)="cancel()" hlmBtn variant="outline">Cancel</button>
+  <button type="button" [disabled]="!hasSelection() || submitting()" (click)="confirm()" hlmBtn>
+    {{ submitting() ? 'Adding…' : 'Add selected' }}
+  </button>
+</hlm-dialog-footer>

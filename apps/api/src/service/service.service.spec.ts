@@ -118,6 +118,16 @@ describe('ServiceService', () => {
     await expect(service.scan(inputDeviceId)).rejects.toBeInstanceOf(DockerNotFoundError);
   });
 
+  it('maps a localized "command not found" to DockerNotFoundError via exit code 127', async () => {
+    // a non-english host localizes the shell error (polish), so the english regex
+    // misses it — exit code 127 is the locale-independent signal that classifies it.
+    mockExecutor.execute.mockResolvedValue(
+      execResult({ code: 127, stderr: 'bash: docker: nie odnaleziono polecenia' })
+    );
+
+    await expect(service.scan(inputDeviceId)).rejects.toBeInstanceOf(DockerNotFoundError);
+  });
+
   it('maps a stopped daemon to DockerDaemonDownError', async () => {
     mockExecutor.execute.mockResolvedValue(
       execResult({ code: 1, stderr: 'Cannot connect to the Docker daemon at unix:///var/run/docker.sock.' })

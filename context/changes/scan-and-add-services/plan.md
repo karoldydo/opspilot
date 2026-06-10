@@ -628,30 +628,30 @@ confirmation. This is the final phase — confirm the full scan → curate → m
 
 #### Automated
 
-- [x] 3.1 Migration applies cleanly at boot
-- [x] 3.2 Type checking passes (`npx nx typecheck api`)
-- [x] 3.3 Linting passes (`npx nx lint api`)
-- [x] 3.4 API unit tests pass incl. `service.service.spec.ts` + `service.controller.spec.ts` (NDJSON parse, docker-error mapping, CRUD, duplicate conflict, cross-device 404, body-vs-path mismatch)
+- [x] 3.1 Migration applies cleanly at boot — 196a3a1
+- [x] 3.2 Type checking passes (`npx nx typecheck api`) — 196a3a1
+- [x] 3.3 Linting passes (`npx nx lint api`) — 196a3a1
+- [x] 3.4 API unit tests pass incl. `service.service.spec.ts` + `service.controller.spec.ts` (NDJSON parse, docker-error mapping, CRUD, duplicate conflict, cross-device 404, body-vs-path mismatch) — 196a3a1
 
 #### Manual
 
-- [x] 3.5 `POST /devices/:id/scan` against a real device returns live container list
-- [x] 3.6 Four error classes each return a distinct legible body
-- [x] 3.7 Persisted `service` row carries no runtime status; re-scan does not mutate managed rows
+- [x] 3.5 `POST /devices/:id/scan` against a real device returns live container list — 196a3a1
+- [x] 3.6 Four error classes each return a distinct legible body — 196a3a1
+- [x] 3.7 Persisted `service` row carries no runtime status; re-scan does not mutate managed rows — 196a3a1
 
 ### Phase 4: Web Feature
 
 #### Automated
 
-- [ ] 4.1 Type checking passes (`npx nx typecheck web` / `npm run build:web`)
-- [ ] 4.2 Linting passes (`npx nx lint web`)
-- [ ] 4.3 Web unit tests pass (store mutate-then-refetch + batch-add partial failure; client schema parse)
-- [ ] 4.4 Format check passes (`npm run format:check`)
+- [x] 4.1 Type checking passes (`npx nx typecheck web` / `npm run build:web`)
+- [x] 4.2 Linting passes (`npx nx lint web`)
+- [x] 4.3 Web unit tests pass (store mutate-then-refetch + batch-add partial failure; client schema parse)
+- [x] 4.4 Format check passes (`npm run format:check`)
 
 #### Manual
 
-- [ ] 4.5 Scan opens dialog and lists live containers
-- [ ] 4.6 Curated subset persists exactly; list refreshes
-- [ ] 4.7 Edit name + delete (with confirm) work
-- [ ] 4.8 Unreachable / docker-less / stopped-daemon scan shows distinct legible error
-- [ ] 4.9 Partial batch-add failure surfaces the failed container without losing successes
+- [x] 4.5 Scan opens dialog and lists live containers
+- [x] 4.6 Curated subset persists exactly; list refreshes
+- [x] 4.7 Edit name + delete (with confirm) work
+- [x] 4.8 Unreachable / docker-less / stopped-daemon scan shows distinct legible error
+- [x] 4.9 Partial batch-add failure surfaces the failed container without losing successes
