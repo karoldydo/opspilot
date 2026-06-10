@@ -3,7 +3,7 @@ project: opspilot
 version: 1
 status: draft
 created: 2026-05-30
-updated: 2026-06-10
+updated: 2026-06-11
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -48,7 +48,7 @@ end, and the sequencing goal (`market-feedback`) says prove that before anything
 | F-03 | encrypted-credential-store       | (foundation) SSH credentials are encrypted at-rest            | F-01          | FR-013, NFR: no plaintext         | done     |
 | S-01 | manage-devices                   | add (address + SSH creds), edit, delete a device              | F-02, F-03    | FR-002                            | done     |
 | S-02 | scan-and-add-services            | scan a device's containers and curate managed services        | S-01          | FR-004, FR-007                    | done     |
-| S-03 | configure-llm-provider           | configure their own LLM provider (endpoint + credentials)     | F-02          | FR-012                            | proposed |
+| S-03 | configure-llm-provider           | configure their own LLM provider (endpoint + credentials)     | F-02          | FR-012                            | done     |
 | S-04 | diagnose-service-synthesis       | diagnose a service and get a structured 4-field synthesis     | S-02, S-03    | US-01, FR-008, FR-009, FR-007     | proposed |
 | S-05 | live-narration-and-replay        | watch an agent run live and replay a saved transcript         | S-04          | US-01, FR-010                     | proposed |
 | S-06 | deterministic-service-operations | run start/stop/restart/up/down on a service with confirmation | S-02, S-04    | FR-007, FR-008, NFR: op <10s      | proposed |
@@ -158,7 +158,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** small and independent; isolating provider config early lets the north star (S-04) consume a configured provider cleanly, and lets a homelabber swap to a local/cheaper model to control cost. Provider credentials are a secret - store them via the F-03 contract.
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: Diagnose a service → structured synthesis  *(north star)*
 
@@ -278,3 +278,4 @@ This table is the clean handoff to Jira/Linear or any MCP-backed backlog. One ro
 - **F-03: (foundation) a credential-encryption contract is in place so SSH credentials are never written in plaintext at rest.** — Archived 2026-06-09 → `context/archive/2026-06-09-encrypted-credential-store/`. Lesson: —.
 - **S-01: a user can add a device manually (address + SSH credentials), edit it, and delete it.** — Archived 2026-06-10 → `context/archive/2026-06-09-manage-devices/`. Lesson: —.
 - **S-02: a user can scan the containers on a device and curate the managed set (add selected, edit, delete).** — Archived 2026-06-10 → `context/archive/2026-06-10-scan-and-add-services/`. Lesson: —.
+- **S-03: a user can configure their own LLM provider (custom endpoint + credentials) without a redeploy.** — Archived 2026-06-11 → `context/archive/2026-06-10-configure-llm-provider/`. Lesson: —.
