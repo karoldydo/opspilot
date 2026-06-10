@@ -598,15 +598,15 @@ mutate-then-refetch and maps the error.
 
 #### Automated
 
-- [x] 4.1 Web tests pass: `npx nx test web`
-- [x] 4.2 Web lint clean: `npx nx lint web`
-- [x] 4.3 Web build: `npx nx build web`
-- [x] 4.4 Format: `npm run format:check`
+- [x] 4.1 Web tests pass: `npx nx test web` — d164906
+- [x] 4.2 Web lint clean: `npx nx lint web` — d164906
+- [x] 4.3 Web build: `npx nx build web` — d164906
+- [x] 4.4 Format: `npm run format:check` — d164906
 
 #### Manual
 
-- [x] 4.5 Route `/llm-providers` protected by authGuard, list renders
-- [x] 4.6 Adding a provider → on the list with an active badge
-- [x] 4.7 Toggling active → the badge jumps
-- [x] 4.8 Edit without `apiKey` keeps the key; a test-call error in the UI
-- [x] 4.9 Deleting the active one without auto-promotion
+- [x] 4.5 Route `/llm-providers` protected by authGuard, list renders — d164906
+- [x] 4.6 Adding a provider → on the list with an active badge — d164906
+- [x] 4.7 Toggling active → the badge jumps — d164906
+- [x] 4.8 Edit without `apiKey` keeps the key; a test-call error in the UI — d164906
+- [x] 4.9 Deleting the active one without auto-promotion — d164906
