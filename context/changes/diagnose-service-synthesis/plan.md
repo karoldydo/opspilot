@@ -482,30 +482,30 @@ deployments boot unchanged. AI SDK v6 + zod v4 is a coherent peer set; no zod do
 
 #### Automated
 
-- [x] 3.1 API builds: `npx nx build api`
-- [x] 3.2 API unit tests pass: `npx nx test api`
-- [x] 3.3 Lint passes: `npx nx lint api`
-- [x] 3.4 Type check passes: `npm run build`
+- [x] 3.1 API builds: `npx nx build api` — 3b3b366
+- [x] 3.2 API unit tests pass: `npx nx test api` — 3b3b366
+- [x] 3.3 Lint passes: `npx nx lint api` — 3b3b366
+- [x] 3.4 Type check passes: `npm run build` — 3b3b366
 
 #### Manual
 
-- [x] 3.5 `POST .../diagnose` returns valid 4-field synthesis < 15 s
-- [x] 3.6 Endpoint ignoring `json_schema` yields 5xx (not 401, not malformed 200)
-- [x] 3.7 Stopped/missing container surfaces docker/SSH 5xx
-- [x] 3.8 Logs fetch merges stderr (diagnosis reflects `docker logs` content)
+- [x] 3.5 `POST .../diagnose` returns valid 4-field synthesis < 15 s — 3b3b366
+- [x] 3.6 Endpoint ignoring `json_schema` yields 5xx (not 401, not malformed 200) — 3b3b366
+- [x] 3.7 Stopped/missing container surfaces docker/SSH 5xx — 3b3b366
+- [x] 3.8 Logs fetch merges stderr (diagnosis reflects `docker logs` content) — 3b3b366
 
 ### Phase 4: Web Surface
 
 #### Automated
 
-- [ ] 4.1 Web builds: `npx nx build web`
-- [ ] 4.2 Web unit tests pass: `npx nx test web`
-- [ ] 4.3 Lint passes: `npx nx lint web`
-- [ ] 4.4 Whole workspace builds: `npm run build`
+- [x] 4.1 Web builds: `npx nx build web`
+- [x] 4.2 Web unit tests pass: `npx nx test web`
+- [x] 4.3 Lint passes: `npx nx lint web`
+- [x] 4.4 Whole workspace builds: `npm run build`
 
 #### Manual
 
-- [ ] 4.5 "Diagnose" shows spinner then 4-field result < 15 s
-- [ ] 4.6 Status badge color matches state; problems/suggestions/summary render
-- [ ] 4.7 5xx domain error shows readable message, no logout
-- [ ] 4.8 Diagnosing one row does not overwrite another's result
+- [x] 4.5 "Diagnose" shows spinner then 4-field result < 15 s
+- [x] 4.6 Status badge color matches state; problems/suggestions/summary render
+- [x] 4.7 5xx domain error shows readable message, no logout
+- [x] 4.8 Diagnosing one row does not overwrite another's result
