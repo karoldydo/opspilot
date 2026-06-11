@@ -518,29 +518,29 @@ once `status` is present.
 
 #### Automated
 
-- [x] 1.1 Shared builds: `npx nx build shared`
-- [x] 1.2 Shared lint passes (perfectionist barrel order): `npx nx lint shared`
-- [x] 1.3 Type checking passes across consumers
+- [x] 1.1 Shared builds: `npx nx build shared` — 55bd282
+- [x] 1.2 Shared lint passes (perfectionist barrel order): `npx nx lint shared` — 55bd282
+- [x] 1.3 Type checking passes across consumers — 55bd282
 
 #### Manual
 
-- [x] 1.4 `runNarrationEventSchema` parses a `delta` and rejects an unknown `type`
-- [x] 1.5 `runRecordSchema` normalizes a `Date` `createdAt` to ISO
+- [x] 1.4 `runNarrationEventSchema` parses a `delta` and rejects an unknown `type` — 55bd282
+- [x] 1.5 `runRecordSchema` normalizes a `Date` `createdAt` to ISO — 55bd282
 
 ### Phase 2: Persistence — `run_record` table, CRUD service, retention
 
 #### Automated
 
-- [ ] 2.1 Migration generates cleanly and is the only new `0004_*` file
-- [ ] 2.2 API builds (bundles the new migration): `npx nx build api`
-- [ ] 2.3 API unit tests pass: `npx nx test api`
-- [ ] 2.4 Lint passes: `npx nx lint api`
+- [x] 2.1 Migration generates cleanly and is the only new `0004_*` file
+- [x] 2.2 API builds (bundles the new migration): `npx nx build api`
+- [x] 2.3 API unit tests pass: `npx nx test api`
+- [x] 2.4 Lint passes: `npx nx lint api`
 
 #### Manual
 
-- [ ] 2.5 Boot applies `0004` and creates `run_record` (backup snapshot taken)
-- [ ] 2.6 Inserting > retention runs prunes to the newest `historyRetention`
-- [ ] 2.7 `findRecent` returns newest-first and respects the limit
+- [x] 2.5 Boot applies `0004` and creates `run_record` (backup snapshot taken)
+- [x] 2.6 Inserting > retention runs prunes to the newest `historyRetention`
+- [x] 2.7 `findRecent` returns newest-first and respects the limit
 
 ### Phase 3: API streaming — `@Sse` + persistence + replay endpoint
 

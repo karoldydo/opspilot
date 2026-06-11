@@ -5,4 +5,5 @@
 export * from './auth.schema';
 export * from './device.schema';
 export * from './llm-provider.schema';
+export * from './run-record.schema';
 export * from './service.schema';

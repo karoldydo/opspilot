@@ -6,6 +6,7 @@ import { LlmProviderModule } from '../llm-provider/llm-provider.module';
 import { ServiceModule } from '../service/service.module';
 import { DiagnoseController } from './diagnose.controller';
 import { DiagnoseService } from './diagnose.service';
+import { RunRecordService } from './run-record.service';
 
 // the s-04 diagnose domain: joins the logs-over-ssh half (ServiceModule for the
 // service-row lookup, ExecutorModule for the EXECUTOR token) with the synthesis
@@ -13,8 +14,9 @@ import { DiagnoseService } from './diagnose.service';
 // config namespace comes from the global ConfigModule, so no explicit import here.
 @Module({
   controllers: [DiagnoseController],
+  exports: [RunRecordService],
   imports: [ExecutorModule, LlmProviderModule, ServiceModule],
-  providers: [DiagnoseService],
+  providers: [DiagnoseService, RunRecordService],
 })
 export class DiagnoseModule implements NestModule {
   configure(middlewareConsumer: MiddlewareConsumer): void {

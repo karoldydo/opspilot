@@ -40,7 +40,13 @@ describe('DiagnoseService', () => {
   };
   const mockModel = { id: 'fake-model' };
   const mockClientFactory = { create: vi.fn(() => mockModel) };
-  const config: LlmConfig = { generateTimeoutMs: 12000, logsTailLines: 200, logsTimeoutMs: 5000, testTimeoutMs: 5000 };
+  const config: LlmConfig = {
+    generateTimeoutMs: 12000,
+    historyRetention: 20,
+    logsTailLines: 200,
+    logsTimeoutMs: 5000,
+    testTimeoutMs: 5000,
+  };
 
   function buildService(): DiagnoseService {
     return new DiagnoseService(

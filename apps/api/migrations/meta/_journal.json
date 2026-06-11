@@ -28,6 +28,13 @@
       "tag": "0003_ancient_professor_monster",
       "version": "6",
       "when": 1781124591901
+    },
+    {
+      "breakpoints": true,
+      "idx": 4,
+      "tag": "0004_left_lady_deathstrike",
+      "version": "6",
+      "when": 1781196580358
     }
   ],
   "version": "7"
