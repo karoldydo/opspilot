@@ -8,6 +8,7 @@ export * from './lib/schemas/credential.schema';
 export * from './lib/schemas/device-create-request.schema';
 export * from './lib/schemas/device-update-request.schema';
 export * from './lib/schemas/device.schema';
+export * from './lib/schemas/diagnosis-synthesis.schema';
 export * from './lib/schemas/health-response.schema';
 export * from './lib/schemas/llm-provider-create-request.schema';
 export * from './lib/schemas/llm-provider-update-request.schema';
