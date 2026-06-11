@@ -91,6 +91,20 @@ describe('SshExecutor', () => {
     expect(client.dispose).toHaveBeenCalledTimes(1);
   });
 
+  it('honors a per-call timeout override instead of the configured default', async () => {
+    const client: FakeClient = {
+      connect: vi.fn().mockResolvedValue(undefined),
+      dispose: vi.fn(),
+      // never resolves — only the override timer (20ms) can reject within the test window.
+      execCommand: vi.fn().mockImplementation(() => new Promise(() => undefined)),
+    };
+    // default ceiling is high (would not fire here); the call passes a tiny override.
+    const { executor } = buildExecutor({ client, commandTimeoutMs: 10000 });
+
+    await expect(executor.execute(inputDeviceId, 'sleep 60', 20)).rejects.toBeInstanceOf(SshCommandTimeoutError);
+    expect(client.dispose).toHaveBeenCalledTimes(1);
+  });
+
   it('disposes the connection on the success path', async () => {
     const client: FakeClient = {
       connect: vi.fn().mockResolvedValue(undefined),

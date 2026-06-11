@@ -7,13 +7,14 @@ import { databaseConfig } from './database.config';
 import { deviceConfig } from './device.config';
 import { envSchema } from './env.schema';
 import { llmConfig } from './llm.config';
+import { operationConfig } from './operation.config';
 import { sshConfig } from './ssh.config';
 
 @Module({
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
-      load: [authConfig, cryptoConfig, databaseConfig, deviceConfig, llmConfig, sshConfig],
+      load: [authConfig, cryptoConfig, databaseConfig, deviceConfig, llmConfig, operationConfig, sshConfig],
       validationOptions: { abortEarly: false, allowUnknown: true },
       validationSchema: envSchema,
     }),

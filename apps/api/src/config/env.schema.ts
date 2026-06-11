@@ -13,6 +13,7 @@ export interface EnvConfig {
   LLM_GENERATE_TIMEOUT_MS: number;
   LLM_TEST_TIMEOUT_MS: number;
   NODE_ENV: 'development' | 'production' | 'test';
+  OP_TIMEOUT_MS: number;
   PORT: number;
   SESSION_EXPIRES_IN: number;
   SESSION_UPDATE_AGE: number;
@@ -44,6 +45,9 @@ export const envSchema = Joi.object<EnvConfig>({
   // bound on the outbound provider test-call (fetch + AbortSignal.timeout); non-secret tunable with a default.
   LLM_TEST_TIMEOUT_MS: Joi.number().integer().min(1000).default(5000),
   NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+  // dedicated long bound for synchronous service ops (s-06) — a slow `up -d` that pulls images
+  // exceeds the 30s SSH_COMMAND_TIMEOUT_MS, so the op path overrides the executor timeout with this.
+  OP_TIMEOUT_MS: Joi.number().integer().min(1000).default(300000),
   PORT: Joi.number().port().default(3000),
   // session lifetimes in seconds — better-auth defaults (7 days / 1 day).
   SESSION_EXPIRES_IN: Joi.number().integer().min(60).default(604800),

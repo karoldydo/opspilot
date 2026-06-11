@@ -27,12 +27,12 @@ export class SshExecutor implements IExecutor {
     @Inject(SSH_CLIENT_FACTORY) private readonly createClient: SshClientFactory
   ) {}
 
-  execute(deviceId: string, command: string): Promise<ExecResult> {
-    return this.mutexFor(deviceId).runExclusive(() => this.run(deviceId, command));
+  execute(deviceId: string, command: string, timeoutMs?: number): Promise<ExecResult> {
+    return this.mutexFor(deviceId).runExclusive(() => this.run(deviceId, command, timeoutMs));
   }
 
   // resolve credential → connect → race the command against the timeout → dispose.
-  private async run(deviceId: string, command: string): Promise<ExecResult> {
+  private async run(deviceId: string, command: string, timeoutMs?: number): Promise<ExecResult> {
     // findOne throws a 404 if the device is gone; it also carries the host.
     const device = await this.deviceService.findOne(deviceId);
     const credential = await this.resolveCredential(deviceId);
@@ -55,11 +55,11 @@ export class SshExecutor implements IExecutor {
         throw this.mapConnectError(device.host, error);
       }
 
+      // per-call override falls back to the configured default, so existing callers
+      // (scan/fetchLogs) keep the 30s ceiling while a long op passes OP_TIMEOUT_MS.
+      const commandTimeoutMs = timeoutMs ?? this.config.commandTimeoutMs;
       const timeout = new Promise<never>((_, reject) => {
-        timer = setTimeout(
-          () => reject(new SshCommandTimeoutError(this.config.commandTimeoutMs)),
-          this.config.commandTimeoutMs
-        );
+        timer = setTimeout(() => reject(new SshCommandTimeoutError(commandTimeoutMs)), commandTimeoutMs);
       });
       const result = await Promise.race([ssh.execCommand(command), timeout]);
       return { code: result.code, stderr: result.stderr, stdout: result.stdout };

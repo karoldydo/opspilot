@@ -12,5 +12,9 @@ export interface ExecResult {
 // dispose are encapsulated inside execute per call; callers never manage
 // connections.
 export interface IExecutor {
-  execute(deviceId: string, command: string): Promise<ExecResult>;
+  // timeoutMs overrides the per-command timeout for this call only; omitting it
+  // keeps the executor's configured default (the 30s SSH_COMMAND_TIMEOUT_MS). a
+  // long synchronous op (s-06 `up -d` with image pulls) passes a longer bound so
+  // it outlasts the default while scan/fetchLogs keep it.
+  execute(deviceId: string, command: string, timeoutMs?: number): Promise<ExecResult>;
 }
