@@ -3,7 +3,7 @@ project: opspilot
 version: 1
 status: draft
 created: 2026-05-30
-updated: 2026-06-11
+updated: 2026-06-12
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -51,7 +51,7 @@ end, and the sequencing goal (`market-feedback`) says prove that before anything
 | S-03 | configure-llm-provider           | configure their own LLM provider (endpoint + credentials)     | F-02          | FR-012                            | done     |
 | S-04 | diagnose-service-synthesis       | diagnose a service and get a structured 4-field synthesis     | S-02, S-03    | US-01, FR-008, FR-009, FR-007     | done     |
 | S-05 | live-narration-and-replay        | watch an agent run live and replay a saved transcript         | S-04          | US-01, FR-010                     | done     |
-| S-06 | deterministic-service-operations | run start/stop/restart/up/down on a service with confirmation | S-02, S-04    | FR-007, FR-008, NFR: op <10s      | proposed |
+| S-06 | deterministic-service-operations | run start/stop/restart/up/down on a service with confirmation | S-02, S-04    | FR-007, FR-008, NFR: op <10s      | done     |
 | S-07 | per-device-agent-context         | define a per-device system prompt that shapes the agent       | S-01, S-04    | FR-005                            | proposed |
 | S-08 | custom-skill-crud                | define, edit, delete custom skills (global or per-device)     | S-06          | FR-006, FR-008                    | proposed |
 | S-09 | audit-log-and-history            | see an audit trail of user actions and agent runs, linked     | F-02, S-04    | FR-011, Access Control            | proposed |
@@ -194,7 +194,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** reuses the agent-execution engine born in S-04, so this is lighter than it looks. Sequenced after the north star because `market-feedback` biases proving AI value before rounding out the deterministic skill set - invert this only if you later decide to de-risk the SSH/execution plumbing ahead of the LLM synthesis.
-- **Status:** proposed
+- **Status:** done
 
 ### S-07: Per-device agent context
 
@@ -281,3 +281,4 @@ This table is the clean handoff to Jira/Linear or any MCP-backed backlog. One ro
 - **S-03: a user can configure their own LLM provider (custom endpoint + credentials) without a redeploy.** — Archived 2026-06-11 → `context/archive/2026-06-10-configure-llm-provider/`. Lesson: —.
 - **S-04: a user runs `diagnoseLogs` on a managed service and the agent returns a structured 4-field synthesis (status, problems, suggestions, summary).** — Archived 2026-06-11 → `context/archive/2026-06-11-diagnose-service-synthesis/`. Lesson: —.
 - **S-05: a user watches an agent run narrated live and can replay the full saved transcript of an earlier run.** — Archived 2026-06-11 → `context/archive/2026-06-11-live-narration-and-replay/`. Lesson: —.
+- **S-06: a user runs a deterministic operation (start, stop, restart, up, down) on a service and sees confirmation in the UI.** — Archived 2026-06-12 → `context/archive/2026-06-11-deterministic-service-operations/`. Lesson: —.
