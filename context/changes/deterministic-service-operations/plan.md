@@ -457,36 +457,36 @@ No DB schema change, no data migration — `run_record` is untouched. The only e
 
 #### Automated
 
-- [x] 2.1 Type checking passes (`npm run build`)
-- [x] 2.2 Lint passes (`npm run lint`)
-- [x] 2.3 API unit tests pass (`npx nx test api`)
-- [x] 2.4 Up/down on null compose fields → 400
-- [x] 2.5 Malformed compose field rejected at the boundary (no command built)
-- [x] 2.6 Result mapping: succeeded / failed+message / daemon-down+127 → 503
+- [x] 2.1 Type checking passes (`npm run build`) — dd135f5
+- [x] 2.2 Lint passes (`npm run lint`) — dd135f5
+- [x] 2.3 API unit tests pass (`npx nx test api`) — dd135f5
+- [x] 2.4 Up/down on null compose fields → 400 — dd135f5
+- [x] 2.5 Malformed compose field rejected at the boundary (no command built) — dd135f5
+- [x] 2.6 Result mapping: succeeded / failed+message / daemon-down+127 → 503 — dd135f5
 
 #### Manual
 
-- [x] 2.7 start/stop/restart confirm against a live device
-- [x] 2.8 `up -d` with an image pull completes past 30 s
-- [x] 2.9 `down` stops + removes containers
-- [x] 2.10 Forged up/down on a standalone service rejected with 400
-- [x] 2.11 Cross-device serviceId yields 404
+- [x] 2.7 start/stop/restart confirm against a live device — dd135f5
+- [x] 2.8 `up -d` with an image pull completes past 30 s — dd135f5
+- [x] 2.9 `down` stops + removes containers — dd135f5
+- [x] 2.10 Forged up/down on a standalone service rejected with 400 — dd135f5
+- [x] 2.11 Cross-device serviceId yields 404 — dd135f5
 
 ### Phase 3: Web — operation surface
 
 #### Automated
 
-- [ ] 3.1 Type checking passes (`npm run build`)
-- [ ] 3.2 Lint passes (`npm run lint`)
-- [ ] 3.3 Web unit tests pass (`npx nx test web`)
-- [ ] 3.4 `npm run format:check` clean
-- [ ] 3.5 `DeviceServicesComponent` stays within the ~150-line budget
+- [x] 3.1 Type checking passes (`npm run build`)
+- [x] 3.2 Lint passes (`npm run lint`)
+- [x] 3.3 Web unit tests pass (`npx nx test web`)
+- [x] 3.4 `npm run format:check` clean
+- [x] 3.5 `DeviceServicesComponent` stays within the ~150-line budget
 
 #### Manual
 
-- [ ] 3.6 Each op triggers and confirms in < 10 s (fast ops)
-- [ ] 3.7 Up/Down absent on a standalone service
-- [ ] 3.8 `Down` confirm modal gates the run; Cancel aborts
-- [ ] 3.9 Slow `up -d` keeps the button `Running…` until done
-- [ ] 3.10 No state bleed between rows
-- [ ] 3.11 A failed op surfaces a legible message
+- [x] 3.6 Each op triggers and confirms in < 10 s (fast ops)
+- [x] 3.7 Up/Down absent on a standalone service
+- [x] 3.8 `Down` confirm modal gates the run; Cancel aborts
+- [x] 3.9 Slow `up -d` keeps the button `Running…` until done
+- [x] 3.10 No state bleed between rows
+- [x] 3.11 A failed op surfaces a legible message

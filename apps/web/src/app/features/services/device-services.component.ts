@@ -14,6 +14,7 @@ import { DiagnosisStore } from '../../core/stores/diagnosis.store';
 import { ServicesStore } from '../../core/stores/services.store';
 import { RenameServiceDialog, type RenameServiceDialogContext } from './rename-service.dialog';
 import { ScanServicesDialog, type ScanServicesDialogContext } from './scan-services.dialog';
+import { ServiceOperationsComponent } from './service-operations.component';
 
 // status → badge classes. spartan's hlmBadge has no success/warning variant, so we
 // keep its shape and color via tokens/utilities: down uses the semantic destructive
@@ -31,7 +32,15 @@ const BADGE_CLASS: Record<DiagnosisSynthesis['status'], string> = {
 // cdk overlay outside this injector, so the store instance is passed via context.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, HlmBadge, HlmButton, ...HlmCardImports, ...HlmTableImports, ...HlmAlertDialogImports],
+  imports: [
+    DatePipe,
+    HlmBadge,
+    HlmButton,
+    ...HlmCardImports,
+    ...HlmTableImports,
+    ...HlmAlertDialogImports,
+    ServiceOperationsComponent,
+  ],
   providers: [ServicesClient, ServicesStore, DiagnosisClient, DiagnosisStore],
   selector: 'app-device-services',
   templateUrl: './device-services.component.html',

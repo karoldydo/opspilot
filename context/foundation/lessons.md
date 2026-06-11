@@ -36,3 +36,10 @@
 - **Problem**: A `select(...).length === 0` read followed by a separate `insert(...)` is two statements with a gap between them. Two concurrent creates can both observe an empty table and both write `active: true`, breaking an app-enforced single-active invariant that has no DB-level partial-unique-index to catch the double-write. Synchronous better-sqlite3 hides it within one request, but an `await` before the read (e.g. the test-call probe) reopens the window.
 - **Rule**: When a write's value is computed from a read of the same table to maintain an invariant, wrap the read and the write in one `this.db.transaction((tx) => { ... })` and run both through `tx`. The activation path already does this (unset-all + set-one); the create path must too.
 - **Applies to**: implement, impl-review
+
+## Never list containers with `docker ps --format '{{json .}}'` / `-s` unless you need size
+
+- **Context**: `apps/api` skills that list containers over SSH (e.g. `SCAN_COMMAND` in `service.service.ts`), and any future `docker ps` listing run through the executor's bounded command timeout.
+- **Problem**: `{{json .}}` marshals the whole container struct, which makes the docker CLI enable layer-size computation (`SizeRw`/`SizeRootFs`) — identical to passing `-s`. On slow storage (Synology NAS) the daemon walks every container's layers for ~27 s, brushing the 30 s SSH command timeout, so scan times out intermittently. Isolated empirically: `docker ps -s` with a trivial format = 27 s; every single field (`{{.Names}}`, `{{.Status}}`, `{{.Labels}}`, …) = 0.02 s; an explicit-field JSON without `.Size` = 0.02 s.
+- **Rule**: Never use `docker ps --format '{{json .}}'` or `-s` for listing unless size is actually needed — build the result from explicit fields (`{{.Names}}`, `{{.Image}}`, `{{.State}}`, `{{.Status}}`, `{{.Labels}}`), because whole-struct json (and `-s`) forces the expensive per-container layer-size walk.
+- **Applies to**: plan, implement, impl-review

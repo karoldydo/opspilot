@@ -38,6 +38,7 @@
                 >
                   {{ diag.loading ? 'Diagnosing…' : 'Diagnose' }}
                 </button>
+                <app-service-operations [deviceId]="deviceId()" [service]="service" />
                 <button type="button" (click)="openRename(service)" hlmBtn size="sm" variant="outline">Edit</button>
                 <button
                   type="button"

@@ -1,0 +1,60 @@
+<div class="flex flex-col items-end gap-1">
+  <div class="flex flex-wrap justify-end gap-2">
+    @for (op of containerOps; track op) {
+      <button type="button" [disabled]="entry().pending !== null" (click)="run(op)" hlmBtn size="sm" variant="outline">
+        {{ entry().pending === op ? 'Running…' : opLabel[op] }}
+      </button>
+    }
+    @if (canCompose()) {
+      <button
+        type="button"
+        [disabled]="entry().pending !== null"
+        (click)="run('up')"
+        hlmBtn
+        size="sm"
+        variant="outline"
+      >
+        {{ entry().pending === 'up' ? 'Running…' : opLabel.up }}
+      </button>
+      <button
+        type="button"
+        [disabled]="entry().pending !== null"
+        (click)="downDialog.open()"
+        hlmBtn
+        size="sm"
+        variant="destructive"
+      >
+        {{ entry().pending === 'down' ? 'Running…' : opLabel.down }}
+      </button>
+    }
+  </div>
+
+  @if (entry().error) {
+    <p class="text-destructive text-xs" role="alert">{{ entry().error }}</p>
+  } @else if (entry().result; as result) {
+    <p
+      class="text-xs"
+      [class.dark:text-green-400]="result.status === 'succeeded'"
+      [class.text-destructive]="result.status === 'failed'"
+      [class.text-green-700]="result.status === 'succeeded'"
+    >
+      {{ opLabel[result.operation] }}: {{ result.message }}
+    </p>
+  }
+</div>
+
+<hlm-alert-dialog #downDialog="hlmAlertDialog">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Bring {{ service().name }} down?</h2>
+      <p hlmAlertDialogDescription>
+        This runs <code>docker compose down</code> on {{ service().name }} — it stops and removes the containers and the
+        network. This cannot be undone.
+      </p>
+    </hlm-alert-dialog-header>
+    <hlm-alert-dialog-footer>
+      <button (click)="downDialog.close()" hlmAlertDialogCancel>Cancel</button>
+      <button (click)="confirmDown(downDialog)" hlmAlertDialogAction>Down</button>
+    </hlm-alert-dialog-footer>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>
