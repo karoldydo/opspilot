@@ -6,7 +6,7 @@ import { LanguageModel } from 'ai';
 export class LlmProviderClientFactory {
   // the load-bearing reliability seam for s-04: build a configured openai-compatible
   // language model from the active provider config with structured-output enforcement
-  // turned ON. supportsStructuredOutputs: true is the master switch — it forces a real
+  // turned on. supportsStructuredOutputs: true is the master switch — it forces a real
   // response_format: { type: 'json_schema' } on the wire instead of the silent
   // json_object degrade that makes generateText throw NoObjectGeneratedError after the
   // fact. verified against @ai-sdk/openai-compatible@2.0.x: the flag lives on the

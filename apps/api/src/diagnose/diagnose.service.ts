@@ -1,5 +1,5 @@
 import { Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
-import { DiagnosisSynthesis, diagnosisSynthesisSchema } from '@opspilot/shared';
+import { containerNameSchema, DiagnosisSynthesis, diagnosisSynthesisSchema } from '@opspilot/shared';
 import { generateText, NoObjectGeneratedError, Output } from 'ai';
 
 import { llmConfig, LlmConfig } from '../config/llm.config';
@@ -29,7 +29,7 @@ export class DiagnoseService {
   async diagnose(deviceId: string, serviceId: string): Promise<DiagnosisSynthesis> {
     // 404 if the service is absent or belongs to another device; carries containerName.
     const service = await this.serviceService.findOne(deviceId, serviceId);
-    // resolve the active provider BEFORE the ssh round-trip so a missing provider
+    // resolve the active provider before the ssh round-trip so a missing provider
     // fails fast with a 409 precondition (LlmProviderNoActiveError) instead of after
     // paying the logs-fetch cost. carries the decrypted key — never logged/returned.
     const providerConfig = await this.llmProviderService.getActiveProviderConfig();
@@ -55,6 +55,11 @@ export class DiagnoseService {
   // default SSH_COMMAND_TIMEOUT_MS. the orphaned exec keeps running server-side and
   // its mutex releases when it finishes; we only bound how long diagnose waits.
   private async fetchLogs(deviceId: string, containerName: string): Promise<ExecResult> {
+    // re-validate at the shell boundary: containerName is interpolated raw into
+    // the command below, so reject anything outside docker's legal name charset
+    // (defence-in-depth — the create boundary already constrains it, this guards
+    // a row that predates that constraint). throws ZodError → 500 via the filter.
+    containerNameSchema.parse(containerName);
     const command =
       'export PATH="/usr/local/bin:/usr/local/sbin:/volume1/@appstore/ContainerManager/usr/bin:$PATH"; ' +
       `docker logs ${containerName} --tail ${this.config.logsTailLines}`;

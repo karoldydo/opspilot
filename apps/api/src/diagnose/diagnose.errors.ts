@@ -5,7 +5,7 @@ import { BadGatewayException, GatewayTimeoutException } from '@nestjs/common';
 // service.errors.ts) and the no-active-provider precondition through
 // LlmProviderNoActiveError (409). each extends a distinct http exception so the
 // global filter surfaces a legible status without per-controller formatting
-// (nestjs.md). deliberately NEVER 401 — a 401 trips the web session-expiry
+// (nestjs.md). deliberately never 401 — a 401 trips the web session-expiry
 // interceptor (better-auth.md), mirroring SshAuthError → 502.
 
 // the docker logs fetch exceeded the tight per-command logsTimeoutMs bound before

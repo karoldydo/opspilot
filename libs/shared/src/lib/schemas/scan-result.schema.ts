@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { containerNameSchema } from './container-name.schema';
+
 // one detected container parsed out of `docker ps --format '{{json .}}'` NDJSON.
 // carries live runtime facts (image/state/status) for the curation UI only —
 // these are never persisted onto a service row. compose project/path are derived
@@ -8,7 +10,7 @@ import { z } from 'zod';
 export const scannedContainerSchema = z.strictObject({
   composePath: z.string().nullable(),
   composeProject: z.string().nullable(),
-  containerName: z.string(),
+  containerName: containerNameSchema,
   image: z.string(),
   state: z.string(),
   status: z.string(),

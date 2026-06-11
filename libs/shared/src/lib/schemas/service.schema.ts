@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { containerNameSchema } from './container-name.schema';
+
 // accepts either a wire-level iso string (raw http/json) or a date the drizzle
 // row carries (timestamp_ms decodes to a date), normalizing both to an iso
 // string — the render contract stays a string regardless of the source.
@@ -12,7 +14,7 @@ const isoTimestamp = z.preprocess((value) => (value instanceof Date ? value.toIS
 export const serviceSchema = z.strictObject({
   composePath: z.string().nullable(),
   composeProject: z.string().nullable(),
-  containerName: z.string(),
+  containerName: containerNameSchema,
   createdAt: isoTimestamp,
   deviceId: z.uuid(),
   id: z.uuid(),
