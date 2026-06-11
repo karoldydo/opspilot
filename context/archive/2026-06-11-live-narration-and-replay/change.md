@@ -1,10 +1,10 @@
 ---
 change_id: live-narration-and-replay
 title: Live narration and replay
-status: impl_reviewed
+status: archived
 created: 2026-06-11
 updated: 2026-06-11
-archived_at: null
+archived_at: 2026-06-11T19:47:51Z
 ---
 
 ## Notes

@@ -50,7 +50,7 @@ end, and the sequencing goal (`market-feedback`) says prove that before anything
 | S-02 | scan-and-add-services            | scan a device's containers and curate managed services        | S-01          | FR-004, FR-007                    | done     |
 | S-03 | configure-llm-provider           | configure their own LLM provider (endpoint + credentials)     | F-02          | FR-012                            | done     |
 | S-04 | diagnose-service-synthesis       | diagnose a service and get a structured 4-field synthesis     | S-02, S-03    | US-01, FR-008, FR-009, FR-007     | done     |
-| S-05 | live-narration-and-replay        | watch an agent run live and replay a saved transcript         | S-04          | US-01, FR-010                     | proposed |
+| S-05 | live-narration-and-replay        | watch an agent run live and replay a saved transcript         | S-04          | US-01, FR-010                     | done     |
 | S-06 | deterministic-service-operations | run start/stop/restart/up/down on a service with confirmation | S-02, S-04    | FR-007, FR-008, NFR: op <10s      | proposed |
 | S-07 | per-device-agent-context         | define a per-device system prompt that shapes the agent       | S-01, S-04    | FR-005                            | proposed |
 | S-08 | custom-skill-crud                | define, edit, delete custom skills (global or per-device)     | S-06          | FR-006, FR-008                    | proposed |
@@ -182,7 +182,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** live narration is the headline UX **and** the known deploy trap - SSE through the Cloudflare edge needs heartbeats (`: ping`) + `X-Accel-Buffering: no` / `Cache-Control: no-cache` from day one, or runs > ~100 s silently cut (`infrastructure.md` risk register, H/H). Isolated here so the streaming risk is contained, not spread across the execution engine; WebSocket is the documented fallback.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: Deterministic service operations
 
@@ -280,3 +280,4 @@ This table is the clean handoff to Jira/Linear or any MCP-backed backlog. One ro
 - **S-02: a user can scan the containers on a device and curate the managed set (add selected, edit, delete).** — Archived 2026-06-10 → `context/archive/2026-06-10-scan-and-add-services/`. Lesson: —.
 - **S-03: a user can configure their own LLM provider (custom endpoint + credentials) without a redeploy.** — Archived 2026-06-11 → `context/archive/2026-06-10-configure-llm-provider/`. Lesson: —.
 - **S-04: a user runs `diagnoseLogs` on a managed service and the agent returns a structured 4-field synthesis (status, problems, suggestions, summary).** — Archived 2026-06-11 → `context/archive/2026-06-11-diagnose-service-synthesis/`. Lesson: —.
+- **S-05: a user watches an agent run narrated live and can replay the full saved transcript of an earlier run.** — Archived 2026-06-11 → `context/archive/2026-06-11-live-narration-and-replay/`. Lesson: —.
