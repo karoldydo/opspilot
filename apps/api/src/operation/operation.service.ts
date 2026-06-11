@@ -54,7 +54,7 @@ export class OperationService {
     // classifyExit throws an infra 503 (daemon-down / docker-not-found) or returns a
     // cleaned message for an op-specific non-zero exit ("no such container", ...) —
     // that returned case is what gives `status: 'failed'` meaning distinct from infra.
-    const failure = this.classifyExit(deviceId, result.code, result.stderr);
+    const failure = this.classifyExit(operation, deviceId, result.code, result.stdout, result.stderr);
     return serviceOperationResultSchema.parse({ message: failure.message, operation, status: 'failed' });
   }
 
@@ -86,14 +86,22 @@ export class OperationService {
   // regardless of host locale), then the missing-binary case (exit 127 is the
   // locale-independent signal). anything else is an op-specific failure — returned as
   // a cleaned message for `status: 'failed'`, not thrown.
-  private classifyExit(deviceId: string, code: null | number, stderr: string): { message: string } {
+  private classifyExit(
+    operation: ServiceOperation,
+    deviceId: string,
+    code: null | number,
+    stdout: string,
+    stderr: string
+  ): { message: string } {
     if (/cannot connect to the docker daemon/i.test(stderr)) {
       throw new DockerDaemonDownError(deviceId);
     }
     if (code === 127) {
       throw new DockerNotFoundError(deviceId);
     }
-    return { message: stderr.trim() };
+    // merge stdout+stderr (some compose failures write only to stdout); fall back to a
+    // generic contextful line so a failed op never renders a blank message line.
+    return { message: this.cleanOutput(stdout, stderr) || `operation ${operation} failed` };
   }
 
   // merge stdout + stderr into a single confirmation line, dropping empties (docker

@@ -16,9 +16,10 @@ export interface ServiceOperationEntry {
 }
 
 interface ServiceOperationsState {
-  // keyed by serviceId so running an op on one row never clobbers another row's
-  // pending/result — the component provides one store per device row, but a device
-  // has many service rows sharing that store, and the key keeps them isolated.
+  // keyed by serviceId so a row's pending/result is isolated. the store is provided
+  // per row (at the service-operations component), so in practice the record holds a
+  // single key — the keying is defensive and would also hold if the provider were
+  // ever hoisted to a shared parent (as diagnosis.store is).
   entries: Record<string, ServiceOperationEntry>;
 }
 
