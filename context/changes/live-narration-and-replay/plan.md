@@ -561,14 +561,14 @@ once `status` is present.
 
 #### Automated
 
-- [x] 4.1 Web builds: `npx nx build web`
-- [x] 4.2 Web unit tests pass (delta/done/error patching, replay sets result): `npx nx test web`
-- [x] 4.3 Lint + format: `npx nx lint web` and `npm run format:check`
+- [x] 4.1 Web builds: `npx nx build web` — 69cf940
+- [x] 4.2 Web unit tests pass (delta/done/error patching, replay sets result): `npx nx test web` — 69cf940
+- [x] 4.3 Lint + format: `npx nx lint web` and `npm run format:check` — 69cf940
 
 #### Manual
 
-- [x] 4.4 The card fills incrementally on diagnose (not all-at-once)
-- [x] 4.5 Completed run appears atop the recent list; clicking an earlier run renders it statically
-- [x] 4.6 Diagnosing one row never disturbs another row's panel
-- [x] 4.7 Navigating away mid-stream closes the `EventSource`
-- [x] 4.8 No-active-provider renders as a legible line (409), no 401/session-expiry redirect
+- [x] 4.4 The card fills incrementally on diagnose (not all-at-once) — 69cf940
+- [x] 4.5 Completed run appears atop the recent list; clicking an earlier run renders it statically — 69cf940
+- [x] 4.6 Diagnosing one row never disturbs another row's panel — 69cf940
+- [x] 4.7 Navigating away mid-stream closes the `EventSource` — 69cf940
+- [x] 4.8 No-active-provider renders as a legible line (409), no 401/session-expiry redirect — 69cf940
