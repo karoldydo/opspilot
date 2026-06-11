@@ -498,14 +498,14 @@ deployments boot unchanged. AI SDK v6 + zod v4 is a coherent peer set; no zod do
 
 #### Automated
 
-- [x] 4.1 Web builds: `npx nx build web`
-- [x] 4.2 Web unit tests pass: `npx nx test web`
-- [x] 4.3 Lint passes: `npx nx lint web`
-- [x] 4.4 Whole workspace builds: `npm run build`
+- [x] 4.1 Web builds: `npx nx build web` — 7045fee
+- [x] 4.2 Web unit tests pass: `npx nx test web` — 7045fee
+- [x] 4.3 Lint passes: `npx nx lint web` — 7045fee
+- [x] 4.4 Whole workspace builds: `npm run build` — 7045fee
 
 #### Manual
 
-- [x] 4.5 "Diagnose" shows spinner then 4-field result < 15 s
-- [x] 4.6 Status badge color matches state; problems/suggestions/summary render
-- [x] 4.7 5xx domain error shows readable message, no logout
-- [x] 4.8 Diagnosing one row does not overwrite another's result
+- [x] 4.5 "Diagnose" shows spinner then 4-field result < 15 s — 7045fee
+- [x] 4.6 Status badge color matches state; problems/suggestions/summary render — 7045fee
+- [x] 4.7 5xx domain error shows readable message, no logout — 7045fee
+- [x] 4.8 Diagnosing one row does not overwrite another's result — 7045fee

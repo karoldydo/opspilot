@@ -1,7 +1,7 @@
 ---
 change_id: diagnose-service-synthesis
 title: Diagnose service synthesis
-status: implementing
+status: implemented
 created: 2026-06-11
 updated: 2026-06-11
 archived_at: null
