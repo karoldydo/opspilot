@@ -23,6 +23,7 @@
         <tbody hlmTBody>
           @for (service of store.services(); track service.id) {
             @let diag = diagnosis.entry(service.id);
+            @let view = diag.result ?? diag.partial;
             <tr hlmTr>
               <td class="font-medium" hlmTd>{{ service.name }}</td>
               <td hlmTd>{{ service.containerName }}</td>
@@ -50,44 +51,63 @@
               </td>
             </tr>
 
-            @if (diag.error || diag.result) {
+            @if (diag.error || view || diag.loading || diag.runs.length) {
               <tr hlmTr>
-                <td class="p-2" colspan="3" hlmTd>
+                <td class="space-y-3 p-2" colspan="3" hlmTd>
                   @if (diag.error) {
                     <p class="text-destructive text-sm" role="alert">{{ diag.error }}</p>
-                  } @else if (diag.result; as result) {
+                  } @else if (view || diag.loading) {
                     <section class="gap-3 p-4" hlmCard>
                       <div class="flex-row items-center gap-2 p-0" hlmCardHeader>
-                        <span [class]="badgeClass(result.status)" hlmBadge>{{ result.status }}</span>
-                        <p class="text-sm" hlmCardTitle>{{ result.summary }}</p>
+                        @if (view?.status; as status) {
+                          <span [class]="badgeClass(status)" hlmBadge>{{ status }}</span>
+                        }
+                        <p class="text-sm" hlmCardTitle>{{ view?.summary || 'Diagnosing…' }}</p>
                       </div>
                       <div class="grid gap-3 p-0 sm:grid-cols-2" hlmCardContent>
                         <div class="flex flex-col gap-1">
                           <h4 class="text-foreground text-xs font-semibold tracking-wide uppercase">Problems</h4>
-                          @if (result.problems.length) {
-                            <ul class="text-muted-foreground list-disc space-y-0.5 ps-4 text-sm">
-                              @for (problem of result.problems; track $index) {
-                                <li>{{ problem }}</li>
-                              }
-                            </ul>
-                          } @else {
-                            <p class="text-muted-foreground text-sm">None detected.</p>
+                          @if (view?.problems; as problems) {
+                            @if (problems.length) {
+                              <ul class="text-muted-foreground list-disc space-y-0.5 ps-4 text-sm">
+                                @for (problem of problems; track $index) {
+                                  <li>{{ problem }}</li>
+                                }
+                              </ul>
+                            } @else {
+                              <p class="text-muted-foreground text-sm">None detected.</p>
+                            }
                           }
                         </div>
                         <div class="flex flex-col gap-1">
                           <h4 class="text-foreground text-xs font-semibold tracking-wide uppercase">Suggestions</h4>
-                          @if (result.suggestions.length) {
-                            <ul class="text-muted-foreground list-disc space-y-0.5 ps-4 text-sm">
-                              @for (suggestion of result.suggestions; track $index) {
-                                <li>{{ suggestion }}</li>
-                              }
-                            </ul>
-                          } @else {
-                            <p class="text-muted-foreground text-sm">None.</p>
+                          @if (view?.suggestions; as suggestions) {
+                            @if (suggestions.length) {
+                              <ul class="text-muted-foreground list-disc space-y-0.5 ps-4 text-sm">
+                                @for (suggestion of suggestions; track $index) {
+                                  <li>{{ suggestion }}</li>
+                                }
+                              </ul>
+                            } @else {
+                              <p class="text-muted-foreground text-sm">None.</p>
+                            }
                           }
                         </div>
                       </div>
                     </section>
+                  }
+
+                  @if (diag.runs.length) {
+                    <div class="flex flex-col gap-1">
+                      <h4 class="text-foreground text-xs font-semibold tracking-wide uppercase">Recent runs</h4>
+                      <div class="flex flex-wrap gap-2">
+                        @for (run of diag.runs; track run.id) {
+                          <button type="button" (click)="replay(service, run)" hlmBtn size="sm" variant="ghost">
+                            {{ run.createdAt | date: 'short' }} · {{ run.synthesis.status }}
+                          </button>
+                        }
+                      </div>
+                    </div>
                   }
                 </td>
               </tr>

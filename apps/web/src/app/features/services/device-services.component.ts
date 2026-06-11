@@ -1,5 +1,6 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
-import { type DiagnosisSynthesis, type Service } from '@opspilot/shared';
+import { type DiagnosisSynthesis, type RunRecord, type Service } from '@opspilot/shared';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -30,7 +31,7 @@ const BADGE_CLASS: Record<DiagnosisSynthesis['status'], string> = {
 // cdk overlay outside this injector, so the store instance is passed via context.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HlmBadge, HlmButton, ...HlmCardImports, ...HlmTableImports, ...HlmAlertDialogImports],
+  imports: [DatePipe, HlmBadge, HlmButton, ...HlmCardImports, ...HlmTableImports, ...HlmAlertDialogImports],
   providers: [ServicesClient, ServicesStore, DiagnosisClient, DiagnosisStore],
   selector: 'app-device-services',
   templateUrl: './device-services.component.html',
@@ -51,10 +52,26 @@ export class DeviceServicesComponent {
   // the service a pending delete confirmation refers to — drives the alert copy.
   protected readonly serviceToDelete = signal<null | Service>(null);
 
+  // serviceIds whose recent-runs list has already been fetched — guards the runs
+  // effect from re-loading a row when the services signal changes for other reasons.
+  private readonly loadedRuns = new Set<string>();
+
   // load the managed list once the device id input is bound; re-runs only if the
   // bound device ever changes (it doesn't, rows track by id).
   private readonly loadEffect = effect(() => {
     void this.store.load(this.deviceId());
+  });
+
+  // once the curated services resolve, fetch each row's recent runs so the replay list
+  // is populated on first render (and after a reload). the set keeps it one fetch per row.
+  private readonly runsEffect = effect(() => {
+    const deviceId = this.deviceId();
+    for (const service of this.store.services()) {
+      if (!this.loadedRuns.has(service.id)) {
+        this.loadedRuns.add(service.id);
+        void this.diagnosis.loadRuns(deviceId, service.id);
+      }
+    }
   });
 
   // badge classes for a synthesis status — drives the result panel's status chip.
@@ -70,9 +87,10 @@ export class DeviceServicesComponent {
     dialog.close();
   }
 
-  // runs a fresh diagnosis for one service row; the store keys the result by id.
-  async diagnose(service: Service): Promise<void> {
-    await this.diagnosis.diagnose(this.deviceId(), service.id);
+  // opens a fresh live diagnosis stream for one service row; the store keys the
+  // progressive partial + final result by id and tears the stream down on completion.
+  diagnose(service: Service): void {
+    this.diagnosis.stream(this.deviceId(), service.id);
   }
 
   openRename(service: Service): void {
@@ -87,6 +105,11 @@ export class DeviceServicesComponent {
       store: this.store,
     };
     this.dialog.open(ScanServicesDialog, { context });
+  }
+
+  // renders a saved run statically in the row's card — no re-stream (frame d5).
+  replay(service: Service, run: RunRecord): void {
+    this.diagnosis.replay(service.id, run);
   }
 
   requestDelete(service: Service, dialog: { open: () => void }): void {

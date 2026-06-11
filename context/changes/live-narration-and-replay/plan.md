@@ -546,29 +546,29 @@ once `status` is present.
 
 #### Automated
 
-- [x] 3.1 API builds: `npx nx build api`
-- [x] 3.2 API unit tests pass (stream mapping, persist-on-done, error→event, pre-flight throws): `npx nx test api`
-- [x] 3.3 Lint passes: `npx nx lint api`
+- [x] 3.1 API builds: `npx nx build api` — 47d8bf3
+- [x] 3.2 API unit tests pass (stream mapping, persist-on-done, error→event, pre-flight throws): `npx nx test api` — 47d8bf3
+- [x] 3.3 Lint passes: `npx nx lint api` — 47d8bf3
 
 #### Manual
 
-- [x] 3.4 `curl -N` receives `delta` frames, a `: ping`, and a final `done` with a run id
-- [x] 3.5 No active provider returns 409 before any stream opens
-- [x] 3.6 `GET diagnose/runs` lists the new run newest-first
-- [x] 3.7 A forced synthesis failure arrives as an in-stream `error` event and completes
+- [x] 3.4 `curl -N` receives `delta` frames, a `: ping`, and a final `done` with a run id — 47d8bf3
+- [x] 3.5 No active provider returns 409 before any stream opens — 47d8bf3
+- [x] 3.6 `GET diagnose/runs` lists the new run newest-first — 47d8bf3
+- [x] 3.7 A forced synthesis failure arrives as an in-stream `error` event and completes — 47d8bf3
 
 ### Phase 4: Web — `EventSource` consumption, store, progressive render + replay
 
 #### Automated
 
-- [ ] 4.1 Web builds: `npx nx build web`
-- [ ] 4.2 Web unit tests pass (delta/done/error patching, replay sets result): `npx nx test web`
-- [ ] 4.3 Lint + format: `npx nx lint web` and `npm run format:check`
+- [x] 4.1 Web builds: `npx nx build web`
+- [x] 4.2 Web unit tests pass (delta/done/error patching, replay sets result): `npx nx test web`
+- [x] 4.3 Lint + format: `npx nx lint web` and `npm run format:check`
 
 #### Manual
 
-- [ ] 4.4 The card fills incrementally on diagnose (not all-at-once)
-- [ ] 4.5 Completed run appears atop the recent list; clicking an earlier run renders it statically
-- [ ] 4.6 Diagnosing one row never disturbs another row's panel
-- [ ] 4.7 Navigating away mid-stream closes the `EventSource`
-- [ ] 4.8 No-active-provider renders as a legible line (409), no 401/session-expiry redirect
+- [x] 4.4 The card fills incrementally on diagnose (not all-at-once)
+- [x] 4.5 Completed run appears atop the recent list; clicking an earlier run renders it statically
+- [x] 4.6 Diagnosing one row never disturbs another row's panel
+- [x] 4.7 Navigating away mid-stream closes the `EventSource`
+- [x] 4.8 No-active-provider renders as a legible line (409), no 401/session-expiry redirect
