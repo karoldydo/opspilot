@@ -467,32 +467,32 @@ deployments boot unchanged. AI SDK v6 + zod v4 is a coherent peer set; no zod do
 
 #### Automated
 
-- [x] 2.1 Install succeeds and lockfile consistent: `npm install` (no peer-dep errors)
-- [x] 2.2 API builds: `npx nx build api`
-- [x] 2.3 API tests pass (incl. smoke test): `npx nx test api`
-- [x] 2.4 Lint passes: `npx nx lint api`
-- [x] 2.5 Boot validates new env defaults (no Joi errors)
+- [x] 2.1 Install succeeds and lockfile consistent: `npm install` (no peer-dep errors) — 343830f
+- [x] 2.2 API builds: `npx nx build api` — 343830f
+- [x] 2.3 API tests pass (incl. smoke test): `npx nx test api` — 343830f
+- [x] 2.4 Lint passes: `npx nx lint api` — 343830f
+- [x] 2.5 Boot validates new env defaults (no Joi errors) — 343830f
 
 #### Manual
 
-- [x] 2.6 Smoke test fails if `supportsStructuredOutputs` removed (has teeth)
-- [x] 2.7 `getActiveProviderConfig()` returns decrypted config for active row
+- [x] 2.6 Smoke test fails if `supportsStructuredOutputs` removed (has teeth) — 343830f
+- [x] 2.7 `getActiveProviderConfig()` returns decrypted config for active row — 343830f
 
 ### Phase 3: API Diagnose Endpoint
 
 #### Automated
 
-- [ ] 3.1 API builds: `npx nx build api`
-- [ ] 3.2 API unit tests pass: `npx nx test api`
-- [ ] 3.3 Lint passes: `npx nx lint api`
-- [ ] 3.4 Type check passes: `npm run build`
+- [x] 3.1 API builds: `npx nx build api`
+- [x] 3.2 API unit tests pass: `npx nx test api`
+- [x] 3.3 Lint passes: `npx nx lint api`
+- [x] 3.4 Type check passes: `npm run build`
 
 #### Manual
 
-- [ ] 3.5 `POST .../diagnose` returns valid 4-field synthesis < 15 s
-- [ ] 3.6 Endpoint ignoring `json_schema` yields 5xx (not 401, not malformed 200)
-- [ ] 3.7 Stopped/missing container surfaces docker/SSH 5xx
-- [ ] 3.8 Logs fetch merges stderr (diagnosis reflects `docker logs` content)
+- [x] 3.5 `POST .../diagnose` returns valid 4-field synthesis < 15 s
+- [x] 3.6 Endpoint ignoring `json_schema` yields 5xx (not 401, not malformed 200)
+- [x] 3.7 Stopped/missing container surfaces docker/SSH 5xx
+- [x] 3.8 Logs fetch merges stderr (diagnosis reflects `docker logs` content)
 
 ### Phase 4: Web Surface
 

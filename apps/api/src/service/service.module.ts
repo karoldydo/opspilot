@@ -10,6 +10,7 @@ import { ServiceService } from './service.service';
 // comes from the global DatabaseModule.
 @Module({
   controllers: [ServiceController],
+  exports: [ServiceService],
   imports: [ExecutorModule],
   providers: [ServiceService],
 })

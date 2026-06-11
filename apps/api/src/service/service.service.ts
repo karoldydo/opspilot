@@ -58,6 +58,13 @@ export class ServiceService {
     return rows.map((row) => this.toContract(row));
   }
 
+  // read a single managed service scoped to its device (404 if absent or
+  // cross-device). the resolution hook s-04 diagnose composes to turn a serviceId
+  // into the containerName it fetches logs for.
+  async findOne(deviceId: string, id: string): Promise<Service> {
+    return this.toContract(this.requireRow(deviceId, id));
+  }
+
   async create(input: ServiceCreateRequest): Promise<Service> {
     try {
       const row = this.db

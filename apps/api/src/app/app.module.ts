@@ -8,6 +8,7 @@ import { ConfigModule } from '../config/config.module';
 import { CredentialModule } from '../credential/credential.module';
 import { DatabaseModule } from '../database/database.module';
 import { DeviceModule } from '../device/device.module';
+import { DiagnoseModule } from '../diagnose/diagnose.module';
 import { HealthModule } from '../health/health.module';
 import { LlmProviderModule } from '../llm-provider/llm-provider.module';
 import { ServiceModule } from '../service/service.module';
@@ -22,6 +23,7 @@ import { AppService } from './app.service';
     CredentialModule,
     DatabaseModule,
     DeviceModule,
+    DiagnoseModule,
     HealthModule,
     LlmProviderModule,
     ServiceModule,
