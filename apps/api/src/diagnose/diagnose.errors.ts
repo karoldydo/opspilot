@@ -1,4 +1,4 @@
-import { BadGatewayException, GatewayTimeoutException } from '@nestjs/common';
+import { GatewayTimeoutException } from '@nestjs/common';
 import { NoObjectGeneratedError } from 'ai';
 
 // the synthesis half of the s-04 error taxonomy. the logs-over-ssh half flows
@@ -18,24 +18,6 @@ export class DiagnosisLogsTimeoutError extends GatewayTimeoutException {
   }
 }
 
-// the active provider did not honor json_schema enforcement, so generateText threw
-// NoObjectGeneratedError (the silent json_object degrade returns non-conformant
-// output). a first-class 502 upstream fault, never a silent malformed 200. carries
-// only a safe message — never the raw .text / decrypted keys.
-export class DiagnosisSynthesisError extends BadGatewayException {
-  constructor() {
-    super('active provider did not return schema-conformant output');
-  }
-}
-
-// the synthesis generation exceeded LLM_GENERATE_TIMEOUT_MS before the provider
-// returned (504), mirroring the ssh/probe timeout half of the taxonomy.
-export class DiagnosisTimeoutError extends GatewayTimeoutException {
-  constructor() {
-    super('active llm provider did not return a diagnosis in time');
-  }
-}
-
 // map a mid-stream diagnose failure to the stable { code, message } carried in the
 // sse `error` event — distinct from the pre-flight http status codes (404/409) the
 // stream is already past. codes are drawn from the diagnose taxonomy the shared
@@ -52,7 +34,7 @@ export function diagnoseErrorToStreamEvent(error: unknown): { code: string; mess
   if (isSynthesisTimeout(error)) {
     return { code: 'timeout', message: 'active llm provider did not return a diagnosis in time' };
   }
-  if (error instanceof DiagnosisSynthesisError || NoObjectGeneratedError.isInstance(error)) {
+  if (NoObjectGeneratedError.isInstance(error)) {
     return { code: 'synthesis-failed', message: 'active provider did not return schema-conformant output' };
   }
   // docker daemon down / not found / generic upstream — a safe, generic line.

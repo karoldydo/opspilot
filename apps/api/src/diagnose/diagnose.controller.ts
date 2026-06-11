@@ -4,6 +4,10 @@ import { Observable } from 'rxjs';
 
 import { DiagnoseService } from './diagnose.service';
 
+// hard ceiling on the replay list page size, mirroring the credential list's
+// <=100 cap — keeps a caller-supplied ?limit from forcing an oversized read.
+const MAX_RUNS_LIMIT = 100;
+
 // thin http boundary nested under the device's service. params only — no body; the
 // live stream and the replay list both come straight from the service (nestjs.md
 // "keep controllers thin"). EventSource is GET-only, so the s-04 @Post('diagnose')
@@ -21,7 +25,10 @@ export class DiagnoseController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string
   ): RunRecord[] {
-    return this.diagnoseService.recentRuns(deviceId, serviceId, this.toPositiveInt(limit), this.toPositiveInt(offset));
+    const parsedLimit = this.toPositiveInt(limit);
+    // cap the page size but leave offset uncapped so deep pagination still works.
+    const boundedLimit = parsedLimit === undefined ? undefined : Math.min(parsedLimit, MAX_RUNS_LIMIT);
+    return this.diagnoseService.recentRuns(deviceId, serviceId, boundedLimit, this.toPositiveInt(offset));
   }
 
   // live narration over sse. pass-through to the service observable: the fail-fast

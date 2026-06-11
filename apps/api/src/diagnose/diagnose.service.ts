@@ -117,7 +117,6 @@ export class DiagnoseService {
           // createdAt) the fe prepends to its recent list (critical impl details).
           const saved = this.runRecordService.create({ deviceId, serviceId, synthesis });
           subscriber.next({ data: { run: saved, type: 'done' } });
-          clearInterval(heartbeat);
           subscriber.complete();
         } catch (error) {
           // a teardown-driven abort is not a failure to report — the stream is gone.
@@ -126,8 +125,11 @@ export class DiagnoseService {
           }
           const { code, message } = diagnoseErrorToStreamEvent(error);
           subscriber.next({ data: { code, message, type: 'error' } });
-          clearInterval(heartbeat);
           subscriber.complete();
+        } finally {
+          // single teardown for the keep-alive — covers success, error, and the
+          // abort early-returns alike (each bails out through this finally).
+          clearInterval(heartbeat);
         }
       };
 
