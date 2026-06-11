@@ -108,7 +108,8 @@ describe('ServiceService', () => {
     expect(mockExecutor.execute).toHaveBeenCalledWith(
       inputDeviceId,
       'export PATH="/usr/local/bin:/usr/local/sbin:/volume1/@appstore/ContainerManager/usr/bin:$PATH"; ' +
-        "docker ps --format '{{json .}}' --no-trunc"
+        'docker ps --no-trunc --format ' +
+        `'{"Names":{{json .Names}},"Image":{{json .Image}},"State":{{json .State}},"Status":{{json .Status}},"Labels":{{json .Labels}}}'`
     );
   });
 

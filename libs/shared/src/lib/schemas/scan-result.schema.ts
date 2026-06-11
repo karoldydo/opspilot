@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 import { containerNameSchema } from './container-name.schema';
 
-// one detected container parsed out of `docker ps --format '{{json .}}'` NDJSON.
+// one detected container parsed out of an explicit-field `docker ps` json line
+// (Names/Image/State/Status/Labels) NDJSON.
 // carries live runtime facts (image/state/status) for the curation UI only —
 // these are never persisted onto a service row. compose project/path are derived
 // from the container labels and nullable for standalone containers. the backend

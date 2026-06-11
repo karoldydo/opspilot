@@ -20,13 +20,17 @@ import { DockerDaemonDownError, DockerNotFoundError } from './service.errors';
 
 type ServiceRow = typeof service.$inferSelect;
 
-// ndjson so spaces in names don't break column parsing; --no-trunc keeps full
-// names/labels. compose project/path are read out of the container labels. the
-// PATH prefix resolves docker on hosts whose non-interactive ssh session omits it
-// (synology keeps docker off the default PATH — ssh.md); harmless elsewhere.
+// explicit-field json template (not the whole-struct json marshal, which forces
+// the per-container layer-size walk — see lessons.md): emit one json object per line
+// carrying only the fields parseContainer reads. ndjson so spaces in names don't
+// break parsing; --no-trunc keeps full names/labels. compose project/path are read
+// out of the container labels. the PATH prefix resolves docker on hosts whose
+// non-interactive ssh session omits it (synology keeps docker off the default
+// PATH — ssh.md); harmless elsewhere.
 const SCAN_COMMAND =
   'export PATH="/usr/local/bin:/usr/local/sbin:/volume1/@appstore/ContainerManager/usr/bin:$PATH"; ' +
-  "docker ps --format '{{json .}}' --no-trunc";
+  'docker ps --no-trunc --format ' +
+  `'{"Names":{{json .Names}},"Image":{{json .Image}},"State":{{json .State}},"Status":{{json .Status}},"Labels":{{json .Labels}}}'`;
 const COMPOSE_PROJECT_LABEL = 'com.docker.compose.project';
 const COMPOSE_CONFIG_FILES_LABEL = 'com.docker.compose.project.config_files';
 
@@ -120,8 +124,9 @@ export class ServiceService {
     return new ServiceUnavailableException(`docker ps failed on device ${deviceId}: ${stderr.trim()}`);
   }
 
-  // parse one `docker ps --format '{{json .}}'` ndjson line into the ephemeral
-  // scanned-container contract, deriving compose project/path from the labels.
+  // parse one explicit-field `docker ps` json line (Names/Image/State/Status/Labels)
+  // into the ephemeral scanned-container contract, deriving compose project/path
+  // from the labels.
   private parseContainer(line: string): ScannedContainer {
     const raw = JSON.parse(line) as Record<string, unknown>;
     const labels = this.parseLabels(typeof raw.Labels === 'string' ? raw.Labels : '');
