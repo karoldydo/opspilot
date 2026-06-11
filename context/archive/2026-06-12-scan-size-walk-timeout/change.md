@@ -1,10 +1,10 @@
 ---
 change_id: scan-size-walk-timeout
 title: Fix scan timeout from docker ps json forcing a layer-size walk
-status: implemented
+status: archived
 created: 2026-06-12
 updated: 2026-06-12
-archived_at: null
+archived_at: 2026-06-12T01:04:11+02:00
 ---
 
 ## Notes
