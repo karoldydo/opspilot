@@ -137,14 +137,14 @@ None — no persisted data, schema, or contract changes; the scan result is ephe
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npx nx test api -- src/service/service.service.spec.ts`
-- [x] 1.2 Full api test target passes: `npx nx test api`
-- [x] 1.3 Lint passes: `npx nx lint api` and `npx nx lint shared`
-- [x] 1.4 Type/build passes: `npx nx build api`
-- [x] 1.5 No remaining `{{json .}}` in the scan path (grep returns nothing)
+- [x] 1.1 Unit tests pass: `npx nx test api -- src/service/service.service.spec.ts` — 2213537
+- [x] 1.2 Full api test target passes: `npx nx test api` — 2213537
+- [x] 1.3 Lint passes: `npx nx lint api` and `npx nx lint shared` — 2213537
+- [x] 1.4 Type/build passes: `npx nx build api` — 2213537
+- [x] 1.5 No remaining `{{json .}}` in the scan path (grep returns nothing) — 2213537
 
 #### Manual
 
-- [x] 1.6 New command on NAS via MCP SSH returns <1 s with one valid JSON object per running container
-- [x] 1.7 Old `{{json .}}` command on the same host times in tens of seconds (before/after contrast)
-- [x] 1.8 Scan from the app UI lists containers with correct compose labels and no intermittent timeout
+- [x] 1.6 New command on NAS via MCP SSH returns <1 s with one valid JSON object per running container — 2213537
+- [x] 1.7 Old `{{json .}}` command on the same host times in tens of seconds (before/after contrast) — 2213537
+- [x] 1.8 Scan from the app UI lists containers with correct compose labels and no intermittent timeout — 2213537
