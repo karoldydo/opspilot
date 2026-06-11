@@ -454,29 +454,29 @@ deployments boot unchanged. AI SDK v6 + zod v4 is a coherent peer set; no zod do
 
 #### Automated
 
-- [x] 1.1 Shared lib builds: `npx nx build shared`
-- [x] 1.2 Shared tests pass: `npx nx test shared`
-- [x] 1.3 Lint passes: `npx nx lint shared`
-- [x] 1.4 Type check passes across consumers: `npm run build`
+- [x] 1.1 Shared lib builds: `npx nx build shared` — bdde9ab
+- [x] 1.2 Shared tests pass: `npx nx test shared` — bdde9ab
+- [x] 1.3 Lint passes: `npx nx lint shared` — bdde9ab
+- [x] 1.4 Type check passes across consumers: `npm run build` — bdde9ab
 
 #### Manual
 
-- [x] 1.5 Schema importable from `@opspilot/shared` with no relative-path import
+- [x] 1.5 Schema importable from `@opspilot/shared` with no relative-path import — bdde9ab
 
 ### Phase 2: API Foundation
 
 #### Automated
 
-- [ ] 2.1 Install succeeds and lockfile consistent: `npm install` (no peer-dep errors)
-- [ ] 2.2 API builds: `npx nx build api`
-- [ ] 2.3 API tests pass (incl. smoke test): `npx nx test api`
-- [ ] 2.4 Lint passes: `npx nx lint api`
-- [ ] 2.5 Boot validates new env defaults (no Joi errors)
+- [x] 2.1 Install succeeds and lockfile consistent: `npm install` (no peer-dep errors)
+- [x] 2.2 API builds: `npx nx build api`
+- [x] 2.3 API tests pass (incl. smoke test): `npx nx test api`
+- [x] 2.4 Lint passes: `npx nx lint api`
+- [x] 2.5 Boot validates new env defaults (no Joi errors)
 
 #### Manual
 
-- [ ] 2.6 Smoke test fails if `supportsStructuredOutputs` removed (has teeth)
-- [ ] 2.7 `getActiveProviderConfig()` returns decrypted config for active row
+- [x] 2.6 Smoke test fails if `supportsStructuredOutputs` removed (has teeth)
+- [x] 2.7 `getActiveProviderConfig()` returns decrypted config for active row
 
 ### Phase 3: API Diagnose Endpoint
 

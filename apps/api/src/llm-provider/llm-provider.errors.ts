@@ -1,5 +1,6 @@
 import {
   BadGatewayException,
+  ConflictException,
   GatewayTimeoutException,
   InternalServerErrorException,
   ServiceUnavailableException,
@@ -23,6 +24,15 @@ export class LlmProviderAuthError extends BadGatewayException {
 export class LlmProviderKeyDecryptError extends InternalServerErrorException {
   constructor(id: string) {
     super(`stored api key for llm provider ${id} could not be decrypted`);
+  }
+}
+
+// no provider is active, so s-04 has no runtime config to build a client from — a
+// state precondition the operator resolves by activating a provider (409), not an
+// upstream fault. deliberately NOT 401 (would trip the web session-expiry interceptor).
+export class LlmProviderNoActiveError extends ConflictException {
+  constructor() {
+    super('no active llm provider configured');
   }
 }
 

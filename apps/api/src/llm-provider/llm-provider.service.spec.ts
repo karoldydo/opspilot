@@ -12,6 +12,7 @@ import { DatabaseModule } from '../database/database.module';
 import { MigrationService } from '../database/migration/migration.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { llmProvider } from '../database/schema/llm-provider.schema';
+import { LlmProviderNoActiveError } from './llm-provider.errors';
 import { LlmProviderModule } from './llm-provider.module';
 import { LlmProviderService } from './llm-provider.service';
 
@@ -182,6 +183,28 @@ describe('LlmProviderService', () => {
       `${baseInput.baseURL}/models`,
       expect.objectContaining({ headers: { authorization: 'Bearer sk-stored' } })
     );
+  });
+
+  it('getActiveProviderConfig returns the decrypted runtime config for the active provider', async () => {
+    const created = await service.create({ ...baseInput, apiKey: 'sk-active' });
+    await service.create({ ...baseInput, apiKey: 'sk-inactive', model: 'gpt-4o-mini' });
+
+    const actual = await service.getActiveProviderConfig();
+
+    expect(actual).toEqual({
+      apiKey: 'sk-active',
+      baseURL: baseInput.baseURL,
+      kind: 'openai-compatible',
+      model: created.model,
+    });
+  });
+
+  it('getActiveProviderConfig throws when no provider is active', async () => {
+    const created = await service.create({ ...baseInput, apiKey: 'sk-active' });
+    // removing the only (active) provider leaves zero active — no auto-promotion.
+    await service.remove(created.id);
+
+    await expect(service.getActiveProviderConfig()).rejects.toThrow(LlmProviderNoActiveError);
   });
 
   it('throws NotFoundException for a missing id on findOne', async () => {

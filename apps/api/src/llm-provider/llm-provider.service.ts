@@ -6,7 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { CryptoService } from '../crypto/crypto.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { llmProvider } from '../database/schema/llm-provider.schema';
-import { LlmProviderKeyDecryptError } from './llm-provider.errors';
+import { LlmProviderKeyDecryptError, LlmProviderNoActiveError } from './llm-provider.errors';
 import { LlmProviderProbe } from './llm-provider.probe';
 
 type LlmProviderRow = typeof llmProvider.$inferSelect;
@@ -113,6 +113,26 @@ export class LlmProviderService {
       // corrupt ciphertext / rotated key → a legible 500, not a raw crypto throw.
       throw new LlmProviderKeyDecryptError(id);
     }
+  }
+
+  // service-only accessor: resolve the single active provider's runtime config for
+  // the s-04 diagnose client factory. reads the active row (via the reserved
+  // llm_provider_active_idx), decrypts the key (reuse getDecryptedApiKey), and
+  // returns just the fields the openai-compatible factory needs. like
+  // getDecryptedApiKey, its return is NOT a contract type and must never be wired
+  // to a controller — it carries the decrypted plaintext key. throws when no
+  // provider is active so diagnose fails fast with a legible precondition error.
+  async getActiveProviderConfig(): Promise<{ apiKey: string; baseURL: string; kind: string; model: string }> {
+    const row = this.db.select().from(llmProvider).where(eq(llmProvider.active, true)).get();
+    if (!row) {
+      throw new LlmProviderNoActiveError();
+    }
+    return {
+      apiKey: await this.getDecryptedApiKey(row.id),
+      baseURL: row.baseURL,
+      kind: row.kind,
+      model: row.model,
+    };
   }
 
   // read the row or fail with an entity-naming 404 (nestjs.md error rule).

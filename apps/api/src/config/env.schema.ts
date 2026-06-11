@@ -7,6 +7,9 @@ export interface EnvConfig {
   DATABASE_PATH: string;
   DEVICE_CREDENTIAL_LIST_LIMIT: number;
   ENCRYPTION_KEY: string;
+  LLM_DIAGNOSE_LOGS_TAIL: number;
+  LLM_DIAGNOSE_LOGS_TIMEOUT_MS: number;
+  LLM_GENERATE_TIMEOUT_MS: number;
   LLM_TEST_TIMEOUT_MS: number;
   NODE_ENV: 'development' | 'production' | 'test';
   PORT: number;
@@ -29,6 +32,12 @@ export const envSchema = Joi.object<EnvConfig>({
   DEVICE_CREDENTIAL_LIST_LIMIT: Joi.number().integer().min(1).max(100).default(50),
   // no default — master aes-256 key, 32 raw bytes as base64 (44 chars). must fail fast at boot.
   ENCRYPTION_KEY: Joi.string().base64().length(44).required(),
+  // how many trailing log lines the s-04 diagnose fetch reads (docker logs --tail) and feeds the synthesis.
+  LLM_DIAGNOSE_LOGS_TAIL: Joi.number().integer().min(1).default(200),
+  // tight per-command bound on the s-04 logs fetch — distinct from the 30s default SSH_COMMAND_TIMEOUT_MS.
+  LLM_DIAGNOSE_LOGS_TIMEOUT_MS: Joi.number().integer().min(1000).default(5000),
+  // bound on the s-04 synthesis generation, passed as generateText's AbortSignal.timeout (keeps the run < 15s).
+  LLM_GENERATE_TIMEOUT_MS: Joi.number().integer().min(1000).default(12000),
   // bound on the outbound provider test-call (fetch + AbortSignal.timeout); non-secret tunable with a default.
   LLM_TEST_TIMEOUT_MS: Joi.number().integer().min(1000).default(5000),
   NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),

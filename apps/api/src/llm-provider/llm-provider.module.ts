@@ -2,15 +2,16 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 
 import { CryptoModule } from '../crypto/crypto.module';
+import { LlmProviderClientFactory } from './llm-provider.client-factory';
 import { LlmProviderController } from './llm-provider.controller';
 import { LlmProviderProbe } from './llm-provider.probe';
 import { LlmProviderService } from './llm-provider.service';
 
 @Module({
   controllers: [LlmProviderController],
-  exports: [LlmProviderService],
+  exports: [LlmProviderClientFactory, LlmProviderService],
   imports: [CryptoModule],
-  providers: [LlmProviderProbe, LlmProviderService],
+  providers: [LlmProviderClientFactory, LlmProviderProbe, LlmProviderService],
 })
 export class LlmProviderModule implements NestModule {
   configure(middlewareConsumer: MiddlewareConsumer): void {
