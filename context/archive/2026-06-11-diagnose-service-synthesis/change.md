@@ -1,10 +1,10 @@
 ---
 change_id: diagnose-service-synthesis
 title: Diagnose service synthesis
-status: impl_reviewed
+status: archived
 created: 2026-06-11
 updated: 2026-06-11
-archived_at: null
+archived_at: 2026-06-11T13:51:55Z
 ---
 
 ## Notes
