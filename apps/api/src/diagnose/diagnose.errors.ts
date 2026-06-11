@@ -1,4 +1,5 @@
 import { BadGatewayException, GatewayTimeoutException } from '@nestjs/common';
+import { NoObjectGeneratedError } from 'ai';
 
 // the synthesis half of the s-04 error taxonomy. the logs-over-ssh half flows
 // through the existing executor + docker errors (executor.errors.ts /
@@ -33,4 +34,43 @@ export class DiagnosisTimeoutError extends GatewayTimeoutException {
   constructor() {
     super('active llm provider did not return a diagnosis in time');
   }
+}
+
+// map a mid-stream diagnose failure to the stable { code, message } carried in the
+// sse `error` event — distinct from the pre-flight http status codes (404/409) the
+// stream is already past. codes are drawn from the diagnose taxonomy the shared
+// run-narration union documents (logs-timeout, timeout, synthesis-failed,
+// upstream-unavailable). reuses the same timeout / NoObjectGeneratedError
+// classification as the batch path. never surfaces a raw provider .text or a
+// decrypted key — only a safe typed message or a generic upstream line. order
+// matters: logs-timeout and the abort-timeout branch precede the no-object branch
+// (a timeout can arrive wrapped as NoObjectGeneratedError).
+export function diagnoseErrorToStreamEvent(error: unknown): { code: string; message: string } {
+  if (error instanceof DiagnosisLogsTimeoutError) {
+    return { code: 'logs-timeout', message: error.message };
+  }
+  if (isSynthesisTimeout(error)) {
+    return { code: 'timeout', message: 'active llm provider did not return a diagnosis in time' };
+  }
+  if (error instanceof DiagnosisSynthesisError || NoObjectGeneratedError.isInstance(error)) {
+    return { code: 'synthesis-failed', message: 'active provider did not return schema-conformant output' };
+  }
+  // docker daemon down / not found / generic upstream — a safe, generic line.
+  return { code: 'upstream-unavailable', message: 'the diagnosis upstream is unavailable' };
+}
+
+// true when the error is an AbortSignal.timeout firing during synthesis — either
+// surfaced directly (name TimeoutError/AbortError) or wrapped by the sdk as
+// NoObjectGeneratedError with the abort as its cause. used to keep a timeout from
+// being mis-classified as a generic synthesis failure.
+function isSynthesisTimeout(error: unknown): boolean {
+  const name = (error as { name?: string } | null)?.name;
+  if (name === 'TimeoutError' || name === 'AbortError') {
+    return true;
+  }
+  if (NoObjectGeneratedError.isInstance(error)) {
+    const causeName = (error as { cause?: { name?: string } }).cause?.name;
+    return causeName === 'TimeoutError' || causeName === 'AbortError';
+  }
+  return false;
 }

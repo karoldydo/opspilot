@@ -1,23 +1,24 @@
-import { ServiceUnavailableException } from '@nestjs/common';
-import { DiagnosisSynthesis, Service } from '@opspilot/shared';
-import { generateText, NoObjectGeneratedError } from 'ai';
+import { MessageEvent } from '@nestjs/common';
+import { DiagnosisSynthesis, RunRecord, Service } from '@opspilot/shared';
+import { NoObjectGeneratedError, streamObject } from 'ai';
+import { Observable } from 'rxjs';
 
 import { LlmConfig } from '../config/llm.config';
 import { ExecResult } from '../executor/executor.interface';
 import { LlmProviderClientFactory } from '../llm-provider/llm-provider.client-factory';
 import { LlmProviderService } from '../llm-provider/llm-provider.service';
 import { ServiceService } from '../service/service.service';
-import { DiagnosisSynthesisError, DiagnosisTimeoutError } from './diagnose.errors';
 import { DiagnoseService } from './diagnose.service';
+import { RunRecordService } from './run-record.service';
 
-// stub generateText but keep the real Output + NoObjectGeneratedError so the
-// service's Output.object call and the .isInstance narrowing behave for real.
+// stub streamObject but keep the real NoObjectGeneratedError so the error-event
+// mapper's .isInstance narrowing behaves for real.
 vi.mock('ai', async (importOriginal) => {
   const actual = await importOriginal<typeof import('ai')>();
-  return { ...actual, generateText: vi.fn() };
+  return { ...actual, streamObject: vi.fn() };
 });
 
-const mockedGenerateText = vi.mocked(generateText);
+const mockedStreamObject = vi.mocked(streamObject);
 
 describe('DiagnoseService', () => {
   const inputDeviceId = '11111111-1111-4111-8111-111111111111';
@@ -32,6 +33,13 @@ describe('DiagnoseService', () => {
     suggestions: ['restart the database container'],
     summary: 'service is degraded due to a database connectivity error',
   };
+  const savedRun: RunRecord = {
+    createdAt: '2026-06-11T10:00:00.000Z',
+    deviceId: inputDeviceId,
+    id: '33333333-3333-4333-8333-333333333333',
+    serviceId: inputServiceId,
+    synthesis: validSynthesis,
+  };
 
   const mockExecutor = { execute: vi.fn<(deviceId: string, command: string) => Promise<ExecResult>>() };
   const mockServiceService = { findOne: vi.fn<(deviceId: string, id: string) => Promise<Service>>() };
@@ -40,6 +48,10 @@ describe('DiagnoseService', () => {
   };
   const mockModel = { id: 'fake-model' };
   const mockClientFactory = { create: vi.fn(() => mockModel) };
+  const mockRunRecordService = {
+    create: vi.fn<(input: { deviceId: string; serviceId: string; synthesis: DiagnosisSynthesis }) => RunRecord>(),
+    findRecent: vi.fn<(deviceId: string, serviceId: string, limit?: number, offset?: number) => RunRecord[]>(),
+  };
   const config: LlmConfig = {
     generateTimeoutMs: 12000,
     historyRetention: 20,
@@ -54,6 +66,7 @@ describe('DiagnoseService', () => {
       mockServiceService as unknown as ServiceService,
       mockLlmProviderService as unknown as LlmProviderService,
       mockClientFactory as unknown as LlmProviderClientFactory,
+      mockRunRecordService as unknown as RunRecordService,
       config
     );
   }
@@ -63,11 +76,11 @@ describe('DiagnoseService', () => {
       composePath: null,
       composeProject: null,
       containerName: inputContainerName,
-      createdAt: new Date().toISOString(),
+      createdAt: '2026-06-11T09:00:00.000Z',
       deviceId: inputDeviceId,
       id: inputServiceId,
       name: 'Web Proxy',
-      updatedAt: new Date().toISOString(),
+      updatedAt: '2026-06-11T09:00:00.000Z',
       ...overrides,
     };
   }
@@ -76,12 +89,42 @@ describe('DiagnoseService', () => {
     return { code: 0, stderr: '', stdout: '', ...overrides };
   }
 
+  // a faked streamObject result: yields the given partials, then resolves `object`
+  // to the final synthesis (or rejects it with the given error).
+  function fakeStream(
+    partials: Partial<DiagnosisSynthesis>[],
+    final: { object?: DiagnosisSynthesis; reject?: unknown }
+  ) {
+    const object = final.reject ? Promise.reject(final.reject) : Promise.resolve(final.object as DiagnosisSynthesis);
+    // pre-attach a handler so an eager rejection never trips an unhandled-rejection
+    // warning; the service's own `await object` still observes the rejection.
+    object.catch(() => undefined);
+    return {
+      object,
+      partialObjectStream: (async function* () {
+        for (const partial of partials) {
+          yield partial;
+        }
+      })(),
+    } as unknown as ReturnType<typeof streamObject>;
+  }
+
+  // subscribe and collect every frame until the stream completes.
+  function collect(observable: Observable<MessageEvent>): Promise<MessageEvent[]> {
+    return new Promise((resolve, reject) => {
+      const events: MessageEvent[] = [];
+      observable.subscribe({ complete: () => resolve(events), error: reject, next: (event) => events.push(event) });
+    });
+  }
+
   beforeEach(() => {
     mockExecutor.execute.mockReset();
     mockServiceService.findOne.mockReset();
     mockLlmProviderService.getActiveProviderConfig.mockReset();
     mockClientFactory.create.mockClear();
-    mockedGenerateText.mockReset();
+    mockRunRecordService.create.mockReset();
+    mockRunRecordService.findRecent.mockReset();
+    mockedStreamObject.mockReset();
 
     mockServiceService.findOne.mockResolvedValue(serviceRow());
     mockLlmProviderService.getActiveProviderConfig.mockResolvedValue({
@@ -90,18 +133,32 @@ describe('DiagnoseService', () => {
       kind: 'openai-compatible',
       model: 'gpt-4o',
     });
+    mockRunRecordService.create.mockReturnValue(savedRun);
   });
 
-  it('runs docker logs with the PATH-prefix + --tail and merges stderr into the prompt', async () => {
+  it('streams delta frames, persists the final synthesis, then emits done with the saved run', async () => {
     mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'err line', stdout: 'out line' }));
-    mockedGenerateText.mockResolvedValue({ output: validSynthesis } as never);
+    mockedStreamObject.mockReturnValue(
+      fakeStream([{ summary: 'service is' }, { status: 'degraded', summary: 'service is degraded' }], {
+        object: validSynthesis,
+      })
+    );
 
-    const actual = await buildService().diagnose(inputDeviceId, inputServiceId);
+    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId));
 
-    expect(actual).toEqual(validSynthesis);
+    // two delta frames carrying the progressive partials, then a single done frame.
+    expect(events.map((e) => (e.data as { type: string }).type)).toEqual(['delta', 'delta', 'done']);
+    expect((events[0].data as { partial: unknown }).partial).toEqual({ summary: 'service is' });
+    expect((events[2].data as { run: RunRecord }).run).toEqual(savedRun);
+    // persisted with the accumulated final synthesis, before the done frame.
+    expect(mockRunRecordService.create).toHaveBeenCalledWith({
+      deviceId: inputDeviceId,
+      serviceId: inputServiceId,
+      synthesis: validSynthesis,
+    });
+    // docker logs → stderr, so both streams must reach the synthesis prompt.
     expect(mockExecutor.execute).toHaveBeenCalledWith(inputDeviceId, expectedCommand);
-    // docker logs → stderr, so both streams must reach the synthesis input.
-    const prompt = mockedGenerateText.mock.calls[0][0].prompt as string;
+    const prompt = mockedStreamObject.mock.calls[0][0].prompt as string;
     expect(prompt).toContain('out line');
     expect(prompt).toContain('err line');
     expect(mockClientFactory.create).toHaveBeenCalledWith({
@@ -112,47 +169,121 @@ describe('DiagnoseService', () => {
     });
   });
 
-  it('maps NoObjectGeneratedError (schema not enforced) to a 5xx DiagnosisSynthesisError', async () => {
+  it('maps a NoObjectGeneratedError mid-stream to a synthesis-failed error frame, never persisting', async () => {
     mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'some logs' }));
-    mockedGenerateText.mockRejectedValue(
-      new NoObjectGeneratedError({
-        cause: undefined,
-        finishReason: 'stop',
-        message: 'no object',
-        response: undefined,
-        text: 'raw',
-        usage: undefined,
+    mockedStreamObject.mockReturnValue(
+      fakeStream([{ summary: 'partial' }], {
+        reject: new NoObjectGeneratedError({
+          cause: undefined,
+          finishReason: 'stop',
+          message: 'no object',
+          response: undefined,
+          text: 'raw',
+          usage: undefined,
+        }),
       })
     );
 
-    await expect(buildService().diagnose(inputDeviceId, inputServiceId)).rejects.toBeInstanceOf(
-      DiagnosisSynthesisError
-    );
+    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+
+    expect(events.map((e) => (e.data as { type: string }).type)).toEqual(['delta', 'error']);
+    expect(events[1].data).toEqual({
+      code: 'synthesis-failed',
+      message: 'active provider did not return schema-conformant output',
+      type: 'error',
+    });
+    // the raw provider .text must never leak into the error frame.
+    expect(JSON.stringify(events[1].data)).not.toContain('raw');
+    expect(mockRunRecordService.create).not.toHaveBeenCalled();
   });
 
-  it('maps a generation timeout (AbortSignal.timeout) to a 504 DiagnosisTimeoutError', async () => {
+  it('maps a synthesis timeout (AbortSignal.timeout) to a timeout error frame', async () => {
     mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'some logs' }));
     const timeoutError = new Error('the operation was aborted');
     timeoutError.name = 'TimeoutError';
-    mockedGenerateText.mockRejectedValue(timeoutError);
+    mockedStreamObject.mockReturnValue(fakeStream([], { reject: timeoutError }));
 
-    await expect(buildService().diagnose(inputDeviceId, inputServiceId)).rejects.toBeInstanceOf(DiagnosisTimeoutError);
+    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+
+    expect(events).toHaveLength(1);
+    expect(events[0].data).toEqual({
+      code: 'timeout',
+      message: 'active llm provider did not return a diagnosis in time',
+      type: 'error',
+    });
   });
 
-  it('surfaces a non-zero docker exit as a docker 5xx, never reaching synthesis', async () => {
+  it('maps a non-zero docker exit to an upstream error frame, never reaching synthesis', async () => {
     mockExecutor.execute.mockResolvedValue(execResult({ code: 1, stderr: 'Error: No such container: web-proxy' }));
 
-    await expect(buildService().diagnose(inputDeviceId, inputServiceId)).rejects.toBeInstanceOf(
-      ServiceUnavailableException
-    );
-    expect(mockClientFactory.create).not.toHaveBeenCalled();
-    expect(mockedGenerateText).not.toHaveBeenCalled();
+    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+
+    expect(events).toHaveLength(1);
+    expect(events[0].data as { code: string; type: string }).toMatchObject({
+      code: 'upstream-unavailable',
+      type: 'error',
+    });
+    expect(mockedStreamObject).not.toHaveBeenCalled();
+    expect(mockRunRecordService.create).not.toHaveBeenCalled();
   });
 
-  it('fails fast on no active provider before any ssh logs fetch', async () => {
+  it('fails fast on no active provider before opening the stream', async () => {
     mockLlmProviderService.getActiveProviderConfig.mockRejectedValue(new Error('no active llm provider configured'));
 
-    await expect(buildService().diagnose(inputDeviceId, inputServiceId)).rejects.toThrow();
+    // narrate rejects with the http precondition before any observable is returned;
+    // the ssh logs fetch is never reached.
+    await expect(buildService().narrate(inputDeviceId, inputServiceId)).rejects.toThrow();
     expect(mockExecutor.execute).not.toHaveBeenCalled();
+    expect(mockedStreamObject).not.toHaveBeenCalled();
+  });
+
+  it('fails fast on an unknown service before resolving the provider', async () => {
+    mockServiceService.findOne.mockRejectedValue(new Error('service not found'));
+
+    await expect(buildService().narrate(inputDeviceId, inputServiceId)).rejects.toThrow();
+    expect(mockLlmProviderService.getActiveProviderConfig).not.toHaveBeenCalled();
+  });
+
+  it('delegates recentRuns to the run-record service', () => {
+    mockRunRecordService.findRecent.mockReturnValue([savedRun]);
+
+    const actual = buildService().recentRuns(inputDeviceId, inputServiceId, 5, 10);
+
+    expect(actual).toEqual([savedRun]);
+    expect(mockRunRecordService.findRecent).toHaveBeenCalledWith(inputDeviceId, inputServiceId, 5, 10);
+  });
+
+  it('emits a keep-alive ping frame on the ~30s heartbeat while the synthesis is in flight', async () => {
+    vi.useFakeTimers();
+    try {
+      mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'some logs' }));
+      // a stream that never yields and whose object never resolves keeps the run
+      // open, so the heartbeat interval is the only thing that can fire.
+      mockedStreamObject.mockReturnValue({
+        object: new Promise<DiagnosisSynthesis>(() => undefined),
+        // an async iterable whose next() never settles — the for-await hangs, so the
+        // run stays open and only the heartbeat interval can emit.
+        partialObjectStream: {
+          [Symbol.asyncIterator]: () => ({
+            next: () => new Promise<IteratorResult<Partial<DiagnosisSynthesis>>>(() => undefined),
+          }),
+        },
+      } as unknown as ReturnType<typeof streamObject>);
+
+      const events: MessageEvent[] = [];
+      const observable = await buildService().narrate(inputDeviceId, inputServiceId);
+      const subscription = observable.subscribe((event) => events.push(event));
+
+      // flush microtasks (the async pump reaches the hanging for-await) and cross
+      // the 30s heartbeat boundary; the keep-alive is a named `ping` with empty data
+      // (the browser EventSource ignores named events — the analog of a `: ping`).
+      await vi.advanceTimersByTimeAsync(30_000);
+
+      expect(events).toContainEqual({ data: '', type: 'ping' });
+      expect(mockRunRecordService.create).not.toHaveBeenCalled();
+      subscription.unsubscribe();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

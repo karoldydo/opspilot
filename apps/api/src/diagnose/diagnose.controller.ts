@@ -1,17 +1,46 @@
-import { Controller, Inject, Param, Post } from '@nestjs/common';
-import { DiagnosisSynthesis } from '@opspilot/shared';
+import { Controller, Get, Inject, MessageEvent, Param, Query, Sse } from '@nestjs/common';
+import { RunRecord } from '@opspilot/shared';
+import { Observable } from 'rxjs';
 
 import { DiagnoseService } from './diagnose.service';
 
 // thin http boundary nested under the device's service. params only — no body; the
-// response is the service's validated DiagnosisSynthesis (mirrors the thin
-// llm-provider/service controllers, nestjs.md "keep controllers thin").
+// live stream and the replay list both come straight from the service (nestjs.md
+// "keep controllers thin"). EventSource is GET-only, so the s-04 @Post('diagnose')
+// trigger is replaced by the @Sse GET below.
 @Controller('devices/:deviceId/services/:serviceId')
 export class DiagnoseController {
   constructor(@Inject(DiagnoseService) private readonly diagnoseService: DiagnoseService) {}
 
-  @Post('diagnose')
-  diagnose(@Param('deviceId') deviceId: string, @Param('serviceId') serviceId: string): Promise<DiagnosisSynthesis> {
-    return this.diagnoseService.diagnose(deviceId, serviceId);
+  // the replay list: recent saved runs for this service row, newest-first and
+  // paginated. params carry the device + service; optional limit/offset query.
+  @Get('diagnose/runs')
+  runs(
+    @Param('deviceId') deviceId: string,
+    @Param('serviceId') serviceId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string
+  ): RunRecord[] {
+    return this.diagnoseService.recentRuns(deviceId, serviceId, this.toPositiveInt(limit), this.toPositiveInt(offset));
+  }
+
+  // live narration over sse. pass-through to the service observable: the fail-fast
+  // pre-flight (404/409) is awaited inside narrate() and throws a real http status
+  // before the cold observable is returned, so a missing service/provider never
+  // surfaces as an open-then-error stream. nest's SseStream sets the anti-buffer +
+  // no-cache headers (X-Accel-Buffering: no, Cache-Control: no-cache) for us (sse.md).
+  @Sse('diagnose/stream')
+  stream(
+    @Param('deviceId') deviceId: string,
+    @Param('serviceId') serviceId: string
+  ): Promise<Observable<MessageEvent>> {
+    return this.diagnoseService.narrate(deviceId, serviceId);
+  }
+
+  // coerce an optional query string to a positive integer; undefined/NaN/<=0 fall
+  // back to the service defaults (the bounded findRecent limit/offset).
+  private toPositiveInt(value?: string): number | undefined {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
   }
 }

@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiagnosisSynthesis } from '@opspilot/shared';
-import { generateText, NoObjectGeneratedError } from 'ai';
+import { NoObjectGeneratedError, streamObject } from 'ai';
 import { readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
@@ -21,19 +21,44 @@ import { LlmProviderService } from '../llm-provider/llm-provider.service';
 import { ServiceService } from '../service/service.service';
 import { DiagnoseModule } from './diagnose.module';
 
-// stub generateText but keep the real Output + NoObjectGeneratedError so the
-// service's Output.object call and the client factory build a real model.
+// stub streamObject but keep the real NoObjectGeneratedError so the error mapper's
+// .isInstance narrowing behaves for real.
 vi.mock('ai', async (importOriginal) => {
   const actual = await importOriginal<typeof import('ai')>();
-  return { ...actual, generateText: vi.fn() };
+  return { ...actual, streamObject: vi.fn() };
 });
 
-const mockedGenerateText = vi.mocked(generateText);
+const mockedStreamObject = vi.mocked(streamObject);
 
-// e2e against a live temp db with a faked executor + faked llm. the global
+// a faked streamObject result: yields the partials, then resolves `object` to the
+// final synthesis (or rejects it with the given error).
+function fakeStream(partials: Partial<DiagnosisSynthesis>[], final: { object?: DiagnosisSynthesis; reject?: unknown }) {
+  const object = final.reject ? Promise.reject(final.reject) : Promise.resolve(final.object as DiagnosisSynthesis);
+  object.catch(() => undefined);
+  return {
+    object,
+    partialObjectStream: (async function* () {
+      for (const partial of partials) {
+        yield partial;
+      }
+    })(),
+  } as unknown as ReturnType<typeof streamObject>;
+}
+
+// pull the parsed `data:` frames out of a buffered sse body (heartbeat `event: ping`
+// frames carry no data line, so they drop out here).
+function parseSseData(body: string): { [key: string]: unknown; type: string }[] {
+  return body
+    .split('\n')
+    .filter((line) => line.startsWith('data:'))
+    .map((line) => JSON.parse(line.slice('data:'.length).trim()));
+}
+
+// e2e against a live temp db with a faked executor + faked llm stream. the global
 // AuthAppGuard is not wired here (only AppModule registers it), so routes are open —
-// guard behavior is covered by auth.guard.spec.ts. asserts the diagnose route, the
-// stderr merge, and that synthesis/docker failures shape into the right 5xx status.
+// guard behavior is covered by auth.guard.spec.ts. asserts the live sse stream, the
+// stderr merge, persistence + the replay list, and that the no-active precondition
+// stays a clean 409 before any stream opens.
 describe('DiagnoseController (e2e)', () => {
   const inputKey = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=';
   const inputDeviceId = '11111111-1111-4111-8111-111111111111';
@@ -62,9 +87,12 @@ describe('DiagnoseController (e2e)', () => {
     }
   }
 
+  const streamUrl = () => `/devices/${inputDeviceId}/services/${serviceId}/diagnose/stream`;
+  const runsUrl = () => `/devices/${inputDeviceId}/services/${serviceId}/diagnose/runs`;
+
   beforeEach(async () => {
     mockExecutor.execute.mockReset();
-    mockedGenerateText.mockReset();
+    mockedStreamObject.mockReset();
     // the provider create probe runs a live test-call; stub fetch to 200 ok so the
     // seed persists without the network.
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, status: 200 } as Response));
@@ -90,14 +118,12 @@ describe('DiagnoseController (e2e)', () => {
       .create({ containerName: inputContainerName, deviceId: inputDeviceId, name: 'Web Proxy' });
     serviceId = service.id;
     // seed an active provider so diagnose gets past the no-active precondition.
-    await moduleRef
-      .get(LlmProviderService)
-      .create({
-        apiKey: 'sk-active',
-        baseURL: 'https://api.example.com/v1',
-        kind: 'openai-compatible',
-        model: 'gpt-4o',
-      });
+    await moduleRef.get(LlmProviderService).create({
+      apiKey: 'sk-active',
+      baseURL: 'https://api.example.com/v1',
+      kind: 'openai-compatible',
+      model: 'gpt-4o',
+    });
   });
 
   afterEach(async () => {
@@ -109,57 +135,73 @@ describe('DiagnoseController (e2e)', () => {
 
   const server = () => app.getHttpServer();
 
-  it('returns the validated 4-field synthesis, merging stderr into the logs fetch', async () => {
+  it('streams delta + done frames, merges stderr, persists the run, and lists it via runs', async () => {
     mockExecutor.execute.mockResolvedValue({ code: 0, stderr: 'panic: db down', stdout: '' });
-    mockedGenerateText.mockResolvedValue({ output: validSynthesis } as never);
+    mockedStreamObject.mockReturnValue(
+      fakeStream([{ summary: 'service is' }, validSynthesis], { object: validSynthesis })
+    );
 
-    const res = await request(server()).post(`/devices/${inputDeviceId}/services/${serviceId}/diagnose`).expect(201);
+    const res = await request(server()).get(streamUrl()).buffer(true).expect(200);
 
-    expect(res.body).toEqual(validSynthesis);
+    const frames = parseSseData(res.text);
+    expect(frames.map((f) => f.type)).toEqual(['delta', 'delta', 'done']);
+    const done = frames.at(-1) as { run: { createdAt: string; id: string; synthesis: DiagnosisSynthesis } };
+    expect(done.run.id).toEqual(expect.any(String));
+    expect(done.run.synthesis).toEqual(validSynthesis);
     // docker logs writes to stderr, so the merged stream must reach the prompt.
     expect(mockExecutor.execute).toHaveBeenCalledWith(
       inputDeviceId,
       'export PATH="/usr/local/bin:/usr/local/sbin:/volume1/@appstore/ContainerManager/usr/bin:$PATH"; ' +
         'docker logs web-proxy --tail 200'
     );
-    expect(mockedGenerateText.mock.calls[0][0].prompt as string).toContain('panic: db down');
+    expect(mockedStreamObject.mock.calls[0][0].prompt as string).toContain('panic: db down');
+
+    // the persisted run surfaces newest-first via the replay list.
+    const list = await request(server()).get(runsUrl()).expect(200);
+    expect(list.body).toHaveLength(1);
+    expect(list.body[0].id).toBe(done.run.id);
+    expect(list.body[0].synthesis).toEqual(validSynthesis);
   });
 
-  it('maps schema-not-enforced (NoObjectGeneratedError) to a 502, not a 401 or malformed 200', async () => {
+  it('emits an in-stream synthesis-failed error frame (200), never a 401 or a malformed object', async () => {
     mockExecutor.execute.mockResolvedValue({ code: 0, stderr: 'some logs', stdout: '' });
-    mockedGenerateText.mockRejectedValue(
-      new NoObjectGeneratedError({
-        cause: undefined,
-        finishReason: 'stop',
-        message: 'no object',
-        response: undefined,
-        text: 'raw',
-        usage: undefined,
+    mockedStreamObject.mockReturnValue(
+      fakeStream([{ summary: 'partial' }], {
+        reject: new NoObjectGeneratedError({
+          cause: undefined,
+          finishReason: 'stop',
+          message: 'no object',
+          response: undefined,
+          text: 'raw',
+          usage: undefined,
+        }),
       })
     );
 
-    const res = await request(server()).post(`/devices/${inputDeviceId}/services/${serviceId}/diagnose`).expect(502);
+    const res = await request(server()).get(streamUrl()).buffer(true).expect(200);
 
-    expect(res.body).toEqual({ message: expect.any(String), status: 502, timestamp: expect.any(String) });
-    // the raw provider output must never leak through the envelope.
-    expect(JSON.stringify(res.body)).not.toContain('raw');
+    const frames = parseSseData(res.text);
+    expect(frames.map((f) => f.type)).toEqual(['delta', 'error']);
+    expect(frames[1]).toEqual({
+      code: 'synthesis-failed',
+      message: 'active provider did not return schema-conformant output',
+      type: 'error',
+    });
+    // the raw provider output must never leak through the frame.
+    expect(res.text).not.toContain('raw');
+    // a failed run is never persisted.
+    const list = await request(server()).get(runsUrl()).expect(200);
+    expect(list.body).toHaveLength(0);
   });
 
-  it('surfaces a missing container as a docker 503, never reaching synthesis', async () => {
-    mockExecutor.execute.mockResolvedValue({ code: 1, stderr: 'Error: No such container: web-proxy', stdout: '' });
-
-    await request(server()).post(`/devices/${inputDeviceId}/services/${serviceId}/diagnose`).expect(503);
-
-    expect(mockedGenerateText).not.toHaveBeenCalled();
-  });
-
-  it('returns 409 when no provider is active', async () => {
+  it('returns 409 before any stream opens when no provider is active', async () => {
     // drop the only (active) provider — diagnose must fail the precondition fast.
     const providers = await moduleRef.get(LlmProviderService).findAll();
     await moduleRef.get(LlmProviderService).remove(providers[0].id);
 
-    await request(server()).post(`/devices/${inputDeviceId}/services/${serviceId}/diagnose`).expect(409);
+    await request(server()).get(streamUrl()).expect(409);
 
     expect(mockExecutor.execute).not.toHaveBeenCalled();
+    expect(mockedStreamObject).not.toHaveBeenCalled();
   });
 });

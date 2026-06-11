@@ -1,6 +1,7 @@
-import { Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
-import { containerNameSchema, DiagnosisSynthesis, diagnosisSynthesisSchema } from '@opspilot/shared';
-import { generateText, NoObjectGeneratedError, Output } from 'ai';
+import { Inject, Injectable, MessageEvent, ServiceUnavailableException } from '@nestjs/common';
+import { containerNameSchema, diagnosisSynthesisSchema } from '@opspilot/shared';
+import { streamObject } from 'ai';
+import { Observable } from 'rxjs';
 
 import { llmConfig, LlmConfig } from '../config/llm.config';
 import { ExecResult, IExecutor } from '../executor/executor.interface';
@@ -9,7 +10,12 @@ import { LlmProviderClientFactory } from '../llm-provider/llm-provider.client-fa
 import { LlmProviderService } from '../llm-provider/llm-provider.service';
 import { DockerDaemonDownError, DockerNotFoundError } from '../service/service.errors';
 import { ServiceService } from '../service/service.service';
-import { DiagnosisLogsTimeoutError, DiagnosisSynthesisError, DiagnosisTimeoutError } from './diagnose.errors';
+import { diagnoseErrorToStreamEvent, DiagnosisLogsTimeoutError } from './diagnose.errors';
+import { RunRecordService } from './run-record.service';
+
+// how often the live stream emits a keep-alive so cloudflare's ~100s idle reap
+// never kills a slow run (sse.md / roadmap.md edge note). well under the threshold.
+const HEARTBEAT_INTERVAL_MS = 30_000;
 
 @Injectable()
 export class DiagnoseService {
@@ -20,33 +26,120 @@ export class DiagnoseService {
     @Inject(ServiceService) private readonly serviceService: ServiceService,
     @Inject(LlmProviderService) private readonly llmProviderService: LlmProviderService,
     @Inject(LlmProviderClientFactory) private readonly clientFactory: LlmProviderClientFactory,
+    @Inject(RunRecordService) private readonly runRecordService: RunRecordService,
     @Inject(llmConfig.KEY) private readonly config: LlmConfig
   ) {}
 
-  // the s-04 orchestration: resolve the service row → fail fast if no provider is
-  // active → fetch container logs over ssh → synthesize a fixed 4-field diagnosis.
-  // the response is ephemeral (no run-record persistence — that is s-09).
-  async diagnose(deviceId: string, serviceId: string): Promise<DiagnosisSynthesis> {
+  // the s-05 live narration: resolve the service row → fail fast if no provider is
+  // active → return the sse observable. the two fail-fast checks run here, BEFORE
+  // the observable is returned, so they surface as real http status codes (404/409)
+  // and never as an open-then-error stream (critical impl details / sse.md). nest 11
+  // resolves a Promise<Observable> from an @Sse handler (router-execution-context),
+  // so an awaited pre-flight that throws lands on the global filter as an http error.
+  // the ssh logs fetch and the synthesis happen INSIDE the stream — a logs timeout,
+  // docker failure, or synthesis fault arrives as an in-stream `error` event, not a
+  // pre-stream status, because the stream is already 200 by then.
+  async narrate(deviceId: string, serviceId: string): Promise<Observable<MessageEvent>> {
     // 404 if the service is absent or belongs to another device; carries containerName.
     const service = await this.serviceService.findOne(deviceId, serviceId);
-    // resolve the active provider before the ssh round-trip so a missing provider
-    // fails fast with a 409 precondition (LlmProviderNoActiveError) instead of after
-    // paying the logs-fetch cost. carries the decrypted key — never logged/returned.
+    // resolve the active provider before opening the stream so a missing provider
+    // fails fast with a 409 precondition (LlmProviderNoActiveError). carries the
+    // decrypted key — never logged/returned.
     const providerConfig = await this.llmProviderService.getActiveProviderConfig();
-
-    const result = await this.fetchLogs(deviceId, service.containerName);
-    if (result.code !== 0) {
-      throw this.mapLogsError(deviceId, service.containerName, result.code, result.stderr);
-    }
-    // docker logs writes the stream to stderr (non-tty), so merge both — unlike
-    // scan() which parses stdout alone. order stdout then stderr; drop empties.
-    const logs = [result.stdout, result.stderr]
-      .map((stream) => stream.trim())
-      .filter((stream) => stream.length > 0)
-      .join('\n');
-
     const model = this.clientFactory.create(providerConfig);
-    return this.synthesize(model, service.containerName, logs);
+    return this.buildNarration(model, deviceId, serviceId, service.containerName);
+  }
+
+  // recent runs for a service row, newest-first and bounded — the replay list read.
+  // thin delegate to the crud service (which scopes by device + service).
+  recentRuns(deviceId: string, serviceId: string, limit?: number, offset?: number) {
+    return this.runRecordService.findRecent(deviceId, serviceId, limit, offset);
+  }
+
+  // build the cold sse observable for one run. on subscribe: fetch logs over ssh,
+  // stream partials of the fixed synthesis as `delta` frames, accumulate the final
+  // object, persist it, then emit a `done` carrying the saved record. a 30s
+  // keep-alive `ping` event runs alongside (interval-driven). any mid-stream
+  // rejection becomes a single `error` frame, then the stream completes. teardown
+  // (client disconnect) aborts the generation and stops the heartbeat.
+  private buildNarration(
+    model: ReturnType<LlmProviderClientFactory['create']>,
+    deviceId: string,
+    serviceId: string,
+    containerName: string
+  ): Observable<MessageEvent> {
+    return new Observable<MessageEvent>((subscriber) => {
+      // teardown signal: client disconnect aborts the in-flight generation; the
+      // aborted-check before each emit keeps a late resolution from pushing onto a
+      // torn-down stream.
+      const controller = new AbortController();
+      // the heartbeat is a typeless-data event named `ping`, so the browser's
+      // EventSource onmessage ignores it (named events don't fire the default
+      // handler) — nest's MessageEvent has no sse-comment escape hatch, so a named
+      // keep-alive is the rule-compliant analog of a `: ping` comment.
+      const heartbeat = setInterval(() => subscriber.next({ data: '', type: 'ping' }), HEARTBEAT_INTERVAL_MS);
+
+      const run = async (): Promise<void> => {
+        try {
+          const result = await this.fetchLogs(deviceId, containerName);
+          if (result.code !== 0) {
+            throw this.mapLogsError(deviceId, containerName, result.code, result.stderr);
+          }
+          // docker logs writes the stream to stderr (non-tty), so merge both — unlike
+          // scan() which parses stdout alone. order stdout then stderr; drop empties.
+          const logs = [result.stdout, result.stderr]
+            .map((stream) => stream.trim())
+            .filter((stream) => stream.length > 0)
+            .join('\n');
+
+          // the streaming analog of the batch generateText + Output.object: partials
+          // fill the fixed schema progressively; `object` resolves to the validated
+          // final synthesis (or rejects with NoObjectGeneratedError). bound the run
+          // by the same generate timeout, combined with the teardown controller.
+          const { object, partialObjectStream } = streamObject({
+            abortSignal: AbortSignal.any([AbortSignal.timeout(this.config.generateTimeoutMs), controller.signal]),
+            model,
+            prompt: this.buildPrompt(containerName, logs),
+            schema: diagnosisSynthesisSchema,
+          });
+
+          for await (const partial of partialObjectStream) {
+            if (controller.signal.aborted) {
+              return;
+            }
+            subscriber.next({ data: { partial, type: 'delta' } });
+          }
+          const synthesis = await object;
+          if (controller.signal.aborted) {
+            return;
+          }
+          // persist BEFORE `done` so the frame carries the real saved record (id +
+          // createdAt) the fe prepends to its recent list (critical impl details).
+          const saved = this.runRecordService.create({ deviceId, serviceId, synthesis });
+          subscriber.next({ data: { run: saved, type: 'done' } });
+          clearInterval(heartbeat);
+          subscriber.complete();
+        } catch (error) {
+          // a teardown-driven abort is not a failure to report — the stream is gone.
+          if (controller.signal.aborted) {
+            return;
+          }
+          const { code, message } = diagnoseErrorToStreamEvent(error);
+          subscriber.next({ data: { code, message, type: 'error' } });
+          clearInterval(heartbeat);
+          subscriber.complete();
+        }
+      };
+
+      // fire-and-forget: the async pump drives subscriber.next/complete; a throw is
+      // caught above and mapped to an error frame, so run() never rejects unhandled.
+      void run();
+
+      return () => {
+        controller.abort();
+        clearInterval(heartbeat);
+      };
+    });
   }
 
   // fetch the container's recent logs over the executor with the synology PATH
@@ -80,36 +173,6 @@ export class DiagnoseService {
       if (timer !== undefined) {
         clearTimeout(timer);
       }
-    }
-  }
-
-  // synthesize the fixed 4-field diagnosis. Output.object forces the model to emit
-  // the shared schema; the Phase 2 factory turned structured-output enforcement on,
-  // so a provider that ignores json_schema throws NoObjectGeneratedError rather than
-  // returning a silently-malformed 200 — caught and mapped to a first-class 5xx.
-  private async synthesize(
-    model: ReturnType<LlmProviderClientFactory['create']>,
-    containerName: string,
-    logs: string
-  ): Promise<DiagnosisSynthesis> {
-    try {
-      const { output } = await generateText({
-        abortSignal: AbortSignal.timeout(this.config.generateTimeoutMs),
-        model,
-        output: Output.object({ schema: diagnosisSynthesisSchema }),
-        prompt: this.buildPrompt(containerName, logs),
-      });
-      return output;
-    } catch (error) {
-      // an aborted generation (timeout) can surface directly or wrapped as
-      // NoObjectGeneratedError — classify timeout first so it maps to 504 not 502.
-      if (this.isTimeout(error)) {
-        throw new DiagnosisTimeoutError();
-      }
-      if (NoObjectGeneratedError.isInstance(error)) {
-        throw new DiagnosisSynthesisError();
-      }
-      throw error;
     }
   }
 
@@ -149,20 +212,5 @@ export class DiagnoseService {
     return new ServiceUnavailableException(
       `docker logs failed for ${containerName} on device ${deviceId}: ${stderr.trim()}`
     );
-  }
-
-  // true when the error is an AbortSignal.timeout firing — either surfaced directly
-  // (name TimeoutError/AbortError) or wrapped by the sdk as NoObjectGeneratedError
-  // with the abort as its cause.
-  private isTimeout(error: unknown): boolean {
-    const name = (error as { name?: string } | null)?.name;
-    if (name === 'TimeoutError' || name === 'AbortError') {
-      return true;
-    }
-    if (NoObjectGeneratedError.isInstance(error)) {
-      const causeName = (error as { cause?: { name?: string } }).cause?.name;
-      return causeName === 'TimeoutError' || causeName === 'AbortError';
-    }
-    return false;
   }
 }

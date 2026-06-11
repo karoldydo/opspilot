@@ -531,31 +531,31 @@ once `status` is present.
 
 #### Automated
 
-- [x] 2.1 Migration generates cleanly and is the only new `0004_*` file
-- [x] 2.2 API builds (bundles the new migration): `npx nx build api`
-- [x] 2.3 API unit tests pass: `npx nx test api`
-- [x] 2.4 Lint passes: `npx nx lint api`
+- [x] 2.1 Migration generates cleanly and is the only new `0004_*` file — 8aea43b
+- [x] 2.2 API builds (bundles the new migration): `npx nx build api` — 8aea43b
+- [x] 2.3 API unit tests pass: `npx nx test api` — 8aea43b
+- [x] 2.4 Lint passes: `npx nx lint api` — 8aea43b
 
 #### Manual
 
-- [x] 2.5 Boot applies `0004` and creates `run_record` (backup snapshot taken)
-- [x] 2.6 Inserting > retention runs prunes to the newest `historyRetention`
-- [x] 2.7 `findRecent` returns newest-first and respects the limit
+- [x] 2.5 Boot applies `0004` and creates `run_record` (backup snapshot taken) — 8aea43b
+- [x] 2.6 Inserting > retention runs prunes to the newest `historyRetention` — 8aea43b
+- [x] 2.7 `findRecent` returns newest-first and respects the limit — 8aea43b
 
 ### Phase 3: API streaming — `@Sse` + persistence + replay endpoint
 
 #### Automated
 
-- [ ] 3.1 API builds: `npx nx build api`
-- [ ] 3.2 API unit tests pass (stream mapping, persist-on-done, error→event, pre-flight throws): `npx nx test api`
-- [ ] 3.3 Lint passes: `npx nx lint api`
+- [x] 3.1 API builds: `npx nx build api`
+- [x] 3.2 API unit tests pass (stream mapping, persist-on-done, error→event, pre-flight throws): `npx nx test api`
+- [x] 3.3 Lint passes: `npx nx lint api`
 
 #### Manual
 
-- [ ] 3.4 `curl -N` receives `delta` frames, a `: ping`, and a final `done` with a run id
-- [ ] 3.5 No active provider returns 409 before any stream opens
-- [ ] 3.6 `GET diagnose/runs` lists the new run newest-first
-- [ ] 3.7 A forced synthesis failure arrives as an in-stream `error` event and completes
+- [x] 3.4 `curl -N` receives `delta` frames, a `: ping`, and a final `done` with a run id
+- [x] 3.5 No active provider returns 409 before any stream opens
+- [x] 3.6 `GET diagnose/runs` lists the new run newest-first
+- [x] 3.7 A forced synthesis failure arrives as an in-stream `error` event and completes
 
 ### Phase 4: Web — `EventSource` consumption, store, progressive render + replay
 
