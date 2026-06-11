@@ -11,6 +11,7 @@ import { DeviceModule } from '../device/device.module';
 import { DiagnoseModule } from '../diagnose/diagnose.module';
 import { HealthModule } from '../health/health.module';
 import { LlmProviderModule } from '../llm-provider/llm-provider.module';
+import { OperationModule } from '../operation/operation.module';
 import { ServiceModule } from '../service/service.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -26,6 +27,7 @@ import { AppService } from './app.service';
     DiagnoseModule,
     HealthModule,
     LlmProviderModule,
+    OperationModule,
     ServiceModule,
   ],
   providers: [

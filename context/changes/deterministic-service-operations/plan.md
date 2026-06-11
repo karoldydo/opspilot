@@ -442,35 +442,35 @@ No DB schema change, no data migration — `run_record` is untouched. The only e
 
 #### Automated
 
-- [x] 1.1 Type checking passes (`npm run build`)
-- [x] 1.2 Lint passes (`npm run lint`)
-- [x] 1.3 Shared unit tests pass (`npx nx test shared`)
-- [x] 1.4 API unit tests pass (`npx nx test api`)
-- [x] 1.5 New schemas exported from the barrel (resolves in a `z.infer` use site)
+- [x] 1.1 Type checking passes (`npm run build`) — 5c07e77
+- [x] 1.2 Lint passes (`npm run lint`) — 5c07e77
+- [x] 1.3 Shared unit tests pass (`npx nx test shared`) — 5c07e77
+- [x] 1.4 API unit tests pass (`npx nx test api`) — 5c07e77
+- [x] 1.5 New schemas exported from the barrel (resolves in a `z.infer` use site) — 5c07e77
 
 #### Manual
 
-- [x] 1.6 `OP_TIMEOUT_MS` documented and boots with its default
-- [x] 1.7 Existing scan/diagnose flows still run after the executor signature change
+- [x] 1.6 `OP_TIMEOUT_MS` documented and boots with its default — 5c07e77
+- [x] 1.7 Existing scan/diagnose flows still run after the executor signature change — 5c07e77
 
 ### Phase 2: Backend — operation execution
 
 #### Automated
 
-- [ ] 2.1 Type checking passes (`npm run build`)
-- [ ] 2.2 Lint passes (`npm run lint`)
-- [ ] 2.3 API unit tests pass (`npx nx test api`)
-- [ ] 2.4 Up/down on null compose fields → 400
-- [ ] 2.5 Malformed compose field rejected at the boundary (no command built)
-- [ ] 2.6 Result mapping: succeeded / failed+message / daemon-down+127 → 503
+- [x] 2.1 Type checking passes (`npm run build`)
+- [x] 2.2 Lint passes (`npm run lint`)
+- [x] 2.3 API unit tests pass (`npx nx test api`)
+- [x] 2.4 Up/down on null compose fields → 400
+- [x] 2.5 Malformed compose field rejected at the boundary (no command built)
+- [x] 2.6 Result mapping: succeeded / failed+message / daemon-down+127 → 503
 
 #### Manual
 
-- [ ] 2.7 start/stop/restart confirm against a live device
-- [ ] 2.8 `up -d` with an image pull completes past 30 s
-- [ ] 2.9 `down` stops + removes containers
-- [ ] 2.10 Forged up/down on a standalone service rejected with 400
-- [ ] 2.11 Cross-device serviceId yields 404
+- [x] 2.7 start/stop/restart confirm against a live device
+- [x] 2.8 `up -d` with an image pull completes past 30 s
+- [x] 2.9 `down` stops + removes containers
+- [x] 2.10 Forged up/down on a standalone service rejected with 400
+- [x] 2.11 Cross-device serviceId yields 404
 
 ### Phase 3: Web — operation surface
 
