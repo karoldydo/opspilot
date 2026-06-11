@@ -476,17 +476,17 @@ No DB schema change, no data migration — `run_record` is untouched. The only e
 
 #### Automated
 
-- [x] 3.1 Type checking passes (`npm run build`)
-- [x] 3.2 Lint passes (`npm run lint`)
-- [x] 3.3 Web unit tests pass (`npx nx test web`)
-- [x] 3.4 `npm run format:check` clean
-- [x] 3.5 `DeviceServicesComponent` stays within the ~150-line budget
+- [x] 3.1 Type checking passes (`npm run build`) — 8545c0d
+- [x] 3.2 Lint passes (`npm run lint`) — 8545c0d
+- [x] 3.3 Web unit tests pass (`npx nx test web`) — 8545c0d
+- [x] 3.4 `npm run format:check` clean — 8545c0d
+- [x] 3.5 `DeviceServicesComponent` stays within the ~150-line budget — 8545c0d
 
 #### Manual
 
-- [x] 3.6 Each op triggers and confirms in < 10 s (fast ops)
-- [x] 3.7 Up/Down absent on a standalone service
-- [x] 3.8 `Down` confirm modal gates the run; Cancel aborts
-- [x] 3.9 Slow `up -d` keeps the button `Running…` until done
-- [x] 3.10 No state bleed between rows
-- [x] 3.11 A failed op surfaces a legible message
+- [x] 3.6 Each op triggers and confirms in < 10 s (fast ops) — 8545c0d
+- [x] 3.7 Up/Down absent on a standalone service — 8545c0d
+- [x] 3.8 `Down` confirm modal gates the run; Cancel aborts — 8545c0d
+- [x] 3.9 Slow `up -d` keeps the button `Running…` until done — 8545c0d
+- [x] 3.10 No state bleed between rows — 8545c0d
+- [x] 3.11 A failed op surfaces a legible message — 8545c0d
