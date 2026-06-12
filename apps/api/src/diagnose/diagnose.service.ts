@@ -4,6 +4,7 @@ import { streamObject } from 'ai';
 import { Observable } from 'rxjs';
 
 import { llmConfig, LlmConfig } from '../config/llm.config';
+import { DeviceService } from '../device/device.service';
 import { ExecResult, IExecutor } from '../executor/executor.interface';
 import { EXECUTOR } from '../executor/executor.token';
 import { LlmProviderClientFactory } from '../llm-provider/llm-provider.client-factory';
@@ -24,6 +25,7 @@ export class DiagnoseService {
   constructor(
     @Inject(EXECUTOR) private readonly executor: IExecutor,
     @Inject(ServiceService) private readonly serviceService: ServiceService,
+    @Inject(DeviceService) private readonly deviceService: DeviceService,
     @Inject(LlmProviderService) private readonly llmProviderService: LlmProviderService,
     @Inject(LlmProviderClientFactory) private readonly clientFactory: LlmProviderClientFactory,
     @Inject(RunRecordService) private readonly runRecordService: RunRecordService,
@@ -42,12 +44,15 @@ export class DiagnoseService {
   async narrate(deviceId: string, serviceId: string): Promise<Observable<MessageEvent>> {
     // 404 if the service is absent or belongs to another device; carries containerName.
     const service = await this.serviceService.findOne(deviceId, serviceId);
+    // 404 if the device is gone; carries the host-level agentContext persona injected
+    // as the model `system` instruction (null/empty → omitted, see buildNarration).
+    const device = await this.deviceService.findOne(deviceId);
     // resolve the active provider before opening the stream so a missing provider
     // fails fast with a 409 precondition (LlmProviderNoActiveError). carries the
     // decrypted key — never logged/returned.
     const providerConfig = await this.llmProviderService.getActiveProviderConfig();
     const model = this.clientFactory.create(providerConfig);
-    return this.buildNarration(model, deviceId, serviceId, service.containerName);
+    return this.buildNarration(model, deviceId, serviceId, service.containerName, device.agentContext);
   }
 
   // recent runs for a service row, newest-first and bounded — the replay list read.
@@ -66,7 +71,8 @@ export class DiagnoseService {
     model: ReturnType<LlmProviderClientFactory['create']>,
     deviceId: string,
     serviceId: string,
-    containerName: string
+    containerName: string,
+    agentContext: null | string
   ): Observable<MessageEvent> {
     return new Observable<MessageEvent>((subscriber) => {
       // teardown signal: client disconnect aborts the in-flight generation; the
@@ -96,11 +102,16 @@ export class DiagnoseService {
           // fill the fixed schema progressively; `object` resolves to the validated
           // final synthesis (or rejects with NoObjectGeneratedError). bound the run
           // by the same generate timeout, combined with the teardown controller.
+          // host-level persona for this device: pass `system` only when the trimmed
+          // context is non-empty, so a null row, a cleared field (''), or a
+          // whitespace-only entry all behave exactly like today (critical impl details).
+          const system = agentContext?.trim();
           const { object, partialObjectStream } = streamObject({
             abortSignal: AbortSignal.any([AbortSignal.timeout(this.config.generateTimeoutMs), controller.signal]),
             model,
             prompt: this.buildPrompt(containerName, logs),
             schema: diagnosisSynthesisSchema,
+            ...(system ? { system } : {}),
           });
 
           for await (const partial of partialObjectStream) {

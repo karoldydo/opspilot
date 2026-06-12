@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 
+import { DeviceModule } from '../device/device.module';
 import { ExecutorModule } from '../executor/executor.module';
 import { LlmProviderModule } from '../llm-provider/llm-provider.module';
 import { ServiceModule } from '../service/service.module';
@@ -15,7 +16,7 @@ import { RunRecordService } from './run-record.service';
 @Module({
   controllers: [DiagnoseController],
   exports: [RunRecordService],
-  imports: [ExecutorModule, LlmProviderModule, ServiceModule],
+  imports: [DeviceModule, ExecutorModule, LlmProviderModule, ServiceModule],
   providers: [DiagnoseService, RunRecordService],
 })
 export class DiagnoseModule implements NestModule {

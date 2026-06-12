@@ -15,6 +15,7 @@ import { databaseConfig } from '../config/database.config';
 import { DatabaseModule } from '../database/database.module';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { device } from '../database/schema';
+import { DeviceService } from '../device/device.service';
 import { ExecResult } from '../executor/executor.interface';
 import { EXECUTOR } from '../executor/executor.token';
 import { LlmProviderService } from '../llm-provider/llm-provider.service';
@@ -192,6 +193,32 @@ describe('DiagnoseController (e2e)', () => {
     // a failed run is never persisted.
     const list = await request(server()).get(runsUrl()).expect(200);
     expect(list.body).toHaveLength(0);
+  });
+
+  it("injects the device's agentContext into the synthesis system instruction (set → reflected)", async () => {
+    // persist a host-level persona through the real device service projection path.
+    await moduleRef
+      .get(DeviceService)
+      .update(inputDeviceId, { agentContext: 'config lives under /volume2; sudo needs a password' });
+    mockExecutor.execute.mockResolvedValue({ code: 0, stderr: 'some logs', stdout: '' });
+    mockedStreamObject.mockReturnValue(fakeStream([validSynthesis], { object: validSynthesis }));
+
+    await request(server()).get(streamUrl()).buffer(true).expect(200);
+
+    // the device context reaches the model as the `system` instruction — the agent
+    // is told the host convention before it synthesizes.
+    expect(mockedStreamObject.mock.calls[0][0].system).toBe('config lives under /volume2; sudo needs a password');
+  });
+
+  it('omits the system instruction when the device has no agentContext (null → no regression)', async () => {
+    // the beforeEach seed inserts the device without agentContext (null column).
+    mockExecutor.execute.mockResolvedValue({ code: 0, stderr: 'some logs', stdout: '' });
+    mockedStreamObject.mockReturnValue(fakeStream([validSynthesis], { object: validSynthesis }));
+
+    await request(server()).get(streamUrl()).buffer(true).expect(200);
+
+    // identical to today's call shape — no `system` key on the streamObject args.
+    expect(mockedStreamObject.mock.calls[0][0]).not.toHaveProperty('system');
   });
 
   it('returns 409 before any stream opens when no provider is active', async () => {

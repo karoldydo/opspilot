@@ -1,9 +1,10 @@
 import { MessageEvent } from '@nestjs/common';
-import { DiagnosisSynthesis, RunRecord, Service } from '@opspilot/shared';
+import { Device, DiagnosisSynthesis, RunRecord, Service } from '@opspilot/shared';
 import { NoObjectGeneratedError, streamObject } from 'ai';
 import { Observable } from 'rxjs';
 
 import { LlmConfig } from '../config/llm.config';
+import { DeviceService } from '../device/device.service';
 import { ExecResult } from '../executor/executor.interface';
 import { LlmProviderClientFactory } from '../llm-provider/llm-provider.client-factory';
 import { LlmProviderService } from '../llm-provider/llm-provider.service';
@@ -43,6 +44,7 @@ describe('DiagnoseService', () => {
 
   const mockExecutor = { execute: vi.fn<(deviceId: string, command: string) => Promise<ExecResult>>() };
   const mockServiceService = { findOne: vi.fn<(deviceId: string, id: string) => Promise<Service>>() };
+  const mockDeviceService = { findOne: vi.fn<(id: string) => Promise<Device>>() };
   const mockLlmProviderService = {
     getActiveProviderConfig: vi.fn<() => Promise<{ apiKey: string; baseURL: string; kind: string; model: string }>>(),
   };
@@ -64,6 +66,7 @@ describe('DiagnoseService', () => {
     return new DiagnoseService(
       mockExecutor,
       mockServiceService as unknown as ServiceService,
+      mockDeviceService as unknown as DeviceService,
       mockLlmProviderService as unknown as LlmProviderService,
       mockClientFactory as unknown as LlmProviderClientFactory,
       mockRunRecordService as unknown as RunRecordService,
@@ -81,6 +84,18 @@ describe('DiagnoseService', () => {
       id: inputServiceId,
       name: 'Web Proxy',
       updatedAt: '2026-06-11T09:00:00.000Z',
+      ...overrides,
+    };
+  }
+
+  function deviceRow(overrides: Partial<Device> = {}): Device {
+    return {
+      agentContext: null,
+      createdAt: '2026-06-11T08:00:00.000Z',
+      host: '192.168.1.10',
+      id: inputDeviceId,
+      name: 'NAS',
+      updatedAt: '2026-06-11T08:00:00.000Z',
       ...overrides,
     };
   }
@@ -120,6 +135,7 @@ describe('DiagnoseService', () => {
   beforeEach(() => {
     mockExecutor.execute.mockReset();
     mockServiceService.findOne.mockReset();
+    mockDeviceService.findOne.mockReset();
     mockLlmProviderService.getActiveProviderConfig.mockReset();
     mockClientFactory.create.mockClear();
     mockRunRecordService.create.mockReset();
@@ -127,6 +143,7 @@ describe('DiagnoseService', () => {
     mockedStreamObject.mockReset();
 
     mockServiceService.findOne.mockResolvedValue(serviceRow());
+    mockDeviceService.findOne.mockResolvedValue(deviceRow());
     mockLlmProviderService.getActiveProviderConfig.mockResolvedValue({
       apiKey: 'sk-active',
       baseURL: 'https://api.example.com/v1',
@@ -285,5 +302,41 @@ describe('DiagnoseService', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('injects the device agentContext as the streamObject system instruction when set', async () => {
+    mockDeviceService.findOne.mockResolvedValue(
+      deviceRow({ agentContext: 'config lives under /volume2; sudo needs a password' })
+    );
+    mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'some logs' }));
+    mockedStreamObject.mockReturnValue(fakeStream([{ summary: 'ok' }], { object: validSynthesis }));
+
+    await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+
+    expect(mockedStreamObject.mock.calls[0][0].system).toBe('config lives under /volume2; sudo needs a password');
+  });
+
+  it('trims surrounding whitespace from the agentContext before injecting it', async () => {
+    mockDeviceService.findOne.mockResolvedValue(deviceRow({ agentContext: '  ports are remapped  ' }));
+    mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'some logs' }));
+    mockedStreamObject.mockReturnValue(fakeStream([{ summary: 'ok' }], { object: validSynthesis }));
+
+    await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+
+    expect(mockedStreamObject.mock.calls[0][0].system).toBe('ports are remapped');
+  });
+
+  it.each([
+    ['null', null],
+    ['empty', ''],
+    ['whitespace-only', '   \n\t  '],
+  ])('omits system entirely when the agentContext is %s', async (_label, agentContext) => {
+    mockDeviceService.findOne.mockResolvedValue(deviceRow({ agentContext }));
+    mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'some logs' }));
+    mockedStreamObject.mockReturnValue(fakeStream([{ summary: 'ok' }], { object: validSynthesis }));
+
+    await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+
+    expect(mockedStreamObject.mock.calls[0][0]).not.toHaveProperty('system');
   });
 });

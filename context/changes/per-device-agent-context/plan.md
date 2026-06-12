@@ -330,30 +330,30 @@ gate). No backfill required.
 
 #### Automated
 
-- [x] 1.1 Migration generates cleanly: `npm run db:generate` (emits `0005_*.sql`)
-- [x] 1.2 Type checking passes: `npx nx typecheck api` and `npx nx typecheck shared`
-- [x] 1.3 Linting passes: `npm run lint`
-- [x] 1.4 Shared + api tests pass: `npx nx test shared` and `npx nx test api`
+- [x] 1.1 Migration generates cleanly: `npm run db:generate` (emits `0005_*.sql`) — 49e7837
+- [x] 1.2 Type checking passes: `npx nx typecheck api` and `npx nx typecheck shared` — 49e7837
+- [x] 1.3 Linting passes: `npm run lint` — 49e7837
+- [x] 1.4 Shared + api tests pass: `npx nx test shared` and `npx nx test api` — 49e7837
 
 #### Manual
 
-- [x] 1.5 Creating a device with `agentContext` persists and round-trips on read
-- [x] 1.6 Update with the field changes it; update without it leaves it untouched
-- [x] 1.7 Clearing the field (sending `null`) nulls the column
+- [x] 1.5 Creating a device with `agentContext` persists and round-trips on read — 49e7837
+- [x] 1.6 Update with the field changes it; update without it leaves it untouched — 49e7837
+- [x] 1.7 Clearing the field (sending `null`) nulls the column — 49e7837
 
 ### Phase 2: Diagnose agent injection
 
 #### Automated
 
-- [ ] 2.1 Type checking passes: `npx nx typecheck api`
-- [ ] 2.2 Linting passes: `npm run lint`
-- [ ] 2.3 Api tests pass: `npx nx test api` (incl. `diagnose.service.spec.ts` DI updated)
+- [x] 2.1 Type checking passes: `npx nx typecheck api`
+- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.3 Api tests pass: `npx nx test api` (incl. `diagnose.service.spec.ts` DI updated)
 
 #### Manual
 
-- [ ] 2.4 Diagnosis with `agentContext` set reflects the host convention
-- [ ] 2.5 Diagnosis with empty/null context behaves exactly as before
-- [ ] 2.6 Run still completes within the < 15 s NFR for ~200 log lines
+- [x] 2.4 Diagnosis with `agentContext` set reflects the host convention
+- [x] 2.5 Diagnosis with empty/null context behaves exactly as before
+- [x] 2.6 Run still completes within the < 15 s NFR for ~200 log lines
 
 ### Phase 3: Web devices form
 
