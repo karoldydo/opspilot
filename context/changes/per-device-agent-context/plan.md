@@ -359,14 +359,14 @@ gate). No backfill required.
 
 #### Automated
 
-- [x] 3.1 Linting passes: `npx nx lint web`
-- [x] 3.2 Build passes: `npx nx build web`
-- [x] 3.3 Web unit tests pass: `npx nx test web`
-- [x] 3.4 Format check passes: `npm run format:check`
+- [x] 3.1 Linting passes: `npx nx lint web` — b5848d6
+- [x] 3.2 Build passes: `npx nx build web` — b5848d6
+- [x] 3.3 Web unit tests pass: `npx nx test web` — b5848d6
+- [x] 3.4 Format check passes: `npm run format:check` — b5848d6
 
 #### Manual
 
-- [x] 3.5 The "Agent context" textarea shows in create and edit modes
-- [x] 3.6 Creating with a context value persists and reappears on edit
-- [x] 3.7 Editing updates it; clearing nulls it
-- [x] 3.8 Entering > 4000 chars surfaces the zod error and blocks submit
+- [x] 3.5 The "Agent context" textarea shows in create and edit modes — b5848d6
+- [x] 3.6 Creating with a context value persists and reappears on edit — b5848d6
+- [x] 3.7 Editing updates it; clearing nulls it — b5848d6
+- [x] 3.8 Entering > 4000 chars surfaces the zod error and blocks submit — b5848d6
