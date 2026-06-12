@@ -3,6 +3,20 @@ import { deviceSchema } from './device.schema';
 describe('deviceSchema', () => {
   it('parses a valid device', () => {
     const valid = {
+      agentContext: 'config lives under /volume2',
+      createdAt: '2026-06-08T12:00:00.000Z',
+      host: '192.168.1.10',
+      id: '11111111-1111-4111-8111-111111111111',
+      name: 'nas',
+      updatedAt: '2026-06-08T12:00:00.000Z',
+    };
+
+    expect(deviceSchema.parse(valid)).toEqual(valid);
+  });
+
+  it('accepts a null agentContext', () => {
+    const valid = {
+      agentContext: null,
       createdAt: '2026-06-08T12:00:00.000Z',
       host: '192.168.1.10',
       id: '11111111-1111-4111-8111-111111111111',
@@ -18,6 +32,7 @@ describe('deviceSchema', () => {
     const updatedAt = new Date('2026-06-09T08:30:00.000Z');
 
     const parsed = deviceSchema.parse({
+      agentContext: null,
       createdAt,
       host: '192.168.1.10',
       id: '11111111-1111-4111-8111-111111111111',
@@ -31,6 +46,7 @@ describe('deviceSchema', () => {
 
   it('rejects a non-uuid id', () => {
     const result = deviceSchema.safeParse({
+      agentContext: null,
       createdAt: '2026-06-08T12:00:00.000Z',
       host: '192.168.1.10',
       id: 'not-a-uuid',
@@ -43,6 +59,7 @@ describe('deviceSchema', () => {
 
   it('rejects an unknown key (strict)', () => {
     const result = deviceSchema.safeParse({
+      agentContext: null,
       createdAt: '2026-06-08T12:00:00.000Z',
       host: '192.168.1.10',
       id: '11111111-1111-4111-8111-111111111111',

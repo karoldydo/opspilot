@@ -4,6 +4,9 @@ import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { service } from './service.schema';
 
 export const device = sqliteTable('device', {
+  // host-level free-text persona injected as the diagnostic agent's `system`
+  // instruction (fr-005 / s-07). nullable: blank = no system sent.
+  agentContext: text('agent_context'),
   createdAt: integer('created_at', { mode: 'timestamp_ms' })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),

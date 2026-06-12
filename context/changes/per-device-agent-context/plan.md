@@ -330,16 +330,16 @@ gate). No backfill required.
 
 #### Automated
 
-- [ ] 1.1 Migration generates cleanly: `npm run db:generate` (emits `0005_*.sql`)
-- [ ] 1.2 Type checking passes: `npx nx typecheck api` and `npx nx typecheck shared`
-- [ ] 1.3 Linting passes: `npm run lint`
-- [ ] 1.4 Shared + api tests pass: `npx nx test shared` and `npx nx test api`
+- [x] 1.1 Migration generates cleanly: `npm run db:generate` (emits `0005_*.sql`)
+- [x] 1.2 Type checking passes: `npx nx typecheck api` and `npx nx typecheck shared`
+- [x] 1.3 Linting passes: `npm run lint`
+- [x] 1.4 Shared + api tests pass: `npx nx test shared` and `npx nx test api`
 
 #### Manual
 
-- [ ] 1.5 Creating a device with `agentContext` persists and round-trips on read
-- [ ] 1.6 Update with the field changes it; update without it leaves it untouched
-- [ ] 1.7 Clearing the field (sending `null`) nulls the column
+- [x] 1.5 Creating a device with `agentContext` persists and round-trips on read
+- [x] 1.6 Update with the field changes it; update without it leaves it untouched
+- [x] 1.7 Clearing the field (sending `null`) nulls the column
 
 ### Phase 2: Diagnose agent injection
 

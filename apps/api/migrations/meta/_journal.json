@@ -35,6 +35,13 @@
       "tag": "0004_left_lady_deathstrike",
       "version": "6",
       "when": 1781196580358
+    },
+    {
+      "breakpoints": true,
+      "idx": 5,
+      "tag": "0005_broken_moira_mactaggert",
+      "version": "6",
+      "when": 1781299101130
     }
   ],
   "version": "7"

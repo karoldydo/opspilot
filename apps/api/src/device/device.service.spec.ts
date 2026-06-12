@@ -53,6 +53,7 @@ describe('DeviceService', () => {
     const actual = await service.create({ host: '10.0.0.1', name: 'nas' });
 
     expect(actual).toEqual({
+      agentContext: null,
       createdAt: expect.any(String),
       host: '10.0.0.1',
       id: expect.any(String),
@@ -87,6 +88,42 @@ describe('DeviceService', () => {
     expect(actual.name).toBe('renamed');
     expect(actual.host).toBe('10.0.0.1');
     expect(actual.id).toBe(created.id);
+  });
+
+  it('persists and round-trips an agentContext on create', async () => {
+    const created = await service.create({
+      agentContext: 'config lives under /volume2; sudo needs a password',
+      host: '10.0.0.1',
+      name: 'nas',
+    });
+
+    expect(created.agentContext).toBe('config lives under /volume2; sudo needs a password');
+    expect((await service.findOne(created.id)).agentContext).toBe('config lives under /volume2; sudo needs a password');
+  });
+
+  it('updates agentContext when the field is sent', async () => {
+    const created = await service.create({ agentContext: 'old context', host: '10.0.0.1', name: 'nas' });
+
+    const actual = await service.update(created.id, { agentContext: 'new context' });
+
+    expect(actual.agentContext).toBe('new context');
+  });
+
+  it('leaves agentContext untouched when the field is omitted on update', async () => {
+    const created = await service.create({ agentContext: 'keep me', host: '10.0.0.1', name: 'nas' });
+
+    const actual = await service.update(created.id, { name: 'renamed' });
+
+    expect(actual.name).toBe('renamed');
+    expect(actual.agentContext).toBe('keep me');
+  });
+
+  it('clears agentContext when null is sent on update', async () => {
+    const created = await service.create({ agentContext: 'clear me', host: '10.0.0.1', name: 'nas' });
+
+    const actual = await service.update(created.id, { agentContext: null });
+
+    expect(actual.agentContext).toBeNull();
   });
 
   it('removes a device', async () => {

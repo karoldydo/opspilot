@@ -15,7 +15,7 @@ export class DeviceService {
   async create(input: DeviceCreateRequest): Promise<Device> {
     const row = this.db
       .insert(device)
-      .values({ host: input.host, id: randomUUID(), name: input.name })
+      .values({ agentContext: input.agentContext ?? null, host: input.host, id: randomUUID(), name: input.name })
       .returning()
       .get();
     return this.toContract(row);
@@ -36,7 +36,7 @@ export class DeviceService {
     // so a partial patch only touches the fields the caller sent.
     const row = this.db
       .update(device)
-      .set({ host: input.host, name: input.name })
+      .set({ agentContext: input.agentContext, host: input.host, name: input.name })
       .where(eq(device.id, id))
       .returning()
       .get();
@@ -62,6 +62,7 @@ export class DeviceService {
   // shared contract, which normalizes the timestamp_ms dates to iso strings.
   private toContract(row: DeviceRow): Device {
     return deviceSchema.parse({
+      agentContext: row.agentContext,
       createdAt: row.createdAt,
       host: row.host,
       id: row.id,

@@ -1,7 +1,7 @@
 ---
 change_id: per-device-agent-context
 title: Per device agent context
-status: planned
+status: implementing
 created: 2026-06-12
 updated: 2026-06-12
 archived_at: null

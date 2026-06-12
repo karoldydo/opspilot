@@ -64,6 +64,7 @@ describe('DeviceController (e2e)', () => {
   it('creates, lists, fetches, updates and deletes a device', async () => {
     const created = await request(server()).post('/devices').send({ host: '10.0.0.1', name: 'nas' }).expect(201);
     expect(created.body).toEqual({
+      agentContext: null,
       createdAt: expect.any(String),
       host: '10.0.0.1',
       id: expect.any(String),

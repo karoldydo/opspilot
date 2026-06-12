@@ -9,6 +9,8 @@ const isoTimestamp = z.preprocess((value) => (value instanceof Date ? value.toIS
 // ssh credentials live on the separate credential sub-resource and never ride
 // the device contract. z.strictObject rejects any leaked key.
 export const deviceSchema = z.strictObject({
+  // host-level free-text persona fed to the diagnostic agent; null when unset.
+  agentContext: z.string().max(4000).nullable(),
   createdAt: isoTimestamp,
   host: z.string(),
   id: z.uuid(),
