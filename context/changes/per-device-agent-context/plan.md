@@ -345,28 +345,28 @@ gate). No backfill required.
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npx nx typecheck api`
-- [x] 2.2 Linting passes: `npm run lint`
-- [x] 2.3 Api tests pass: `npx nx test api` (incl. `diagnose.service.spec.ts` DI updated)
+- [x] 2.1 Type checking passes: `npx nx typecheck api` — d92875e
+- [x] 2.2 Linting passes: `npm run lint` — d92875e
+- [x] 2.3 Api tests pass: `npx nx test api` (incl. `diagnose.service.spec.ts` DI updated) — d92875e
 
 #### Manual
 
-- [x] 2.4 Diagnosis with `agentContext` set reflects the host convention
-- [x] 2.5 Diagnosis with empty/null context behaves exactly as before
-- [x] 2.6 Run still completes within the < 15 s NFR for ~200 log lines
+- [x] 2.4 Diagnosis with `agentContext` set reflects the host convention — d92875e
+- [x] 2.5 Diagnosis with empty/null context behaves exactly as before — d92875e
+- [x] 2.6 Run still completes within the < 15 s NFR for ~200 log lines — d92875e
 
 ### Phase 3: Web devices form
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `npx nx lint web`
-- [ ] 3.2 Build passes: `npx nx build web`
-- [ ] 3.3 Web unit tests pass: `npx nx test web`
-- [ ] 3.4 Format check passes: `npm run format:check`
+- [x] 3.1 Linting passes: `npx nx lint web`
+- [x] 3.2 Build passes: `npx nx build web`
+- [x] 3.3 Web unit tests pass: `npx nx test web`
+- [x] 3.4 Format check passes: `npm run format:check`
 
 #### Manual
 
-- [ ] 3.5 The "Agent context" textarea shows in create and edit modes
-- [ ] 3.6 Creating with a context value persists and reappears on edit
-- [ ] 3.7 Editing updates it; clearing nulls it
-- [ ] 3.8 Entering > 4000 chars surfaces the zod error and blocks submit
+- [x] 3.5 The "Agent context" textarea shows in create and edit modes
+- [x] 3.6 Creating with a context value persists and reappears on edit
+- [x] 3.7 Editing updates it; clearing nulls it
+- [x] 3.8 Entering > 4000 chars surfaces the zod error and blocks submit

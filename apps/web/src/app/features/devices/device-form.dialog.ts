@@ -50,6 +50,7 @@ export class DeviceFormDialog {
   protected readonly errorMessage = signal<null | string>(null);
 
   protected readonly form = this.formBuilder.nonNullable.group({
+    agentContext: ['', [schemaValidator(deviceCreateRequestSchema.shape.agentContext)]],
     authType: this.formBuilder.nonNullable.control<'key' | 'password'>('password', {
       validators: [schemaValidator(credentialCreateRequestSchema.shape.authType)],
     }),
@@ -76,7 +77,11 @@ export class DeviceFormDialog {
 
   constructor() {
     if (this.isEdit && this.context.device) {
-      this.form.patchValue({ host: this.context.device.host, name: this.context.device.name });
+      this.form.patchValue({
+        agentContext: this.context.device.agentContext ?? '',
+        host: this.context.device.host,
+        name: this.context.device.name,
+      });
       // credentials are optional on edit — a blank secret leaves them untouched.
       this.form.controls.username.clearValidators();
       this.form.controls.secret.clearValidators();
@@ -100,7 +105,7 @@ export class DeviceFormDialog {
 
     if (!this.isEdit) {
       const result = await this.context.store.add(
-        { host: value.host, name: value.name },
+        { agentContext: value.agentContext.trim() || null, host: value.host, name: value.name },
         { authType: value.authType, secret: value.secret, username: value.username }
       );
       this.finish(result);
@@ -113,7 +118,11 @@ export class DeviceFormDialog {
       return;
     }
 
-    const updateResult = await this.context.store.update(device.id, { host: value.host, name: value.name });
+    const updateResult = await this.context.store.update(device.id, {
+      agentContext: value.agentContext.trim() || null,
+      host: value.host,
+      name: value.name,
+    });
     if (updateResult.error) {
       this.finish(updateResult);
       return;

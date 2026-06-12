@@ -6,6 +6,7 @@ import { DevicesClient } from '../clients/devices.client';
 import { DevicesStore } from './devices.store';
 
 const device: Device = {
+  agentContext: null,
   createdAt: '2026-06-10T00:00:00.000Z',
   host: '192.168.1.10',
   id: '00000000-0000-0000-0000-000000000001',
