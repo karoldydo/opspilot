@@ -1,10 +1,10 @@
 ---
 change_id: per-device-agent-context
 title: Per device agent context
-status: impl_reviewed
+status: archived
 created: 2026-06-12
-updated: 2026-06-13
-archived_at: null
+updated: 2026-06-12
+archived_at: 2026-06-12T23:40:04Z
 ---
 
 ## Notes
