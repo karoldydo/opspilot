@@ -1,10 +1,10 @@
 ---
 change_id: custom-skill-crud
 title: Custom skill crud
-status: impl_reviewed
+status: archived
 created: 2026-06-13
 updated: 2026-06-13
-archived_at: null
+archived_at: 2026-06-13T16:58:14Z
 ---
 
 ## Notes

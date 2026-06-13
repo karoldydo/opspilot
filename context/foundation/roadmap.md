@@ -3,7 +3,7 @@ project: opspilot
 version: 1
 status: draft
 created: 2026-05-30
-updated: 2026-06-12
+updated: 2026-06-13
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -53,7 +53,7 @@ end, and the sequencing goal (`market-feedback`) says prove that before anything
 | S-05 | live-narration-and-replay        | watch an agent run live and replay a saved transcript         | S-04          | US-01, FR-010                     | done     |
 | S-06 | deterministic-service-operations | run start/stop/restart/up/down on a service with confirmation | S-02, S-04    | FR-007, FR-008, NFR: op <10s      | done     |
 | S-07 | per-device-agent-context         | define a per-device system prompt that shapes the agent       | S-01, S-04    | FR-005                            | done     |
-| S-08 | custom-skill-crud                | define, edit, delete custom skills (global or per-device)     | S-06          | FR-006, FR-008                    | proposed |
+| S-08 | custom-skill-crud                | define, edit, delete custom skills (global or per-device)     | S-06          | FR-006, FR-008                    | done     |
 | S-09 | audit-log-and-history            | see an audit trail of user actions and agent runs, linked     | F-02, S-04    | FR-011, Access Control            | proposed |
 
 ## Streams
@@ -218,7 +218,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** the programmable-operations heart of the product; it generalizes S-06's "run a defined skill on a service" path to user-defined skills. Per-device skill filtering (FR-008) is the guard against running the wrong command on the wrong host - verify it holds for custom skills, not just the defaults.
-- **Status:** proposed
+- **Status:** done
 
 ### S-09: Audit log + history view
 
@@ -283,3 +283,4 @@ This table is the clean handoff to Jira/Linear or any MCP-backed backlog. One ro
 - **S-05: a user watches an agent run narrated live and can replay the full saved transcript of an earlier run.** — Archived 2026-06-11 → `context/archive/2026-06-11-live-narration-and-replay/`. Lesson: —.
 - **S-06: a user runs a deterministic operation (start, stop, restart, up, down) on a service and sees confirmation in the UI.** — Archived 2026-06-12 → `context/archive/2026-06-11-deterministic-service-operations/`. Lesson: —.
 - **S-07: a user can define a per-device system prompt (path conventions, privileged-access requirements, availability hours) that shapes the agent's behaviour on that host.** — Archived 2026-06-12 → `context/archive/2026-06-12-per-device-agent-context/`. Lesson: —.
+- **S-08: a user can define, edit, and delete custom skills (parameterized commands) with a global scope or assigned to a specific device.** — Archived 2026-06-13 → `context/archive/2026-06-13-custom-skill-crud/`. Lesson: —.
