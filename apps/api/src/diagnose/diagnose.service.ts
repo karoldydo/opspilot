@@ -134,7 +134,9 @@ export class DiagnoseService {
           // tier-2 record-on-invocation: emit the linked audit row at the same point the
           // run_record is written, on the base connection (no tx — the sse hot path has
           // no transaction to join). runRecordId points the timeline row at its synthesis.
-          this.auditService.record({
+          // best-effort: the run is already persisted, so a failed audit insert is logged,
+          // not thrown — it must not surface as a stream error after a successful run.
+          this.auditService.recordOnInvocation({
             action: 'diagnose.run',
             runRecordId: saved.id,
             targetId: serviceId,

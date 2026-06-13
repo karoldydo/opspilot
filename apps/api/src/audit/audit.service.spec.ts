@@ -138,4 +138,26 @@ describe('AuditService', () => {
     expect(events[0].metadata).toBeNull();
     expect(events[0].synthesis).toBeUndefined();
   });
+
+  it('recordOnInvocation writes a tier-2 row on the base connection', () => {
+    auditService.recordOnInvocation({
+      action: 'service.scan',
+      metadata: { found: 2 },
+      targetId: deviceId,
+      targetType: 'device',
+      userId,
+    });
+
+    const events = auditService.list({ offset: 0 });
+    expect(events).toHaveLength(1);
+    expect(events[0].action).toBe('service.scan');
+    expect(events[0].metadata).toEqual({ found: 2 });
+  });
+
+  it('recordOnInvocation swallows an insert failure so a successful op is not masked', () => {
+    // a missing user violates the not-null user fk (pragma on) — record() throws, but
+    // the tier-2 wrapper must log-and-swallow rather than propagate to the caller.
+    expect(() => auditService.recordOnInvocation({ action: 'skill.run', userId: 'no-such-user' })).not.toThrow();
+    expect(auditService.list({ offset: 0 })).toHaveLength(0);
+  });
 });

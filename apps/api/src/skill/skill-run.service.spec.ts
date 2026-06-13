@@ -25,7 +25,7 @@ describe('SkillRunService', () => {
   };
   const mockServiceService = { findOne: vi.fn<(deviceId: string, id: string) => Promise<Service>>() };
   const mockSkillService = { findForDevice: vi.fn<(deviceId: string) => Promise<Skill[]>>() };
-  const mockAuditService = { record: vi.fn() };
+  const mockAuditService = { recordOnInvocation: vi.fn() };
 
   function buildService(): SkillRunService {
     return new SkillRunService(
@@ -80,7 +80,7 @@ describe('SkillRunService', () => {
     mockExecutor.execute.mockReset();
     mockServiceService.findOne.mockReset();
     mockSkillService.findForDevice.mockReset();
-    mockAuditService.record.mockReset();
+    mockAuditService.recordOnInvocation.mockReset();
     mockServiceService.findOne.mockResolvedValue(serviceRow());
     mockSkillService.findForDevice.mockResolvedValue([skillRow()]);
     mockExecutor.execute.mockResolvedValue(execResult({ stdout: inputContainerName }));
@@ -227,9 +227,9 @@ describe('SkillRunService', () => {
   it('records a tier-2 skill.run audit row carrying the succeeded outcome', async () => {
     await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId);
 
-    expect(mockAuditService.record).toHaveBeenCalledTimes(1);
+    expect(mockAuditService.recordOnInvocation).toHaveBeenCalledTimes(1);
     // recorded on the base connection (no tx) with secret-free metadata.
-    expect(mockAuditService.record).toHaveBeenCalledWith({
+    expect(mockAuditService.recordOnInvocation).toHaveBeenCalledWith({
       action: 'skill.run',
       metadata: { outcome: 'succeeded', skillName: 'restart' },
       targetId: inputServiceId,
@@ -243,7 +243,7 @@ describe('SkillRunService', () => {
 
     await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId);
 
-    expect(mockAuditService.record).toHaveBeenCalledWith(
+    expect(mockAuditService.recordOnInvocation).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'skill.run', metadata: { outcome: 'failed', skillName: 'restart' } })
     );
   });
@@ -256,7 +256,7 @@ describe('SkillRunService', () => {
     await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId)).rejects.toBeInstanceOf(
       DockerDaemonDownError
     );
-    expect(mockAuditService.record).not.toHaveBeenCalled();
+    expect(mockAuditService.recordOnInvocation).not.toHaveBeenCalled();
   });
 
   it('propagates the findOne 404 (cross-device / absent service) without running a command', async () => {

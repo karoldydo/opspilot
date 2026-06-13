@@ -79,7 +79,8 @@ export class SkillRunService {
           });
     // tier-2: no db transaction to join, so record on invocation with the observed
     // outcome on the base connection (no tx). secret-free metadata (skill name + status).
-    this.auditService.record({
+    // best-effort: the run already succeeded, so a failed audit insert is logged, not thrown.
+    this.auditService.recordOnInvocation({
       action: 'skill.run',
       metadata: { outcome: outcome.status, skillName: skill.name },
       targetId: serviceId,

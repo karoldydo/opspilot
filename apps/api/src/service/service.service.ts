@@ -59,8 +59,9 @@ export class ServiceService {
     const scanResult = scanResultSchema.parse({ containers });
     // tier-2 record-on-invocation: the scan persists nothing of its own, so the audit
     // row is written on the base connection (no tx) with the live container count. a
-    // failed scan throws above and leaves no row (the accepted tier-2 limitation).
-    this.auditService.record({
+    // failed scan throws above and leaves no row (the accepted tier-2 limitation); a
+    // failed audit insert is logged, not thrown — the scan already succeeded.
+    this.auditService.recordOnInvocation({
       action: 'service.scan',
       metadata: { found: scanResult.containers.length },
       targetId: deviceId,

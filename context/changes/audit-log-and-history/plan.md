@@ -223,7 +223,7 @@ feature module that records.
 
 - Migration generates cleanly: `npm run db:generate` (no error, new files emitted)
 - API type-checks and builds: `npx nx build api`
-- Shared lib builds: `npx nx build shared`
+- Shared lib type-checks: `npx nx typecheck shared` (the lib has no `build` target — it is consumed via the `@opspilot/shared` alias and bundled transitively by api/web)
 - API unit tests pass: `npx nx test api`
 - Lint passes: `npm run lint`
 
@@ -505,7 +505,7 @@ rows stay valid with `userId = NULL`. No data backfill. The `audit_log.runRecord
 
 - [x] 1.1 Migration generates cleanly: `npm run db:generate` — 0cd68b3
 - [x] 1.2 API type-checks and builds: `npx nx build api` — 0cd68b3
-- [x] 1.3 Shared lib builds: `npx nx build shared` — 0cd68b3
+- [x] 1.3 Shared lib type-checks: `npx nx typecheck shared` — 0cd68b3
 - [x] 1.4 API unit tests pass: `npx nx test api` — 0cd68b3
 - [x] 1.5 Lint passes: `npm run lint` — 0cd68b3
 

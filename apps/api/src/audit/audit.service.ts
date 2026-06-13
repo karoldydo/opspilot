@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AuditAction, AuditEvent, auditEventSchema, AuditListQuery } from '@opspilot/shared';
 import { and, desc, eq, gte, lte } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
@@ -44,6 +44,8 @@ const DEFAULT_LIST_LIMIT = 50;
 // drops design:paramtypes, lessons.md). better-sqlite3 is synchronous — no await.
 @Injectable()
 export class AuditService {
+  private readonly logger = new Logger(AuditService.name);
+
   constructor(@Inject(DATABASE_CONNECTION) private readonly db: DatabaseConnection) {}
 
   // the merged chronological timeline: audit_log LEFT JOIN run_record so run-linked
@@ -82,6 +84,12 @@ export class AuditService {
   // invocation, base connection). passing base `db` instead of `tx` would run the
   // insert in a separate implicit transaction and break the atomic guarantee.
   record(input: AuditRecordInput, tx?: DatabaseTransaction): void {
+    // audit_log.userId is NOT NULL and @CurrentUserId() resolves to string | undefined
+    // (it would be undefined only on a misconfigured @Public route). fail fast with a
+    // named error rather than letting a raw not-null constraint surface from the driver.
+    if (!input.userId) {
+      throw new Error(`cannot record ${input.action} audit row: missing userId`);
+    }
     (tx ?? this.db)
       .insert(auditLog)
       .values({
@@ -94,6 +102,18 @@ export class AuditService {
         userId: input.userId,
       })
       .run();
+  }
+
+  // tier-2 best-effort write: the side-effect op (skill.run / service.scan /
+  // diagnose.run) has already succeeded by the time we record, so a failed audit
+  // insert must not turn a successful op into a 500 — log and swallow. tier-1 callers
+  // keep using record(input, tx) directly so a failed insert still rolls the action back.
+  recordOnInvocation(input: AuditRecordInput): void {
+    try {
+      this.record(input);
+    } catch (error) {
+      this.logger.error(`failed to record ${input.action} audit row for user ${input.userId}`, error);
+    }
   }
 
   // project safe fields through the shared contract: parse the metadata/synthesis

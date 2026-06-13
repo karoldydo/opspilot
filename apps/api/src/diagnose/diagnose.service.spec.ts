@@ -60,7 +60,7 @@ describe('DiagnoseService', () => {
       >(),
     findRecent: vi.fn<(deviceId: string, serviceId: string, limit?: number, offset?: number) => RunRecord[]>(),
   };
-  const mockAuditService = { record: vi.fn() };
+  const mockAuditService = { recordOnInvocation: vi.fn() };
   const config: LlmConfig = {
     generateTimeoutMs: 12000,
     historyRetention: 20,
@@ -148,7 +148,7 @@ describe('DiagnoseService', () => {
     mockClientFactory.create.mockClear();
     mockRunRecordService.create.mockReset();
     mockRunRecordService.findRecent.mockReset();
-    mockAuditService.record.mockReset();
+    mockAuditService.recordOnInvocation.mockReset();
     mockedStreamObject.mockReset();
 
     mockServiceService.findOne.mockResolvedValue(serviceRow());
@@ -185,7 +185,7 @@ describe('DiagnoseService', () => {
       userId,
     });
     // the linked tier-2 audit row is recorded at the same point, pointing at the run.
-    expect(mockAuditService.record).toHaveBeenCalledWith({
+    expect(mockAuditService.recordOnInvocation).toHaveBeenCalledWith({
       action: 'diagnose.run',
       runRecordId: savedRun.id,
       targetId: inputServiceId,

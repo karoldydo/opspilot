@@ -25,6 +25,11 @@ export const auditLog = sqliteTable(
     runRecordId: text('run_record_id').references(() => runRecord.id, { onDelete: 'set null' }),
     targetId: text('target_id'),
     targetType: text('target_type'),
+    // not-null by design — every audit row is attributed to a user. the fk is left at
+    // the default `on delete no action` (NOT `set null` like run_record.userId, whose
+    // column is nullable): the audit log is retained indefinitely, so we preserve
+    // attribution and block deleting a user who still has audit rows rather than
+    // orphaning them. `set null` would conflict with this not-null column.
     userId: text('user_id')
       .notNull()
       .references(() => user.id),
