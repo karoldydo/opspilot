@@ -19,6 +19,14 @@ export class SkillsClient {
     return firstValueFrom(this.http.get<unknown[]>('/api/skills')).then((rows) => skillSchema.array().parse(rows));
   }
 
+  // scoped to a device: global + that device's rows (server-side findForDevice). the
+  // per-service run surface uses this so it never receives other devices' skills.
+  listForDevice(deviceId: string): Promise<Skill[]> {
+    return firstValueFrom(this.http.get<unknown[]>('/api/skills', { params: { deviceId } })).then((rows) =>
+      skillSchema.array().parse(rows)
+    );
+  }
+
   remove(id: string): Promise<void> {
     return firstValueFrom(this.http.delete<void>(`/api/skills/${id}`));
   }

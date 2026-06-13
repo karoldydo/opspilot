@@ -78,7 +78,7 @@ export class ServiceSkillsComponent {
 
   private async load(): Promise<void> {
     try {
-      this.skills.set(await this.skillsClient.list());
+      this.skills.set(await this.skillsClient.listForDevice(this.deviceId()));
     } catch {
       // a skill fetch failure must not break the row — it just shows no run controls.
     }

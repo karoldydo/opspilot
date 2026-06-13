@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject, Param, Patch, Post, Query } from '@nestjs/common';
 import {
   Skill,
   SkillCreateRequest,
@@ -19,9 +19,12 @@ export class SkillController {
     return this.skillService.create(body);
   }
 
+  // with ?deviceId= the list is scoped to that device (global + that device's rows) via
+  // findForDevice — the per-service run surface uses this so out-of-scope skills never
+  // reach the browser. without it, returns every row for the crud management list.
   @Get()
-  findAll(): Promise<Skill[]> {
-    return this.skillService.findAll();
+  findAll(@Query('deviceId') deviceId?: string): Promise<Skill[]> {
+    return deviceId ? this.skillService.findForDevice(deviceId) : this.skillService.findAll();
   }
 
   @Get(':id')
