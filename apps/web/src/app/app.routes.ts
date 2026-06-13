@@ -28,6 +28,11 @@ export const appRoutes: Route[] = [
   },
   {
     canActivate: [authGuard],
+    loadComponent: () => import('./features/skills/skills.component').then(({ SkillsComponent }) => SkillsComponent),
+    path: 'skills',
+  },
+  {
+    canActivate: [authGuard],
     loadComponent: () => import('./home/home.component').then(({ HomeComponent }) => HomeComponent),
     path: '',
   },

@@ -1,0 +1,124 @@
+<hlm-dialog-header>
+  <h2 hlmDialogTitle>{{ isEdit ? 'Edit skill' : 'Add skill' }}</h2>
+  <p hlmDialogDescription>
+    A skill is a fixed command template with typed {{ '{{placeholders}}' }} — every placeholder needs a matching
+    parameter.
+  </p>
+</hlm-dialog-header>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="flex flex-col gap-4 py-2">
+    <div class="flex flex-col gap-2">
+      <label for="name" hlmLabel>Name</label>
+      <input id="name" type="text" formControlName="name" hlmInput placeholder="restart" />
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.name.getError('zod') }}</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="commandTemplate" hlmLabel>Command template</label>
+      <textarea
+        id="commandTemplate"
+        formControlName="commandTemplate"
+        hlmInput
+        placeholder="docker restart {{ '{{containerName}}' }}"
+        rows="3"
+      ></textarea>
+      @if (form.controls.commandTemplate.touched && form.controls.commandTemplate.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.commandTemplate.getError('zod') }}</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="deviceId" hlmLabel>Scope</label>
+      <hlm-select [itemToString]="scopeLabel" formControlName="deviceId">
+        <hlm-select-trigger class="w-full" buttonId="deviceId">
+          <hlm-select-value placeholder="Select scope" />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          <hlm-select-group>
+            <hlm-select-item value="">Global</hlm-select-item>
+            @for (device of devices; track device.id) {
+            <hlm-select-item [value]="device.id">{{ device.name }}</hlm-select-item>
+            }
+          </hlm-select-group>
+        </hlm-select-content>
+      </hlm-select>
+      <p class="text-muted-foreground text-sm">Global skills run on every device; a device scopes the skill to it.</p>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="timeoutMs" hlmLabel>Timeout (ms)</label>
+      <input
+        id="timeoutMs"
+        type="number"
+        formControlName="timeoutMs"
+        hlmInput
+        min="1"
+        placeholder="leave blank for default"
+      />
+      @if (form.controls.timeoutMs.touched && form.controls.timeoutMs.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.timeoutMs.getError('zod') }}</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span hlmLabel>Parameters</span>
+        <button type="button" (click)="addParameter()" hlmBtn size="sm" variant="outline">Add parameter</button>
+      </div>
+      @for (parameter of form.controls.parameters.controls; track $index) {
+      <div class="border-border flex items-end gap-2 rounded-md border p-3" [formGroup]="parameter">
+        <div class="flex flex-1 flex-col gap-2">
+          <label [for]="'param-name-' + $index" hlmLabel>Name</label>
+          <input
+            type="text"
+            [id]="'param-name-' + $index"
+            formControlName="name"
+            hlmInput
+            placeholder="containerName"
+          />
+          @if (parameter.controls.name.touched && parameter.controls.name.invalid) {
+          <p class="text-destructive text-sm">{{ parameter.controls.name.getError('zod') }}</p>
+          }
+        </div>
+        <div class="flex flex-col gap-2">
+          <label [for]="'param-source-' + $index" hlmLabel>Source</label>
+          <hlm-select [itemToString]="sourceLabel" formControlName="source">
+            <hlm-select-trigger class="w-32" [buttonId]="'param-source-' + $index">
+              <hlm-select-value placeholder="Source" />
+            </hlm-select-trigger>
+            <hlm-select-content *hlmSelectPortal>
+              <hlm-select-group>
+                <hlm-select-item value="input">Input</hlm-select-item>
+                <hlm-select-item value="service">Service</hlm-select-item>
+              </hlm-select-group>
+            </hlm-select-content>
+          </hlm-select>
+        </div>
+        <label class="flex items-center gap-2 pb-2" [for]="'param-required-' + $index" hlmLabel>
+          <hlm-checkbox [inputId]="'param-required-' + $index" formControlName="required" />
+          <span class="text-sm">Required</span>
+        </label>
+        <button type="button" (click)="removeParameter($index)" hlmBtn size="sm" variant="ghost">Remove</button>
+      </div>
+      }
+      <p class="text-muted-foreground text-sm">
+        A <strong>service</strong> parameter binds to containerName, composePath, or composeProject (read from the
+        service); an <strong>input</strong> parameter is supplied when the skill runs.
+      </p>
+    </div>
+
+    @if (errorMessage()) {
+    <p class="text-destructive text-sm" role="alert">{{ errorMessage() }}</p>
+    }
+  </div>
+
+  <hlm-dialog-footer>
+    <button type="button" (click)="cancel()" hlmBtn variant="outline">Cancel</button>
+    <button type="submit" [disabled]="submitting()" hlmBtn>
+      {{ submitting() ? 'Saving…' : isEdit ? 'Save changes' : 'Add skill' }}
+    </button>
+  </hlm-dialog-footer>
+</form>

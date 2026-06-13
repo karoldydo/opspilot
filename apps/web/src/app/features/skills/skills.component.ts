@@ -1,0 +1,92 @@
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { type Device, type Skill } from '@opspilot/shared';
+import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { HlmBadge } from '@spartan-ng/helm/badge';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmEmptyImports } from '@spartan-ng/helm/empty';
+import { HlmTableImports } from '@spartan-ng/helm/table';
+
+import { DevicesClient } from '../../core/clients/devices.client';
+import { SkillsClient } from '../../core/clients/skills.client';
+import { SkillsStore } from '../../core/stores/skills.store';
+import { SkillFormDialog, type SkillFormDialogContext } from './skill-form.dialog';
+
+// the skill catalog view: a table of every skill (global + per-device) with its
+// scope, parameters, edit/delete row actions, an empty state, and an add button.
+// the skill store/client are provided here (not providedIn: 'root', per angular.md);
+// DevicesClient is provided too so the scope select in the form can list devices.
+// the form dialog renders in a cdk overlay outside this injector, so the list passes
+// the store + device list via dialog context.
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DatePipe, HlmBadge, HlmButton, ...HlmTableImports, ...HlmAlertDialogImports, ...HlmEmptyImports],
+  providers: [SkillsClient, SkillsStore, DevicesClient],
+  selector: 'app-skills',
+  templateUrl: './skills.component.html',
+})
+export class SkillsComponent {
+  private readonly devicesClient = inject(DevicesClient);
+  private readonly dialog = inject(HlmDialogService);
+
+  protected readonly store = inject(SkillsStore);
+
+  // devices drive the scope select in the form and the scope label in the table.
+  protected readonly devices = signal<Device[]>([]);
+
+  // the skill a pending delete confirmation refers to — drives the alert-dialog copy.
+  protected readonly skillToDelete = signal<null | Skill>(null);
+
+  // device id → name lookup so a per-device skill renders its device name.
+  private readonly deviceNames = computed(() => new Map(this.devices().map((device) => [device.id, device.name])));
+
+  constructor() {
+    void this.store.load();
+    void this.loadDevices();
+  }
+
+  async confirmDelete(dialog: { close: () => void }): Promise<void> {
+    const skill = this.skillToDelete();
+    if (skill) {
+      await this.store.remove(skill.id);
+    }
+    dialog.close();
+  }
+
+  openCreate(): void {
+    this.openForm('create', null);
+  }
+
+  openEdit(skill: Skill): void {
+    this.openForm('edit', skill);
+  }
+
+  requestDelete(skill: Skill, dialog: { open: () => void }): void {
+    this.skillToDelete.set(skill);
+    dialog.open();
+  }
+
+  // global skills (deviceId null) render "Global"; a per-device skill renders its
+  // device name, falling back to the raw id if the device list hasn't loaded yet.
+  scopeLabel(skill: Skill): string {
+    if (skill.deviceId === null) {
+      return 'Global';
+    }
+    return this.deviceNames().get(skill.deviceId) ?? skill.deviceId;
+  }
+
+  private async loadDevices(): Promise<void> {
+    try {
+      this.devices.set(await this.devicesClient.listDevices());
+    } catch {
+      // the scope select degrades to ids — a device fetch failure must not block
+      // the skill catalog from rendering.
+    }
+  }
+
+  private openForm(mode: 'create' | 'edit', skill: null | Skill): void {
+    const context: SkillFormDialogContext = { devices: this.devices(), mode, skill, store: this.store };
+    this.dialog.open(SkillFormDialog, { context });
+  }
+}

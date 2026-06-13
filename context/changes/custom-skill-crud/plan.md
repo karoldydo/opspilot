@@ -628,30 +628,30 @@ queries index `deviceId`. No new hotspots.
 
 #### Automated
 
-- [x] 4.1 API builds with `operation/` removed: `npx nx build api`
-- [x] 4.2 Lint passes: `npx nx lint api`
-- [x] 4.3 Unit tests pass: `npx nx test api` (run service scope/gating/charset/exit-mapping)
+- [x] 4.1 API builds with `operation/` removed: `npx nx build api` — 4fe33fe
+- [x] 4.2 Lint passes: `npx nx lint api` — 4fe33fe
+- [x] 4.3 Unit tests pass: `npx nx test api` (run service scope/gating/charset/exit-mapping) — 4fe33fe
 
 #### Manual
 
-- [x] 4.4 Seeded start/stop/restart run on a container service as before
-- [x] 4.5 `up`/`down` on a non-compose service returns the compose-managed 400
-- [x] 4.6 Run input with a shell metacharacter is rejected at the boundary
-- [x] 4.7 A `skillId` from a different device returns 404
+- [x] 4.4 Seeded start/stop/restart run on a container service as before — 4fe33fe
+- [x] 4.5 `up`/`down` on a non-compose service returns the compose-managed 400 — 4fe33fe
+- [x] 4.6 Run input with a shell metacharacter is rejected at the boundary — 4fe33fe
+- [x] 4.7 A `skillId` from a different device returns 404 — 4fe33fe
 
 ### Phase 5: Web skill CRUD feature
 
 #### Automated
 
-- [ ] 5.1 Web builds: `npx nx build web`
-- [ ] 5.2 Lint passes: `npx nx lint web`
-- [ ] 5.3 Unit tests pass: `npx nx test web` (store + form validators)
+- [x] 5.1 Web builds: `npx nx build web`
+- [x] 5.2 Lint passes: `npx nx lint web`
+- [x] 5.3 Unit tests pass: `npx nx test web` (store + form validators)
 
 #### Manual
 
-- [ ] 5.4 Create/edit/delete a global and a per-device skill through the UI
-- [ ] 5.5 Form rejects empty name and template/parameter mismatch
-- [ ] 5.6 Per-device skill shows its device; global shows "global"
+- [x] 5.4 Create/edit/delete a global and a per-device skill through the UI
+- [x] 5.5 Form rejects empty name and template/parameter mismatch
+- [x] 5.6 Per-device skill shows its device; global shows "global"
 
 ### Phase 6: Web execution rewire
 
