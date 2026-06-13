@@ -1,0 +1,33 @@
+<hlm-dialog-header>
+  <h2 hlmDialogTitle>Run {{ skillName }}</h2>
+  <p hlmDialogDescription>
+    Run <code>{{ skillName }}</code> on {{ serviceName }}. This executes the command below on the host.
+  </p>
+</hlm-dialog-header>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="flex flex-col gap-4 py-2">
+    <pre class="bg-muted text-muted-foreground overflow-x-auto rounded-md p-3 text-xs">{{ commandTemplate }}</pre>
+
+    @for (parameter of inputParameters; track parameter.name) {
+    <div class="flex flex-col gap-2">
+      <label [for]="parameter.name" hlmLabel>
+        {{ parameter.name }} @if (!parameter.required) {
+        <span class="text-muted-foreground">(optional)</span>
+        }
+      </label>
+      <input type="text" [formControlName]="parameter.name" [id]="parameter.name" hlmInput />
+      @if (form.get(parameter.name)?.touched && form.get(parameter.name)?.invalid) {
+      <p class="text-destructive text-sm">{{ form.get(parameter.name)?.getError('zod') }}</p>
+      }
+    </div>
+    } @if (errorMessage()) {
+    <p class="text-destructive text-sm" role="alert">{{ errorMessage() }}</p>
+    }
+  </div>
+
+  <hlm-dialog-footer>
+    <button type="button" (click)="cancel()" hlmBtn variant="outline">Cancel</button>
+    <button type="submit" [disabled]="submitting()" hlmBtn>{{ submitting() ? 'Running…' : 'Run' }}</button>
+  </hlm-dialog-footer>
+</form>

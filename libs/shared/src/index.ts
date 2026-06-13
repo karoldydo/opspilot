@@ -20,8 +20,6 @@ export * from './lib/schemas/run-narration-event.schema';
 export * from './lib/schemas/run-record.schema';
 export * from './lib/schemas/scan-result.schema';
 export * from './lib/schemas/service-create-request.schema';
-export * from './lib/schemas/service-operation-request.schema';
-export * from './lib/schemas/service-operation.schema';
 export * from './lib/schemas/service-update-request.schema';
 export * from './lib/schemas/service.schema';
 export * from './lib/schemas/skill-command-template.schema';

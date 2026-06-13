@@ -1,0 +1,29 @@
+<div class="flex flex-col items-end gap-1">
+  <div class="flex flex-wrap justify-end gap-2">
+    @for (skill of visibleSkills(); track skill.id) {
+      <button
+        type="button"
+        [disabled]="entry().pending !== null"
+        (click)="openRun(skill)"
+        hlmBtn
+        size="sm"
+        variant="outline"
+      >
+        {{ entry().pending === skill.id ? 'Running…' : skill.name }}
+      </button>
+    }
+  </div>
+
+  @if (entry().error) {
+    <p class="text-destructive text-xs" role="alert">{{ entry().error }}</p>
+  } @else if (entry().result; as result) {
+    <p
+      class="text-xs"
+      [class.dark:text-green-400]="result.status === 'succeeded'"
+      [class.text-destructive]="result.status === 'failed'"
+      [class.text-green-700]="result.status === 'succeeded'"
+    >
+      {{ result.message }}
+    </p>
+  }
+</div>

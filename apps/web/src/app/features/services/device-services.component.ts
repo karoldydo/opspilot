@@ -14,7 +14,7 @@ import { DiagnosisStore } from '../../core/stores/diagnosis.store';
 import { ServicesStore } from '../../core/stores/services.store';
 import { RenameServiceDialog, type RenameServiceDialogContext } from './rename-service.dialog';
 import { ScanServicesDialog, type ScanServicesDialogContext } from './scan-services.dialog';
-import { ServiceOperationsComponent } from './service-operations.component';
+import { ServiceSkillsComponent } from './service-skills.component';
 
 // status → badge classes. spartan's hlmBadge has no success/warning variant, so we
 // keep its shape and color via tokens/utilities: down uses the semantic destructive
@@ -39,7 +39,7 @@ const BADGE_CLASS: Record<DiagnosisSynthesis['status'], string> = {
     ...HlmCardImports,
     ...HlmTableImports,
     ...HlmAlertDialogImports,
-    ServiceOperationsComponent,
+    ServiceSkillsComponent,
   ],
   providers: [ServicesClient, ServicesStore, DiagnosisClient, DiagnosisStore],
   selector: 'app-device-services',

@@ -643,27 +643,27 @@ queries index `deviceId`. No new hotspots.
 
 #### Automated
 
-- [x] 5.1 Web builds: `npx nx build web`
-- [x] 5.2 Lint passes: `npx nx lint web`
-- [x] 5.3 Unit tests pass: `npx nx test web` (store + form validators)
+- [x] 5.1 Web builds: `npx nx build web` — 9ed0b88
+- [x] 5.2 Lint passes: `npx nx lint web` — 9ed0b88
+- [x] 5.3 Unit tests pass: `npx nx test web` (store + form validators) — 9ed0b88
 
 #### Manual
 
-- [x] 5.4 Create/edit/delete a global and a per-device skill through the UI
-- [x] 5.5 Form rejects empty name and template/parameter mismatch
-- [x] 5.6 Per-device skill shows its device; global shows "global"
+- [x] 5.4 Create/edit/delete a global and a per-device skill through the UI — 9ed0b88
+- [x] 5.5 Form rejects empty name and template/parameter mismatch — 9ed0b88
+- [x] 5.6 Per-device skill shows its device; global shows "global" — 9ed0b88
 
 ### Phase 6: Web execution rewire
 
 #### Automated
 
-- [ ] 6.1 Web builds with operations surface removed: `npx nx build web`
-- [ ] 6.2 Lint passes: `npx nx lint web`
-- [ ] 6.3 Unit tests pass: `npx nx test web`
+- [x] 6.1 Web builds with operations surface removed: `npx nx build web`
+- [x] 6.2 Lint passes: `npx nx lint web`
+- [x] 6.3 Unit tests pass: `npx nx test web`
 
 #### Manual
 
-- [ ] 6.4 Container service: start/stop/restart appear and run; `up`/`down` absent
-- [ ] 6.5 Compose service: `up`/`down` also appear; `down` confirms
-- [ ] 6.6 Per-device custom skill scoped correctly; global appears everywhere
-- [ ] 6.7 Result/error line renders per service as before
+- [x] 6.4 Container service: start/stop/restart appear and run; `up`/`down` absent
+- [x] 6.5 Compose service: `up`/`down` also appear; `down` confirms
+- [x] 6.6 Per-device custom skill scoped correctly; global appears everywhere
+- [x] 6.7 Result/error line renders per service as before
