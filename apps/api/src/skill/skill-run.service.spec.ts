@@ -2,6 +2,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Service, Skill, SkillParameter } from '@opspilot/shared';
 import { ZodError } from 'zod';
 
+import { AuditService } from '../audit/audit.service';
 import { SkillConfig } from '../config/skill.config';
 import { ExecResult } from '../executor/executor.interface';
 import { DockerDaemonDownError, DockerNotFoundError } from '../service/service.errors';
@@ -14,6 +15,8 @@ describe('SkillRunService', () => {
   const inputServiceId = '22222222-2222-4222-8222-222222222222';
   const inputSkillId = '33333333-3333-4333-8333-333333333333';
   const inputContainerName = 'web-proxy';
+  // the session user whose id the tier-2 skill.run audit row keys off.
+  const userId = 'user-skill-run-test';
   const pathPrefix = 'export PATH="/usr/local/bin:/usr/local/sbin:/volume1/@appstore/ContainerManager/usr/bin:$PATH"; ';
   const config: SkillConfig = { timeoutMs: 300000 };
 
@@ -22,12 +25,14 @@ describe('SkillRunService', () => {
   };
   const mockServiceService = { findOne: vi.fn<(deviceId: string, id: string) => Promise<Service>>() };
   const mockSkillService = { findForDevice: vi.fn<(deviceId: string) => Promise<Skill[]>>() };
+  const mockAuditService = { record: vi.fn() };
 
   function buildService(): SkillRunService {
     return new SkillRunService(
       mockExecutor,
       mockServiceService as unknown as ServiceService,
       mockSkillService as unknown as SkillService,
+      mockAuditService as unknown as AuditService,
       config
     );
   }
@@ -75,13 +80,14 @@ describe('SkillRunService', () => {
     mockExecutor.execute.mockReset();
     mockServiceService.findOne.mockReset();
     mockSkillService.findForDevice.mockReset();
+    mockAuditService.record.mockReset();
     mockServiceService.findOne.mockResolvedValue(serviceRow());
     mockSkillService.findForDevice.mockResolvedValue([skillRow()]);
     mockExecutor.execute.mockResolvedValue(execResult({ stdout: inputContainerName }));
   });
 
   it('renders a container-scoped skill, substituting the service param under the config timeout', async () => {
-    const actual = await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {});
+    const actual = await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId);
 
     expect(mockExecutor.execute).toHaveBeenCalledWith(
       inputDeviceId,
@@ -101,7 +107,7 @@ describe('SkillRunService', () => {
       }),
     ]);
 
-    await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {});
+    await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId);
 
     expect(mockExecutor.execute).toHaveBeenCalledWith(
       inputDeviceId,
@@ -113,7 +119,7 @@ describe('SkillRunService', () => {
   it('uses the skill row timeoutMs override when present', async () => {
     mockSkillService.findForDevice.mockResolvedValue([skillRow({ timeoutMs: 60000 })]);
 
-    await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {});
+    await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId);
 
     expect(mockExecutor.execute).toHaveBeenCalledWith(inputDeviceId, expect.any(String), 60000);
   });
@@ -127,7 +133,7 @@ describe('SkillRunService', () => {
       }),
     ]);
 
-    await buildService().run(inputDeviceId, inputServiceId, inputSkillId, { tail: '200' });
+    await buildService().run(inputDeviceId, inputServiceId, inputSkillId, { tail: '200' }, userId);
 
     expect(mockExecutor.execute).toHaveBeenCalledWith(
       inputDeviceId,
@@ -139,7 +145,7 @@ describe('SkillRunService', () => {
   it('returns 404 for a skillId out of scope (forged / other device), running no command', async () => {
     mockSkillService.findForDevice.mockResolvedValue([]);
 
-    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {})).rejects.toBeInstanceOf(
+    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId)).rejects.toBeInstanceOf(
       NotFoundException
     );
     expect(mockExecutor.execute).not.toHaveBeenCalled();
@@ -154,7 +160,7 @@ describe('SkillRunService', () => {
       }),
     ]);
 
-    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {})).rejects.toBeInstanceOf(
+    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId)).rejects.toBeInstanceOf(
       BadRequestException
     );
     expect(mockExecutor.execute).not.toHaveBeenCalled();
@@ -169,7 +175,7 @@ describe('SkillRunService', () => {
       }),
     ]);
 
-    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {})).rejects.toBeInstanceOf(
+    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId)).rejects.toBeInstanceOf(
       BadRequestException
     );
     expect(mockExecutor.execute).not.toHaveBeenCalled();
@@ -178,14 +184,16 @@ describe('SkillRunService', () => {
   it('rejects a tainted service value at the charset boundary before any command is built', async () => {
     mockServiceService.findOne.mockResolvedValue(serviceRow({ containerName: 'web-proxy; whoami' }));
 
-    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {})).rejects.toBeInstanceOf(ZodError);
+    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId)).rejects.toBeInstanceOf(
+      ZodError
+    );
     expect(mockExecutor.execute).not.toHaveBeenCalled();
   });
 
   it('maps a clean exit (code 0) to a succeeded result carrying the merged output', async () => {
     mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'err line', stdout: 'out line' }));
 
-    const actual = await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {});
+    const actual = await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId);
 
     expect(actual).toEqual({ message: 'out line\nerr line', status: 'succeeded' });
   });
@@ -193,7 +201,7 @@ describe('SkillRunService', () => {
   it('maps a skill-specific non-zero exit to a failed result with the cleaned stderr', async () => {
     mockExecutor.execute.mockResolvedValue(execResult({ code: 1, stderr: 'Error: No such container: web-proxy\n' }));
 
-    const actual = await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {});
+    const actual = await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId);
 
     expect(actual).toEqual({ message: 'Error: No such container: web-proxy', status: 'failed' });
   });
@@ -203,7 +211,7 @@ describe('SkillRunService', () => {
       execResult({ code: 1, stderr: 'Cannot connect to the Docker daemon at unix:///var/run/docker.sock.' })
     );
 
-    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {})).rejects.toBeInstanceOf(
+    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId)).rejects.toBeInstanceOf(
       DockerDaemonDownError
     );
   });
@@ -211,15 +219,50 @@ describe('SkillRunService', () => {
   it('throws a docker-not-found 503 on exit code 127', async () => {
     mockExecutor.execute.mockResolvedValue(execResult({ code: 127, stderr: 'docker: command not found' }));
 
-    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {})).rejects.toBeInstanceOf(
+    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId)).rejects.toBeInstanceOf(
       DockerNotFoundError
     );
+  });
+
+  it('records a tier-2 skill.run audit row carrying the succeeded outcome', async () => {
+    await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId);
+
+    expect(mockAuditService.record).toHaveBeenCalledTimes(1);
+    // recorded on the base connection (no tx) with secret-free metadata.
+    expect(mockAuditService.record).toHaveBeenCalledWith({
+      action: 'skill.run',
+      metadata: { outcome: 'succeeded', skillName: 'restart' },
+      targetId: inputServiceId,
+      targetType: 'service',
+      userId,
+    });
+  });
+
+  it('records the failed outcome on a skill-specific non-zero exit', async () => {
+    mockExecutor.execute.mockResolvedValue(execResult({ code: 1, stderr: 'Error: No such container: web-proxy\n' }));
+
+    await buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId);
+
+    expect(mockAuditService.record).toHaveBeenCalledWith(
+      expect.objectContaining({ action: 'skill.run', metadata: { outcome: 'failed', skillName: 'restart' } })
+    );
+  });
+
+  it('records no audit row when an infra error (daemon-down) throws before the result', async () => {
+    mockExecutor.execute.mockResolvedValue(
+      execResult({ code: 1, stderr: 'Cannot connect to the Docker daemon at unix:///var/run/docker.sock.' })
+    );
+
+    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId)).rejects.toBeInstanceOf(
+      DockerDaemonDownError
+    );
+    expect(mockAuditService.record).not.toHaveBeenCalled();
   });
 
   it('propagates the findOne 404 (cross-device / absent service) without running a command', async () => {
     mockServiceService.findOne.mockRejectedValue(new Error('service not found'));
 
-    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {})).rejects.toThrow();
+    await expect(buildService().run(inputDeviceId, inputServiceId, inputSkillId, {}, userId)).rejects.toThrow();
     expect(mockExecutor.execute).not.toHaveBeenCalled();
   });
 });

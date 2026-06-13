@@ -3,6 +3,7 @@ import { containerNameSchema, diagnosisSynthesisSchema } from '@opspilot/shared'
 import { streamObject } from 'ai';
 import { Observable } from 'rxjs';
 
+import { AuditService } from '../audit/audit.service';
 import { llmConfig, LlmConfig } from '../config/llm.config';
 import { DeviceService } from '../device/device.service';
 import { ExecResult, IExecutor } from '../executor/executor.interface';
@@ -29,6 +30,7 @@ export class DiagnoseService {
     @Inject(LlmProviderService) private readonly llmProviderService: LlmProviderService,
     @Inject(LlmProviderClientFactory) private readonly clientFactory: LlmProviderClientFactory,
     @Inject(RunRecordService) private readonly runRecordService: RunRecordService,
+    @Inject(AuditService) private readonly auditService: AuditService,
     @Inject(llmConfig.KEY) private readonly config: LlmConfig
   ) {}
 
@@ -41,7 +43,7 @@ export class DiagnoseService {
   // the ssh logs fetch and the synthesis happen INSIDE the stream — a logs timeout,
   // docker failure, or synthesis fault arrives as an in-stream `error` event, not a
   // pre-stream status, because the stream is already 200 by then.
-  async narrate(deviceId: string, serviceId: string): Promise<Observable<MessageEvent>> {
+  async narrate(deviceId: string, serviceId: string, userId: string): Promise<Observable<MessageEvent>> {
     // 404 if the service is absent or belongs to another device; carries containerName.
     const service = await this.serviceService.findOne(deviceId, serviceId);
     // 404 if the device is gone; carries the host-level agentContext persona injected
@@ -52,7 +54,7 @@ export class DiagnoseService {
     // decrypted key — never logged/returned.
     const providerConfig = await this.llmProviderService.getActiveProviderConfig();
     const model = this.clientFactory.create(providerConfig);
-    return this.buildNarration(model, deviceId, serviceId, service.containerName, device.agentContext);
+    return this.buildNarration(model, deviceId, serviceId, service.containerName, device.agentContext, userId);
   }
 
   // recent runs for a service row, newest-first and bounded — the replay list read.
@@ -72,7 +74,8 @@ export class DiagnoseService {
     deviceId: string,
     serviceId: string,
     containerName: string,
-    agentContext: null | string
+    agentContext: null | string,
+    userId: string
   ): Observable<MessageEvent> {
     return new Observable<MessageEvent>((subscriber) => {
       // teardown signal: client disconnect aborts the in-flight generation; the
@@ -125,8 +128,19 @@ export class DiagnoseService {
             return;
           }
           // persist BEFORE `done` so the frame carries the real saved record (id +
-          // createdAt) the fe prepends to its recent list (critical impl details).
-          const saved = this.runRecordService.create({ deviceId, serviceId, synthesis });
+          // createdAt) the fe prepends to its recent list (critical impl details). the
+          // run now carries the authenticated user (s-09 activates the reserved column).
+          const saved = this.runRecordService.create({ deviceId, serviceId, synthesis, userId });
+          // tier-2 record-on-invocation: emit the linked audit row at the same point the
+          // run_record is written, on the base connection (no tx — the sse hot path has
+          // no transaction to join). runRecordId points the timeline row at its synthesis.
+          this.auditService.record({
+            action: 'diagnose.run',
+            runRecordId: saved.id,
+            targetId: serviceId,
+            targetType: 'service',
+            userId,
+          });
           subscriber.next({ data: { run: saved, type: 'done' } });
           subscriber.complete();
         } catch (error) {

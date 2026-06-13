@@ -46,7 +46,7 @@ export class ServiceService {
   // ephemeral: run docker ps over ssh and parse the live host state for the
   // curation ui. connect/auth/timeout already arrive as executor domain errors and
   // propagate; here we only interpret the docker-specific failures.
-  async scan(deviceId: string): Promise<ScanResult> {
+  async scan(deviceId: string, userId: string): Promise<ScanResult> {
     const result = await this.executor.execute(deviceId, SCAN_COMMAND);
     if (result.code !== 0) {
       throw this.mapDockerError(deviceId, result.code, result.stderr);
@@ -56,7 +56,18 @@ export class ServiceService {
       .map((line) => line.trim())
       .filter((line) => line.length > 0)
       .map((line) => this.parseContainer(line));
-    return scanResultSchema.parse({ containers });
+    const scanResult = scanResultSchema.parse({ containers });
+    // tier-2 record-on-invocation: the scan persists nothing of its own, so the audit
+    // row is written on the base connection (no tx) with the live container count. a
+    // failed scan throws above and leaves no row (the accepted tier-2 limitation).
+    this.auditService.record({
+      action: 'service.scan',
+      metadata: { found: scanResult.containers.length },
+      targetId: deviceId,
+      targetType: 'device',
+      userId,
+    });
+    return scanResult;
   }
 
   async findAll(deviceId: string): Promise<Service[]> {

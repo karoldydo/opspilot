@@ -32,8 +32,8 @@ export class ServiceController {
   constructor(@Inject(ServiceService) private readonly serviceService: ServiceService) {}
 
   @Post('scan')
-  scan(@Param('deviceId') deviceId: string): Promise<ScanResult> {
-    return this.serviceService.scan(deviceId);
+  scan(@Param('deviceId') deviceId: string, @CurrentUserId() userId: string): Promise<ScanResult> {
+    return this.serviceService.scan(deviceId, userId);
   }
 
   @Get('services')

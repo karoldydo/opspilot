@@ -3,6 +3,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiagnosisSynthesis } from '@opspilot/shared';
 import { NoObjectGeneratedError, streamObject } from 'ai';
+import { eq } from 'drizzle-orm';
 import { readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
@@ -15,7 +16,9 @@ import { databaseConfig } from '../config/database.config';
 import { DatabaseModule } from '../database/database.module';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { device } from '../database/schema';
+import { auditLog } from '../database/schema/audit-log.schema';
 import { user } from '../database/schema/auth.schema';
+import { runRecord } from '../database/schema/run-record.schema';
 import { DeviceService } from '../device/device.service';
 import { ExecResult } from '../executor/executor.interface';
 import { EXECUTOR } from '../executor/executor.token';
@@ -113,6 +116,12 @@ describe('DiagnoseController (e2e)', () => {
       .useValue(mockExecutor)
       .compile();
     app = moduleRef.createNestApplication();
+    // stand in for the unwired AuthAppGuard: attach the session the guard would so
+    // @CurrentUserId resolves a non-null id for the run's userId + the linked audit row.
+    app.use((req: { session?: { user: { id: string } } }, _res: unknown, next: () => void) => {
+      req.session = { user: { id: userId } };
+      next();
+    });
     await app.init();
     db = moduleRef.get<DatabaseConnection>(DATABASE_CONNECTION);
     db.insert(device).values({ host: '10.0.0.1', id: inputDeviceId, name: 'host-a' }).run();
@@ -170,6 +179,14 @@ describe('DiagnoseController (e2e)', () => {
     expect(list.body).toHaveLength(1);
     expect(list.body[0].id).toBe(done.run.id);
     expect(list.body[0].synthesis).toEqual(validSynthesis);
+
+    // s-09: the run carries the authenticated user (stripped from the wire contract,
+    // read here straight off the row) and a linked diagnose.run audit row points at it.
+    const runRow = db.select().from(runRecord).where(eq(runRecord.id, done.run.id)).get();
+    expect(runRow?.userId).toBe(userId);
+    const auditRows = db.select().from(auditLog).where(eq(auditLog.action, 'diagnose.run')).all();
+    expect(auditRows).toHaveLength(1);
+    expect(auditRows[0]).toMatchObject({ runRecordId: done.run.id, targetId: serviceId, userId });
   });
 
   it('emits an in-stream synthesis-failed error frame (200), never a 401 or a malformed object', async () => {

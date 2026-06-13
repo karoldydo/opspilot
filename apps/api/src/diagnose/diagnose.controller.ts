@@ -2,6 +2,7 @@ import { Controller, Get, Inject, MessageEvent, Param, Query, Sse } from '@nestj
 import { RunRecord } from '@opspilot/shared';
 import { Observable } from 'rxjs';
 
+import { CurrentUserId } from '../common/current-user-id.decorator';
 import { DiagnoseService } from './diagnose.service';
 
 // hard ceiling on the replay list page size, mirroring the credential list's
@@ -39,9 +40,10 @@ export class DiagnoseController {
   @Sse('diagnose/stream')
   stream(
     @Param('deviceId') deviceId: string,
-    @Param('serviceId') serviceId: string
+    @Param('serviceId') serviceId: string,
+    @CurrentUserId() userId: string
   ): Promise<Observable<MessageEvent>> {
-    return this.diagnoseService.narrate(deviceId, serviceId);
+    return this.diagnoseService.narrate(deviceId, serviceId, userId);
   }
 
   // coerce an optional query string to a positive integer; undefined/NaN/<=0 fall

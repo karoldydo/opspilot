@@ -518,29 +518,29 @@ rows stay valid with `userId = NULL`. No data backfill. The `audit_log.runRecord
 
 #### Automated
 
-- [x] 2.1 API unit tests pass incl. rollback test: `npx nx test api`
-- [x] 2.2 API builds: `npx nx build api`
-- [x] 2.3 Lint passes: `npm run lint`
+- [x] 2.1 API unit tests pass incl. rollback test: `npx nx test api` — 9934a38
+- [x] 2.2 API builds: `npx nx build api` — 9934a38
+- [x] 2.3 Lint passes: `npm run lint` — 9934a38
 
 #### Manual
 
-- [x] 2.4 Each CRUD action inserts one audit row with correct userId/action/targetId
-- [x] 2.5 No plaintext secret in any credential/llmProvider audit metadata
-- [x] 2.6 A simulated audit-insert failure leaves the action un-committed (atomicity holds)
+- [x] 2.4 Each CRUD action inserts one audit row with correct userId/action/targetId — 9934a38
+- [x] 2.5 No plaintext secret in any credential/llmProvider audit metadata — 9934a38
+- [x] 2.6 A simulated audit-insert failure leaves the action un-committed (atomicity holds) — 9934a38
 
 ### Phase 3: Tier-2 Record-on-Invocation (Ops + Agent Runs)
 
 #### Automated
 
-- [ ] 3.1 API unit tests pass (run-record userId; diagnose/skill-run audit): `npx nx test api`
-- [ ] 3.2 API builds: `npx nx build api`
-- [ ] 3.3 Lint passes: `npm run lint`
+- [x] 3.1 API unit tests pass (run-record userId; diagnose/skill-run audit): `npx nx test api`
+- [x] 3.2 API builds: `npx nx build api`
+- [x] 3.3 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 3.4 skill.run inserts a row with outcome; service.scan inserts a row with count
-- [ ] 3.5 diagnose run writes run_record.userId AND a linked diagnose.run audit row
-- [ ] 3.6 Diagnose SSE stream unchanged (no narration/replay regression)
+- [x] 3.4 skill.run inserts a row with outcome; service.scan inserts a row with count
+- [x] 3.5 diagnose run writes run_record.userId AND a linked diagnose.run audit row
+- [x] 3.6 Diagnose SSE stream unchanged (no narration/replay regression)
 
 ### Phase 4: Web History / Timeline View
 

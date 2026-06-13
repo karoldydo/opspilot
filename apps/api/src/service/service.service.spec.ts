@@ -93,7 +93,7 @@ describe('ServiceService', () => {
     ].join('\n');
     mockExecutor.execute.mockResolvedValue(execResult({ stdout }));
 
-    const actual = await service.scan(inputDeviceId);
+    const actual = await service.scan(inputDeviceId, userId);
 
     expect(actual.containers).toEqual([
       {
@@ -121,10 +121,37 @@ describe('ServiceService', () => {
     );
   });
 
+  it('writes one service.scan audit row carrying the live container count', async () => {
+    const stdout = [
+      JSON.stringify({ Image: 'nginx', Labels: '', Names: 'web', State: 'running', Status: 'Up' }),
+      JSON.stringify({ Image: 'redis', Labels: '', Names: 'cache', State: 'running', Status: 'Up' }),
+    ].join('\n');
+    mockExecutor.execute.mockResolvedValue(execResult({ stdout }));
+
+    await service.scan(inputDeviceId, userId);
+
+    const events = auditService.list({ offset: 0 });
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      action: 'service.scan',
+      metadata: { found: 2 },
+      targetId: inputDeviceId,
+      targetType: 'device',
+      userId,
+    });
+  });
+
+  it('records no audit row when a scan fails (docker error throws)', async () => {
+    mockExecutor.execute.mockResolvedValue(execResult({ code: 127, stderr: 'bash: docker: command not found' }));
+
+    await expect(service.scan(inputDeviceId, userId)).rejects.toBeInstanceOf(DockerNotFoundError);
+    expect(auditService.list({ offset: 0 })).toHaveLength(0);
+  });
+
   it('maps a missing docker binary to DockerNotFoundError', async () => {
     mockExecutor.execute.mockResolvedValue(execResult({ code: 127, stderr: 'bash: docker: command not found' }));
 
-    await expect(service.scan(inputDeviceId)).rejects.toBeInstanceOf(DockerNotFoundError);
+    await expect(service.scan(inputDeviceId, userId)).rejects.toBeInstanceOf(DockerNotFoundError);
   });
 
   it('maps a localized "command not found" to DockerNotFoundError via exit code 127', async () => {
@@ -134,7 +161,7 @@ describe('ServiceService', () => {
       execResult({ code: 127, stderr: 'bash: docker: nie odnaleziono polecenia' })
     );
 
-    await expect(service.scan(inputDeviceId)).rejects.toBeInstanceOf(DockerNotFoundError);
+    await expect(service.scan(inputDeviceId, userId)).rejects.toBeInstanceOf(DockerNotFoundError);
   });
 
   it('maps a stopped daemon to DockerDaemonDownError', async () => {
@@ -142,7 +169,7 @@ describe('ServiceService', () => {
       execResult({ code: 1, stderr: 'Cannot connect to the Docker daemon at unix:///var/run/docker.sock.' })
     );
 
-    await expect(service.scan(inputDeviceId)).rejects.toBeInstanceOf(DockerDaemonDownError);
+    await expect(service.scan(inputDeviceId, userId)).rejects.toBeInstanceOf(DockerDaemonDownError);
   });
 
   it('round-trips a service through create / findAll / update / remove', async () => {

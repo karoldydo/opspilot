@@ -1,6 +1,7 @@
 import { Body, Controller, Inject, Param, Post } from '@nestjs/common';
 import { SkillRunRequest, skillRunRequestSchema, SkillRunResult } from '@opspilot/shared';
 
+import { CurrentUserId } from '../common/current-user-id.decorator';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { SkillRunService } from './skill-run.service';
 
@@ -18,8 +19,9 @@ export class SkillRunController {
     @Param('deviceId') deviceId: string,
     @Param('serviceId') serviceId: string,
     @Param('skillId') skillId: string,
-    @Body(new ZodValidationPipe(skillRunRequestSchema)) body: SkillRunRequest
+    @Body(new ZodValidationPipe(skillRunRequestSchema)) body: SkillRunRequest,
+    @CurrentUserId() userId: string
   ): Promise<SkillRunResult> {
-    return this.skillRunService.run(deviceId, serviceId, skillId, body.inputs);
+    return this.skillRunService.run(deviceId, serviceId, skillId, body.inputs, userId);
   }
 }

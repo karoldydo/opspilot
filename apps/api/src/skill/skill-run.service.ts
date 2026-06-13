@@ -9,6 +9,7 @@ import {
   skillRunResultSchema,
 } from '@opspilot/shared';
 
+import { AuditService } from '../audit/audit.service';
 import { skillConfig, SkillConfig } from '../config/skill.config';
 import { IExecutor } from '../executor/executor.interface';
 import { EXECUTOR } from '../executor/executor.token';
@@ -38,6 +39,7 @@ export class SkillRunService {
     @Inject(EXECUTOR) private readonly executor: IExecutor,
     @Inject(ServiceService) private readonly serviceService: ServiceService,
     @Inject(SkillService) private readonly skillService: SkillService,
+    @Inject(AuditService) private readonly auditService: AuditService,
     @Inject(skillConfig.KEY) private readonly config: SkillConfig
   ) {}
 
@@ -48,12 +50,13 @@ export class SkillRunService {
   // from the resolved row and `input` params from the request, re-parsing every value at
   // the shell boundary while rendering the template; (4) prepend the PATH prefix; (5)
   // execute under the skill row's timeout or the config default; (6) map the exit to an
-  // ephemeral result. nothing is persisted (s-09).
+  // ephemeral result, then record a tier-2 audit row on invocation (s-09).
   async run(
     deviceId: string,
     serviceId: string,
     skillId: string,
-    inputs: SkillRunRequest['inputs']
+    inputs: SkillRunRequest['inputs'],
+    userId: string
   ): Promise<SkillRunResult> {
     // 404 if the service is absent or belongs to another device; carries the
     // containerName / composePath / composeProject identity fields.
@@ -63,17 +66,27 @@ export class SkillRunService {
     // a slow `up -d` image pull can outlast the executor's 30s default, so the run
     // overrides it with the skill's own timeout or the config fallback.
     const result = await this.executor.execute(deviceId, command, skill.timeoutMs ?? this.config.timeoutMs);
-    if (result.code === 0) {
-      return skillRunResultSchema.parse({
-        message: this.cleanOutput(result.stdout, result.stderr),
-        status: 'succeeded',
-      });
-    }
     // classifyExit throws an infra 503 (daemon-down / docker-not-found) or returns a
     // cleaned message for a skill-specific non-zero exit — that returned case is what
-    // gives `status: 'failed'` meaning distinct from infra.
-    const failure = this.classifyExit(skill, deviceId, result.code, result.stdout, result.stderr);
-    return skillRunResultSchema.parse({ message: failure.message, status: 'failed' });
+    // gives `status: 'failed'` meaning distinct from infra. an infra throw here leaves
+    // no audit row (record-on-invocation, the accepted tier-2 limitation).
+    const outcome =
+      result.code === 0
+        ? skillRunResultSchema.parse({ message: this.cleanOutput(result.stdout, result.stderr), status: 'succeeded' })
+        : skillRunResultSchema.parse({
+            message: this.classifyExit(skill, deviceId, result.code, result.stdout, result.stderr).message,
+            status: 'failed',
+          });
+    // tier-2: no db transaction to join, so record on invocation with the observed
+    // outcome on the base connection (no tx). secret-free metadata (skill name + status).
+    this.auditService.record({
+      action: 'skill.run',
+      metadata: { outcome: outcome.status, skillName: skill.name },
+      targetId: serviceId,
+      targetType: 'service',
+      userId,
+    });
+    return outcome;
   }
 
   // the scope guardrail: a device may run a global skill (deviceId null) or one of its

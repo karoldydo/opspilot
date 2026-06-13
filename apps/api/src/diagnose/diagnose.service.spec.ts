@@ -3,6 +3,7 @@ import { Device, DiagnosisSynthesis, RunRecord, Service } from '@opspilot/shared
 import { NoObjectGeneratedError, streamObject } from 'ai';
 import { Observable } from 'rxjs';
 
+import { AuditService } from '../audit/audit.service';
 import { LlmConfig } from '../config/llm.config';
 import { DeviceService } from '../device/device.service';
 import { ExecResult } from '../executor/executor.interface';
@@ -25,6 +26,8 @@ describe('DiagnoseService', () => {
   const inputDeviceId = '11111111-1111-4111-8111-111111111111';
   const inputServiceId = '22222222-2222-4222-8222-222222222222';
   const inputContainerName = 'web-proxy';
+  // the session user threaded onto the run + the linked diagnose.run audit row.
+  const userId = 'user-diagnose-test';
   const expectedCommand =
     'export PATH="/usr/local/bin:/usr/local/sbin:/volume1/@appstore/ContainerManager/usr/bin:$PATH"; ' +
     'docker logs web-proxy --tail 200';
@@ -51,9 +54,13 @@ describe('DiagnoseService', () => {
   const mockModel = { id: 'fake-model' };
   const mockClientFactory = { create: vi.fn(() => mockModel) };
   const mockRunRecordService = {
-    create: vi.fn<(input: { deviceId: string; serviceId: string; synthesis: DiagnosisSynthesis }) => RunRecord>(),
+    create:
+      vi.fn<
+        (input: { deviceId: string; serviceId: string; synthesis: DiagnosisSynthesis; userId?: string }) => RunRecord
+      >(),
     findRecent: vi.fn<(deviceId: string, serviceId: string, limit?: number, offset?: number) => RunRecord[]>(),
   };
+  const mockAuditService = { record: vi.fn() };
   const config: LlmConfig = {
     generateTimeoutMs: 12000,
     historyRetention: 20,
@@ -70,6 +77,7 @@ describe('DiagnoseService', () => {
       mockLlmProviderService as unknown as LlmProviderService,
       mockClientFactory as unknown as LlmProviderClientFactory,
       mockRunRecordService as unknown as RunRecordService,
+      mockAuditService as unknown as AuditService,
       config
     );
   }
@@ -140,6 +148,7 @@ describe('DiagnoseService', () => {
     mockClientFactory.create.mockClear();
     mockRunRecordService.create.mockReset();
     mockRunRecordService.findRecent.mockReset();
+    mockAuditService.record.mockReset();
     mockedStreamObject.mockReset();
 
     mockServiceService.findOne.mockResolvedValue(serviceRow());
@@ -161,17 +170,27 @@ describe('DiagnoseService', () => {
       })
     );
 
-    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
     // two delta frames carrying the progressive partials, then a single done frame.
     expect(events.map((e) => (e.data as { type: string }).type)).toEqual(['delta', 'delta', 'done']);
     expect((events[0].data as { partial: unknown }).partial).toEqual({ summary: 'service is' });
     expect((events[2].data as { run: RunRecord }).run).toEqual(savedRun);
-    // persisted with the accumulated final synthesis, before the done frame.
+    // persisted with the accumulated final synthesis + the authenticated user, before
+    // the done frame.
     expect(mockRunRecordService.create).toHaveBeenCalledWith({
       deviceId: inputDeviceId,
       serviceId: inputServiceId,
       synthesis: validSynthesis,
+      userId,
+    });
+    // the linked tier-2 audit row is recorded at the same point, pointing at the run.
+    expect(mockAuditService.record).toHaveBeenCalledWith({
+      action: 'diagnose.run',
+      runRecordId: savedRun.id,
+      targetId: inputServiceId,
+      targetType: 'service',
+      userId,
     });
     // docker logs → stderr, so both streams must reach the synthesis prompt.
     expect(mockExecutor.execute).toHaveBeenCalledWith(inputDeviceId, expectedCommand);
@@ -201,7 +220,7 @@ describe('DiagnoseService', () => {
       })
     );
 
-    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
     expect(events.map((e) => (e.data as { type: string }).type)).toEqual(['delta', 'error']);
     expect(events[1].data).toEqual({
@@ -220,7 +239,7 @@ describe('DiagnoseService', () => {
     timeoutError.name = 'TimeoutError';
     mockedStreamObject.mockReturnValue(fakeStream([], { reject: timeoutError }));
 
-    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
     expect(events).toHaveLength(1);
     expect(events[0].data).toEqual({
@@ -233,7 +252,7 @@ describe('DiagnoseService', () => {
   it('maps a non-zero docker exit to an upstream error frame, never reaching synthesis', async () => {
     mockExecutor.execute.mockResolvedValue(execResult({ code: 1, stderr: 'Error: No such container: web-proxy' }));
 
-    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+    const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
     expect(events).toHaveLength(1);
     expect(events[0].data as { code: string; type: string }).toMatchObject({
@@ -249,7 +268,7 @@ describe('DiagnoseService', () => {
 
     // narrate rejects with the http precondition before any observable is returned;
     // the ssh logs fetch is never reached.
-    await expect(buildService().narrate(inputDeviceId, inputServiceId)).rejects.toThrow();
+    await expect(buildService().narrate(inputDeviceId, inputServiceId, userId)).rejects.toThrow();
     expect(mockExecutor.execute).not.toHaveBeenCalled();
     expect(mockedStreamObject).not.toHaveBeenCalled();
   });
@@ -257,7 +276,7 @@ describe('DiagnoseService', () => {
   it('fails fast on an unknown service before resolving the provider', async () => {
     mockServiceService.findOne.mockRejectedValue(new Error('service not found'));
 
-    await expect(buildService().narrate(inputDeviceId, inputServiceId)).rejects.toThrow();
+    await expect(buildService().narrate(inputDeviceId, inputServiceId, userId)).rejects.toThrow();
     expect(mockLlmProviderService.getActiveProviderConfig).not.toHaveBeenCalled();
   });
 
@@ -288,7 +307,7 @@ describe('DiagnoseService', () => {
       } as unknown as ReturnType<typeof streamObject>);
 
       const events: MessageEvent[] = [];
-      const observable = await buildService().narrate(inputDeviceId, inputServiceId);
+      const observable = await buildService().narrate(inputDeviceId, inputServiceId, userId);
       const subscription = observable.subscribe((event) => events.push(event));
 
       // flush microtasks (the async pump reaches the hanging for-await) and cross
@@ -311,7 +330,7 @@ describe('DiagnoseService', () => {
     mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'some logs' }));
     mockedStreamObject.mockReturnValue(fakeStream([{ summary: 'ok' }], { object: validSynthesis }));
 
-    await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+    await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
     expect(mockedStreamObject.mock.calls[0][0].system).toBe('config lives under /volume2; sudo needs a password');
   });
@@ -321,7 +340,7 @@ describe('DiagnoseService', () => {
     mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'some logs' }));
     mockedStreamObject.mockReturnValue(fakeStream([{ summary: 'ok' }], { object: validSynthesis }));
 
-    await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+    await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
     expect(mockedStreamObject.mock.calls[0][0].system).toBe('ports are remapped');
   });
@@ -335,7 +354,7 @@ describe('DiagnoseService', () => {
     mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'some logs' }));
     mockedStreamObject.mockReturnValue(fakeStream([{ summary: 'ok' }], { object: validSynthesis }));
 
-    await collect(await buildService().narrate(inputDeviceId, inputServiceId));
+    await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
     expect(mockedStreamObject.mock.calls[0][0]).not.toHaveProperty('system');
   });
