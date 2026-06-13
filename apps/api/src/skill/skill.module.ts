@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 
+import { AuditModule } from '../audit/audit.module';
 import { ExecutorModule } from '../executor/executor.module';
 import { ServiceModule } from '../service/service.module';
 import { SkillRunController } from './skill-run.controller';
@@ -18,7 +19,7 @@ import { SkillService } from './skill.service';
 @Module({
   controllers: [SkillController, SkillRunController],
   exports: [SkillService],
-  imports: [ExecutorModule, ServiceModule],
+  imports: [AuditModule, ExecutorModule, ServiceModule],
   providers: [SkillRunService, SkillSeedService, SkillService],
 })
 export class SkillModule implements NestModule {

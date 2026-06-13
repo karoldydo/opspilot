@@ -3,6 +3,7 @@ import { Skill, SkillCreateRequest, skillCreateRequestSchema, skillSchema, Skill
 import { and, eq, isNull, or, SQL } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
+import { AuditService } from '../audit/audit.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { skill } from '../database/schema/skill.schema';
 
@@ -13,9 +14,12 @@ type SkillTx = Parameters<Parameters<DatabaseConnection['transaction']>[0]>[0];
 
 @Injectable()
 export class SkillService {
-  constructor(@Inject(DATABASE_CONNECTION) private readonly db: DatabaseConnection) {}
+  constructor(
+    @Inject(DATABASE_CONNECTION) private readonly db: DatabaseConnection,
+    @Inject(AuditService) private readonly auditService: AuditService
+  ) {}
 
-  async create(input: SkillCreateRequest): Promise<Skill> {
+  async create(input: SkillCreateRequest, userId: string): Promise<Skill> {
     // null deviceId = global scope; a uuid scopes the skill to one device.
     const deviceId = input.deviceId ?? null;
     // uniqueness-per-scope is a read-then-write invariant — the conflict check and
@@ -23,7 +27,7 @@ export class SkillService {
     // the check and both insert the same name in the same scope (lessons.md:34-38).
     const row = this.db.transaction((tx) => {
       this.assertNameUniqueInScope(tx, input.name, deviceId);
-      return tx
+      const inserted = tx
         .insert(skill)
         .values({
           commandTemplate: input.commandTemplate,
@@ -37,6 +41,18 @@ export class SkillService {
         })
         .returning()
         .get();
+      // join the existing transaction so the audit row commits with the skill.
+      this.auditService.record(
+        {
+          action: 'skill.create',
+          metadata: { name: inserted.name },
+          targetId: inserted.id,
+          targetType: 'skill',
+          userId,
+        },
+        tx
+      );
+      return inserted;
     });
     return this.toContract(row);
   }
@@ -62,7 +78,7 @@ export class SkillService {
     return this.toContract(this.requireRow(id));
   }
 
-  async update(id: string, input: SkillUpdateRequest): Promise<Skill> {
+  async update(id: string, input: SkillUpdateRequest, userId: string): Promise<Skill> {
     const row = this.db.transaction((tx) => {
       const existing = this.requireRow(id, tx);
       // merge the patch onto the stored row (drizzle ignores undefined, but the
@@ -81,19 +97,31 @@ export class SkillService {
       // name-uniqueness within the (possibly changed) scope, excluding this row.
       this.assertNameUniqueInScope(tx, name, deviceId, id);
       // project explicit columns (never spread the dto); serialize parameters to json.
-      return tx
+      const updated = tx
         .update(skill)
         .set({ commandTemplate, deviceId, name, parameters: JSON.stringify(parameters), timeoutMs })
         .where(eq(skill.id, id))
         .returning()
         .get();
+      // join the existing transaction so the audit row commits with the skill.
+      this.auditService.record(
+        { action: 'skill.update', metadata: { name: updated.name }, targetId: id, targetType: 'skill', userId },
+        tx
+      );
+      return updated;
     });
     return this.toContract(row);
   }
 
-  async remove(id: string): Promise<void> {
-    this.requireRow(id);
-    this.db.delete(skill).where(eq(skill.id, id)).run();
+  async remove(id: string, userId: string): Promise<void> {
+    const existing = this.requireRow(id);
+    this.db.transaction((tx) => {
+      tx.delete(skill).where(eq(skill.id, id)).run();
+      this.auditService.record(
+        { action: 'skill.delete', metadata: { name: existing.name }, targetId: id, targetType: 'skill', userId },
+        tx
+      );
+    });
   }
 
   // conflict if another row already holds this name in the same scope (global vs a

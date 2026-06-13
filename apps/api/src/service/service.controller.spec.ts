@@ -13,17 +13,20 @@ import { databaseConfig } from '../config/database.config';
 import { DatabaseModule } from '../database/database.module';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { device } from '../database/schema';
+import { user } from '../database/schema/auth.schema';
 import { ExecResult } from '../executor/executor.interface';
 import { EXECUTOR } from '../executor/executor.token';
 import { ServiceModule } from './service.module';
 
 // e2e against a live temp db with a faked executor. the global AuthAppGuard is not
-// wired here (only AppModule registers it), so routes are open — guard behavior is
-// covered by auth.guard.spec.ts. asserts route wiring, the body-vs-path guard, and
+// wired here (only AppModule registers it), so routes are open — a tiny middleware
+// stands in for the guard, attaching the seeded session user so @CurrentUserId
+// resolves for the audit writes. asserts route wiring, the body-vs-path guard, and
 // apiError shaping via the global filter.
 describe('ServiceController (e2e)', () => {
   const inputKey = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=';
   const inputDeviceId = '11111111-1111-4111-8111-111111111111';
+  const userId = 'user-svc-ctrl-test';
 
   let moduleRef: TestingModule;
   let app: INestApplication;
@@ -56,9 +59,17 @@ describe('ServiceController (e2e)', () => {
       .useValue(mockExecutor)
       .compile();
     app = moduleRef.createNestApplication();
+    // stand in for the unwired AuthAppGuard: attach the session the guard would so
+    // @CurrentUserId resolves a non-null id for the audit writes.
+    app.use((req: { session?: { user: { id: string } } }, _res: unknown, next: () => void) => {
+      req.session = { user: { id: userId } };
+      next();
+    });
     await app.init();
     db = moduleRef.get<DatabaseConnection>(DATABASE_CONNECTION);
     db.insert(device).values({ host: '10.0.0.1', id: inputDeviceId, name: 'host-a' }).run();
+    // seed the audit fk target — audit_log.userId references user.id.
+    db.insert(user).values({ email: 'u1@example.com', id: userId, name: 'u1' }).run();
   });
 
   afterEach(async () => {

@@ -7,6 +7,7 @@ import {
   skillUpdateRequestSchema,
 } from '@opspilot/shared';
 
+import { CurrentUserId } from '../common/current-user-id.decorator';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { SkillService } from './skill.service';
 
@@ -15,8 +16,11 @@ export class SkillController {
   constructor(@Inject(SkillService) private readonly skillService: SkillService) {}
 
   @Post()
-  create(@Body(new ZodValidationPipe(skillCreateRequestSchema)) body: SkillCreateRequest): Promise<Skill> {
-    return this.skillService.create(body);
+  create(
+    @Body(new ZodValidationPipe(skillCreateRequestSchema)) body: SkillCreateRequest,
+    @CurrentUserId() userId: string
+  ): Promise<Skill> {
+    return this.skillService.create(body, userId);
   }
 
   // with ?deviceId= the list is scoped to that device (global + that device's rows) via
@@ -35,14 +39,15 @@ export class SkillController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(skillUpdateRequestSchema)) body: SkillUpdateRequest
+    @Body(new ZodValidationPipe(skillUpdateRequestSchema)) body: SkillUpdateRequest,
+    @CurrentUserId() userId: string
   ): Promise<Skill> {
-    return this.skillService.update(id, body);
+    return this.skillService.update(id, body, userId);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string): Promise<void> {
-    return this.skillService.remove(id);
+  remove(@Param('id') id: string, @CurrentUserId() userId: string): Promise<void> {
+    return this.skillService.remove(id, userId);
   }
 }

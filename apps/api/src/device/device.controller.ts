@@ -7,6 +7,7 @@ import {
   deviceUpdateRequestSchema,
 } from '@opspilot/shared';
 
+import { CurrentUserId } from '../common/current-user-id.decorator';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { DeviceService } from './device.service';
 
@@ -15,8 +16,11 @@ export class DeviceController {
   constructor(@Inject(DeviceService) private readonly deviceService: DeviceService) {}
 
   @Post()
-  create(@Body(new ZodValidationPipe(deviceCreateRequestSchema)) body: DeviceCreateRequest): Promise<Device> {
-    return this.deviceService.create(body);
+  create(
+    @Body(new ZodValidationPipe(deviceCreateRequestSchema)) body: DeviceCreateRequest,
+    @CurrentUserId() userId: string
+  ): Promise<Device> {
+    return this.deviceService.create(body, userId);
   }
 
   @Get()
@@ -32,14 +36,15 @@ export class DeviceController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(deviceUpdateRequestSchema)) body: DeviceUpdateRequest
+    @Body(new ZodValidationPipe(deviceUpdateRequestSchema)) body: DeviceUpdateRequest,
+    @CurrentUserId() userId: string
   ): Promise<Device> {
-    return this.deviceService.update(id, body);
+    return this.deviceService.update(id, body, userId);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string): Promise<void> {
-    return this.deviceService.remove(id);
+  remove(@Param('id') id: string, @CurrentUserId() userId: string): Promise<void> {
+    return this.deviceService.remove(id, userId);
   }
 }

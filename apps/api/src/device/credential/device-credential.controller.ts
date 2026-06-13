@@ -19,6 +19,7 @@ import {
   credentialListQuerySchema,
 } from '@opspilot/shared';
 
+import { CurrentUserId } from '../../common/current-user-id.decorator';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe';
 import { deviceConfig, DeviceConfig } from '../../config/device.config';
 import { CredentialService } from '../../credential/credential.service';
@@ -33,13 +34,14 @@ export class DeviceCredentialController {
   @Post()
   create(
     @Param('deviceId') deviceId: string,
-    @Body(new ZodValidationPipe(credentialCreateRequestSchema)) body: CredentialCreateRequest
+    @Body(new ZodValidationPipe(credentialCreateRequestSchema)) body: CredentialCreateRequest,
+    @CurrentUserId() userId: string
   ): Promise<Credential> {
     // the path param is the source of truth; reject a body that contradicts it.
     if (body.deviceId !== deviceId) {
       throw new BadRequestException('deviceId in body does not match the path');
     }
-    return this.credentialService.create(body);
+    return this.credentialService.create(body, userId);
   }
 
   @Get()
@@ -55,7 +57,11 @@ export class DeviceCredentialController {
 
   @Delete(':credentialId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('deviceId') deviceId: string, @Param('credentialId') credentialId: string): Promise<void> {
-    return this.credentialService.remove(deviceId, credentialId);
+  remove(
+    @Param('deviceId') deviceId: string,
+    @Param('credentialId') credentialId: string,
+    @CurrentUserId() userId: string
+  ): Promise<void> {
+    return this.credentialService.remove(deviceId, credentialId, userId);
   }
 }

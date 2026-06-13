@@ -11,19 +11,24 @@ import { ConfigModule } from '../config/config.module';
 import { cryptoConfig } from '../config/crypto.config';
 import { databaseConfig } from '../config/database.config';
 import { DatabaseModule } from '../database/database.module';
+import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
+import { user } from '../database/schema/auth.schema';
 import { LlmProviderModule } from './llm-provider.module';
 
 // e2e against a live temp db. the global AuthAppGuard is not wired here (only
-// AppModule registers it via APP_GUARD), so routes are open — guard behavior is
-// covered by auth.guard.spec.ts. these tests assert the routes, the single-active
+// AppModule registers it via APP_GUARD), so routes are open — a tiny middleware
+// stands in for the guard, attaching the seeded session user so @CurrentUserId
+// resolves for the audit writes. these tests assert the routes, the single-active
 // invariant over http, the apiError shaping, and that no secret leaks.
 describe('LlmProviderController (e2e)', () => {
   // a fixed 32-byte key (0x01 * 32) base64-encoded to 44 chars.
   const inputKey = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=';
   const baseBody = { baseURL: 'https://api.openai.com/v1', kind: 'openai-compatible', model: 'gpt-4o' };
+  const userId = 'user-llm-ctrl-test';
 
   let moduleRef: TestingModule;
   let app: INestApplication;
+  let db: DatabaseConnection;
   let dbPath: string;
 
   function cleanupTempFiles(): void {
@@ -51,8 +56,17 @@ describe('LlmProviderController (e2e)', () => {
       .useValue({ encryptionKey: inputKey })
       .compile();
     app = moduleRef.createNestApplication();
+    // stand in for the unwired AuthAppGuard: attach the session the guard would so
+    // @CurrentUserId resolves a non-null id for the audit writes.
+    app.use((req: { session?: { user: { id: string } } }, _res: unknown, next: () => void) => {
+      req.session = { user: { id: userId } };
+      next();
+    });
     // app.init() triggers onApplicationBootstrap, which runs the migrations.
     await app.init();
+    db = moduleRef.get<DatabaseConnection>(DATABASE_CONNECTION);
+    // seed the audit fk target — audit_log.userId references user.id.
+    db.insert(user).values({ email: 'u1@example.com', id: userId, name: 'u1' }).run();
   });
 
   afterEach(async () => {

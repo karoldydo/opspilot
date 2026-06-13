@@ -12,6 +12,7 @@ import {
 import { and, eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
+import { AuditService } from '../audit/audit.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { service } from '../database/schema';
 import { IExecutor } from '../executor/executor.interface';
@@ -38,7 +39,8 @@ const COMPOSE_CONFIG_FILES_LABEL = 'com.docker.compose.project.config_files';
 export class ServiceService {
   constructor(
     @Inject(DATABASE_CONNECTION) private readonly db: DatabaseConnection,
-    @Inject(EXECUTOR) private readonly executor: IExecutor
+    @Inject(EXECUTOR) private readonly executor: IExecutor,
+    @Inject(AuditService) private readonly auditService: AuditService
   ) {}
 
   // ephemeral: run docker ps over ssh and parse the live host state for the
@@ -69,20 +71,35 @@ export class ServiceService {
     return this.toContract(this.requireRow(deviceId, id));
   }
 
-  async create(input: ServiceCreateRequest): Promise<Service> {
+  async create(input: ServiceCreateRequest, userId: string): Promise<Service> {
     try {
-      const row = this.db
-        .insert(service)
-        .values({
-          composePath: input.composePath ?? null,
-          composeProject: input.composeProject ?? null,
-          containerName: input.containerName,
-          deviceId: input.deviceId,
-          id: randomUUID(),
-          name: input.name,
-        })
-        .returning()
-        .get();
+      // wrap the insert + audit row in one transaction so they commit or roll back
+      // together; the unique-constraint rejection still surfaces below as a 409.
+      const row = this.db.transaction((tx) => {
+        const inserted = tx
+          .insert(service)
+          .values({
+            composePath: input.composePath ?? null,
+            composeProject: input.composeProject ?? null,
+            containerName: input.containerName,
+            deviceId: input.deviceId,
+            id: randomUUID(),
+            name: input.name,
+          })
+          .returning()
+          .get();
+        this.auditService.record(
+          {
+            action: 'service.create',
+            metadata: { containerName: inserted.containerName, deviceId: inserted.deviceId, name: inserted.name },
+            targetId: inserted.id,
+            targetType: 'service',
+            userId,
+          },
+          tx
+        );
+        return inserted;
+      });
       return this.toContract(row);
     } catch (error) {
       // the (deviceId, containerName) unique index rejects a duplicate container —
@@ -95,17 +112,36 @@ export class ServiceService {
   }
 
   // only the display name is editable; identity fields are scan-derived (immutable).
-  async update(deviceId: string, id: string, input: ServiceUpdateRequest): Promise<Service> {
+  async update(deviceId: string, id: string, input: ServiceUpdateRequest, userId: string): Promise<Service> {
     this.requireRow(deviceId, id);
-    const row = this.db.update(service).set({ name: input.name }).where(eq(service.id, id)).returning().get();
+    const row = this.db.transaction((tx) => {
+      const updated = tx.update(service).set({ name: input.name }).where(eq(service.id, id)).returning().get();
+      this.auditService.record(
+        { action: 'service.update', metadata: { name: updated.name }, targetId: id, targetType: 'service', userId },
+        tx
+      );
+      return updated;
+    });
     return this.toContract(row);
   }
 
   // delete scoped to the device (the nested route's :deviceId is the source of
   // truth); a service that doesn't belong to the device yields a 404.
-  async remove(deviceId: string, id: string): Promise<void> {
-    this.requireRow(deviceId, id);
-    this.db.delete(service).where(eq(service.id, id)).run();
+  async remove(deviceId: string, id: string, userId: string): Promise<void> {
+    const existing = this.requireRow(deviceId, id);
+    this.db.transaction((tx) => {
+      tx.delete(service).where(eq(service.id, id)).run();
+      this.auditService.record(
+        {
+          action: 'service.delete',
+          metadata: { containerName: existing.containerName },
+          targetId: id,
+          targetType: 'service',
+          userId,
+        },
+        tx
+      );
+    });
   }
 
   // map docker's non-zero exit + stderr to the docker half of the taxonomy. check

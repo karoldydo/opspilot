@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
+import { eq } from 'drizzle-orm';
 import { readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
@@ -12,18 +13,25 @@ import { cryptoConfig } from '../config/crypto.config';
 import { databaseConfig } from '../config/database.config';
 import { deviceConfig } from '../config/device.config';
 import { DatabaseModule } from '../database/database.module';
+import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
+import { auditLog } from '../database/schema/audit-log.schema';
+import { user } from '../database/schema/auth.schema';
 import { DeviceModule } from './device.module';
 
 // e2e against a live temp db. the global AuthAppGuard is not wired here (only
 // AppModule registers it via APP_GUARD), so routes are open — guard behavior is
-// covered by auth.guard.spec.ts. these tests assert the routes, the limit clamp,
-// the apiError shaping via the global filter, and that no secret leaks.
+// covered by auth.guard.spec.ts. a tiny middleware stands in for the guard,
+// attaching the seeded session user so @CurrentUserId resolves for the audit
+// writes. these tests assert the routes, the limit clamp, the apiError shaping
+// via the global filter, and that no secret leaks.
 describe('DeviceController (e2e)', () => {
   // a fixed 32-byte key (0x01 * 32) base64-encoded to 44 chars.
   const inputKey = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=';
+  const userId = 'user-device-ctrl-test';
 
   let moduleRef: TestingModule;
   let app: INestApplication;
+  let db: DatabaseConnection;
   let dbPath: string;
 
   function cleanupTempFiles(): void {
@@ -50,8 +58,18 @@ describe('DeviceController (e2e)', () => {
       .useValue({ credentialListLimit: 50 })
       .compile();
     app = moduleRef.createNestApplication();
+    // stand in for the unwired AuthAppGuard: attach the session the guard would so
+    // @CurrentUserId resolves a non-null id for the audit writes (registered before
+    // init so it runs ahead of the route handlers).
+    app.use((req: { session?: { user: { id: string } } }, _res: unknown, next: () => void) => {
+      req.session = { user: { id: userId } };
+      next();
+    });
     // app.init() triggers onApplicationBootstrap, which runs the migrations.
     await app.init();
+    db = moduleRef.get<DatabaseConnection>(DATABASE_CONNECTION);
+    // seed the audit fk target — audit_log.userId references user.id.
+    db.insert(user).values({ email: 'u1@example.com', id: userId, name: 'u1' }).run();
   });
 
   afterEach(async () => {
@@ -87,6 +105,14 @@ describe('DeviceController (e2e)', () => {
 
     await request(server()).delete(`/devices/${id}`).expect(204);
     await request(server()).get(`/devices/${id}`).expect(404);
+  });
+
+  it('writes an audit row keyed off the session user for a create over http', async () => {
+    const created = await request(server()).post('/devices').send({ host: '10.0.0.1', name: 'nas' }).expect(201);
+
+    const rows = db.select().from(auditLog).where(eq(auditLog.targetId, created.body.id)).all();
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ action: 'device.create', targetType: 'device', userId });
   });
 
   it('stores an encrypted credential and never returns secret material', async () => {

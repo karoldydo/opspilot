@@ -4,6 +4,7 @@ import { readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 
+import { AuditService } from '../audit/audit.service';
 import { ConfigModule } from '../config/config.module';
 import { cryptoConfig } from '../config/crypto.config';
 import { databaseConfig } from '../config/database.config';
@@ -11,6 +12,7 @@ import { DatabaseModule } from '../database/database.module';
 import { MigrationService } from '../database/migration/migration.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { device } from '../database/schema';
+import { user } from '../database/schema/auth.schema';
 import { ExecResult } from '../executor/executor.interface';
 import { EXECUTOR } from '../executor/executor.token';
 import { DockerDaemonDownError, DockerNotFoundError } from './service.errors';
@@ -24,10 +26,13 @@ describe('ServiceService', () => {
   // valid uuids — serviceSchema/toContract enforce z.uuid() on id + deviceId.
   const inputDeviceId = '11111111-1111-4111-8111-111111111111';
   const otherDeviceId = '22222222-2222-4222-8222-222222222222';
+  // the session user whose id the audit insert keys off (fk → user.id).
+  const userId = 'user-svc-test';
 
   let moduleRef: TestingModule;
   let db: DatabaseConnection;
   let service: ServiceService;
+  let auditService: AuditService;
   let dbPath: string;
   const mockExecutor = { execute: vi.fn<(deviceId: string, command: string) => Promise<ExecResult>>() };
 
@@ -57,9 +62,12 @@ describe('ServiceService', () => {
     db = moduleRef.get<DatabaseConnection>(DATABASE_CONNECTION);
     await moduleRef.get(MigrationService).onApplicationBootstrap();
     service = moduleRef.get(ServiceService);
+    auditService = moduleRef.get(AuditService);
     // seed the fk targets — service.deviceId references device.id (cascade).
     db.insert(device).values({ host: '10.0.0.1', id: inputDeviceId, name: 'host-a' }).run();
     db.insert(device).values({ host: '10.0.0.2', id: otherDeviceId, name: 'host-b' }).run();
+    // seed the audit fk target — audit_log.userId references user.id.
+    db.insert(user).values({ email: 'u1@example.com', id: userId, name: 'u1' }).run();
   });
 
   afterEach(async () => {
@@ -138,11 +146,14 @@ describe('ServiceService', () => {
   });
 
   it('round-trips a service through create / findAll / update / remove', async () => {
-    const created = await service.create({
-      containerName: 'web-proxy',
-      deviceId: inputDeviceId,
-      name: 'Web Proxy',
-    });
+    const created = await service.create(
+      {
+        containerName: 'web-proxy',
+        deviceId: inputDeviceId,
+        name: 'Web Proxy',
+      },
+      userId
+    );
     expect(created).toEqual({
       composePath: null,
       composeProject: null,
@@ -157,28 +168,44 @@ describe('ServiceService', () => {
     const listed = await service.findAll(inputDeviceId);
     expect(listed).toHaveLength(1);
 
-    const renamed = await service.update(inputDeviceId, created.id, { name: 'Reverse Proxy' });
+    const renamed = await service.update(inputDeviceId, created.id, { name: 'Reverse Proxy' }, userId);
     expect(renamed.name).toBe('Reverse Proxy');
 
-    await service.remove(inputDeviceId, created.id);
+    await service.remove(inputDeviceId, created.id, userId);
     expect(await service.findAll(inputDeviceId)).toHaveLength(0);
   });
 
+  it('writes one audit row keyed off the session user on create', async () => {
+    const created = await service.create({ containerName: 'web', deviceId: inputDeviceId, name: 'Web' }, userId);
+
+    const events = auditService.list({ offset: 0 });
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      action: 'service.create',
+      metadata: { containerName: 'web', deviceId: inputDeviceId, name: 'Web' },
+      targetId: created.id,
+      targetType: 'service',
+      userId,
+    });
+  });
+
   it('rejects a duplicate (deviceId, containerName) with a ConflictException', async () => {
-    await service.create({ containerName: 'dup', deviceId: inputDeviceId, name: 'first' });
+    await service.create({ containerName: 'dup', deviceId: inputDeviceId, name: 'first' }, userId);
 
     await expect(
-      service.create({ containerName: 'dup', deviceId: inputDeviceId, name: 'second' })
+      service.create({ containerName: 'dup', deviceId: inputDeviceId, name: 'second' }, userId)
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
   it('isolates services per device (no cross-device read or mutation)', async () => {
-    const created = await service.create({ containerName: 'web', deviceId: inputDeviceId, name: 'web' });
+    const created = await service.create({ containerName: 'web', deviceId: inputDeviceId, name: 'web' }, userId);
 
     // a different device sees none of inputDevice's services.
     expect(await service.findAll(otherDeviceId)).toHaveLength(0);
     // and cannot mutate them — the cross-device id yields a 404.
-    await expect(service.update(otherDeviceId, created.id, { name: 'x' })).rejects.toBeInstanceOf(NotFoundException);
-    await expect(service.remove(otherDeviceId, created.id)).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.update(otherDeviceId, created.id, { name: 'x' }, userId)).rejects.toBeInstanceOf(
+      NotFoundException
+    );
+    await expect(service.remove(otherDeviceId, created.id, userId)).rejects.toBeInstanceOf(NotFoundException);
   });
 });

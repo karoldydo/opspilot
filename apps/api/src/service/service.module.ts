@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 
+import { AuditModule } from '../audit/audit.module';
 import { ExecutorModule } from '../executor/executor.module';
 import { ServiceController } from './service.controller';
 import { ServiceService } from './service.service';
@@ -11,7 +12,7 @@ import { ServiceService } from './service.service';
 @Module({
   controllers: [ServiceController],
   exports: [ServiceService],
-  imports: [ExecutorModule],
+  imports: [AuditModule, ExecutorModule],
   providers: [ServiceService],
 })
 export class ServiceModule implements NestModule {

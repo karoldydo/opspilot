@@ -10,15 +10,22 @@ import { AllExceptionsFilter } from '../common/all-exceptions.filter';
 import { ConfigModule } from '../config/config.module';
 import { databaseConfig } from '../config/database.config';
 import { DatabaseModule } from '../database/database.module';
+import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
+import { user } from '../database/schema/auth.schema';
 import { SkillModule } from './skill.module';
 
 // e2e against a live temp db. the global AuthAppGuard is not wired here (only
-// AppModule registers it via APP_GUARD), so routes are open. SkillModule seeds the
-// five global lifecycle rows on boot, so assertions key off specific created skills
-// rather than the total list length.
+// AppModule registers it via APP_GUARD), so routes are open — a tiny middleware
+// stands in for the guard, attaching the seeded session user so @CurrentUserId
+// resolves for the audit writes. SkillModule seeds the five global lifecycle rows
+// on boot, so assertions key off specific created skills rather than the total
+// list length.
 describe('SkillController (e2e)', () => {
+  const userId = 'user-skill-ctrl-test';
+
   let moduleRef: TestingModule;
   let app: INestApplication;
+  let db: DatabaseConnection;
   let dbPath: string;
 
   const globalSkill = {
@@ -47,8 +54,17 @@ describe('SkillController (e2e)', () => {
       .useValue({ backupRetention: 5, path: dbPath })
       .compile();
     app = moduleRef.createNestApplication();
+    // stand in for the unwired AuthAppGuard: attach the session the guard would so
+    // @CurrentUserId resolves a non-null id for the audit writes.
+    app.use((req: { session?: { user: { id: string } } }, _res: unknown, next: () => void) => {
+      req.session = { user: { id: userId } };
+      next();
+    });
     // app.init() triggers onApplicationBootstrap: migrations apply, then the seed runs.
     await app.init();
+    db = moduleRef.get<DatabaseConnection>(DATABASE_CONNECTION);
+    // seed the audit fk target — audit_log.userId references user.id.
+    db.insert(user).values({ email: 'u1@example.com', id: userId, name: 'u1' }).run();
   });
 
   afterEach(async () => {

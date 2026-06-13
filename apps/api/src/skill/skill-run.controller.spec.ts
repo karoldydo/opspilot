@@ -14,6 +14,7 @@ import { databaseConfig } from '../config/database.config';
 import { DatabaseModule } from '../database/database.module';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { device } from '../database/schema';
+import { user } from '../database/schema/auth.schema';
 import { ExecResult } from '../executor/executor.interface';
 import { EXECUTOR } from '../executor/executor.token';
 import { ServiceService } from '../service/service.service';
@@ -28,6 +29,8 @@ describe('SkillRunController (e2e)', () => {
   const inputDeviceId = '11111111-1111-4111-8111-111111111111';
   const otherDeviceId = '99999999-9999-4999-8999-999999999999';
   const inputContainerName = 'web-proxy';
+  // the session user the fixture services are created under (audit fk → user.id).
+  const userId = 'user-skill-run-ctrl-test';
   const pathPrefix = 'export PATH="/usr/local/bin:/usr/local/sbin:/volume1/@appstore/ContainerManager/usr/bin:$PATH"; ';
 
   let moduleRef: TestingModule;
@@ -78,26 +81,40 @@ describe('SkillRunController (e2e)', () => {
       .useValue(mockExecutor)
       .compile();
     app = moduleRef.createNestApplication();
+    // stand in for the unwired AuthAppGuard: attach the session the guard would so
+    // @CurrentUserId resolves a non-null id for the audit writes (skill create over http).
+    app.use((req: { session?: { user: { id: string } } }, _res: unknown, next: () => void) => {
+      req.session = { user: { id: userId } };
+      next();
+    });
     // app.init() triggers onApplicationBootstrap: migrations apply, then the seed runs.
     await app.init();
     db = moduleRef.get<DatabaseConnection>(DATABASE_CONNECTION);
     db.insert(device).values({ host: '10.0.0.1', id: inputDeviceId, name: 'host-a' }).run();
+    // seed the audit fk target — the fixture serviceService.create writes audit rows.
+    db.insert(user).values({ email: 'u1@example.com', id: userId, name: 'u1' }).run();
     const serviceService = moduleRef.get(ServiceService);
     // a standalone container (no compose fields) — up/down must be rejected on it.
-    const standalone = await serviceService.create({
-      containerName: inputContainerName,
-      deviceId: inputDeviceId,
-      name: 'Web Proxy',
-    });
+    const standalone = await serviceService.create(
+      {
+        containerName: inputContainerName,
+        deviceId: inputDeviceId,
+        name: 'Web Proxy',
+      },
+      userId
+    );
     serviceId = standalone.id;
     // a compose-managed service — up/down allowed.
-    const compose = await serviceService.create({
-      composePath: '/volume1/docker/stack/compose.yaml',
-      composeProject: 'stack',
-      containerName: 'stack-db',
-      deviceId: inputDeviceId,
-      name: 'Stack DB',
-    });
+    const compose = await serviceService.create(
+      {
+        composePath: '/volume1/docker/stack/compose.yaml',
+        composeProject: 'stack',
+        containerName: 'stack-db',
+        deviceId: inputDeviceId,
+        name: 'Stack DB',
+      },
+      userId
+    );
     composeServiceId = compose.id;
   });
 

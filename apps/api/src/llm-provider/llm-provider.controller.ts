@@ -7,6 +7,7 @@ import {
   llmProviderUpdateRequestSchema,
 } from '@opspilot/shared';
 
+import { CurrentUserId } from '../common/current-user-id.decorator';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { LlmProviderService } from './llm-provider.service';
 
@@ -16,9 +17,10 @@ export class LlmProviderController {
 
   @Post()
   create(
-    @Body(new ZodValidationPipe(llmProviderCreateRequestSchema)) body: LlmProviderCreateRequest
+    @Body(new ZodValidationPipe(llmProviderCreateRequestSchema)) body: LlmProviderCreateRequest,
+    @CurrentUserId() userId: string
   ): Promise<LlmProvider> {
-    return this.llmProviderService.create(body);
+    return this.llmProviderService.create(body, userId);
   }
 
   @Get()
@@ -34,19 +36,20 @@ export class LlmProviderController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(llmProviderUpdateRequestSchema)) body: LlmProviderUpdateRequest
+    @Body(new ZodValidationPipe(llmProviderUpdateRequestSchema)) body: LlmProviderUpdateRequest,
+    @CurrentUserId() userId: string
   ): Promise<LlmProvider> {
-    return this.llmProviderService.update(id, body);
+    return this.llmProviderService.update(id, body, userId);
   }
 
   @Patch(':id/activate')
-  activate(@Param('id') id: string): Promise<LlmProvider> {
-    return this.llmProviderService.activate(id);
+  activate(@Param('id') id: string, @CurrentUserId() userId: string): Promise<LlmProvider> {
+    return this.llmProviderService.activate(id, userId);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string): Promise<void> {
-    return this.llmProviderService.remove(id);
+  remove(@Param('id') id: string, @CurrentUserId() userId: string): Promise<void> {
+    return this.llmProviderService.remove(id, userId);
   }
 }

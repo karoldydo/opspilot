@@ -3,6 +3,7 @@ import { LlmProvider, LlmProviderCreateRequest, llmProviderSchema, LlmProviderUp
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
+import { AuditService } from '../audit/audit.service';
 import { CryptoService } from '../crypto/crypto.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { llmProvider } from '../database/schema/llm-provider.schema';
@@ -18,10 +19,11 @@ export class LlmProviderService {
   constructor(
     @Inject(DATABASE_CONNECTION) private readonly db: DatabaseConnection,
     @Inject(CryptoService) private readonly crypto: CryptoService,
-    @Inject(LlmProviderProbe) private readonly probe: LlmProviderProbe
+    @Inject(LlmProviderProbe) private readonly probe: LlmProviderProbe,
+    @Inject(AuditService) private readonly auditService: AuditService
   ) {}
 
-  async create(input: LlmProviderCreateRequest): Promise<LlmProvider> {
+  async create(input: LlmProviderCreateRequest, userId: string): Promise<LlmProvider> {
     // reject-on-fail: validate the provider with a live test-call BEFORE persisting,
     // so a bad key/url/timeout never leaves an unvalidated row behind.
     await this.probe.verify(input.baseURL, input.apiKey);
@@ -33,7 +35,7 @@ export class LlmProviderService {
     // app-enforced — no partial-index to catch a double-active at the db level).
     const row = this.db.transaction((tx) => {
       const active = tx.select().from(llmProvider).all().length === 0;
-      return tx
+      const inserted = tx
         .insert(llmProvider)
         .values({
           active,
@@ -48,6 +50,18 @@ export class LlmProviderService {
         })
         .returning()
         .get();
+      // join the existing transaction; metadata is secret-free (kind/model only).
+      this.auditService.record(
+        {
+          action: 'llmProvider.create',
+          metadata: { kind: inserted.kind, model: inserted.model },
+          targetId: inserted.id,
+          targetType: 'llmProvider',
+          userId,
+        },
+        tx
+      );
+      return inserted;
     });
     return this.toContract(row);
   }
@@ -61,7 +75,7 @@ export class LlmProviderService {
     return this.toContract(this.requireRow(id));
   }
 
-  async update(id: string, input: LlmProviderUpdateRequest): Promise<LlmProvider> {
+  async update(id: string, input: LlmProviderUpdateRequest, userId: string): Promise<LlmProvider> {
     const row = this.requireRow(id);
     // reject-on-fail: probe the effective config BEFORE the db mutation. an absent
     // baseURL/apiKey falls back to the stored row (the patch tests the merged state,
@@ -80,26 +94,61 @@ export class LlmProviderService {
       patch.iv = iv;
       patch.keyVersion = KEY_VERSION;
     }
-    const updated = this.db.update(llmProvider).set(patch).where(eq(llmProvider.id, id)).returning().get();
+    const updated = this.db.transaction((tx) => {
+      const u = tx.update(llmProvider).set(patch).where(eq(llmProvider.id, id)).returning().get();
+      this.auditService.record(
+        {
+          action: 'llmProvider.update',
+          metadata: { kind: u.kind, model: u.model },
+          targetId: id,
+          targetType: 'llmProvider',
+          userId,
+        },
+        tx
+      );
+      return u;
+    });
     return this.toContract(updated);
   }
 
-  async activate(id: string): Promise<LlmProvider> {
-    this.requireRow(id);
+  async activate(id: string, userId: string): Promise<LlmProvider> {
+    const existing = this.requireRow(id);
     // app-enforced single-active invariant: unset all, set one, atomically. no
     // partial-index means the unset-then-set order never trips a constraint; the
     // transaction guarantees there is never zero or two active mid-flight.
     this.db.transaction((tx) => {
       tx.update(llmProvider).set({ active: false }).run();
       tx.update(llmProvider).set({ active: true }).where(eq(llmProvider.id, id)).run();
+      this.auditService.record(
+        {
+          action: 'llmProvider.activate',
+          metadata: { kind: existing.kind, model: existing.model },
+          targetId: id,
+          targetType: 'llmProvider',
+          userId,
+        },
+        tx
+      );
     });
     return this.toContract(this.requireRow(id));
   }
 
-  async remove(id: string): Promise<void> {
-    this.requireRow(id);
-    // deleting the active provider leaves zero active — no auto-promotion (plan).
-    this.db.delete(llmProvider).where(eq(llmProvider.id, id)).run();
+  async remove(id: string, userId: string): Promise<void> {
+    const existing = this.requireRow(id);
+    this.db.transaction((tx) => {
+      // deleting the active provider leaves zero active — no auto-promotion (plan).
+      tx.delete(llmProvider).where(eq(llmProvider.id, id)).run();
+      this.auditService.record(
+        {
+          action: 'llmProvider.delete',
+          metadata: { kind: existing.kind, model: existing.model },
+          targetId: id,
+          targetType: 'llmProvider',
+          userId,
+        },
+        tx
+      );
+    });
   }
 
   // service-only accessor: decrypts and returns the raw provider api key for the

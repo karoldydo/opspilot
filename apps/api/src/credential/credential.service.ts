@@ -3,6 +3,7 @@ import { Credential, CredentialCreateRequest, credentialSchema } from '@opspilot
 import { and, eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
+import { AuditService } from '../audit/audit.service';
 import { CryptoService } from '../crypto/crypto.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { credential } from '../database/schema/device.schema';
@@ -16,25 +17,42 @@ const LIST_LIMIT = 50;
 export class CredentialService {
   constructor(
     @Inject(DATABASE_CONNECTION) private readonly db: DatabaseConnection,
-    @Inject(CryptoService) private readonly crypto: CryptoService
+    @Inject(CryptoService) private readonly crypto: CryptoService,
+    @Inject(AuditService) private readonly auditService: AuditService
   ) {}
 
-  async create(input: CredentialCreateRequest): Promise<Credential> {
+  async create(input: CredentialCreateRequest, userId: string): Promise<Credential> {
+    // encryption runs before the transaction (it rejects early on a bad input);
+    // only the db write + audit insert are atomic together.
     const { authTag, ciphertext, iv } = this.crypto.encrypt(input.secret);
-    const row = this.db
-      .insert(credential)
-      .values({
-        authTag,
-        authType: input.authType,
-        ciphertext,
-        deviceId: input.deviceId,
-        id: randomUUID(),
-        iv,
-        keyVersion: KEY_VERSION,
-        username: input.username,
-      })
-      .returning()
-      .get();
+    const row = this.db.transaction((tx) => {
+      const inserted = tx
+        .insert(credential)
+        .values({
+          authTag,
+          authType: input.authType,
+          ciphertext,
+          deviceId: input.deviceId,
+          id: randomUUID(),
+          iv,
+          keyVersion: KEY_VERSION,
+          username: input.username,
+        })
+        .returning()
+        .get();
+      // metadata stores ids/labels only — never the plaintext secret or ciphertext.
+      this.auditService.record(
+        {
+          action: 'credential.create',
+          metadata: { authType: inserted.authType, deviceId: inserted.deviceId, username: inserted.username },
+          targetId: inserted.id,
+          targetType: 'credential',
+          userId,
+        },
+        tx
+      );
+      return inserted;
+    });
     return this.toContract(row);
   }
 
@@ -64,7 +82,7 @@ export class CredentialService {
   // delete a credential scoped to its device (the nested route's :deviceId is the
   // source of truth). a credential that doesn't belong to the device yields a
   // 404, never a cross-device delete. enables the web delete+recreate edit flow.
-  async remove(deviceId: string, id: string): Promise<void> {
+  async remove(deviceId: string, id: string, userId: string): Promise<void> {
     const row = this.db
       .select()
       .from(credential)
@@ -73,7 +91,19 @@ export class CredentialService {
     if (!row) {
       throw new NotFoundException(`credential ${id} not found`);
     }
-    this.db.delete(credential).where(eq(credential.id, id)).run();
+    this.db.transaction((tx) => {
+      tx.delete(credential).where(eq(credential.id, id)).run();
+      this.auditService.record(
+        {
+          action: 'credential.delete',
+          metadata: { deviceId: row.deviceId, username: row.username },
+          targetId: id,
+          targetType: 'credential',
+          userId,
+        },
+        tx
+      );
+    });
   }
 
   // read the row or fail with an entity-naming 404 (nestjs.md error rule).

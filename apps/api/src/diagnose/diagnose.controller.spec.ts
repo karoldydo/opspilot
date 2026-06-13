@@ -15,6 +15,7 @@ import { databaseConfig } from '../config/database.config';
 import { DatabaseModule } from '../database/database.module';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { device } from '../database/schema';
+import { user } from '../database/schema/auth.schema';
 import { DeviceService } from '../device/device.service';
 import { ExecResult } from '../executor/executor.interface';
 import { EXECUTOR } from '../executor/executor.token';
@@ -64,6 +65,8 @@ describe('DiagnoseController (e2e)', () => {
   const inputKey = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=';
   const inputDeviceId = '11111111-1111-4111-8111-111111111111';
   const inputContainerName = 'web-proxy';
+  // the session user the fixture service/provider are created under (audit fk → user.id).
+  const userId = 'user-diagnose-ctrl-test';
   const validSynthesis: DiagnosisSynthesis = {
     problems: ['port 5432 connection refused'],
     status: 'degraded',
@@ -113,18 +116,23 @@ describe('DiagnoseController (e2e)', () => {
     await app.init();
     db = moduleRef.get<DatabaseConnection>(DATABASE_CONNECTION);
     db.insert(device).values({ host: '10.0.0.1', id: inputDeviceId, name: 'host-a' }).run();
+    // seed the audit fk target — the fixture create calls write audit rows.
+    db.insert(user).values({ email: 'u1@example.com', id: userId, name: 'u1' }).run();
     // seed a managed service row (the diagnose resolver turns serviceId → containerName).
     const service = await moduleRef
       .get(ServiceService)
-      .create({ containerName: inputContainerName, deviceId: inputDeviceId, name: 'Web Proxy' });
+      .create({ containerName: inputContainerName, deviceId: inputDeviceId, name: 'Web Proxy' }, userId);
     serviceId = service.id;
     // seed an active provider so diagnose gets past the no-active precondition.
-    await moduleRef.get(LlmProviderService).create({
-      apiKey: 'sk-active',
-      baseURL: 'https://api.example.com/v1',
-      kind: 'openai-compatible',
-      model: 'gpt-4o',
-    });
+    await moduleRef.get(LlmProviderService).create(
+      {
+        apiKey: 'sk-active',
+        baseURL: 'https://api.example.com/v1',
+        kind: 'openai-compatible',
+        model: 'gpt-4o',
+      },
+      userId
+    );
   });
 
   afterEach(async () => {
@@ -199,7 +207,7 @@ describe('DiagnoseController (e2e)', () => {
     // persist a host-level persona through the real device service projection path.
     await moduleRef
       .get(DeviceService)
-      .update(inputDeviceId, { agentContext: 'config lives under /volume2; sudo needs a password' });
+      .update(inputDeviceId, { agentContext: 'config lives under /volume2; sudo needs a password' }, userId);
     mockExecutor.execute.mockResolvedValue({ code: 0, stderr: 'some logs', stdout: '' });
     mockedStreamObject.mockReturnValue(fakeStream([validSynthesis], { object: validSynthesis }));
 
@@ -224,7 +232,7 @@ describe('DiagnoseController (e2e)', () => {
   it('returns 409 before any stream opens when no provider is active', async () => {
     // drop the only (active) provider — diagnose must fail the precondition fast.
     const providers = await moduleRef.get(LlmProviderService).findAll();
-    await moduleRef.get(LlmProviderService).remove(providers[0].id);
+    await moduleRef.get(LlmProviderService).remove(providers[0].id, userId);
 
     await request(server()).get(streamUrl()).expect(409);
 

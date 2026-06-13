@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 
+import { AuditModule } from '../audit/audit.module';
 import { CryptoModule } from '../crypto/crypto.module';
 import { LlmProviderClientFactory } from './llm-provider.client-factory';
 import { LlmProviderController } from './llm-provider.controller';
@@ -10,7 +11,7 @@ import { LlmProviderService } from './llm-provider.service';
 @Module({
   controllers: [LlmProviderController],
   exports: [LlmProviderClientFactory, LlmProviderService],
-  imports: [CryptoModule],
+  imports: [AuditModule, CryptoModule],
   providers: [LlmProviderClientFactory, LlmProviderProbe, LlmProviderService],
 })
 export class LlmProviderModule implements NestModule {

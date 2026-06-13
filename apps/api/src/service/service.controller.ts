@@ -20,6 +20,7 @@ import {
   serviceUpdateRequestSchema,
 } from '@opspilot/shared';
 
+import { CurrentUserId } from '../common/current-user-id.decorator';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { ServiceService } from './service.service';
 
@@ -43,27 +44,33 @@ export class ServiceController {
   @Post('services')
   create(
     @Param('deviceId') deviceId: string,
-    @Body(new ZodValidationPipe(serviceCreateRequestSchema)) body: ServiceCreateRequest
+    @Body(new ZodValidationPipe(serviceCreateRequestSchema)) body: ServiceCreateRequest,
+    @CurrentUserId() userId: string
   ): Promise<Service> {
     // the path param is the source of truth; reject a body that contradicts it.
     if (body.deviceId !== deviceId) {
       throw new BadRequestException('deviceId in body does not match the path');
     }
-    return this.serviceService.create(body);
+    return this.serviceService.create(body, userId);
   }
 
   @Patch('services/:serviceId')
   update(
     @Param('deviceId') deviceId: string,
     @Param('serviceId') serviceId: string,
-    @Body(new ZodValidationPipe(serviceUpdateRequestSchema)) body: ServiceUpdateRequest
+    @Body(new ZodValidationPipe(serviceUpdateRequestSchema)) body: ServiceUpdateRequest,
+    @CurrentUserId() userId: string
   ): Promise<Service> {
-    return this.serviceService.update(deviceId, serviceId, body);
+    return this.serviceService.update(deviceId, serviceId, body, userId);
   }
 
   @Delete('services/:serviceId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('deviceId') deviceId: string, @Param('serviceId') serviceId: string): Promise<void> {
-    return this.serviceService.remove(deviceId, serviceId);
+  remove(
+    @Param('deviceId') deviceId: string,
+    @Param('serviceId') serviceId: string,
+    @CurrentUserId() userId: string
+  ): Promise<void> {
+    return this.serviceService.remove(deviceId, serviceId, userId);
   }
 }

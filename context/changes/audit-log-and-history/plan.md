@@ -503,30 +503,30 @@ rows stay valid with `userId = NULL`. No data backfill. The `audit_log.runRecord
 
 #### Automated
 
-- [x] 1.1 Migration generates cleanly: `npm run db:generate`
-- [x] 1.2 API type-checks and builds: `npx nx build api`
-- [x] 1.3 Shared lib builds: `npx nx build shared`
-- [x] 1.4 API unit tests pass: `npx nx test api`
-- [x] 1.5 Lint passes: `npm run lint`
+- [x] 1.1 Migration generates cleanly: `npm run db:generate` — 0cd68b3
+- [x] 1.2 API type-checks and builds: `npx nx build api` — 0cd68b3
+- [x] 1.3 Shared lib builds: `npx nx build shared` — 0cd68b3
+- [x] 1.4 API unit tests pass: `npx nx test api` — 0cd68b3
+- [x] 1.5 Lint passes: `npm run lint` — 0cd68b3
 
 #### Manual
 
-- [x] 1.6 Booting the api applies the migration without error (`audit_log` table + `run_record` FK)
-- [x] 1.7 `@CurrentUserId()` resolves a non-null id from an authenticated handler
+- [x] 1.6 Booting the api applies the migration without error (`audit_log` table + `run_record` FK) — 0cd68b3
+- [x] 1.7 `@CurrentUserId()` resolves a non-null id from an authenticated handler — 0cd68b3
 
 ### Phase 2: Tier-1 Inline CRUD Audit Writes
 
 #### Automated
 
-- [ ] 2.1 API unit tests pass incl. rollback test: `npx nx test api`
-- [ ] 2.2 API builds: `npx nx build api`
-- [ ] 2.3 Lint passes: `npm run lint`
+- [x] 2.1 API unit tests pass incl. rollback test: `npx nx test api`
+- [x] 2.2 API builds: `npx nx build api`
+- [x] 2.3 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 2.4 Each CRUD action inserts one audit row with correct userId/action/targetId
-- [ ] 2.5 No plaintext secret in any credential/llmProvider audit metadata
-- [ ] 2.6 A simulated audit-insert failure leaves the action un-committed (atomicity holds)
+- [x] 2.4 Each CRUD action inserts one audit row with correct userId/action/targetId
+- [x] 2.5 No plaintext secret in any credential/llmProvider audit metadata
+- [x] 2.6 A simulated audit-insert failure leaves the action un-committed (atomicity holds)
 
 ### Phase 3: Tier-2 Record-on-Invocation (Ops + Agent Runs)
 
