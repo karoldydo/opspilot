@@ -546,14 +546,14 @@ rows stay valid with `userId = NULL`. No data backfill. The `audit_log.runRecord
 
 #### Automated
 
-- [x] 4.1 Web builds: `npx nx build web`
-- [x] 4.2 Web unit tests pass: `npx nx test web`
-- [x] 4.3 API tests pass (audit controller/list): `npx nx test api`
-- [x] 4.4 Lint passes: `npm run lint`
+- [x] 4.1 Web builds: `npx nx build web` — ca6ddee
+- [x] 4.2 Web unit tests pass: `npx nx test web` — ca6ddee
+- [x] 4.3 API tests pass (audit controller/list): `npx nx test api` — ca6ddee
+- [x] 4.4 Lint passes: `npm run lint` — ca6ddee
 
 #### Manual
 
-- [x] 4.5 `/audit` lists actions newest-first, paginated, correct fields
-- [x] 4.6 Clicking a diagnose.run row expands the saved synthesis card
-- [x] 4.7 Empty state, error line, and nav link work
-- [x] 4.8 Performing a mutating action then refreshing `/audit` shows the new row
+- [x] 4.5 `/audit` lists actions newest-first, paginated, correct fields — ca6ddee
+- [x] 4.6 Clicking a diagnose.run row expands the saved synthesis card — ca6ddee
+- [x] 4.7 Empty state, error line, and nav link work — ca6ddee
+- [x] 4.8 Performing a mutating action then refreshing `/audit` shows the new row — ca6ddee
