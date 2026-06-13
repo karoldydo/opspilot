@@ -588,27 +588,27 @@ queries index `deviceId`. No new hotspots.
 
 #### Automated
 
-- [x] 1.1 Shared lib builds: `npx nx build shared` (no `build` target on shared — verified via `npx nx typecheck shared`)
-- [x] 1.2 Lint passes: `npx nx lint shared`
-- [x] 1.3 Type check / schema specs pass: `npx nx test shared`
+- [x] 1.1 Shared lib builds: `npx nx build shared` (no `build` target on shared — verified via `npx nx typecheck shared`) — e0dd9ce
+- [x] 1.2 Lint passes: `npx nx lint shared` — e0dd9ce
+- [x] 1.3 Type check / schema specs pass: `npx nx test shared` — e0dd9ce
 
 #### Manual
 
-- [x] 1.4 Template with undeclared placeholder fails the cross-field refine
-- [x] 1.5 Parameter value with a shell metacharacter fails `skillParameterValueSchema`
+- [x] 1.4 Template with undeclared placeholder fails the cross-field refine — e0dd9ce
+- [x] 1.5 Parameter value with a shell metacharacter fails `skillParameterValueSchema` — e0dd9ce
 
 ### Phase 2: Database table + seed defaults
 
 #### Automated
 
-- [ ] 2.1 Migration generates cleanly: `npm run db:generate` produces `0006_*.sql`
-- [ ] 2.2 API builds: `npx nx build api`
-- [ ] 2.3 API boots and auto-applies the migration without error
+- [x] 2.1 Migration generates cleanly: `npm run db:generate` produces `0006_*.sql`
+- [x] 2.2 API builds: `npx nx build api`
+- [x] 2.3 API boots and auto-applies the migration without error
 
 #### Manual
 
-- [ ] 2.4 `skill` table contains exactly the 5 global rows; idempotent on re-boot
-- [ ] 2.5 `up`/`down` rows carry both `composePath` and `composeProject` service params
+- [x] 2.4 `skill` table contains exactly the 5 global rows; idempotent on re-boot
+- [x] 2.5 `up`/`down` rows carry both `composePath` and `composeProject` service params
 
 ### Phase 3: API skill CRUD module
 

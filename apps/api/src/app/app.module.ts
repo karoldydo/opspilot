@@ -13,6 +13,7 @@ import { HealthModule } from '../health/health.module';
 import { LlmProviderModule } from '../llm-provider/llm-provider.module';
 import { OperationModule } from '../operation/operation.module';
 import { ServiceModule } from '../service/service.module';
+import { SkillModule } from '../skill/skill.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -29,6 +30,7 @@ import { AppService } from './app.service';
     LlmProviderModule,
     OperationModule,
     ServiceModule,
+    SkillModule,
   ],
   providers: [
     AppService,

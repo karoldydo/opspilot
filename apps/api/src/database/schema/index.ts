@@ -7,3 +7,4 @@ export * from './device.schema';
 export * from './llm-provider.schema';
 export * from './run-record.schema';
 export * from './service.schema';
+export * from './skill.schema';
