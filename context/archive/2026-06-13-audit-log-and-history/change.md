@@ -1,10 +1,10 @@
 ---
 change_id: audit-log-and-history
 title: Audit log and history
-status: impl_reviewed
+status: archived
 created: 2026-06-13
-updated: 2026-06-14
-archived_at: null
+updated: 2026-06-13
+archived_at: 2026-06-13T23:17:44Z
 ---
 
 ## Notes

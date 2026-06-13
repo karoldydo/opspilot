@@ -54,7 +54,7 @@ end, and the sequencing goal (`market-feedback`) says prove that before anything
 | S-06 | deterministic-service-operations | run start/stop/restart/up/down on a service with confirmation | S-02, S-04    | FR-007, FR-008, NFR: op <10s      | done     |
 | S-07 | per-device-agent-context         | define a per-device system prompt that shapes the agent       | S-01, S-04    | FR-005                            | done     |
 | S-08 | custom-skill-crud                | define, edit, delete custom skills (global or per-device)     | S-06          | FR-006, FR-008                    | done     |
-| S-09 | audit-log-and-history            | see an audit trail of user actions and agent runs, linked     | F-02, S-04    | FR-011, Access Control            | proposed |
+| S-09 | audit-log-and-history            | see an audit trail of user actions and agent runs, linked     | F-02, S-04    | FR-011, Access Control            | done     |
 
 ## Streams
 
@@ -231,7 +231,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Which identity is the source of truth for the audit trail - the in-app Better Auth session or the Cloudflare Access identity? - Owner: user. Block: no (`infrastructure.md` recommends treating Access as a network gate and the app session as the audit identity). See Open Roadmap Question 2.
 - **Risk:** accountability is the entire access-control model (flat, no roles), so the audit trail must reliably link "who did what" to the agent runs it triggered. Run records originate in S-04; this slice adds the user-action side, the linkage, and the view. Decide the identity source before linking, or the trail mismatches who actually got in.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -284,3 +284,4 @@ This table is the clean handoff to Jira/Linear or any MCP-backed backlog. One ro
 - **S-06: a user runs a deterministic operation (start, stop, restart, up, down) on a service and sees confirmation in the UI.** — Archived 2026-06-12 → `context/archive/2026-06-11-deterministic-service-operations/`. Lesson: —.
 - **S-07: a user can define a per-device system prompt (path conventions, privileged-access requirements, availability hours) that shapes the agent's behaviour on that host.** — Archived 2026-06-12 → `context/archive/2026-06-12-per-device-agent-context/`. Lesson: —.
 - **S-08: a user can define, edit, and delete custom skills (parameterized commands) with a global scope or assigned to a specific device.** — Archived 2026-06-13 → `context/archive/2026-06-13-custom-skill-crud/`. Lesson: —.
+- **S-09: a user can see an audit trail of user actions and agent runs (with the run transcript), linked to each other.** — Archived 2026-06-13 → `context/archive/2026-06-13-audit-log-and-history/`. Lesson: —.
