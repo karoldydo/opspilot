@@ -532,28 +532,28 @@ rows stay valid with `userId = NULL`. No data backfill. The `audit_log.runRecord
 
 #### Automated
 
-- [x] 3.1 API unit tests pass (run-record userId; diagnose/skill-run audit): `npx nx test api`
-- [x] 3.2 API builds: `npx nx build api`
-- [x] 3.3 Lint passes: `npm run lint`
+- [x] 3.1 API unit tests pass (run-record userId; diagnose/skill-run audit): `npx nx test api` — d92442e
+- [x] 3.2 API builds: `npx nx build api` — d92442e
+- [x] 3.3 Lint passes: `npm run lint` — d92442e
 
 #### Manual
 
-- [x] 3.4 skill.run inserts a row with outcome; service.scan inserts a row with count
-- [x] 3.5 diagnose run writes run_record.userId AND a linked diagnose.run audit row
-- [x] 3.6 Diagnose SSE stream unchanged (no narration/replay regression)
+- [x] 3.4 skill.run inserts a row with outcome; service.scan inserts a row with count — d92442e
+- [x] 3.5 diagnose run writes run_record.userId AND a linked diagnose.run audit row — d92442e
+- [x] 3.6 Diagnose SSE stream unchanged (no narration/replay regression) — d92442e
 
 ### Phase 4: Web History / Timeline View
 
 #### Automated
 
-- [ ] 4.1 Web builds: `npx nx build web`
-- [ ] 4.2 Web unit tests pass: `npx nx test web`
-- [ ] 4.3 API tests pass (audit controller/list): `npx nx test api`
-- [ ] 4.4 Lint passes: `npm run lint`
+- [x] 4.1 Web builds: `npx nx build web`
+- [x] 4.2 Web unit tests pass: `npx nx test web`
+- [x] 4.3 API tests pass (audit controller/list): `npx nx test api`
+- [x] 4.4 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 4.5 `/audit` lists actions newest-first, paginated, correct fields
-- [ ] 4.6 Clicking a diagnose.run row expands the saved synthesis card
-- [ ] 4.7 Empty state, error line, and nav link work
-- [ ] 4.8 Performing a mutating action then refreshing `/audit` shows the new row
+- [x] 4.5 `/audit` lists actions newest-first, paginated, correct fields
+- [x] 4.6 Clicking a diagnose.run row expands the saved synthesis card
+- [x] 4.7 Empty state, error line, and nav link work
+- [x] 4.8 Performing a mutating action then refreshing `/audit` shows the new row

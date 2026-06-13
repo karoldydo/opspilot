@@ -14,6 +14,11 @@ export const appRoutes: Route[] = [
   },
   {
     canActivate: [authGuard],
+    loadComponent: () => import('./features/audit/audit.component').then(({ AuditComponent }) => AuditComponent),
+    path: 'audit',
+  },
+  {
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/devices/devices.component').then(({ DevicesComponent }) => DevicesComponent),
     path: 'devices',
