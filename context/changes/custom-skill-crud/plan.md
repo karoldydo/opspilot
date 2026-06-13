@@ -601,28 +601,28 @@ queries index `deviceId`. No new hotspots.
 
 #### Automated
 
-- [x] 2.1 Migration generates cleanly: `npm run db:generate` produces `0006_*.sql`
-- [x] 2.2 API builds: `npx nx build api`
-- [x] 2.3 API boots and auto-applies the migration without error
+- [x] 2.1 Migration generates cleanly: `npm run db:generate` produces `0006_*.sql` — 7a446e0
+- [x] 2.2 API builds: `npx nx build api` — 7a446e0
+- [x] 2.3 API boots and auto-applies the migration without error — 7a446e0
 
 #### Manual
 
-- [x] 2.4 `skill` table contains exactly the 5 global rows; idempotent on re-boot
-- [x] 2.5 `up`/`down` rows carry both `composePath` and `composeProject` service params
+- [x] 2.4 `skill` table contains exactly the 5 global rows; idempotent on re-boot — 7a446e0
+- [x] 2.5 `up`/`down` rows carry both `composePath` and `composeProject` service params — 7a446e0
 
 ### Phase 3: API skill CRUD module
 
 #### Automated
 
-- [ ] 3.1 API builds: `npx nx build api`
-- [ ] 3.2 Lint passes: `npx nx lint api`
-- [ ] 3.3 Unit tests pass: `npx nx test api` (CRUD + scope filter + uniqueness)
+- [x] 3.1 API builds: `npx nx build api`
+- [x] 3.2 Lint passes: `npx nx lint api`
+- [x] 3.3 Unit tests pass: `npx nx test api` (CRUD + scope filter + uniqueness)
 
 #### Manual
 
-- [ ] 3.4 `POST`/`GET` create and list a global and a per-device skill
-- [ ] 3.5 Same name same scope → conflict; same name different scope → allowed
-- [ ] 3.6 `PATCH`/`DELETE` behave; unknown id → 404
+- [x] 3.4 `POST`/`GET` create and list a global and a per-device skill
+- [x] 3.5 Same name same scope → conflict; same name different scope → allowed
+- [x] 3.6 `PATCH`/`DELETE` behave; unknown id → 404
 
 ### Phase 4: API skill execution + operation migration
 

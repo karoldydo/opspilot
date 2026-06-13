@@ -1,0 +1,119 @@
+import { INestApplication } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
+import { Test, TestingModule } from '@nestjs/testing';
+import { readdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { basename, dirname, join } from 'node:path';
+import request from 'supertest';
+
+import { AllExceptionsFilter } from '../common/all-exceptions.filter';
+import { ConfigModule } from '../config/config.module';
+import { databaseConfig } from '../config/database.config';
+import { DatabaseModule } from '../database/database.module';
+import { SkillModule } from './skill.module';
+
+// e2e against a live temp db. the global AuthAppGuard is not wired here (only
+// AppModule registers it via APP_GUARD), so routes are open. SkillModule seeds the
+// five global lifecycle rows on boot, so assertions key off specific created skills
+// rather than the total list length.
+describe('SkillController (e2e)', () => {
+  let moduleRef: TestingModule;
+  let app: INestApplication;
+  let dbPath: string;
+
+  const globalSkill = {
+    commandTemplate: 'docker logs {{tail}}',
+    name: 'logs',
+    parameters: [{ name: 'tail', required: true, source: 'input' }],
+  };
+
+  function cleanupTempFiles(): void {
+    const dir = dirname(dbPath);
+    const base = basename(dbPath);
+    for (const file of readdirSync(dir)) {
+      if (file.startsWith(base)) {
+        rmSync(join(dir, file));
+      }
+    }
+  }
+
+  beforeEach(async () => {
+    dbPath = join(tmpdir(), `opspilot-skill-ctrl-test-${process.pid}-${Date.now()}.db`);
+    moduleRef = await Test.createTestingModule({
+      imports: [ConfigModule, DatabaseModule, SkillModule],
+      providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
+    })
+      .overrideProvider(databaseConfig.KEY)
+      .useValue({ backupRetention: 5, path: dbPath })
+      .compile();
+    app = moduleRef.createNestApplication();
+    // app.init() triggers onApplicationBootstrap: migrations apply, then the seed runs.
+    await app.init();
+  });
+
+  afterEach(async () => {
+    await app?.close();
+    cleanupTempFiles();
+  });
+
+  const server = () => app.getHttpServer();
+
+  it('creates, fetches, updates and deletes a skill', async () => {
+    const created = await request(server()).post('/skills').send(globalSkill).expect(201);
+    expect(created.body).toEqual({
+      commandTemplate: 'docker logs {{tail}}',
+      createdAt: expect.any(String),
+      deviceId: null,
+      id: expect.any(String),
+      name: 'logs',
+      parameters: [{ name: 'tail', required: true, source: 'input' }],
+      timeoutMs: null,
+      updatedAt: expect.any(String),
+    });
+    const id = created.body.id;
+
+    // the list contains the new skill alongside the seeded lifecycle rows.
+    await request(server())
+      .get('/skills')
+      .expect(200)
+      .expect((res) => expect(res.body.some((s: { id: string }) => s.id === id)).toBe(true));
+    await request(server())
+      .get(`/skills/${id}`)
+      .expect(200)
+      .expect((res) => expect(res.body.name).toBe('logs'));
+
+    const updated = await request(server()).patch(`/skills/${id}`).send({ name: 'logs-renamed' }).expect(200);
+    expect(updated.body.name).toBe('logs-renamed');
+
+    await request(server()).delete(`/skills/${id}`).expect(204);
+    await request(server()).get(`/skills/${id}`).expect(404);
+  });
+
+  it('rejects a duplicate name in the same scope with a 409 conflict', async () => {
+    await request(server()).post('/skills').send(globalSkill).expect(201);
+
+    const res = await request(server()).post('/skills').send(globalSkill).expect(409);
+    expect(res.body).toEqual({
+      message: expect.any(String),
+      status: 409,
+      timestamp: expect.any(String),
+    });
+  });
+
+  it('shapes a validation error into the apiError envelope', async () => {
+    // an undeclared placeholder fails the parity refine at the boundary.
+    const res = await request(server())
+      .post('/skills')
+      .send({ commandTemplate: 'docker logs {{nope}}', name: 'bad', parameters: [] })
+      .expect(400);
+    expect(res.body).toEqual({
+      message: expect.any(String),
+      status: 400,
+      timestamp: expect.any(String),
+    });
+  });
+
+  it('returns 404 for an unknown id', async () => {
+    await request(server()).get('/skills/skill_missing').expect(404);
+  });
+});

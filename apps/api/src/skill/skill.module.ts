@@ -1,11 +1,23 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { json } from 'express';
 
+import { SkillController } from './skill.controller';
 import { SkillSeedService } from './skill.seed';
+import { SkillService } from './skill.service';
 
-// phase 2 wires only the boot-time seed; the crud controller/service land in phase 3.
-// databasemodule is @global, so the seed's DATABASE_CONNECTION dep resolves without an
-// explicit import and its bootstrap hook fires after the migration hook.
+// the crud controller/service land here (phase 3) alongside the boot-time seed
+// (phase 2). databasemodule is @global, so the DATABASE_CONNECTION dep resolves
+// without an explicit import and the seed's bootstrap hook fires after the
+// migration hook. SkillService is exported for the run path (phase 4).
 @Module({
-  providers: [SkillSeedService],
+  controllers: [SkillController],
+  exports: [SkillService],
+  providers: [SkillSeedService, SkillService],
 })
-export class SkillModule {}
+export class SkillModule implements NestModule {
+  configure(middlewareConsumer: MiddlewareConsumer): void {
+    // the global body parser is disabled (main.ts: bodyParser false) so better-auth's
+    // catch-all node handler receives the raw body; domain routes must re-apply json().
+    middlewareConsumer.apply(json()).forRoutes(SkillController);
+  }
+}
