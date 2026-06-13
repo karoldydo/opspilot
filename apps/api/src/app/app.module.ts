@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 
+import { AuditModule } from '../audit/audit.module';
 import { AuthAppGuard } from '../auth/auth.guard';
 import { AuthModule } from '../auth/auth.module';
 import { AllExceptionsFilter } from '../common/all-exceptions.filter';
@@ -19,6 +20,7 @@ import { AppService } from './app.service';
 @Module({
   controllers: [AppController],
   imports: [
+    AuditModule,
     AuthModule,
     ConfigModule,
     CredentialModule,

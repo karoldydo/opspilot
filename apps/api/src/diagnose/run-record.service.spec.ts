@@ -10,6 +10,7 @@ import { llmConfig } from '../config/llm.config';
 import { DatabaseModule } from '../database/database.module';
 import { MigrationService } from '../database/migration/migration.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
+import { user } from '../database/schema/auth.schema';
 import { device } from '../database/schema/device.schema';
 import { service } from '../database/schema/service.schema';
 import { RunRecordService } from './run-record.service';
@@ -18,6 +19,7 @@ describe('RunRecordService', () => {
   const retention = 3;
   const deviceId = 'device-1';
   const serviceId = 'service-1';
+  const userId = 'user-1';
   const synthesis: DiagnosisSynthesis = {
     problems: ['disk full'],
     status: 'degraded',
@@ -62,7 +64,8 @@ describe('RunRecordService', () => {
     // apply real migrations (through 0004 run_record).
     await moduleRef.get(MigrationService).onApplicationBootstrap();
     runRecordService = moduleRef.get(RunRecordService);
-    // satisfy the device/service foreign keys (cascade delete, fk pragma on).
+    // satisfy the user/device/service foreign keys (fk pragma on).
+    db.insert(user).values({ email: 'u1@example.com', id: userId, name: 'u1' }).run();
     db.insert(device).values({ host: '10.0.0.1', id: deviceId, name: 'nas' }).run();
     db.insert(service).values({ containerName: 'nginx', deviceId, id: serviceId, name: 'nginx' }).run();
   });
@@ -74,7 +77,7 @@ describe('RunRecordService', () => {
   });
 
   it('creates a run and returns the iso-normalized contract without userId', () => {
-    const actual = runRecordService.create({ deviceId, serviceId, synthesis });
+    const actual = runRecordService.create({ deviceId, serviceId, synthesis, userId });
 
     expect(actual).toEqual({
       createdAt: expect.any(String),
@@ -91,7 +94,7 @@ describe('RunRecordService', () => {
   it('prunes older runs beyond retention, keeping the newest historyRetention', async () => {
     const ids: string[] = [];
     for (let i = 0; i < retention + 3; i++) {
-      ids.push(runRecordService.create({ deviceId, serviceId, synthesis }).id);
+      ids.push(runRecordService.create({ deviceId, serviceId, synthesis, userId }).id);
       await delay();
     }
 
@@ -102,9 +105,9 @@ describe('RunRecordService', () => {
   });
 
   it('findRecent returns newest-first and respects the limit', async () => {
-    const first = runRecordService.create({ deviceId, serviceId, synthesis });
+    const first = runRecordService.create({ deviceId, serviceId, synthesis, userId });
     await delay();
-    const second = runRecordService.create({ deviceId, serviceId, synthesis });
+    const second = runRecordService.create({ deviceId, serviceId, synthesis, userId });
 
     const actual = runRecordService.findRecent(deviceId, serviceId, 1);
     expect(actual).toHaveLength(1);
@@ -114,8 +117,8 @@ describe('RunRecordService', () => {
 
   it('findRecent is scoped to the owning device + service', () => {
     db.insert(service).values({ containerName: 'redis', deviceId, id: 'service-2', name: 'redis' }).run();
-    runRecordService.create({ deviceId, serviceId, synthesis });
-    runRecordService.create({ deviceId, serviceId: 'service-2', synthesis });
+    runRecordService.create({ deviceId, serviceId, synthesis, userId });
+    runRecordService.create({ deviceId, serviceId: 'service-2', synthesis, userId });
 
     expect(runRecordService.findRecent(deviceId, serviceId)).toHaveLength(1);
     expect(runRecordService.findRecent(deviceId, 'service-2')).toHaveLength(1);

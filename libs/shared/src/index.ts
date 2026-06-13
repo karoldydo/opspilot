@@ -1,4 +1,7 @@
 export * from './lib/schemas/api-error.schema';
+export * from './lib/schemas/audit-event.schema';
+export * from './lib/schemas/audit-list-query.schema';
+export * from './lib/schemas/audit-log.schema';
 export * from './lib/schemas/auth-login-request.schema';
 export * from './lib/schemas/auth-register-request.schema';
 export * from './lib/schemas/auth-user.schema';

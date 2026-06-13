@@ -7,12 +7,15 @@ import { llmConfig, LlmConfig } from '../config/llm.config';
 import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { runRecord } from '../database/schema/run-record.schema';
 
-// the input the diagnose stream (phase 3) hands over once the synthesis is final.
-// userId is reserved for s-09 and not part of the s-05 flow, so it isn't accepted here.
+// the input the diagnose stream hands over once the synthesis is final. userId is
+// the authenticated session user persisted on the run (s-09); the column is
+// nullable so it stays optional here (the diagnose flow threads the real id in
+// phase 3), and it is still never surfaced in the s-05 wire contract.
 interface RunRecordCreate {
   deviceId: string;
   serviceId: string;
   synthesis: DiagnosisSynthesis;
+  userId?: string;
 }
 
 type RunRecordRow = typeof runRecord.$inferSelect;
@@ -41,6 +44,7 @@ export class RunRecordService {
           id: randomUUID(),
           serviceId: input.serviceId,
           synthesis: JSON.stringify(input.synthesis),
+          userId: input.userId,
         })
         .returning()
         .get();
