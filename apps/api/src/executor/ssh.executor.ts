@@ -56,7 +56,7 @@ export class SshExecutor implements IExecutor {
       }
 
       // per-call override falls back to the configured default, so existing callers
-      // (scan/fetchLogs) keep the 30s ceiling while a long op passes OP_TIMEOUT_MS.
+      // (scan/fetchLogs) keep the 30s ceiling while a long skill run passes SKILL_TIMEOUT_MS.
       const commandTimeoutMs = timeoutMs ?? this.config.commandTimeoutMs;
       const timeout = new Promise<never>((_, reject) => {
         timer = setTimeout(() => reject(new SshCommandTimeoutError(commandTimeoutMs)), commandTimeoutMs);

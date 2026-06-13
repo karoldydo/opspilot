@@ -614,30 +614,30 @@ queries index `deviceId`. No new hotspots.
 
 #### Automated
 
-- [x] 3.1 API builds: `npx nx build api`
-- [x] 3.2 Lint passes: `npx nx lint api`
-- [x] 3.3 Unit tests pass: `npx nx test api` (CRUD + scope filter + uniqueness)
+- [x] 3.1 API builds: `npx nx build api` — bc301ad
+- [x] 3.2 Lint passes: `npx nx lint api` — bc301ad
+- [x] 3.3 Unit tests pass: `npx nx test api` (CRUD + scope filter + uniqueness) — bc301ad
 
 #### Manual
 
-- [x] 3.4 `POST`/`GET` create and list a global and a per-device skill
-- [x] 3.5 Same name same scope → conflict; same name different scope → allowed
-- [x] 3.6 `PATCH`/`DELETE` behave; unknown id → 404
+- [x] 3.4 `POST`/`GET` create and list a global and a per-device skill — bc301ad
+- [x] 3.5 Same name same scope → conflict; same name different scope → allowed — bc301ad
+- [x] 3.6 `PATCH`/`DELETE` behave; unknown id → 404 — bc301ad
 
 ### Phase 4: API skill execution + operation migration
 
 #### Automated
 
-- [ ] 4.1 API builds with `operation/` removed: `npx nx build api`
-- [ ] 4.2 Lint passes: `npx nx lint api`
-- [ ] 4.3 Unit tests pass: `npx nx test api` (run service scope/gating/charset/exit-mapping)
+- [x] 4.1 API builds with `operation/` removed: `npx nx build api`
+- [x] 4.2 Lint passes: `npx nx lint api`
+- [x] 4.3 Unit tests pass: `npx nx test api` (run service scope/gating/charset/exit-mapping)
 
 #### Manual
 
-- [ ] 4.4 Seeded start/stop/restart run on a container service as before
-- [ ] 4.5 `up`/`down` on a non-compose service returns the compose-managed 400
-- [ ] 4.6 Run input with a shell metacharacter is rejected at the boundary
-- [ ] 4.7 A `skillId` from a different device returns 404
+- [x] 4.4 Seeded start/stop/restart run on a container service as before
+- [x] 4.5 `up`/`down` on a non-compose service returns the compose-managed 400
+- [x] 4.6 Run input with a shell metacharacter is rejected at the boundary
+- [x] 4.7 A `skillId` from a different device returns 404
 
 ### Phase 5: Web skill CRUD feature
 
