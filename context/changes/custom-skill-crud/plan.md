@@ -657,13 +657,13 @@ queries index `deviceId`. No new hotspots.
 
 #### Automated
 
-- [x] 6.1 Web builds with operations surface removed: `npx nx build web`
-- [x] 6.2 Lint passes: `npx nx lint web`
-- [x] 6.3 Unit tests pass: `npx nx test web`
+- [x] 6.1 Web builds with operations surface removed: `npx nx build web` — c11d30e
+- [x] 6.2 Lint passes: `npx nx lint web` — c11d30e
+- [x] 6.3 Unit tests pass: `npx nx test web` — c11d30e
 
 #### Manual
 
-- [x] 6.4 Container service: start/stop/restart appear and run; `up`/`down` absent
-- [x] 6.5 Compose service: `up`/`down` also appear; `down` confirms
-- [x] 6.6 Per-device custom skill scoped correctly; global appears everywhere
-- [x] 6.7 Result/error line renders per service as before
+- [x] 6.4 Container service: start/stop/restart appear and run; `up`/`down` absent — c11d30e
+- [x] 6.5 Compose service: `up`/`down` also appear; `down` confirms — c11d30e
+- [x] 6.6 Per-device custom skill scoped correctly; global appears everywhere — c11d30e
+- [x] 6.7 Result/error line renders per service as before — c11d30e
