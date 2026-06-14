@@ -652,13 +652,13 @@ and import specifiers change.
 
 #### Automated
 
-- [x] 7.1 Full lint: `npm run lint`
-- [x] 7.2 Full test: `npm run test`
-- [x] 7.3 Full build: `npm run build`
-- [x] 7.4 Format clean: `npm run format:check`
-- [x] 7.5 No cross-folder relative imports remain: `grep -rnE "from '\.\./" apps/api/src` empty
+- [x] 7.1 Full lint: `npm run lint` — a5359ee
+- [x] 7.2 Full test: `npm run test` — a5359ee
+- [x] 7.3 Full build: `npm run build` — a5359ee
+- [x] 7.4 Format clean: `npm run format:check` — a5359ee
+- [x] 7.5 No cross-folder relative imports remain: `grep -rnE "from '\.\./" apps/api/src` empty — a5359ee
 
 #### Manual
 
-- [x] 7.6 `npx nx graph` reviewed — no new cross-project edges
-- [x] 7.7 Full smoke test across the running stack passes
+- [x] 7.6 `npx nx graph` reviewed — no new cross-project edges — a5359ee
+- [x] 7.7 Full smoke test across the running stack passes — a5359ee
