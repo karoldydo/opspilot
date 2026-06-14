@@ -786,26 +786,26 @@ None. Lazy `loadComponent` boundaries are unchanged; tree-shaking is unaffected 
 
 #### Automated
 
-- [x] 9.1 Web lints: `npx nx lint web`
-- [x] 9.2 Web unit tests pass: `npx nx test web`
-- [x] 9.3 Web builds: `npx nx build web`
-- [x] 9.4 Old route dirs gone: `app/auth` and `app/home` removed
+- [x] 9.1 Web lints: `npx nx lint web` — 45c00cb
+- [x] 9.2 Web unit tests pass: `npx nx test web` — 45c00cb
+- [x] 9.3 Web builds: `npx nx build web` — 45c00cb
+- [x] 9.4 Old route dirs gone: `app/auth` and `app/home` removed — 45c00cb
 
 #### Manual
 
-- [x] 9.5 `/login`, `/register`, and `/` load via lazy `loadComponent`
+- [x] 9.5 `/login`, `/register`, and `/` load via lazy `loadComponent` — 45c00cb
 
 ### Phase 10: Final sweep
 
 #### Automated
 
-- [ ] 10.1 Full lint: `npm run lint`
-- [ ] 10.2 Full test: `npm run test`
-- [ ] 10.3 Full build: `npm run build`
-- [ ] 10.4 Format clean: `npm run format:check`
-- [ ] 10.5 No relative god-folder paths remain in `apps/web/src`
+- [x] 10.1 Full lint: `npm run lint`
+- [x] 10.2 Full test: `npm run test`
+- [x] 10.3 Full build: `npm run build`
+- [x] 10.4 Format clean: `npm run format:check`
+- [x] 10.5 No relative god-folder paths remain in `apps/web/src`
 
 #### Manual
 
-- [ ] 10.6 `npx nx graph` reviewed — no new cross-project edges
-- [ ] 10.7 Full smoke test across every route passes
+- [x] 10.6 `npx nx graph` reviewed — no new cross-project edges
+- [x] 10.7 Full smoke test across every route passes
