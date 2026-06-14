@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { type ServicesStore } from '@app/features/services/data/services.store';
 import { type ScannedContainer } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle } from '@spartan-ng/helm/dialog';
 import { HlmTableImports } from '@spartan-ng/helm/table';
-
-import { type ServicesStore } from '../../core/stores/services.store';
 
 // context the device-services component passes into the dialog. the store instance
 // rides the context (not DI) because the dialog renders in a cdk overlay outside

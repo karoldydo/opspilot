@@ -721,27 +721,27 @@ None. Lazy `loadComponent` boundaries are unchanged; tree-shaking is unaffected 
 
 #### Automated
 
-- [x] 4.1 Web lints: `npx nx lint web`
-- [x] 4.2 Web unit tests pass: `npx nx test web`
-- [x] 4.3 Web builds: `npx nx build web`
-- [x] 4.4 No stale references: `grep -rn "core/.*devices" apps/web/src` empty
+- [x] 4.1 Web lints: `npx nx lint web` — 53a7ffd
+- [x] 4.2 Web unit tests pass: `npx nx test web` — 53a7ffd
+- [x] 4.3 Web builds: `npx nx build web` — 53a7ffd
+- [x] 4.4 No stale references: `grep -rn "core/.*devices" apps/web/src` empty — 53a7ffd
 
 #### Manual
 
-- [x] 4.5 `/devices` loads, lists devices, device form dialog opens
+- [x] 4.5 `/devices` loads, lists devices, device form dialog opens — 53a7ffd
 
 ### Phase 5: Domain — `services` (+ `skill-run`, + `diagnosis`)
 
 #### Automated
 
-- [ ] 5.1 Web lints: `npx nx lint web`
-- [ ] 5.2 Web unit tests pass: `npx nx test web`
-- [ ] 5.3 Web builds: `npx nx build web`
-- [ ] 5.4 No stale references: `grep -rn "core/.*\(services\|skill-run\|diagnosis\)" apps/web/src` empty
+- [x] 5.1 Web lints: `npx nx lint web`
+- [x] 5.2 Web unit tests pass: `npx nx test web`
+- [x] 5.3 Web builds: `npx nx build web`
+- [x] 5.4 No stale references: `grep -rn "core/.*\(services\|skill-run\|diagnosis\)" apps/web/src` empty
 
 #### Manual
 
-- [ ] 5.5 device-services renders in `/devices`; scan/rename/run-skill dialogs open; skill run streams
+- [x] 5.5 device-services renders in `/devices`; scan/rename/run-skill dialogs open; skill run streams
 
 ### Phase 6: Domain — `skills`
 

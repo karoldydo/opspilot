@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { SkillsClient } from '@app/core/clients/skills.client';
+import { SkillRunClient } from '@app/features/services/data/skill-run.client';
+import { SkillRunStore } from '@app/features/services/data/skill-run.store';
+import { RunSkillDialog, type RunSkillDialogContext } from '@app/features/services/dialogs/run-skill.dialog';
 import { type Service, type Skill, type SkillParameter } from '@opspilot/shared';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
-
-import { SkillRunClient } from '../../core/clients/skill-run.client';
-import { SkillsClient } from '../../core/clients/skills.client';
-import { SkillRunStore } from '../../core/stores/skill-run.store';
-import { RunSkillDialog, type RunSkillDialogContext } from './run-skill.dialog';
 
 // the run affordance for one service row, replacing the fixed-enum service-operations
 // surface. it lists the skills in scope for this service's device (global + that

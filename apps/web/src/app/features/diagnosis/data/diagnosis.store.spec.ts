@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { DiagnosisClient, type DiagnosisStreamHandlers } from '@app/features/diagnosis/data/diagnosis.client';
 import { type RunNarrationEvent, type RunRecord } from '@opspilot/shared';
 
-import { DiagnosisClient, type DiagnosisStreamHandlers } from '../clients/diagnosis.client';
 import { DiagnosisStore } from './diagnosis.store';
 
 const deviceId = '00000000-0000-0000-0000-000000000001';

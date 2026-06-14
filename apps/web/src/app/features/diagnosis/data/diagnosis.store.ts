@@ -1,8 +1,7 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
+import { DiagnosisClient } from '@app/features/diagnosis/data/diagnosis.client';
 import { patchState, signalState } from '@ngrx/signals';
 import { type DiagnosisSynthesis, type RunNarrationEvent, type RunRecord } from '@opspilot/shared';
-
-import { DiagnosisClient } from '../clients/diagnosis.client';
 
 // per-service diagnosis slice rendered by one row's result panel. `partial` holds the
 // progressively-filled synthesis while a stream is open (null before it starts and once

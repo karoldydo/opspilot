@@ -1,5 +1,17 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { DiagnosisClient } from '@app/features/diagnosis/data/diagnosis.client';
+import { DiagnosisStore } from '@app/features/diagnosis/data/diagnosis.store';
+import { ServicesClient } from '@app/features/services/data/services.client';
+import { ServicesStore } from '@app/features/services/data/services.store';
+import {
+  RenameServiceDialog,
+  type RenameServiceDialogContext,
+} from '@app/features/services/dialogs/rename-service.dialog';
+import {
+  ScanServicesDialog,
+  type ScanServicesDialogContext,
+} from '@app/features/services/dialogs/scan-services.dialog';
 import { type DiagnosisSynthesis, type RunRecord, type Service } from '@opspilot/shared';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmBadge } from '@spartan-ng/helm/badge';
@@ -8,12 +20,6 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 
-import { DiagnosisClient } from '../../core/clients/diagnosis.client';
-import { ServicesClient } from '../../core/clients/services.client';
-import { DiagnosisStore } from '../../core/stores/diagnosis.store';
-import { ServicesStore } from '../../core/stores/services.store';
-import { RenameServiceDialog, type RenameServiceDialogContext } from './rename-service.dialog';
-import { ScanServicesDialog, type ScanServicesDialogContext } from './scan-services.dialog';
 import { ServiceSkillsComponent } from './service-skills.component';
 
 // status → badge classes. spartan's hlmBadge has no success/warning variant, so we

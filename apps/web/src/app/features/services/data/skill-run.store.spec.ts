@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { SkillRunClient } from '@app/features/services/data/skill-run.client';
 import { type SkillRunResult } from '@opspilot/shared';
 
-import { SkillRunClient } from '../clients/skill-run.client';
 import { SkillRunStore } from './skill-run.store';
 
 const deviceId = '00000000-0000-0000-0000-000000000001';

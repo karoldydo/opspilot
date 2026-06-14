@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { ServicesClient } from '@app/features/services/data/services.client';
 import { type ScannedContainer, type Service } from '@opspilot/shared';
 
-import { ServicesClient } from '../clients/services.client';
 import { ServicesStore } from './services.store';
 
 const deviceId = '00000000-0000-0000-0000-000000000001';

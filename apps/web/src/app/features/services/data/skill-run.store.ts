@@ -1,9 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { SkillRunClient } from '@app/features/services/data/skill-run.client';
 import { patchState, signalState } from '@ngrx/signals';
 import { apiErrorSchema, type SkillRunRequest, type SkillRunResult } from '@opspilot/shared';
-
-import { SkillRunClient } from '../clients/skill-run.client';
 
 // what the run dialog reads to decide whether to stay open (error) or close (success).
 export interface SkillRunActionResult {
