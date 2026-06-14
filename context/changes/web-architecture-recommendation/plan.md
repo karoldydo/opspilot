@@ -695,27 +695,27 @@ None. Lazy `loadComponent` boundaries are unchanged; tree-shaking is unaffected 
 
 #### Automated
 
-- [x] 2.1 Web lints: `npx nx lint web`
-- [x] 2.2 Web unit tests pass: `npx nx test web`
-- [x] 2.3 Web builds: `npx nx build web`
-- [x] 2.4 No stale auth references: `grep -rn "core/stores/auth\|core/clients/auth" apps/web/src` empty
+- [x] 2.1 Web lints: `npx nx lint web` — de413ed
+- [x] 2.2 Web unit tests pass: `npx nx test web` — de413ed
+- [x] 2.3 Web builds: `npx nx build web` — de413ed
+- [x] 2.4 No stale auth references: `grep -rn "core/stores/auth\|core/clients/auth" apps/web/src` empty — de413ed
 
 #### Manual
 
-- [x] 2.5 Login, logout, and a guarded route still behave
+- [x] 2.5 Login, logout, and a guarded route still behave — de413ed
 
 ### Phase 3: `shared/validators/`
 
 #### Automated
 
-- [ ] 3.1 Web lints: `npx nx lint web`
-- [ ] 3.2 Web unit tests pass: `npx nx test web`
-- [ ] 3.3 Web builds: `npx nx build web`
-- [ ] 3.4 No stale references: `grep -rn "core/validators" apps/web/src` empty
+- [x] 3.1 Web lints: `npx nx lint web`
+- [x] 3.2 Web unit tests pass: `npx nx test web`
+- [x] 3.3 Web builds: `npx nx build web`
+- [x] 3.4 No stale references: `grep -rn "core/validators" apps/web/src` empty
 
 #### Manual
 
-- [ ] 3.5 A validated form still shows validation errors correctly
+- [x] 3.5 A validated form still shows validation errors correctly
 
 ### Phase 4: Domain — `devices`
 

@@ -6,6 +6,7 @@ import {
   ReactiveFormsModule,
   type ValidatorFn,
 } from '@angular/forms';
+import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { type Skill, type SkillParameter, skillParameterValueSchema } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -14,7 +15,6 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 
 import { type SkillRunStore } from '../../core/stores/skill-run.store';
-import { schemaValidator } from '../../core/validators/schema.validator';
 
 // context the service-skills component passes in. the store instance rides the
 // context (not DI) because the dialog renders in a cdk overlay outside the component

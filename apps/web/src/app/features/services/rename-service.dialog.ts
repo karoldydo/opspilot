@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { type Service, serviceUpdateRequestSchema } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -8,7 +9,6 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 
 import { type ServicesStore } from '../../core/stores/services.store';
-import { schemaValidator } from '../../core/validators/schema.validator';
 
 // context the device-services component passes in. the store rides the context
 // (not DI) because the dialog renders in a cdk overlay outside the component

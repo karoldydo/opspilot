@@ -1,7 +1,6 @@
 import { FormControl } from '@angular/forms';
+import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { skillCreateRequestSchema, skillParameterSchema } from '@opspilot/shared';
-
-import { schemaValidator } from '../../core/validators/schema.validator';
 
 // the skill form derives every field validator from the shared schema (contracts.md:
 // no second, fe-only rule). these tests pin that the bridge wires the skill schemas
