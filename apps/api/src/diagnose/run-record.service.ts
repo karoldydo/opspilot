@@ -1,6 +1,6 @@
 import { llmConfig, LlmConfig } from '@api/config/llm.config';
-import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
-import { runRecord } from '@api/database/schema/run-record.schema';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
+import { runRecord } from '@api/core/database/schema/run-record.schema';
 import { Inject, Injectable } from '@nestjs/common';
 import { DiagnosisSynthesis, RunRecord, runRecordSchema } from '@opspilot/shared';
 import { and, desc, eq, notInArray } from 'drizzle-orm';

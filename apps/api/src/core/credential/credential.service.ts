@@ -1,7 +1,7 @@
 import { AuditService } from '@api/audit/audit.service';
-import { CryptoService } from '@api/crypto/crypto.service';
-import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
-import { credential } from '@api/database/schema/device.schema';
+import { CryptoService } from '@api/core/crypto/crypto.service';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
+import { credential } from '@api/core/database/schema/device.schema';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Credential, CredentialCreateRequest, credentialSchema } from '@opspilot/shared';
 import { and, eq } from 'drizzle-orm';

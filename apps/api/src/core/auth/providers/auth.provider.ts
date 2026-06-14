@@ -1,6 +1,6 @@
-import { createAuth } from '@api/auth/create-auth';
 import { authConfig, AuthConfig } from '@api/config/auth.config';
-import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { createAuth } from '@api/core/auth/create-auth';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
 import { Provider } from '@nestjs/common';
 
 export const AUTH_INSTANCE = 'AUTH_INSTANCE';

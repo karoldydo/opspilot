@@ -1,4 +1,4 @@
-import { AuthenticatedRequest } from '@api/auth/auth.guard';
+import { AuthenticatedRequest } from '@api/core/auth/auth.guard';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 // ergonomic accessor for the guard-attached session user id. the global

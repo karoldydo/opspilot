@@ -1,4 +1,4 @@
-import { DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 

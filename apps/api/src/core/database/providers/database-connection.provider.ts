@@ -1,5 +1,5 @@
 import { databaseConfig, DatabaseConfig } from '@api/config/database.config';
-import * as schema from '@api/database/schema';
+import * as schema from '@api/core/database/schema';
 import { Provider } from '@nestjs/common';
 import Database from 'better-sqlite3';
 import { BetterSQLite3Database, drizzle } from 'drizzle-orm/better-sqlite3';

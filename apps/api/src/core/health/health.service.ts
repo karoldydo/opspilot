@@ -1,4 +1,4 @@
-import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { HealthResponse } from '@opspilot/shared';
 

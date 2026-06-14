@@ -1,7 +1,7 @@
 import { databaseConfig, DatabaseConfig } from '@api/config/database.config';
-import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
-import { DATABASE_EXISTED } from '@api/database/providers/database-existed.provider';
-import { MIGRATIONS_FOLDER } from '@api/database/providers/migrations-folder.provider';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
+import { DATABASE_EXISTED } from '@api/core/database/providers/database-existed.provider';
+import { MIGRATIONS_FOLDER } from '@api/core/database/providers/migrations-folder.provider';
 import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { readdirSync, readFileSync, rmSync } from 'node:fs';

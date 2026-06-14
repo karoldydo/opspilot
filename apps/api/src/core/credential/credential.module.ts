@@ -1,5 +1,5 @@
 import { AuditModule } from '@api/audit/audit.module';
-import { CryptoModule } from '@api/crypto/crypto.module';
+import { CryptoModule } from '@api/core/crypto/crypto.module';
 import { Module } from '@nestjs/common';
 
 import { CredentialService } from './credential.service';

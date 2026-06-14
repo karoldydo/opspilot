@@ -1,5 +1,5 @@
 import { AuditModule } from '@api/audit/audit.module';
-import { CredentialModule } from '@api/credential/credential.module';
+import { CredentialModule } from '@api/core/credential/credential.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 

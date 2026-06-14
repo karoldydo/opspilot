@@ -584,24 +584,24 @@ and import specifiers change.
 
 #### Automated
 
-- [x] 2.1 Api lints: `npx nx lint api`
-- [x] 2.2 Api unit tests pass: `npx nx test api`
-- [x] 2.3 Api builds: `npx nx build api`
-- [x] 2.4 No stale common paths (every common import includes a subfolder segment)
+- [x] 2.1 Api lints: `npx nx lint api` — fb14f66
+- [x] 2.2 Api unit tests pass: `npx nx test api` — fb14f66
+- [x] 2.3 Api builds: `npx nx build api` — fb14f66
+- [x] 2.4 No stale common paths (every common import includes a subfolder segment) — fb14f66
 
 #### Manual
 
-- [x] 2.5 A request triggering the Zod pipe + exception filter still validates/serializes
+- [x] 2.5 A request triggering the Zod pipe + exception filter still validates/serializes — fb14f66
 
 ### Phase 3: `core/` bucket (+ CLI config path updates)
 
 #### Automated
 
-- [ ] 3.1 Api lints: `npx nx lint api`
-- [ ] 3.2 Api unit tests pass: `npx nx test api`
-- [ ] 3.3 Api builds: `npx nx build api`
-- [ ] 3.4 `npx drizzle-kit generate` emits no new migration
-- [ ] 3.5 No stale infra paths: `grep -rn "@api/\(database\|auth\|crypto\|credential\|health\)/" apps/api/src` empty
+- [x] 3.1 Api lints: `npx nx lint api`
+- [x] 3.2 Api unit tests pass: `npx nx test api`
+- [x] 3.3 Api builds: `npx nx build api`
+- [x] 3.4 `npx drizzle-kit generate` emits no new migration
+- [x] 3.5 No stale infra paths: `grep -rn "@api/\(database\|auth\|crypto\|credential\|health\)/" apps/api/src` empty
 
 #### Manual
 

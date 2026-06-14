@@ -1,6 +1,6 @@
-import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
-import { auditLog } from '@api/database/schema/audit-log.schema';
-import { runRecord } from '@api/database/schema/run-record.schema';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
+import { auditLog } from '@api/core/database/schema/audit-log.schema';
+import { runRecord } from '@api/core/database/schema/run-record.schema';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AuditAction, AuditEvent, auditEventSchema, AuditListQuery } from '@opspilot/shared';
 import { and, desc, eq, gte, lte } from 'drizzle-orm';

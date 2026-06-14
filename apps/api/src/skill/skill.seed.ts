@@ -1,5 +1,5 @@
-import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
-import { skill } from '@api/database/schema/skill.schema';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
+import { skill } from '@api/core/database/schema/skill.schema';
 import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { SkillParameter } from '@opspilot/shared';
 import { isNull } from 'drizzle-orm';

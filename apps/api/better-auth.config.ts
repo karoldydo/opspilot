@@ -1,9 +1,9 @@
-import { createAuth } from './src/auth/create-auth';
-import { DatabaseConnection } from './src/database/providers/database-connection.provider';
+import { createAuth } from './src/core/auth/create-auth';
+import { DatabaseConnection } from './src/core/database/providers/database-connection.provider';
 
 // cli-only better-auth instance consumed by `@better-auth/cli generate` to emit
-// the drizzle tables into src/database/schema. it never runs at runtime — the
-// nest provider owns the real instance (see src/auth/providers/auth.provider.ts).
+// the drizzle tables into src/core/database/schema. it never runs at runtime — the
+// nest provider owns the real instance (see src/core/auth/providers/auth.provider.ts).
 // every value below is an unused placeholder: generate derives the tables purely
 // from emailAndPassword + the sqlite provider, never from the db, secret, url,
 // session lifetimes or trusted origins (those are runtime-only config).

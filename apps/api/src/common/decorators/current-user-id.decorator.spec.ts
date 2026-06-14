@@ -1,4 +1,4 @@
-import { AuthenticatedRequest } from '@api/auth/auth.guard';
+import { AuthenticatedRequest } from '@api/core/auth/auth.guard';
 import { ExecutionContext } from '@nestjs/common';
 import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants';
 

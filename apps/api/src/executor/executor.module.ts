@@ -1,4 +1,4 @@
-import { CredentialModule } from '@api/credential/credential.module';
+import { CredentialModule } from '@api/core/credential/credential.module';
 import { DeviceModule } from '@api/device/device.module';
 import { Module } from '@nestjs/common';
 

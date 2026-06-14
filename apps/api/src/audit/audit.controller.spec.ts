@@ -1,12 +1,12 @@
 import { AllExceptionsFilter } from '@api/common/filters/all-exceptions.filter';
 import { ConfigModule } from '@api/config/config.module';
 import { databaseConfig } from '@api/config/database.config';
-import { DatabaseModule } from '@api/database/database.module';
-import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
-import { user } from '@api/database/schema/auth.schema';
-import { device } from '@api/database/schema/device.schema';
-import { runRecord } from '@api/database/schema/run-record.schema';
-import { service } from '@api/database/schema/service.schema';
+import { DatabaseModule } from '@api/core/database/database.module';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
+import { user } from '@api/core/database/schema/auth.schema';
+import { device } from '@api/core/database/schema/device.schema';
+import { runRecord } from '@api/core/database/schema/run-record.schema';
+import { service } from '@api/core/database/schema/service.schema';
 import { INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';

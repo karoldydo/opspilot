@@ -12,5 +12,5 @@ export default defineConfig({
   },
   dialect: 'sqlite',
   out: './migrations',
-  schema: './src/database/schema/index.ts',
+  schema: './src/core/database/schema/index.ts',
 });

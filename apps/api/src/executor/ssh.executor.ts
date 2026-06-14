@@ -1,5 +1,5 @@
 import { sshConfig, SshConfig } from '@api/config/ssh.config';
-import { CredentialService } from '@api/credential/credential.service';
+import { CredentialService } from '@api/core/credential/credential.service';
 import { DeviceService } from '@api/device/device.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { Credential } from '@opspilot/shared';
