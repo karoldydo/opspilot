@@ -1,9 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
+import { SkillsClient } from '@app/features/skills/data/skills.client';
 import { patchState, signalState } from '@ngrx/signals';
 import { apiErrorSchema, type Skill, type SkillCreateRequest, type SkillUpdateRequest } from '@opspilot/shared';
-
-import { SkillsClient } from '../clients/skills.client';
 
 // normalized result the skill screens render: a user-facing message on failure,
 // null on success — mirrors DeviceActionResult.

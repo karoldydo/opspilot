@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { SkillsClient } from '@app/features/skills/data/skills.client';
 import { type Skill } from '@opspilot/shared';
 
-import { SkillsClient } from '../clients/skills.client';
 import { SkillsStore } from './skills.store';
 
 const skill: Skill = {

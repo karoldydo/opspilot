@@ -1,6 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DevicesClient } from '@app/features/devices/data/devices.client';
+import { SkillsClient } from '@app/features/skills/data/skills.client';
+import { SkillsStore } from '@app/features/skills/data/skills.store';
 import { type Device, type Skill } from '@opspilot/shared';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmBadge } from '@spartan-ng/helm/badge';
@@ -9,9 +11,7 @@ import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 
-import { SkillsClient } from '../../core/clients/skills.client';
-import { SkillsStore } from '../../core/stores/skills.store';
-import { SkillFormDialog, type SkillFormDialogContext } from './skill-form.dialog';
+import { SkillFormDialog, type SkillFormDialogContext } from './dialogs/skill-form.dialog';
 
 // the skill catalog view: a table of every skill (global + per-device) with its
 // scope, parameters, edit/delete row actions, an empty state, and an add button.

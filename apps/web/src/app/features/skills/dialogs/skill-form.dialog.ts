@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, type FormControl, type FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { type SkillActionResult, type SkillsStore } from '@app/features/skills/data/skills.store';
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import {
   type Device,
@@ -15,8 +16,6 @@ import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle 
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
-
-import { type SkillActionResult, type SkillsStore } from '../../core/stores/skills.store';
 
 // context the list component passes into the dialog. the store instance and the
 // device list ride the context (not DI) because the dialog renders in a cdk overlay

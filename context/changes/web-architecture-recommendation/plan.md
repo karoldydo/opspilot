@@ -734,27 +734,27 @@ None. Lazy `loadComponent` boundaries are unchanged; tree-shaking is unaffected 
 
 #### Automated
 
-- [x] 5.1 Web lints: `npx nx lint web`
-- [x] 5.2 Web unit tests pass: `npx nx test web`
-- [x] 5.3 Web builds: `npx nx build web`
-- [x] 5.4 No stale references: `grep -rn "core/.*\(services\|skill-run\|diagnosis\)" apps/web/src` empty
+- [x] 5.1 Web lints: `npx nx lint web` — 3d362ba
+- [x] 5.2 Web unit tests pass: `npx nx test web` — 3d362ba
+- [x] 5.3 Web builds: `npx nx build web` — 3d362ba
+- [x] 5.4 No stale references: `grep -rn "core/.*\(services\|skill-run\|diagnosis\)" apps/web/src` empty — 3d362ba
 
 #### Manual
 
-- [x] 5.5 device-services renders in `/devices`; scan/rename/run-skill dialogs open; skill run streams
+- [x] 5.5 device-services renders in `/devices`; scan/rename/run-skill dialogs open; skill run streams — 3d362ba
 
 ### Phase 6: Domain — `skills`
 
 #### Automated
 
-- [ ] 6.1 Web lints: `npx nx lint web`
-- [ ] 6.2 Web unit tests pass: `npx nx test web`
-- [ ] 6.3 Web builds: `npx nx build web`
-- [ ] 6.4 No stale references: `grep -rn "core/.*skills" apps/web/src` empty
+- [x] 6.1 Web lints: `npx nx lint web`
+- [x] 6.2 Web unit tests pass: `npx nx test web`
+- [x] 6.3 Web builds: `npx nx build web`
+- [x] 6.4 No stale references: `grep -rn "core/.*skills" apps/web/src` empty
 
 #### Manual
 
-- [ ] 6.5 `/skills` loads, dialog validates; `service-skills` view still works
+- [x] 6.5 `/skills` loads, dialog validates; `service-skills` view still works
 
 ### Phase 7: Domain — `llm-providers`
 

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { SkillsClient } from '@app/core/clients/skills.client';
 import { SkillRunClient } from '@app/features/services/data/skill-run.client';
 import { SkillRunStore } from '@app/features/services/data/skill-run.store';
 import { RunSkillDialog, type RunSkillDialogContext } from '@app/features/services/dialogs/run-skill.dialog';
+import { SkillsClient } from '@app/features/skills/data/skills.client';
 import { type Service, type Skill, type SkillParameter } from '@opspilot/shared';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
