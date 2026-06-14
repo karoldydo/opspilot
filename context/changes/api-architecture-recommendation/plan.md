@@ -638,27 +638,27 @@ and import specifiers change.
 
 #### Automated
 
-- [x] 6.1 Api lints: `npx nx lint api`
-- [x] 6.2 Api unit tests pass: `npx nx test api`
-- [x] 6.3 Api builds: `npx nx build api`
-- [x] 6.4 `app/` folder gone: `test ! -d apps/api/src/app`
-- [x] 6.5 No scaffold refs: `grep -rn "app.controller\|app.service" apps/api/src` empty
+- [x] 6.1 Api lints: `npx nx lint api` — c5c8f41
+- [x] 6.2 Api unit tests pass: `npx nx test api` — c5c8f41
+- [x] 6.3 Api builds: `npx nx build api` — c5c8f41
+- [x] 6.4 `app/` folder gone: `test ! -d apps/api/src/app` — c5c8f41
+- [x] 6.5 No scaffold refs: `grep -rn "app.controller\|app.service" apps/api/src` empty — c5c8f41
 
 #### Manual
 
-- [x] 6.6 App boots from hoisted `AppModule`; `health/` endpoint responds
+- [x] 6.6 App boots from hoisted `AppModule`; `health/` endpoint responds — c5c8f41
 
 ### Phase 7: Final sweep
 
 #### Automated
 
-- [ ] 7.1 Full lint: `npm run lint`
-- [ ] 7.2 Full test: `npm run test`
-- [ ] 7.3 Full build: `npm run build`
-- [ ] 7.4 Format clean: `npm run format:check`
-- [ ] 7.5 No cross-folder relative imports remain: `grep -rnE "from '\.\./" apps/api/src` empty
+- [x] 7.1 Full lint: `npm run lint`
+- [x] 7.2 Full test: `npm run test`
+- [x] 7.3 Full build: `npm run build`
+- [x] 7.4 Format clean: `npm run format:check`
+- [x] 7.5 No cross-folder relative imports remain: `grep -rnE "from '\.\./" apps/api/src` empty
 
 #### Manual
 
-- [ ] 7.6 `npx nx graph` reviewed — no new cross-project edges
-- [ ] 7.7 Full smoke test across the running stack passes
+- [x] 7.6 `npx nx graph` reviewed — no new cross-project edges
+- [x] 7.7 Full smoke test across the running stack passes
