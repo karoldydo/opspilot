@@ -85,6 +85,18 @@ is clean, and `npx nx graph` shows no new cross-project edges.
   or whose imports break get rewritten to `@app/*`; opportunistic rewrites of unrelated imports are
   out of scope to keep each diff minimal.
 
+> **Addendum (post-implementation, 2026-06-14):** the "no build/test/lint config changes beyond the
+> single `@app/*` `paths` entry" guardrail above proved too strict — introducing the alias forced
+> two further, unavoidable config edits, both made during P1:
+>
+> - **`.gitignore`**: `data/` → `/data/` (anchored to repo root). Without this anchor the new
+>   `features/<domain>/data/` source folders would be git-ignored and the moved client/store files
+>   would never be committed. This is load-bearing, not cosmetic.
+> - **`eslint.config.mjs`**: added `'^@app/'` to the `@nx/enforce-module-boundaries` `allow` list so
+>   intra-`web` `@app/*` imports pass lint. Safe — `@app/*` resolves only to `apps/web/src/app/*`, so
+>   it cannot reach `api`/`shared`; the `depConstraints` block (the real `api ↔ web ↔ shared` policing)
+>   is untouched.
+
 ## Implementation Approach
 
 Strangle the god-folders domain by domain. Land the alias first (P1) so every subsequent move can

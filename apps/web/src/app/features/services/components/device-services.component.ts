@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { DiagnosisClient } from '@app/features/diagnosis/data/diagnosis.client';
 import { DiagnosisStore } from '@app/features/diagnosis/data/diagnosis.store';
+import { ServiceSkillsComponent } from '@app/features/services/components/service-skills.component';
 import { ServicesClient } from '@app/features/services/data/services.client';
 import { ServicesStore } from '@app/features/services/data/services.store';
 import {
@@ -19,8 +20,6 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmTableImports } from '@spartan-ng/helm/table';
-
-import { ServiceSkillsComponent } from './service-skills.component';
 
 // status → badge classes. spartan's hlmBadge has no success/warning variant, so we
 // keep its shape and color via tokens/utilities: down uses the semantic destructive
