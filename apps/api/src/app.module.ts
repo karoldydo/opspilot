@@ -14,11 +14,7 @@ import { SkillModule } from '@api/modules/skill/skill.module';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-
 @Module({
-  controllers: [AppController],
   imports: [
     AuditModule,
     AuthModule,
@@ -33,7 +29,6 @@ import { AppService } from './app.service';
     SkillModule,
   ],
   providers: [
-    AppService,
     { provide: APP_GUARD, useClass: AuthAppGuard },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
   ],

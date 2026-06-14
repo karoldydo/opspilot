@@ -625,28 +625,28 @@ and import specifiers change.
 
 #### Automated
 
-- [x] 5.1 Api lints: `npx nx lint api`
-- [x] 5.2 Api unit tests pass: `npx nx test api`
-- [x] 5.3 Api builds: `npx nx build api`
-- [x] 5.4 No stale domain paths: `grep -rnE "@api/(audit|device|service|skill|diagnose|llm-provider)/" apps/api/src` empty
+- [x] 5.1 Api lints: `npx nx lint api` — 57ef6fc
+- [x] 5.2 Api unit tests pass: `npx nx test api` — 57ef6fc
+- [x] 5.3 Api builds: `npx nx build api` — 57ef6fc
+- [x] 5.4 No stale domain paths: `grep -rnE "@api/(audit|device|service|skill|diagnose|llm-provider)/" apps/api/src` empty — 57ef6fc
 
 #### Manual
 
-- [x] 5.5 Each domain's primary endpoint works end-to-end (CRUD, SSE, LLM synthesis, audit read)
+- [x] 5.5 Each domain's primary endpoint works end-to-end (CRUD, SSE, LLM synthesis, audit read) — 57ef6fc
 
 ### Phase 6: Hoist `app.module.ts` to root + delete scaffold
 
 #### Automated
 
-- [ ] 6.1 Api lints: `npx nx lint api`
-- [ ] 6.2 Api unit tests pass: `npx nx test api`
-- [ ] 6.3 Api builds: `npx nx build api`
-- [ ] 6.4 `app/` folder gone: `test ! -d apps/api/src/app`
-- [ ] 6.5 No scaffold refs: `grep -rn "app.controller\|app.service" apps/api/src` empty
+- [x] 6.1 Api lints: `npx nx lint api`
+- [x] 6.2 Api unit tests pass: `npx nx test api`
+- [x] 6.3 Api builds: `npx nx build api`
+- [x] 6.4 `app/` folder gone: `test ! -d apps/api/src/app`
+- [x] 6.5 No scaffold refs: `grep -rn "app.controller\|app.service" apps/api/src` empty
 
 #### Manual
 
-- [ ] 6.6 App boots from hoisted `AppModule`; `health/` endpoint responds
+- [x] 6.6 App boots from hoisted `AppModule`; `health/` endpoint responds
 
 ### Phase 7: Final sweep
 
