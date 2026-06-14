@@ -773,27 +773,27 @@ None. Lazy `loadComponent` boundaries are unchanged; tree-shaking is unaffected 
 
 #### Automated
 
-- [x] 8.1 Web lints: `npx nx lint web`
-- [x] 8.2 Web unit tests pass: `npx nx test web`
-- [x] 8.3 Web builds: `npx nx build web`
-- [x] 8.4 God-folders gone: `core/clients` and `core/stores` removed
+- [x] 8.1 Web lints: `npx nx lint web` — 4524f10
+- [x] 8.2 Web unit tests pass: `npx nx test web` — 4524f10
+- [x] 8.3 Web builds: `npx nx build web` — 4524f10
+- [x] 8.4 God-folders gone: `core/clients` and `core/stores` removed — 4524f10
 
 #### Manual
 
-- [x] 8.5 `/audit` loads and shows the history/timeline
+- [x] 8.5 `/audit` loads and shows the history/timeline — 4524f10
 
 ### Phase 9: Route screens (`auth`, `home`) under `features/`
 
 #### Automated
 
-- [ ] 9.1 Web lints: `npx nx lint web`
-- [ ] 9.2 Web unit tests pass: `npx nx test web`
-- [ ] 9.3 Web builds: `npx nx build web`
-- [ ] 9.4 Old route dirs gone: `app/auth` and `app/home` removed
+- [x] 9.1 Web lints: `npx nx lint web`
+- [x] 9.2 Web unit tests pass: `npx nx test web`
+- [x] 9.3 Web builds: `npx nx build web`
+- [x] 9.4 Old route dirs gone: `app/auth` and `app/home` removed
 
 #### Manual
 
-- [ ] 9.5 `/login`, `/register`, and `/` load via lazy `loadComponent`
+- [x] 9.5 `/login`, `/register`, and `/` load via lazy `loadComponent`
 
 ### Phase 10: Final sweep
 

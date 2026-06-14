@@ -4,12 +4,12 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const appRoutes: Route[] = [
   {
-    loadComponent: () => import('./auth/login/login.component').then(({ LoginComponent }) => LoginComponent),
+    loadComponent: () => import('./features/auth/login/login.component').then(({ LoginComponent }) => LoginComponent),
     path: 'login',
   },
   {
     loadComponent: () =>
-      import('./auth/register/register.component').then(({ RegisterComponent }) => RegisterComponent),
+      import('./features/auth/register/register.component').then(({ RegisterComponent }) => RegisterComponent),
     path: 'register',
   },
   {
@@ -38,7 +38,7 @@ export const appRoutes: Route[] = [
   },
   {
     canActivate: [authGuard],
-    loadComponent: () => import('./home/home.component').then(({ HomeComponent }) => HomeComponent),
+    loadComponent: () => import('./features/home/home.component').then(({ HomeComponent }) => HomeComponent),
     path: '',
   },
   { path: '**', redirectTo: '' },
