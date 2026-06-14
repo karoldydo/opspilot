@@ -683,13 +683,13 @@ None. Lazy `loadComponent` boundaries are unchanged; tree-shaking is unaffected 
 
 #### Automated
 
-- [ ] 1.1 Web lints: `npx nx lint web`
-- [ ] 1.2 Web unit tests pass: `npx nx test web`
-- [ ] 1.3 Web builds: `npx nx build web`
+- [x] 1.1 Web lints: `npx nx lint web`
+- [x] 1.2 Web unit tests pass: `npx nx test web`
+- [x] 1.3 Web builds: `npx nx build web`
 
 #### Manual
 
-- [ ] 1.4 Alias path string reads as a clear layer indicator
+- [x] 1.4 Alias path string reads as a clear layer indicator
 
 ### Phase 2: `core/auth/` slice
 

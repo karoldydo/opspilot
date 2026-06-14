@@ -18,7 +18,9 @@ export default [
         'error',
         {
           enforceBuildableLibDependency: true,
-          allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
+          // allow the @app/* self-alias for intra-web imports (feature-sliced layout); the
+          // api <-> web <-> shared boundary is still policed via depConstraints below.
+          allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$', '^@app/'],
           depConstraints: [
             {
               sourceTag: 'scope:shared',

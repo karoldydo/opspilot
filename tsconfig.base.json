@@ -10,6 +10,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {
+      "@app/*": ["./apps/web/src/app/*"],
       "@opspilot/shared": ["./libs/shared/src/index.ts"],
       "@spartan-ng/helm": ["./libs/ui/src/index.ts"],
       "@spartan-ng/helm/alert-dialog": ["./libs/ui/alert-dialog/src/index.ts"],
