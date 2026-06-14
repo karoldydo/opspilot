@@ -1,6 +1,6 @@
 import { AuditModule } from '@api/audit/audit.module';
 import { DeviceModule } from '@api/device/device.module';
-import { ExecutorModule } from '@api/executor/executor.module';
+import { ExecutorModule } from '@api/integrations/executor/executor.module';
 import { LlmProviderModule } from '@api/llm-provider/llm-provider.module';
 import { ServiceModule } from '@api/service/service.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';

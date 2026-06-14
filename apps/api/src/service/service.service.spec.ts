@@ -7,8 +7,8 @@ import { MigrationService } from '@api/core/database/migration/migration.service
 import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
 import { device } from '@api/core/database/schema';
 import { user } from '@api/core/database/schema/auth.schema';
-import { ExecResult } from '@api/executor/executor.interface';
-import { EXECUTOR } from '@api/executor/executor.token';
+import { ExecResult } from '@api/integrations/executor/executor.interface';
+import { EXECUTOR } from '@api/integrations/executor/executor.token';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { readdirSync, rmSync } from 'node:fs';

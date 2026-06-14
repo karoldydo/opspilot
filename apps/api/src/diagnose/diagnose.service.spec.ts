@@ -1,7 +1,7 @@
 import { AuditService } from '@api/audit/audit.service';
 import { LlmConfig } from '@api/config/llm.config';
 import { DeviceService } from '@api/device/device.service';
-import { ExecResult } from '@api/executor/executor.interface';
+import { ExecResult } from '@api/integrations/executor/executor.interface';
 import { LlmProviderClientFactory } from '@api/llm-provider/llm-provider.client-factory';
 import { LlmProviderService } from '@api/llm-provider/llm-provider.service';
 import { ServiceService } from '@api/service/service.service';

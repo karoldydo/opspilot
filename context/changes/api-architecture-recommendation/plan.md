@@ -597,25 +597,25 @@ and import specifiers change.
 
 #### Automated
 
-- [x] 3.1 Api lints: `npx nx lint api`
-- [x] 3.2 Api unit tests pass: `npx nx test api`
-- [x] 3.3 Api builds: `npx nx build api`
-- [x] 3.4 `npx drizzle-kit generate` emits no new migration
-- [x] 3.5 No stale infra paths: `grep -rn "@api/\(database\|auth\|crypto\|credential\|health\)/" apps/api/src` empty
+- [x] 3.1 Api lints: `npx nx lint api` — d5b8515
+- [x] 3.2 Api unit tests pass: `npx nx test api` — d5b8515
+- [x] 3.3 Api builds: `npx nx build api` — d5b8515
+- [x] 3.4 `npx drizzle-kit generate` emits no new migration — d5b8515
+- [x] 3.5 No stale infra paths: `grep -rn "@api/\(database\|auth\|crypto\|credential\|health\)/" apps/api/src` empty — d5b8515
 
 #### Manual
 
-- [ ] 3.6 App boots, startup migrations run, Better-Auth login + DB read work
-- [ ] 3.7 `@better-auth/cli generate` runs and produces no schema diff
+- [x] 3.6 App boots, startup migrations run, Better-Auth login + DB read work — d5b8515
+- [x] 3.7 `@better-auth/cli generate` runs and produces no schema diff — d5b8515
 
 ### Phase 4: `integrations/` bucket (`executor`)
 
 #### Automated
 
-- [ ] 4.1 Api lints: `npx nx lint api`
-- [ ] 4.2 Api unit tests pass: `npx nx test api`
-- [ ] 4.3 Api builds: `npx nx build api`
-- [ ] 4.4 No stale paths: `grep -rn "@api/executor/" apps/api/src` empty
+- [x] 4.1 Api lints: `npx nx lint api`
+- [x] 4.2 Api unit tests pass: `npx nx test api`
+- [x] 4.3 Api builds: `npx nx build api`
+- [x] 4.4 No stale paths: `grep -rn "@api/executor/" apps/api/src` empty
 
 #### Manual
 

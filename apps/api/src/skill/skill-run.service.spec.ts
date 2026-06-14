@@ -1,6 +1,6 @@
 import { AuditService } from '@api/audit/audit.service';
 import { SkillConfig } from '@api/config/skill.config';
-import { ExecResult } from '@api/executor/executor.interface';
+import { ExecResult } from '@api/integrations/executor/executor.interface';
 import { DockerDaemonDownError, DockerNotFoundError } from '@api/service/service.errors';
 import { ServiceService } from '@api/service/service.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';

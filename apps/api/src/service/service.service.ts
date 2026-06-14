@@ -1,8 +1,8 @@
 import { AuditService } from '@api/audit/audit.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
 import { service } from '@api/core/database/schema';
-import { IExecutor } from '@api/executor/executor.interface';
-import { EXECUTOR } from '@api/executor/executor.token';
+import { IExecutor } from '@api/integrations/executor/executor.interface';
+import { EXECUTOR } from '@api/integrations/executor/executor.token';
 import { ConflictException, Inject, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import {
   ScannedContainer,

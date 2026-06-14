@@ -1,8 +1,8 @@
 import { AuditService } from '@api/audit/audit.service';
 import { llmConfig, LlmConfig } from '@api/config/llm.config';
 import { DeviceService } from '@api/device/device.service';
-import { ExecResult, IExecutor } from '@api/executor/executor.interface';
-import { EXECUTOR } from '@api/executor/executor.token';
+import { ExecResult, IExecutor } from '@api/integrations/executor/executor.interface';
+import { EXECUTOR } from '@api/integrations/executor/executor.token';
 import { LlmProviderClientFactory } from '@api/llm-provider/llm-provider.client-factory';
 import { LlmProviderService } from '@api/llm-provider/llm-provider.service';
 import { DockerDaemonDownError, DockerNotFoundError } from '@api/service/service.errors';
