@@ -1,9 +1,8 @@
 import { HttpErrorResponse, type HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthStore } from '@app/core/auth/auth.store';
 import { catchError, throwError } from 'rxjs';
-
-import { AuthStore } from '../stores/auth.store';
 
 // on any 401, clear local session state and redirect to /login so an expired
 // session never leaves the ui half-authenticated. all other errors pass through.

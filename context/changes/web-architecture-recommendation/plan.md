@@ -683,26 +683,26 @@ None. Lazy `loadComponent` boundaries are unchanged; tree-shaking is unaffected 
 
 #### Automated
 
-- [x] 1.1 Web lints: `npx nx lint web`
-- [x] 1.2 Web unit tests pass: `npx nx test web`
-- [x] 1.3 Web builds: `npx nx build web`
+- [x] 1.1 Web lints: `npx nx lint web` — 6e8a1ae
+- [x] 1.2 Web unit tests pass: `npx nx test web` — 6e8a1ae
+- [x] 1.3 Web builds: `npx nx build web` — 6e8a1ae
 
 #### Manual
 
-- [x] 1.4 Alias path string reads as a clear layer indicator
+- [x] 1.4 Alias path string reads as a clear layer indicator — 6e8a1ae
 
 ### Phase 2: `core/auth/` slice
 
 #### Automated
 
-- [ ] 2.1 Web lints: `npx nx lint web`
-- [ ] 2.2 Web unit tests pass: `npx nx test web`
-- [ ] 2.3 Web builds: `npx nx build web`
-- [ ] 2.4 No stale auth references: `grep -rn "core/stores/auth\|core/clients/auth" apps/web/src` empty
+- [x] 2.1 Web lints: `npx nx lint web`
+- [x] 2.2 Web unit tests pass: `npx nx test web`
+- [x] 2.3 Web builds: `npx nx build web`
+- [x] 2.4 No stale auth references: `grep -rn "core/stores/auth\|core/clients/auth" apps/web/src` empty
 
 #### Manual
 
-- [ ] 2.5 Login, logout, and a guarded route still behave
+- [x] 2.5 Login, logout, and a guarded route still behave
 
 ### Phase 3: `shared/validators/`
 

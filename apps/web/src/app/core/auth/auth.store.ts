@@ -1,8 +1,7 @@
 import { computed, Injectable } from '@angular/core';
+import { authClient } from '@app/core/auth/auth.client';
 import { patchState, signalState } from '@ngrx/signals';
 import { type AuthLoginRequest, type AuthRegisterRequest, type AuthUser, authUserSchema } from '@opspilot/shared';
-
-import { authClient } from '../clients/auth.client';
 
 // normalized result our login/register screens render: error is a user-facing
 // message on failure, null on success.

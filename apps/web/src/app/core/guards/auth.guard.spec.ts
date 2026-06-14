@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { type ActivatedRouteSnapshot, Router, type RouterStateSnapshot, type UrlTree } from '@angular/router';
+import { AuthStore } from '@app/core/auth/auth.store';
 
-import { AuthStore } from '../stores/auth.store';
 import { authGuard } from './auth.guard';
 
 function runGuard() {

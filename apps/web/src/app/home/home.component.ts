@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { AuthStore } from '@app/core/auth/auth.store';
 import { HlmButton } from '@spartan-ng/helm/button';
-
-import { AuthStore } from '../core/stores/auth.store';
 
 // placeholder guarded area — real operational slices come in later roadmap items.
 // confirms the guard + session state land an authenticated user here.

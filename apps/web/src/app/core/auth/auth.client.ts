@@ -8,5 +8,5 @@ import { createAuthClient } from 'better-auth/client';
 // (global '/api' prefix + server basePath '/auth'). same-origin keeps cookies
 // host-only / samesite=lax with no cors-credentials dance.
 // the i/o lives here; the shared session signal that guard + interceptor read is in
-// core/stores/auth.store.ts.
+// core/auth/auth.store.ts.
 export const authClient = createAuthClient({ basePath: '/api/auth' });

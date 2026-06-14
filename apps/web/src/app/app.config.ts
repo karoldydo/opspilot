@@ -2,9 +2,8 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { appRoutes } from '@app/app.routes';
+import { AuthStore } from '@app/core/auth/auth.store';
 import { authInterceptor } from '@app/core/interceptors/auth.interceptor';
-
-import { AuthStore } from './core/stores/auth.store';
 
 export const appConfig: ApplicationConfig = {
   providers: [

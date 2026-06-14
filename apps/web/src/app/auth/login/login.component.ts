@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthStore } from '@app/core/auth/auth.store';
 import { authLoginRequestSchema } from '@opspilot/shared';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 
-import { AuthStore } from '../../core/stores/auth.store';
 import { schemaValidator } from '../../core/validators/schema.validator';
 
 @Component({

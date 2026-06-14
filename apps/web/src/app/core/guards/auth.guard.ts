@@ -1,7 +1,6 @@
 import { inject } from '@angular/core';
 import { type CanActivateFn, Router } from '@angular/router';
-
-import { AuthStore } from '../stores/auth.store';
+import { AuthStore } from '@app/core/auth/auth.store';
 
 // redirects unauthenticated navigation to /login. reads the shared session state
 // synchronously — the app initializer hydrates it before the first navigation runs.

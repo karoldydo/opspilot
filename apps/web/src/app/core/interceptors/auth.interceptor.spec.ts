@@ -7,9 +7,9 @@ import {
 } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { AuthStore } from '@app/core/auth/auth.store';
 import { type Observable, of, throwError } from 'rxjs';
 
-import { AuthStore } from '../stores/auth.store';
 import { authInterceptor } from './auth.interceptor';
 
 function runInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
