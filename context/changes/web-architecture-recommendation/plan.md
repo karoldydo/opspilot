@@ -799,13 +799,13 @@ None. Lazy `loadComponent` boundaries are unchanged; tree-shaking is unaffected 
 
 #### Automated
 
-- [x] 10.1 Full lint: `npm run lint`
-- [x] 10.2 Full test: `npm run test`
-- [x] 10.3 Full build: `npm run build`
-- [x] 10.4 Format clean: `npm run format:check`
-- [x] 10.5 No relative god-folder paths remain in `apps/web/src`
+- [x] 10.1 Full lint: `npm run lint` — 6603272
+- [x] 10.2 Full test: `npm run test` — 6603272
+- [x] 10.3 Full build: `npm run build` — 6603272
+- [x] 10.4 Format clean: `npm run format:check` — 6603272
+- [x] 10.5 No relative god-folder paths remain in `apps/web/src` — 6603272
 
 #### Manual
 
-- [x] 10.6 `npx nx graph` reviewed — no new cross-project edges
-- [x] 10.7 Full smoke test across every route passes
+- [x] 10.6 `npx nx graph` reviewed — no new cross-project edges — 6603272
+- [x] 10.7 Full smoke test across every route passes — 6603272
