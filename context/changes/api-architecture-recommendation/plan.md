@@ -34,11 +34,12 @@ The current `apps/api/src/` (verified 2026-06-14, matches seed `.ai/api-architec
   `extends` → `tsconfig.base.json`. The webpack build uses `NxAppWebpackPlugin` with `compiler: 'tsc'`
   + `tsConfig: './tsconfig.app.json'`, which inherits base paths. The monorepo already resolves
   `@app/*` the same way for web — mechanism is proven.
-- **ESLint needs NO change.** `@nx/enforce-module-boundaries` polices only the `api ↔ web ↔ shared`
-  scope line via `depConstraints`; `scope:api` may depend on `scope:api`+`scope:shared`. `@api/*` is
-  intra-`scope:api`, so it needs **no** `allow`-list entry (unlike web's `^@app/`, which was added
-  only because that rule's `allow` list is the gate the web alias tripped — the api alias does not
-  trip it). The `depConstraints` block is untouched.
+- **ESLint allow-list needs one entry.** `@nx/enforce-module-boundaries` polices the
+  `api ↔ web ↔ shared` scope line via `depConstraints` (untouched here), but it ALSO gates intra-scope
+  self-aliases through its `allow` list. The `@api/*` self-alias DOES trip that gate — exactly like
+  web's `^@app/` did — so `'^@api/'` must be added to the `allow` array alongside `'^@app/'`. (The
+  pre-implementation grep claim that the api alias "does not trip it" was wrong; the implementation
+  added the entry in P1. `depConstraints` itself stays untouched.)
 - **`.gitignore` is safe.** `/data/` is root-anchored (`/data/`, not `data/`); no pattern shadows a
   folder named `modules`/`core`/`common`/`integrations`/`data` under `src/`.
 - **`webpack.config.js` and `project.json` need NO change.** `main: './src/main.ts'` and
@@ -116,9 +117,10 @@ emitted).
 - **No contract changes** — `@opspilot/shared` remains the single source of truth; `@api/*` is an
   intra-app alias, independent of `@opspilot/shared`.
 - **No `apps/web` or `libs/shared` changes** — this is `apps/api` only.
-- **No eslint / webpack / project.json / .gitignore changes** — verified unnecessary (see Current
-  State). Only `tsconfig.base.json` (one `paths` entry), `drizzle.config.ts`, and
-  `better-auth.config.ts` change outside `apps/api/src`.
+- **No webpack / project.json / .gitignore changes** — verified unnecessary (see Current State).
+  Outside `apps/api/src` only four files change: `tsconfig.base.json` (one `paths` entry),
+  `eslint.config.mjs` (one `'^@api/'` allow-list entry, mirroring `'^@app/'`), `drizzle.config.ts`,
+  and `better-auth.config.ts`.
 - **No multi-alias scheme** (`@core`/`@modules`/…) — one `@api/*` only.
 - **`config/` is NOT moved** — already cohesive; stays top-level (seed §4).
 
@@ -176,7 +178,17 @@ folder moves.
 "@api/*": ["./apps/api/src/*"]
 ```
 
-#### 3. Normalize all relative imports to `@api/*`
+#### 3. Allow the `@api/*` self-alias in the boundary rule
+
+**File**: `eslint.config.mjs`
+
+**Intent**: The `@nx/enforce-module-boundaries` `allow` list gates intra-scope self-aliases; `@api/*`
+trips it just as web's `@app/*` did. Add `'^@api/'` so api's internal imports pass lint.
+
+**Contract**: `allow` array contains `'^@api/'` alongside the existing `'^@app/'`; `depConstraints`
+unchanged.
+
+#### 4. Normalize all relative imports to `@api/*`
 
 **Files**: every `.ts` in `apps/api/src` that imports another `apps/api/src` file via `./` or `../`
 (the importer sets across all folders — `database` 31, `config` 27, `audit` 26, `common` 18, etc.).
