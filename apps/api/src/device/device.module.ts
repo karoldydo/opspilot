@@ -1,8 +1,8 @@
+import { AuditModule } from '@api/audit/audit.module';
+import { CredentialModule } from '@api/credential/credential.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 
-import { AuditModule } from '../audit/audit.module';
-import { CredentialModule } from '../credential/credential.module';
 import { DeviceCredentialController } from './credential/device-credential.controller';
 import { DeviceController } from './device.controller';
 import { DeviceService } from './device.service';

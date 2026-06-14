@@ -1,3 +1,13 @@
+import { AllExceptionsFilter } from '@api/common/all-exceptions.filter';
+import { ConfigModule } from '@api/config/config.module';
+import { cryptoConfig } from '@api/config/crypto.config';
+import { databaseConfig } from '@api/config/database.config';
+import { DatabaseModule } from '@api/database/database.module';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { device } from '@api/database/schema';
+import { user } from '@api/database/schema/auth.schema';
+import { ExecResult } from '@api/executor/executor.interface';
+import { EXECUTOR } from '@api/executor/executor.token';
 import { INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -6,16 +16,6 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import request from 'supertest';
 
-import { AllExceptionsFilter } from '../common/all-exceptions.filter';
-import { ConfigModule } from '../config/config.module';
-import { cryptoConfig } from '../config/crypto.config';
-import { databaseConfig } from '../config/database.config';
-import { DatabaseModule } from '../database/database.module';
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
-import { device } from '../database/schema';
-import { user } from '../database/schema/auth.schema';
-import { ExecResult } from '../executor/executor.interface';
-import { EXECUTOR } from '../executor/executor.token';
 import { ServiceModule } from './service.module';
 
 // e2e against a live temp db with a faked executor. the global AuthAppGuard is not

@@ -1,11 +1,10 @@
+import { AuditService } from '@api/audit/audit.service';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { skill } from '@api/database/schema/skill.schema';
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Skill, SkillCreateRequest, skillCreateRequestSchema, skillSchema, SkillUpdateRequest } from '@opspilot/shared';
 import { and, eq, isNull, or, SQL } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
-
-import { AuditService } from '../audit/audit.service';
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
-import { skill } from '../database/schema/skill.schema';
 
 type SkillRow = typeof skill.$inferSelect;
 // the query runner inside db.transaction(...) — same query api as the connection;

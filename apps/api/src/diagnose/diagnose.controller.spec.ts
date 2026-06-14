@@ -1,3 +1,18 @@
+import { AllExceptionsFilter } from '@api/common/all-exceptions.filter';
+import { ConfigModule } from '@api/config/config.module';
+import { cryptoConfig } from '@api/config/crypto.config';
+import { databaseConfig } from '@api/config/database.config';
+import { DatabaseModule } from '@api/database/database.module';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { device } from '@api/database/schema';
+import { auditLog } from '@api/database/schema/audit-log.schema';
+import { user } from '@api/database/schema/auth.schema';
+import { runRecord } from '@api/database/schema/run-record.schema';
+import { DeviceService } from '@api/device/device.service';
+import { ExecResult } from '@api/executor/executor.interface';
+import { EXECUTOR } from '@api/executor/executor.token';
+import { LlmProviderService } from '@api/llm-provider/llm-provider.service';
+import { ServiceService } from '@api/service/service.service';
 import { INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -9,21 +24,6 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import request from 'supertest';
 
-import { AllExceptionsFilter } from '../common/all-exceptions.filter';
-import { ConfigModule } from '../config/config.module';
-import { cryptoConfig } from '../config/crypto.config';
-import { databaseConfig } from '../config/database.config';
-import { DatabaseModule } from '../database/database.module';
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
-import { device } from '../database/schema';
-import { auditLog } from '../database/schema/audit-log.schema';
-import { user } from '../database/schema/auth.schema';
-import { runRecord } from '../database/schema/run-record.schema';
-import { DeviceService } from '../device/device.service';
-import { ExecResult } from '../executor/executor.interface';
-import { EXECUTOR } from '../executor/executor.token';
-import { LlmProviderService } from '../llm-provider/llm-provider.service';
-import { ServiceService } from '../service/service.service';
 import { DiagnoseModule } from './diagnose.module';
 
 // stub streamObject but keep the real NoObjectGeneratedError so the error mapper's

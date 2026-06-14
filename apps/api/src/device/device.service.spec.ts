@@ -1,17 +1,17 @@
+import { AuditModule } from '@api/audit/audit.module';
+import { AuditService } from '@api/audit/audit.service';
+import { ConfigModule } from '@api/config/config.module';
+import { databaseConfig } from '@api/config/database.config';
+import { DatabaseModule } from '@api/database/database.module';
+import { MigrationService } from '@api/database/migration/migration.service';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { user } from '@api/database/schema/auth.schema';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 
-import { AuditModule } from '../audit/audit.module';
-import { AuditService } from '../audit/audit.service';
-import { ConfigModule } from '../config/config.module';
-import { databaseConfig } from '../config/database.config';
-import { DatabaseModule } from '../database/database.module';
-import { MigrationService } from '../database/migration/migration.service';
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
-import { user } from '../database/schema/auth.schema';
 import { DeviceService } from './device.service';
 
 describe('DeviceService', () => {

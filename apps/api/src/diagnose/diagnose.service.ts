@@ -1,17 +1,17 @@
+import { AuditService } from '@api/audit/audit.service';
+import { llmConfig, LlmConfig } from '@api/config/llm.config';
+import { DeviceService } from '@api/device/device.service';
+import { ExecResult, IExecutor } from '@api/executor/executor.interface';
+import { EXECUTOR } from '@api/executor/executor.token';
+import { LlmProviderClientFactory } from '@api/llm-provider/llm-provider.client-factory';
+import { LlmProviderService } from '@api/llm-provider/llm-provider.service';
+import { DockerDaemonDownError, DockerNotFoundError } from '@api/service/service.errors';
+import { ServiceService } from '@api/service/service.service';
 import { Inject, Injectable, MessageEvent, ServiceUnavailableException } from '@nestjs/common';
 import { containerNameSchema, diagnosisSynthesisSchema } from '@opspilot/shared';
 import { streamObject } from 'ai';
 import { Observable } from 'rxjs';
 
-import { AuditService } from '../audit/audit.service';
-import { llmConfig, LlmConfig } from '../config/llm.config';
-import { DeviceService } from '../device/device.service';
-import { ExecResult, IExecutor } from '../executor/executor.interface';
-import { EXECUTOR } from '../executor/executor.token';
-import { LlmProviderClientFactory } from '../llm-provider/llm-provider.client-factory';
-import { LlmProviderService } from '../llm-provider/llm-provider.service';
-import { DockerDaemonDownError, DockerNotFoundError } from '../service/service.errors';
-import { ServiceService } from '../service/service.service';
 import { diagnoseErrorToStreamEvent, DiagnosisLogsTimeoutError } from './diagnose.errors';
 import { RunRecordService } from './run-record.service';
 

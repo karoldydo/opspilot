@@ -1,7 +1,7 @@
+import { AuditModule } from '@api/audit/audit.module';
+import { CryptoModule } from '@api/crypto/crypto.module';
 import { Module } from '@nestjs/common';
 
-import { AuditModule } from '../audit/audit.module';
-import { CryptoModule } from '../crypto/crypto.module';
 import { CredentialService } from './credential.service';
 
 @Module({

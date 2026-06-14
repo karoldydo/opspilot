@@ -10,6 +10,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {
+      "@api/*": ["./apps/api/src/*"],
       "@app/*": ["./apps/web/src/app/*"],
       "@opspilot/shared": ["./libs/shared/src/index.ts"],
       "@spartan-ng/helm": ["./libs/ui/src/index.ts"],

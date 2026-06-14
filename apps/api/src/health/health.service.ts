@@ -1,7 +1,6 @@
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { HealthResponse } from '@opspilot/shared';
-
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 
 @Injectable()
 export class HealthService {

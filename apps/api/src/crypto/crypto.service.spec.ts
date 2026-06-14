@@ -1,7 +1,7 @@
+import { ConfigModule } from '@api/config/config.module';
+import { cryptoConfig } from '@api/config/crypto.config';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { ConfigModule } from '../config/config.module';
-import { cryptoConfig } from '../config/crypto.config';
 import { CryptoModule } from './crypto.module';
 import { CryptoService } from './crypto.service';
 

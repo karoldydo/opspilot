@@ -1,8 +1,8 @@
+import { CurrentUserId } from '@api/common/current-user-id.decorator';
+import { ZodValidationPipe } from '@api/common/zod-validation.pipe';
 import { Body, Controller, Inject, Param, Post } from '@nestjs/common';
 import { SkillRunRequest, skillRunRequestSchema, SkillRunResult } from '@opspilot/shared';
 
-import { CurrentUserId } from '../common/current-user-id.decorator';
-import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { SkillRunService } from './skill-run.service';
 
 // thin http boundary nested under the device's service, mirroring the retired

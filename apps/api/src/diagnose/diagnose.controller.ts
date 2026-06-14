@@ -1,8 +1,8 @@
+import { CurrentUserId } from '@api/common/current-user-id.decorator';
 import { Controller, Get, Inject, MessageEvent, Param, Query, Sse } from '@nestjs/common';
 import { RunRecord } from '@opspilot/shared';
 import { Observable } from 'rxjs';
 
-import { CurrentUserId } from '../common/current-user-id.decorator';
 import { DiagnoseService } from './diagnose.service';
 
 // hard ceiling on the replay list page size, mirroring the credential list's

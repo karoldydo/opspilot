@@ -1,11 +1,10 @@
+import { llmConfig, LlmConfig } from '@api/config/llm.config';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { runRecord } from '@api/database/schema/run-record.schema';
 import { Inject, Injectable } from '@nestjs/common';
 import { DiagnosisSynthesis, RunRecord, runRecordSchema } from '@opspilot/shared';
 import { and, desc, eq, notInArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
-
-import { llmConfig, LlmConfig } from '../config/llm.config';
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
-import { runRecord } from '../database/schema/run-record.schema';
 
 // the input the diagnose stream hands over once the synthesis is final. userId is
 // the authenticated session user persisted on the run (s-09); the column is

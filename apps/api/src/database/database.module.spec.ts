@@ -1,10 +1,10 @@
+import { ConfigModule } from '@api/config/config.module';
+import { databaseConfig } from '@api/config/database.config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { ConfigModule } from '../config/config.module';
-import { databaseConfig } from '../config/database.config';
 import { DatabaseModule } from './database.module';
 import { DATABASE_CONNECTION, DatabaseConnection } from './providers/database-connection.provider';
 

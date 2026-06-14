@@ -1,3 +1,7 @@
+import { ConfigModule } from '@api/config/config.module';
+import { databaseConfig } from '@api/config/database.config';
+import { DatabaseModule } from '@api/database/database.module';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { healthResponseSchema } from '@opspilot/shared';
@@ -6,10 +10,6 @@ import { existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { ConfigModule } from '../config/config.module';
-import { databaseConfig } from '../config/database.config';
-import { DatabaseModule } from '../database/database.module';
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
 import { HealthController } from './health.controller';
 import { HealthModule } from './health.module';
 

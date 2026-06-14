@@ -1,8 +1,8 @@
+import { AuditModule } from '@api/audit/audit.module';
+import { CryptoModule } from '@api/crypto/crypto.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 
-import { AuditModule } from '../audit/audit.module';
-import { CryptoModule } from '../crypto/crypto.module';
 import { LlmProviderClientFactory } from './llm-provider.client-factory';
 import { LlmProviderController } from './llm-provider.controller';
 import { LlmProviderProbe } from './llm-provider.probe';

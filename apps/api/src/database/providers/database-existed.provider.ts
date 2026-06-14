@@ -1,7 +1,6 @@
+import { databaseConfig, DatabaseConfig } from '@api/config/database.config';
 import { Provider } from '@nestjs/common';
 import { existsSync } from 'node:fs';
-
-import { databaseConfig, DatabaseConfig } from '../../config/database.config';
 
 export const DATABASE_EXISTED = 'DATABASE_EXISTED';
 

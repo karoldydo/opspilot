@@ -1,8 +1,8 @@
+import { AuditModule } from '@api/audit/audit.module';
+import { ExecutorModule } from '@api/executor/executor.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 
-import { AuditModule } from '../audit/audit.module';
-import { ExecutorModule } from '../executor/executor.module';
 import { ServiceController } from './service.controller';
 import { ServiceService } from './service.service';
 

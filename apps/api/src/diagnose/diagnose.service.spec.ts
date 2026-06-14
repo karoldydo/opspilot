@@ -1,15 +1,15 @@
+import { AuditService } from '@api/audit/audit.service';
+import { LlmConfig } from '@api/config/llm.config';
+import { DeviceService } from '@api/device/device.service';
+import { ExecResult } from '@api/executor/executor.interface';
+import { LlmProviderClientFactory } from '@api/llm-provider/llm-provider.client-factory';
+import { LlmProviderService } from '@api/llm-provider/llm-provider.service';
+import { ServiceService } from '@api/service/service.service';
 import { MessageEvent } from '@nestjs/common';
 import { Device, DiagnosisSynthesis, RunRecord, Service } from '@opspilot/shared';
 import { NoObjectGeneratedError, streamObject } from 'ai';
 import { Observable } from 'rxjs';
 
-import { AuditService } from '../audit/audit.service';
-import { LlmConfig } from '../config/llm.config';
-import { DeviceService } from '../device/device.service';
-import { ExecResult } from '../executor/executor.interface';
-import { LlmProviderClientFactory } from '../llm-provider/llm-provider.client-factory';
-import { LlmProviderService } from '../llm-provider/llm-provider.service';
-import { ServiceService } from '../service/service.service';
 import { DiagnoseService } from './diagnose.service';
 import { RunRecordService } from './run-record.service';
 

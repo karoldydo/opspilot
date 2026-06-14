@@ -1,11 +1,10 @@
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { auditLog } from '@api/database/schema/audit-log.schema';
+import { runRecord } from '@api/database/schema/run-record.schema';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AuditAction, AuditEvent, auditEventSchema, AuditListQuery } from '@opspilot/shared';
 import { and, desc, eq, gte, lte } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
-
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
-import { auditLog } from '../database/schema/audit-log.schema';
-import { runRecord } from '../database/schema/run-record.schema';
 
 // the joined row shape the list query projects (audit_log columns + the linked
 // run's synthesis text, null when the row has no run).

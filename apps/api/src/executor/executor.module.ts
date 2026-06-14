@@ -1,7 +1,7 @@
+import { CredentialModule } from '@api/credential/credential.module';
+import { DeviceModule } from '@api/device/device.module';
 import { Module } from '@nestjs/common';
 
-import { CredentialModule } from '../credential/credential.module';
-import { DeviceModule } from '../device/device.module';
 import { EXECUTOR } from './executor.token';
 import { sshClientFactoryProvider } from './ssh-client.factory';
 import { SshExecutor } from './ssh.executor';

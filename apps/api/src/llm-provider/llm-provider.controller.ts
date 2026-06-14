@@ -1,3 +1,5 @@
+import { CurrentUserId } from '@api/common/current-user-id.decorator';
+import { ZodValidationPipe } from '@api/common/zod-validation.pipe';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject, Param, Patch, Post } from '@nestjs/common';
 import {
   LlmProvider,
@@ -7,8 +9,6 @@ import {
   llmProviderUpdateRequestSchema,
 } from '@opspilot/shared';
 
-import { CurrentUserId } from '../common/current-user-id.decorator';
-import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { LlmProviderService } from './llm-provider.service';
 
 @Controller('llm-providers')

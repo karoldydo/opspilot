@@ -1,9 +1,9 @@
+import { IS_PUBLIC_KEY } from '@api/common/public.decorator';
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { fromNodeHeaders } from 'better-auth/node';
 import { Request } from 'express';
 
-import { IS_PUBLIC_KEY } from '../common/public.decorator';
 import { AUTH_INSTANCE, AuthInstance } from './providers/auth.provider';
 
 export interface AuthenticatedRequest extends Request {

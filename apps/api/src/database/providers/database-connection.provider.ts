@@ -1,11 +1,11 @@
+import { databaseConfig, DatabaseConfig } from '@api/config/database.config';
+import * as schema from '@api/database/schema';
 import { Provider } from '@nestjs/common';
 import Database from 'better-sqlite3';
 import { BetterSQLite3Database, drizzle } from 'drizzle-orm/better-sqlite3';
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 
-import { databaseConfig, DatabaseConfig } from '../../config/database.config';
-import * as schema from '../schema';
 import { DATABASE_EXISTED } from './database-existed.provider';
 
 export const DATABASE_CONNECTION = 'DATABASE_CONNECTION';

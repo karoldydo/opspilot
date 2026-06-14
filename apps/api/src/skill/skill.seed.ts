@@ -1,10 +1,9 @@
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { skill } from '@api/database/schema/skill.schema';
 import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { SkillParameter } from '@opspilot/shared';
 import { isNull } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
-
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
-import { skill } from '../database/schema/skill.schema';
 
 // a service-bound parameter is read server-side from the resolved service row at run
 // time and never trusted from the client — the lifecycle ops use these exclusively,

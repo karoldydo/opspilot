@@ -1,6 +1,6 @@
+import { llmConfig, LlmConfig } from '@api/config/llm.config';
 import { Inject, Injectable } from '@nestjs/common';
 
-import { llmConfig, LlmConfig } from '../config/llm.config';
 import { LlmProviderAuthError, LlmProviderTimeoutError, LlmProviderUnreachableError } from './llm-provider.errors';
 
 @Injectable()

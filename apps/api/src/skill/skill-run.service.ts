@@ -1,3 +1,9 @@
+import { AuditService } from '@api/audit/audit.service';
+import { skillConfig, SkillConfig } from '@api/config/skill.config';
+import { IExecutor } from '@api/executor/executor.interface';
+import { EXECUTOR } from '@api/executor/executor.token';
+import { DockerDaemonDownError, DockerNotFoundError } from '@api/service/service.errors';
+import { ServiceService } from '@api/service/service.service';
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   Service,
@@ -9,12 +15,6 @@ import {
   skillRunResultSchema,
 } from '@opspilot/shared';
 
-import { AuditService } from '../audit/audit.service';
-import { skillConfig, SkillConfig } from '../config/skill.config';
-import { IExecutor } from '../executor/executor.interface';
-import { EXECUTOR } from '../executor/executor.token';
-import { DockerDaemonDownError, DockerNotFoundError } from '../service/service.errors';
-import { ServiceService } from '../service/service.service';
 import { SkillService } from './skill.service';
 
 // the synology PATH prefix that resolves docker on a host whose non-interactive ssh

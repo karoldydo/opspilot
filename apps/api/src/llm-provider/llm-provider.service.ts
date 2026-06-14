@@ -1,12 +1,12 @@
+import { AuditService } from '@api/audit/audit.service';
+import { CryptoService } from '@api/crypto/crypto.service';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { llmProvider } from '@api/database/schema/llm-provider.schema';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { LlmProvider, LlmProviderCreateRequest, llmProviderSchema, LlmProviderUpdateRequest } from '@opspilot/shared';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
-import { AuditService } from '../audit/audit.service';
-import { CryptoService } from '../crypto/crypto.service';
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
-import { llmProvider } from '../database/schema/llm-provider.schema';
 import { LlmProviderKeyDecryptError, LlmProviderNoActiveError } from './llm-provider.errors';
 import { LlmProviderProbe } from './llm-provider.probe';
 

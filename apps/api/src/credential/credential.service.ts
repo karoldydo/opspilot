@@ -1,12 +1,11 @@
+import { AuditService } from '@api/audit/audit.service';
+import { CryptoService } from '@api/crypto/crypto.service';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { credential } from '@api/database/schema/device.schema';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Credential, CredentialCreateRequest, credentialSchema } from '@opspilot/shared';
 import { and, eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
-
-import { AuditService } from '../audit/audit.service';
-import { CryptoService } from '../crypto/crypto.service';
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
-import { credential } from '../database/schema/device.schema';
 
 type CredentialRow = typeof credential.$inferSelect;
 

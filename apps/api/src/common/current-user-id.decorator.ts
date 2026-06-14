@@ -1,6 +1,5 @@
+import { AuthenticatedRequest } from '@api/auth/auth.guard';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-
-import { AuthenticatedRequest } from '../auth/auth.guard';
 
 // ergonomic accessor for the guard-attached session user id. the global
 // AuthAppGuard validates every non-public route and attaches request.session

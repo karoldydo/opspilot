@@ -1,7 +1,7 @@
+import { ZodValidationPipe } from '@api/common/zod-validation.pipe';
 import { Controller, Get, Inject, Query } from '@nestjs/common';
 import { AuditEvent, AuditListQuery, auditListQuerySchema } from '@opspilot/shared';
 
-import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { AuditService } from './audit.service';
 
 // the read side of the audit log: one merged chronological timeline. thin

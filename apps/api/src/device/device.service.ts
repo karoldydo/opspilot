@@ -1,11 +1,10 @@
+import { AuditService } from '@api/audit/audit.service';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { device } from '@api/database/schema/device.schema';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Device, DeviceCreateRequest, deviceSchema, DeviceUpdateRequest } from '@opspilot/shared';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
-
-import { AuditService } from '../audit/audit.service';
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
-import { device } from '../database/schema/device.schema';
 
 type DeviceRow = typeof device.$inferSelect;
 

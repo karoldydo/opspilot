@@ -1,9 +1,9 @@
+import { SshConfig } from '@api/config/ssh.config';
+import { CredentialService } from '@api/credential/credential.service';
+import { DeviceService } from '@api/device/device.service';
 import { Credential } from '@opspilot/shared';
 import { NodeSSH } from 'node-ssh';
 
-import { SshConfig } from '../config/ssh.config';
-import { CredentialService } from '../credential/credential.service';
-import { DeviceService } from '../device/device.service';
 import { CredentialDecryptError, SshAuthError, SshCommandTimeoutError, SshConnectError } from './executor.errors';
 import { SshExecutor } from './ssh.executor';
 

@@ -1,11 +1,11 @@
+import { AuditModule } from '@api/audit/audit.module';
+import { DeviceModule } from '@api/device/device.module';
+import { ExecutorModule } from '@api/executor/executor.module';
+import { LlmProviderModule } from '@api/llm-provider/llm-provider.module';
+import { ServiceModule } from '@api/service/service.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 
-import { AuditModule } from '../audit/audit.module';
-import { DeviceModule } from '../device/device.module';
-import { ExecutorModule } from '../executor/executor.module';
-import { LlmProviderModule } from '../llm-provider/llm-provider.module';
-import { ServiceModule } from '../service/service.module';
 import { DiagnoseController } from './diagnose.controller';
 import { DiagnoseService } from './diagnose.service';
 import { RunRecordService } from './run-record.service';

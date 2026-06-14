@@ -1,3 +1,5 @@
+import { CurrentUserId } from '@api/common/current-user-id.decorator';
+import { ZodValidationPipe } from '@api/common/zod-validation.pipe';
 import {
   BadRequestException,
   Body,
@@ -20,8 +22,6 @@ import {
   serviceUpdateRequestSchema,
 } from '@opspilot/shared';
 
-import { CurrentUserId } from '../common/current-user-id.decorator';
-import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { ServiceService } from './service.service';
 
 // thin http boundary nested under the device. the scan route is a sibling of the

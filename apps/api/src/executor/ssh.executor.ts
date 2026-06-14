@@ -1,11 +1,11 @@
+import { sshConfig, SshConfig } from '@api/config/ssh.config';
+import { CredentialService } from '@api/credential/credential.service';
+import { DeviceService } from '@api/device/device.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { Credential } from '@opspilot/shared';
 import { Mutex } from 'async-mutex';
 import { Config } from 'node-ssh';
 
-import { sshConfig, SshConfig } from '../config/ssh.config';
-import { CredentialService } from '../credential/credential.service';
-import { DeviceService } from '../device/device.service';
 import { CredentialDecryptError, SshAuthError, SshCommandTimeoutError, SshConnectError } from './executor.errors';
 import { ExecResult, IExecutor } from './executor.interface';
 import { SSH_CLIENT_FACTORY, SshClientFactory } from './ssh-client.factory';

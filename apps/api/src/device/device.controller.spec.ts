@@ -1,3 +1,12 @@
+import { AllExceptionsFilter } from '@api/common/all-exceptions.filter';
+import { ConfigModule } from '@api/config/config.module';
+import { cryptoConfig } from '@api/config/crypto.config';
+import { databaseConfig } from '@api/config/database.config';
+import { deviceConfig } from '@api/config/device.config';
+import { DatabaseModule } from '@api/database/database.module';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { auditLog } from '@api/database/schema/audit-log.schema';
+import { user } from '@api/database/schema/auth.schema';
 import { INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -7,15 +16,6 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import request from 'supertest';
 
-import { AllExceptionsFilter } from '../common/all-exceptions.filter';
-import { ConfigModule } from '../config/config.module';
-import { cryptoConfig } from '../config/crypto.config';
-import { databaseConfig } from '../config/database.config';
-import { deviceConfig } from '../config/device.config';
-import { DatabaseModule } from '../database/database.module';
-import { DATABASE_CONNECTION, DatabaseConnection } from '../database/providers/database-connection.provider';
-import { auditLog } from '../database/schema/audit-log.schema';
-import { user } from '../database/schema/auth.schema';
 import { DeviceModule } from './device.module';
 
 // e2e against a live temp db. the global AuthAppGuard is not wired here (only

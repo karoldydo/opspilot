@@ -1,9 +1,9 @@
+import { AuditModule } from '@api/audit/audit.module';
+import { ExecutorModule } from '@api/executor/executor.module';
+import { ServiceModule } from '@api/service/service.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 
-import { AuditModule } from '../audit/audit.module';
-import { ExecutorModule } from '../executor/executor.module';
-import { ServiceModule } from '../service/service.module';
 import { SkillRunController } from './skill-run.controller';
 import { SkillRunService } from './skill-run.service';
 import { SkillController } from './skill.controller';

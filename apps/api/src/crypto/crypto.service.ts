@@ -1,7 +1,7 @@
+import { cryptoConfig, CryptoConfig } from '@api/config/crypto.config';
 import { Inject, Injectable } from '@nestjs/common';
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 
-import { cryptoConfig, CryptoConfig } from '../config/crypto.config';
 import { EncryptedPayload } from './encrypted-payload.type';
 
 // aes-256-gcm: 32-byte key, 12-byte iv (gcm standard), 16-byte auth tag.

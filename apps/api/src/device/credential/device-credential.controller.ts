@@ -1,3 +1,7 @@
+import { CurrentUserId } from '@api/common/current-user-id.decorator';
+import { ZodValidationPipe } from '@api/common/zod-validation.pipe';
+import { deviceConfig, DeviceConfig } from '@api/config/device.config';
+import { CredentialService } from '@api/credential/credential.service';
 import {
   BadRequestException,
   Body,
@@ -18,11 +22,6 @@ import {
   CredentialListQuery,
   credentialListQuerySchema,
 } from '@opspilot/shared';
-
-import { CurrentUserId } from '../../common/current-user-id.decorator';
-import { ZodValidationPipe } from '../../common/zod-validation.pipe';
-import { deviceConfig, DeviceConfig } from '../../config/device.config';
-import { CredentialService } from '../../credential/credential.service';
 
 @Controller('devices/:deviceId/credentials')
 export class DeviceCredentialController {

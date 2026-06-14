@@ -1,3 +1,5 @@
+import { CurrentUserId } from '@api/common/current-user-id.decorator';
+import { ZodValidationPipe } from '@api/common/zod-validation.pipe';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject, Param, Patch, Post } from '@nestjs/common';
 import {
   Device,
@@ -7,8 +9,6 @@ import {
   deviceUpdateRequestSchema,
 } from '@opspilot/shared';
 
-import { CurrentUserId } from '../common/current-user-id.decorator';
-import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { DeviceService } from './device.service';
 
 @Controller('devices')

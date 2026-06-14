@@ -1,14 +1,14 @@
+import { ConfigModule } from '@api/config/config.module';
+import { databaseConfig } from '@api/config/database.config';
+import { DatabaseModule } from '@api/database/database.module';
+import { DATABASE_CONNECTION, DatabaseConnection } from '@api/database/providers/database-connection.provider';
+import { MIGRATIONS_FOLDER } from '@api/database/providers/migrations-folder.provider';
 import { Test, TestingModule } from '@nestjs/testing';
 import Database from 'better-sqlite3';
 import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 
-import { ConfigModule } from '../../config/config.module';
-import { databaseConfig } from '../../config/database.config';
-import { DatabaseModule } from '../database.module';
-import { DATABASE_CONNECTION, DatabaseConnection } from '../providers/database-connection.provider';
-import { MIGRATIONS_FOLDER } from '../providers/migrations-folder.provider';
 import { MigrationService } from './migration.service';
 
 describe('MigrationService', () => {

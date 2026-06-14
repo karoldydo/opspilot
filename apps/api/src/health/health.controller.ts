@@ -1,8 +1,8 @@
+import { Public } from '@api/common/public.decorator';
 import { Controller, Get, HttpStatus, Inject, Res } from '@nestjs/common';
 import { HealthResponse } from '@opspilot/shared';
 import { Response } from 'express';
 
-import { Public } from '../common/public.decorator';
 import { HealthService } from './health.service';
 
 @Public()

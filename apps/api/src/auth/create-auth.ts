@@ -1,7 +1,6 @@
+import { DatabaseConnection } from '@api/database/providers/database-connection.provider';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-
-import { DatabaseConnection } from '../database/providers/database-connection.provider';
 
 export interface CreateAuthOptions {
   db: DatabaseConnection;
