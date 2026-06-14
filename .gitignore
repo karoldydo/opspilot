@@ -12,7 +12,8 @@ out-tsc
 !.env.example
 
 # local sqlite data + wal/shm sidecars + migration backups
-data/
+# anchored to repo root so it does not shadow source feature-slice data/ folders
+/data/
 *.db
 *.db-wal
 *.db-shm

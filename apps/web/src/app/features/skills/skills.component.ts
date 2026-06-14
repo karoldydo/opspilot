@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { type Device, type Skill } from '@opspilot/shared';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmBadge } from '@spartan-ng/helm/badge';
@@ -8,7 +9,6 @@ import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 
-import { DevicesClient } from '../../core/clients/devices.client';
 import { SkillsClient } from '../../core/clients/skills.client';
 import { SkillsStore } from '../../core/stores/skills.store';
 import { SkillFormDialog, type SkillFormDialogContext } from './skill-form.dialog';

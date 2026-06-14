@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
+import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { patchState, signalState } from '@ngrx/signals';
 import {
   apiErrorSchema,
@@ -8,8 +9,6 @@ import {
   type DeviceCreateRequest,
   type DeviceUpdateRequest,
 } from '@opspilot/shared';
-
-import { DevicesClient } from '../clients/devices.client';
 
 // credential fields captured in the device form — deviceId is supplied by the
 // store once the device id is known, so the caller never passes it.

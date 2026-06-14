@@ -708,27 +708,27 @@ None. Lazy `loadComponent` boundaries are unchanged; tree-shaking is unaffected 
 
 #### Automated
 
-- [x] 3.1 Web lints: `npx nx lint web`
-- [x] 3.2 Web unit tests pass: `npx nx test web`
-- [x] 3.3 Web builds: `npx nx build web`
-- [x] 3.4 No stale references: `grep -rn "core/validators" apps/web/src` empty
+- [x] 3.1 Web lints: `npx nx lint web` — 6265b34
+- [x] 3.2 Web unit tests pass: `npx nx test web` — 6265b34
+- [x] 3.3 Web builds: `npx nx build web` — 6265b34
+- [x] 3.4 No stale references: `grep -rn "core/validators" apps/web/src` empty — 6265b34
 
 #### Manual
 
-- [x] 3.5 A validated form still shows validation errors correctly
+- [x] 3.5 A validated form still shows validation errors correctly — 6265b34
 
 ### Phase 4: Domain — `devices`
 
 #### Automated
 
-- [ ] 4.1 Web lints: `npx nx lint web`
-- [ ] 4.2 Web unit tests pass: `npx nx test web`
-- [ ] 4.3 Web builds: `npx nx build web`
-- [ ] 4.4 No stale references: `grep -rn "core/.*devices" apps/web/src` empty
+- [x] 4.1 Web lints: `npx nx lint web`
+- [x] 4.2 Web unit tests pass: `npx nx test web`
+- [x] 4.3 Web builds: `npx nx build web`
+- [x] 4.4 No stale references: `grep -rn "core/.*devices" apps/web/src` empty
 
 #### Manual
 
-- [ ] 4.5 `/devices` loads, lists devices, device form dialog opens
+- [x] 4.5 `/devices` loads, lists devices, device form dialog opens
 
 ### Phase 5: Domain — `services` (+ `skill-run`, + `diagnosis`)
 

@@ -1,10 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
+import { type DeviceActionResult } from '@app/features/devices/data/devices.store';
 import { patchState, signalState } from '@ngrx/signals';
 import { apiErrorSchema, type ScannedContainer, type Service } from '@opspilot/shared';
 
 import { ServicesClient } from '../clients/services.client';
-import { type DeviceActionResult } from './devices.store';
 
 interface ServicesState {
   error: null | string;

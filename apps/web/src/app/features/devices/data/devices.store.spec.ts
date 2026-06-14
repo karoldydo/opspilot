@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { type Credential, type Device } from '@opspilot/shared';
 
-import { DevicesClient } from '../clients/devices.client';
 import { DevicesStore } from './devices.store';
 
 const device: Device = {

@@ -1,5 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { DevicesClient } from '@app/features/devices/data/devices.client';
+import { DevicesStore } from '@app/features/devices/data/devices.store';
+import { DeviceFormDialog, type DeviceFormDialogContext } from '@app/features/devices/dialogs/device-form.dialog';
 import { type Device } from '@opspilot/shared';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -7,10 +10,7 @@ import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 
-import { DevicesClient } from '../../core/clients/devices.client';
-import { DevicesStore } from '../../core/stores/devices.store';
 import { DeviceServicesComponent } from '../services/device-services.component';
-import { DeviceFormDialog, type DeviceFormDialogContext } from './device-form.dialog';
 
 // the shared device inventory view: a table of every device with edit/delete row
 // actions, an empty state, and an add button. all data fetching lives in the
