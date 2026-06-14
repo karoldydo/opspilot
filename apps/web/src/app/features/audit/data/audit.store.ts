@@ -1,9 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
+import { AuditClient } from '@app/features/audit/data/audit.client';
 import { patchState, signalState } from '@ngrx/signals';
 import { apiErrorSchema, type AuditEvent, type AuditListQuery } from '@opspilot/shared';
-
-import { AuditClient } from '../clients/audit.client';
 
 interface AuditState {
   error: null | string;

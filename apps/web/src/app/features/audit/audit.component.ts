@@ -1,14 +1,13 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { AuditClient } from '@app/features/audit/data/audit.client';
+import { AuditStore } from '@app/features/audit/data/audit.store';
 import { type DiagnosisSynthesis } from '@opspilot/shared';
 import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmTableImports } from '@spartan-ng/helm/table';
-
-import { AuditClient } from '../../core/clients/audit.client';
-import { AuditStore } from '../../core/stores/audit.store';
 
 // status → badge classes. spartan's hlmBadge has no success/warning variant, so we
 // keep its shape and color via tokens/utilities — mirrors device-services.component.

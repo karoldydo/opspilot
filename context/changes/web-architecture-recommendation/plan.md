@@ -760,27 +760,27 @@ None. Lazy `loadComponent` boundaries are unchanged; tree-shaking is unaffected 
 
 #### Automated
 
-- [x] 7.1 Web lints: `npx nx lint web`
-- [x] 7.2 Web unit tests pass: `npx nx test web`
-- [x] 7.3 Web builds: `npx nx build web`
-- [x] 7.4 No stale references: `grep -rn "core/.*llm-providers" apps/web/src` empty
+- [x] 7.1 Web lints: `npx nx lint web` — 6451b49
+- [x] 7.2 Web unit tests pass: `npx nx test web` — 6451b49
+- [x] 7.3 Web builds: `npx nx build web` — 6451b49
+- [x] 7.4 No stale references: `grep -rn "core/.*llm-providers" apps/web/src` empty — 6451b49
 
 #### Manual
 
-- [x] 7.5 `/llm-providers` loads; provider form dialog opens and saves
+- [x] 7.5 `/llm-providers` loads; provider form dialog opens and saves — 6451b49
 
 ### Phase 8: Domain — `audit`
 
 #### Automated
 
-- [ ] 8.1 Web lints: `npx nx lint web`
-- [ ] 8.2 Web unit tests pass: `npx nx test web`
-- [ ] 8.3 Web builds: `npx nx build web`
-- [ ] 8.4 God-folders gone: `core/clients` and `core/stores` removed
+- [x] 8.1 Web lints: `npx nx lint web`
+- [x] 8.2 Web unit tests pass: `npx nx test web`
+- [x] 8.3 Web builds: `npx nx build web`
+- [x] 8.4 God-folders gone: `core/clients` and `core/stores` removed
 
 #### Manual
 
-- [ ] 8.5 `/audit` loads and shows the history/timeline
+- [x] 8.5 `/audit` loads and shows the history/timeline
 
 ### Phase 9: Route screens (`auth`, `home`) under `features/`
 

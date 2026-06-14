@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { AuditClient } from '@app/features/audit/data/audit.client';
 import { type AuditEvent } from '@opspilot/shared';
 
-import { AuditClient } from '../clients/audit.client';
 import { AuditStore } from './audit.store';
 
 const event: AuditEvent = {
