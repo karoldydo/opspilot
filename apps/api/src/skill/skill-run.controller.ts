@@ -1,5 +1,5 @@
-import { CurrentUserId } from '@api/common/current-user-id.decorator';
-import { ZodValidationPipe } from '@api/common/zod-validation.pipe';
+import { CurrentUserId } from '@api/common/decorators/current-user-id.decorator';
+import { ZodValidationPipe } from '@api/common/pipes/zod-validation.pipe';
 import { Body, Controller, Inject, Param, Post } from '@nestjs/common';
 import { SkillRunRequest, skillRunRequestSchema, SkillRunResult } from '@opspilot/shared';
 

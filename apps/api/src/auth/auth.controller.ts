@@ -1,4 +1,4 @@
-import { Public } from '@api/common/public.decorator';
+import { Public } from '@api/common/decorators/public.decorator';
 import { All, Controller, Inject, Req, Res } from '@nestjs/common';
 import { toNodeHandler } from 'better-auth/node';
 import { Request, Response } from 'express';

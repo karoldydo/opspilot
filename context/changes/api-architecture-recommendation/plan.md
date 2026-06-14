@@ -572,26 +572,26 @@ and import specifiers change.
 
 #### Automated
 
-- [x] 1.1 Api lints: `npx nx lint api`
-- [x] 1.2 Api unit tests pass: `npx nx test api`
-- [x] 1.3 Api builds: `npx nx build api`
+- [x] 1.1 Api lints: `npx nx lint api` — 4e77a0e
+- [x] 1.2 Api unit tests pass: `npx nx test api` — 4e77a0e
+- [x] 1.3 Api builds: `npx nx build api` — 4e77a0e
 
 #### Manual
 
-- [x] 1.4 Alias path string reads as a clear locator
+- [x] 1.4 Alias path string reads as a clear locator — 4e77a0e
 
 ### Phase 2: `common/` regrouping (`filters`/`pipes`/`decorators`)
 
 #### Automated
 
-- [ ] 2.1 Api lints: `npx nx lint api`
-- [ ] 2.2 Api unit tests pass: `npx nx test api`
-- [ ] 2.3 Api builds: `npx nx build api`
-- [ ] 2.4 No stale common paths (every common import includes a subfolder segment)
+- [x] 2.1 Api lints: `npx nx lint api`
+- [x] 2.2 Api unit tests pass: `npx nx test api`
+- [x] 2.3 Api builds: `npx nx build api`
+- [x] 2.4 No stale common paths (every common import includes a subfolder segment)
 
 #### Manual
 
-- [ ] 2.5 A request triggering the Zod pipe + exception filter still validates/serializes
+- [x] 2.5 A request triggering the Zod pipe + exception filter still validates/serializes
 
 ### Phase 3: `core/` bucket (+ CLI config path updates)
 

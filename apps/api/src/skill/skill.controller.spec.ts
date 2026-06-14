@@ -1,4 +1,4 @@
-import { AllExceptionsFilter } from '@api/common/all-exceptions.filter';
+import { AllExceptionsFilter } from '@api/common/filters/all-exceptions.filter';
 import { ConfigModule } from '@api/config/config.module';
 import { databaseConfig } from '@api/config/database.config';
 import { DatabaseModule } from '@api/database/database.module';

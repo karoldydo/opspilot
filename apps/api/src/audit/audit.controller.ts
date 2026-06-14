@@ -1,4 +1,4 @@
-import { ZodValidationPipe } from '@api/common/zod-validation.pipe';
+import { ZodValidationPipe } from '@api/common/pipes/zod-validation.pipe';
 import { Controller, Get, Inject, Query } from '@nestjs/common';
 import { AuditEvent, AuditListQuery, auditListQuerySchema } from '@opspilot/shared';
 

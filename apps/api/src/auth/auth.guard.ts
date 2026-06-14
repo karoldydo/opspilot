@@ -1,4 +1,4 @@
-import { IS_PUBLIC_KEY } from '@api/common/public.decorator';
+import { IS_PUBLIC_KEY } from '@api/common/decorators/public.decorator';
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { fromNodeHeaders } from 'better-auth/node';

@@ -1,7 +1,7 @@
 import { AuditModule } from '@api/audit/audit.module';
 import { AuthAppGuard } from '@api/auth/auth.guard';
 import { AuthModule } from '@api/auth/auth.module';
-import { AllExceptionsFilter } from '@api/common/all-exceptions.filter';
+import { AllExceptionsFilter } from '@api/common/filters/all-exceptions.filter';
 import { ConfigModule } from '@api/config/config.module';
 import { CredentialModule } from '@api/credential/credential.module';
 import { DatabaseModule } from '@api/database/database.module';

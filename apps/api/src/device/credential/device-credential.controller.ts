@@ -1,5 +1,5 @@
-import { CurrentUserId } from '@api/common/current-user-id.decorator';
-import { ZodValidationPipe } from '@api/common/zod-validation.pipe';
+import { CurrentUserId } from '@api/common/decorators/current-user-id.decorator';
+import { ZodValidationPipe } from '@api/common/pipes/zod-validation.pipe';
 import { deviceConfig, DeviceConfig } from '@api/config/device.config';
 import { CredentialService } from '@api/credential/credential.service';
 import {

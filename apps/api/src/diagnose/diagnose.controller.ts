@@ -1,4 +1,4 @@
-import { CurrentUserId } from '@api/common/current-user-id.decorator';
+import { CurrentUserId } from '@api/common/decorators/current-user-id.decorator';
 import { Controller, Get, Inject, MessageEvent, Param, Query, Sse } from '@nestjs/common';
 import { RunRecord } from '@opspilot/shared';
 import { Observable } from 'rxjs';

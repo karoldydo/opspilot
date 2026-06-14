@@ -1,5 +1,5 @@
-import { CurrentUserId } from '@api/common/current-user-id.decorator';
-import { ZodValidationPipe } from '@api/common/zod-validation.pipe';
+import { CurrentUserId } from '@api/common/decorators/current-user-id.decorator';
+import { ZodValidationPipe } from '@api/common/pipes/zod-validation.pipe';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject, Param, Patch, Post } from '@nestjs/common';
 import {
   Device,

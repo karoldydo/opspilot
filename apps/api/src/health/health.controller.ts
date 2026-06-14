@@ -1,4 +1,4 @@
-import { Public } from '@api/common/public.decorator';
+import { Public } from '@api/common/decorators/public.decorator';
 import { Controller, Get, HttpStatus, Inject, Res } from '@nestjs/common';
 import { HealthResponse } from '@opspilot/shared';
 import { Response } from 'express';
