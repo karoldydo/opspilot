@@ -1,5 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import {
+  type LlmProviderActionResult,
+  type LlmProvidersStore,
+} from '@app/features/llm-providers/data/llm-providers.store';
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { type LlmProvider, llmProviderCreateRequestSchema, type LlmProviderUpdateRequest } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
@@ -8,8 +12,6 @@ import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle 
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
-
-import { type LlmProviderActionResult, type LlmProvidersStore } from '../../core/stores/llm-providers.store';
 
 // context the list component passes into the dialog. the store instance rides the
 // context (not DI) because the dialog renders in a cdk overlay outside the route

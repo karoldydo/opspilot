@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { LlmProvidersClient } from '@app/features/llm-providers/data/llm-providers.client';
 import { type LlmProvider } from '@opspilot/shared';
 
-import { LlmProvidersClient } from '../clients/llm-providers.client';
 import { LlmProvidersStore } from './llm-providers.store';
 
 const provider: LlmProvider = {

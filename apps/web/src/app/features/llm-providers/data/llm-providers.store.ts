@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
+import { LlmProvidersClient } from '@app/features/llm-providers/data/llm-providers.client';
 import { patchState, signalState } from '@ngrx/signals';
 import {
   apiErrorSchema,
@@ -7,8 +8,6 @@ import {
   type LlmProviderCreateRequest,
   type LlmProviderUpdateRequest,
 } from '@opspilot/shared';
-
-import { LlmProvidersClient } from '../clients/llm-providers.client';
 
 // normalized result the provider screens render: a user-facing message on failure,
 // null on success — mirrors DeviceActionResult.

@@ -747,27 +747,27 @@ None. Lazy `loadComponent` boundaries are unchanged; tree-shaking is unaffected 
 
 #### Automated
 
-- [x] 6.1 Web lints: `npx nx lint web`
-- [x] 6.2 Web unit tests pass: `npx nx test web`
-- [x] 6.3 Web builds: `npx nx build web`
-- [x] 6.4 No stale references: `grep -rn "core/.*skills" apps/web/src` empty
+- [x] 6.1 Web lints: `npx nx lint web` — 0b5bd16
+- [x] 6.2 Web unit tests pass: `npx nx test web` — 0b5bd16
+- [x] 6.3 Web builds: `npx nx build web` — 0b5bd16
+- [x] 6.4 No stale references: `grep -rn "core/.*skills" apps/web/src` empty — 0b5bd16
 
 #### Manual
 
-- [x] 6.5 `/skills` loads, dialog validates; `service-skills` view still works
+- [x] 6.5 `/skills` loads, dialog validates; `service-skills` view still works — 0b5bd16
 
 ### Phase 7: Domain — `llm-providers`
 
 #### Automated
 
-- [ ] 7.1 Web lints: `npx nx lint web`
-- [ ] 7.2 Web unit tests pass: `npx nx test web`
-- [ ] 7.3 Web builds: `npx nx build web`
-- [ ] 7.4 No stale references: `grep -rn "core/.*llm-providers" apps/web/src` empty
+- [x] 7.1 Web lints: `npx nx lint web`
+- [x] 7.2 Web unit tests pass: `npx nx test web`
+- [x] 7.3 Web builds: `npx nx build web`
+- [x] 7.4 No stale references: `grep -rn "core/.*llm-providers" apps/web/src` empty
 
 #### Manual
 
-- [ ] 7.5 `/llm-providers` loads; provider form dialog opens and saves
+- [x] 7.5 `/llm-providers` loads; provider form dialog opens and saves
 
 ### Phase 8: Domain — `audit`
 

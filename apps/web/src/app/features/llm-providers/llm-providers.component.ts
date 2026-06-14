@@ -1,5 +1,11 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { LlmProvidersClient } from '@app/features/llm-providers/data/llm-providers.client';
+import { LlmProvidersStore } from '@app/features/llm-providers/data/llm-providers.store';
+import {
+  LlmProviderFormDialog,
+  type LlmProviderFormDialogContext,
+} from '@app/features/llm-providers/dialogs/llm-provider-form.dialog';
 import { type LlmProvider } from '@opspilot/shared';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmBadge } from '@spartan-ng/helm/badge';
@@ -7,10 +13,6 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmTableImports } from '@spartan-ng/helm/table';
-
-import { LlmProvidersClient } from '../../core/clients/llm-providers.client';
-import { LlmProvidersStore } from '../../core/stores/llm-providers.store';
-import { LlmProviderFormDialog, type LlmProviderFormDialogContext } from './llm-provider-form.dialog';
 
 // the llm-provider configuration view: a table of every configured provider with an
 // active badge + an "activate" action, edit/delete row actions, an empty state, and
