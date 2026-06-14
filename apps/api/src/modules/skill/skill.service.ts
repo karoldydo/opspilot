@@ -1,6 +1,6 @@
-import { AuditService } from '@api/audit/audit.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
 import { skill } from '@api/core/database/schema/skill.schema';
+import { AuditService } from '@api/modules/audit/audit.service';
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Skill, SkillCreateRequest, skillCreateRequestSchema, skillSchema, SkillUpdateRequest } from '@opspilot/shared';
 import { and, eq, isNull, or, SQL } from 'drizzle-orm';

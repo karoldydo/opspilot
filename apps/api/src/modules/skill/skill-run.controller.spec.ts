@@ -8,7 +8,7 @@ import { device } from '@api/core/database/schema';
 import { user } from '@api/core/database/schema/auth.schema';
 import { ExecResult } from '@api/integrations/executor/executor.interface';
 import { EXECUTOR } from '@api/integrations/executor/executor.token';
-import { ServiceService } from '@api/service/service.service';
+import { ServiceService } from '@api/modules/service/service.service';
 import { INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';

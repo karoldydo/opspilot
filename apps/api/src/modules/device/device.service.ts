@@ -1,6 +1,6 @@
-import { AuditService } from '@api/audit/audit.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
 import { device } from '@api/core/database/schema/device.schema';
+import { AuditService } from '@api/modules/audit/audit.service';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Device, DeviceCreateRequest, deviceSchema, DeviceUpdateRequest } from '@opspilot/shared';
 import { eq } from 'drizzle-orm';

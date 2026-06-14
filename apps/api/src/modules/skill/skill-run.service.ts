@@ -1,9 +1,9 @@
-import { AuditService } from '@api/audit/audit.service';
 import { skillConfig, SkillConfig } from '@api/config/skill.config';
 import { IExecutor } from '@api/integrations/executor/executor.interface';
 import { EXECUTOR } from '@api/integrations/executor/executor.token';
-import { DockerDaemonDownError, DockerNotFoundError } from '@api/service/service.errors';
-import { ServiceService } from '@api/service/service.service';
+import { AuditService } from '@api/modules/audit/audit.service';
+import { DockerDaemonDownError, DockerNotFoundError } from '@api/modules/service/service.errors';
+import { ServiceService } from '@api/modules/service/service.service';
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   Service,

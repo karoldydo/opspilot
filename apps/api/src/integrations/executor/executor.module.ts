@@ -1,5 +1,5 @@
 import { CredentialModule } from '@api/core/credential/credential.module';
-import { DeviceModule } from '@api/device/device.module';
+import { DeviceModule } from '@api/modules/device/device.module';
 import { Module } from '@nestjs/common';
 
 import { EXECUTOR } from './executor.token';

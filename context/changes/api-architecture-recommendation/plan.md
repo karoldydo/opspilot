@@ -612,27 +612,27 @@ and import specifiers change.
 
 #### Automated
 
-- [x] 4.1 Api lints: `npx nx lint api`
-- [x] 4.2 Api unit tests pass: `npx nx test api`
-- [x] 4.3 Api builds: `npx nx build api`
-- [x] 4.4 No stale paths: `grep -rn "@api/executor/" apps/api/src` empty
+- [x] 4.1 Api lints: `npx nx lint api` — 5e57974
+- [x] 4.2 Api unit tests pass: `npx nx test api` — 5e57974
+- [x] 4.3 Api builds: `npx nx build api` — 5e57974
+- [x] 4.4 No stale paths: `grep -rn "@api/executor/" apps/api/src` empty — 5e57974
 
 #### Manual
 
-- [ ] 4.5 An SSH-backed skill run / service scan still executes against a device
+- [x] 4.5 An SSH-backed skill run / service scan still executes against a device — 5e57974
 
 ### Phase 5: `modules/` bucket (all 6 domains, one pass)
 
 #### Automated
 
-- [ ] 5.1 Api lints: `npx nx lint api`
-- [ ] 5.2 Api unit tests pass: `npx nx test api`
-- [ ] 5.3 Api builds: `npx nx build api`
-- [ ] 5.4 No stale domain paths: `grep -rnE "@api/(audit|device|service|skill|diagnose|llm-provider)/" apps/api/src` empty
+- [x] 5.1 Api lints: `npx nx lint api`
+- [x] 5.2 Api unit tests pass: `npx nx test api`
+- [x] 5.3 Api builds: `npx nx build api`
+- [x] 5.4 No stale domain paths: `grep -rnE "@api/(audit|device|service|skill|diagnose|llm-provider)/" apps/api/src` empty
 
 #### Manual
 
-- [ ] 5.5 Each domain's primary endpoint works end-to-end (CRUD, SSE, LLM synthesis, audit read)
+- [x] 5.5 Each domain's primary endpoint works end-to-end (CRUD, SSE, LLM synthesis, audit read)
 
 ### Phase 6: Hoist `app.module.ts` to root + delete scaffold
 

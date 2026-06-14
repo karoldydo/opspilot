@@ -1,4 +1,3 @@
-import { AuditModule } from '@api/audit/audit.module';
 import { AllExceptionsFilter } from '@api/common/filters/all-exceptions.filter';
 import { ConfigModule } from '@api/config/config.module';
 import { AuthAppGuard } from '@api/core/auth/auth.guard';
@@ -6,11 +5,12 @@ import { AuthModule } from '@api/core/auth/auth.module';
 import { CredentialModule } from '@api/core/credential/credential.module';
 import { DatabaseModule } from '@api/core/database/database.module';
 import { HealthModule } from '@api/core/health/health.module';
-import { DeviceModule } from '@api/device/device.module';
-import { DiagnoseModule } from '@api/diagnose/diagnose.module';
-import { LlmProviderModule } from '@api/llm-provider/llm-provider.module';
-import { ServiceModule } from '@api/service/service.module';
-import { SkillModule } from '@api/skill/skill.module';
+import { AuditModule } from '@api/modules/audit/audit.module';
+import { DeviceModule } from '@api/modules/device/device.module';
+import { DiagnoseModule } from '@api/modules/diagnose/diagnose.module';
+import { LlmProviderModule } from '@api/modules/llm-provider/llm-provider.module';
+import { ServiceModule } from '@api/modules/service/service.module';
+import { SkillModule } from '@api/modules/skill/skill.module';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 

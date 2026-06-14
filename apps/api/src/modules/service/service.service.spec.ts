@@ -1,4 +1,3 @@
-import { AuditService } from '@api/audit/audit.service';
 import { ConfigModule } from '@api/config/config.module';
 import { cryptoConfig } from '@api/config/crypto.config';
 import { databaseConfig } from '@api/config/database.config';
@@ -9,6 +8,7 @@ import { device } from '@api/core/database/schema';
 import { user } from '@api/core/database/schema/auth.schema';
 import { ExecResult } from '@api/integrations/executor/executor.interface';
 import { EXECUTOR } from '@api/integrations/executor/executor.token';
+import { AuditService } from '@api/modules/audit/audit.service';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { readdirSync, rmSync } from 'node:fs';

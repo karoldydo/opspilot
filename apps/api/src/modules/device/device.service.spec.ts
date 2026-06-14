@@ -1,11 +1,11 @@
-import { AuditModule } from '@api/audit/audit.module';
-import { AuditService } from '@api/audit/audit.service';
 import { ConfigModule } from '@api/config/config.module';
 import { databaseConfig } from '@api/config/database.config';
 import { DatabaseModule } from '@api/core/database/database.module';
 import { MigrationService } from '@api/core/database/migration/migration.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
 import { user } from '@api/core/database/schema/auth.schema';
+import { AuditModule } from '@api/modules/audit/audit.module';
+import { AuditService } from '@api/modules/audit/audit.service';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { readdirSync, rmSync } from 'node:fs';

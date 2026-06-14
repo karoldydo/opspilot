@@ -1,8 +1,8 @@
-import { AuditService } from '@api/audit/audit.service';
 import { SkillConfig } from '@api/config/skill.config';
 import { ExecResult } from '@api/integrations/executor/executor.interface';
-import { DockerDaemonDownError, DockerNotFoundError } from '@api/service/service.errors';
-import { ServiceService } from '@api/service/service.service';
+import { AuditService } from '@api/modules/audit/audit.service';
+import { DockerDaemonDownError, DockerNotFoundError } from '@api/modules/service/service.errors';
+import { ServiceService } from '@api/modules/service/service.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Service, Skill, SkillParameter } from '@opspilot/shared';
 import { ZodError } from 'zod';

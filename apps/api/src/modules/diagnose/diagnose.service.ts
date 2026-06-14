@@ -1,12 +1,12 @@
-import { AuditService } from '@api/audit/audit.service';
 import { llmConfig, LlmConfig } from '@api/config/llm.config';
-import { DeviceService } from '@api/device/device.service';
 import { ExecResult, IExecutor } from '@api/integrations/executor/executor.interface';
 import { EXECUTOR } from '@api/integrations/executor/executor.token';
-import { LlmProviderClientFactory } from '@api/llm-provider/llm-provider.client-factory';
-import { LlmProviderService } from '@api/llm-provider/llm-provider.service';
-import { DockerDaemonDownError, DockerNotFoundError } from '@api/service/service.errors';
-import { ServiceService } from '@api/service/service.service';
+import { AuditService } from '@api/modules/audit/audit.service';
+import { DeviceService } from '@api/modules/device/device.service';
+import { LlmProviderClientFactory } from '@api/modules/llm-provider/llm-provider.client-factory';
+import { LlmProviderService } from '@api/modules/llm-provider/llm-provider.service';
+import { DockerDaemonDownError, DockerNotFoundError } from '@api/modules/service/service.errors';
+import { ServiceService } from '@api/modules/service/service.service';
 import { Inject, Injectable, MessageEvent, ServiceUnavailableException } from '@nestjs/common';
 import { containerNameSchema, diagnosisSynthesisSchema } from '@opspilot/shared';
 import { streamObject } from 'ai';

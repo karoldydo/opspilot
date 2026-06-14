@@ -1,8 +1,8 @@
-import { AuditModule } from '@api/audit/audit.module';
-import { DeviceModule } from '@api/device/device.module';
 import { ExecutorModule } from '@api/integrations/executor/executor.module';
-import { LlmProviderModule } from '@api/llm-provider/llm-provider.module';
-import { ServiceModule } from '@api/service/service.module';
+import { AuditModule } from '@api/modules/audit/audit.module';
+import { DeviceModule } from '@api/modules/device/device.module';
+import { LlmProviderModule } from '@api/modules/llm-provider/llm-provider.module';
+import { ServiceModule } from '@api/modules/service/service.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { json } from 'express';
 

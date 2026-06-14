@@ -1,6 +1,6 @@
 import { SshConfig } from '@api/config/ssh.config';
 import { CredentialService } from '@api/core/credential/credential.service';
-import { DeviceService } from '@api/device/device.service';
+import { DeviceService } from '@api/modules/device/device.service';
 import { Credential } from '@opspilot/shared';
 import { NodeSSH } from 'node-ssh';
 

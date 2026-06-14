@@ -1,7 +1,7 @@
-import { AuditService } from '@api/audit/audit.service';
 import { CryptoService } from '@api/core/crypto/crypto.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
 import { llmProvider } from '@api/core/database/schema/llm-provider.schema';
+import { AuditService } from '@api/modules/audit/audit.service';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { LlmProvider, LlmProviderCreateRequest, llmProviderSchema, LlmProviderUpdateRequest } from '@opspilot/shared';
 import { eq } from 'drizzle-orm';
