@@ -358,25 +358,25 @@ None — test and documentation changes only; no production code or schema chang
 
 #### Automated
 
-- [x] 2.1 Service spec passes: `npx nx test api -- src/modules/service/service.service.spec.ts`
-- [x] 2.2 Lint passes: `npx nx lint api`
-- [x] 2.3 Full api suite green: `npx nx test api`
+- [x] 2.1 Service spec passes: `npx nx test api -- src/modules/service/service.service.spec.ts` — 5e0b3d2
+- [x] 2.2 Lint passes: `npx nx lint api` — 5e0b3d2
+- [x] 2.3 Full api suite green: `npx nx test api` — 5e0b3d2
 
 #### Manual
 
-- [x] 2.4 Timeout-propagation test fails if `scan()` swallows the executor rejection
-- [x] 2.5 Scan-guard test fails if `SCAN_COMMAND` includes `-s` or `{{json .}}`
-- [x] 2.6 Characterization test comment marks it as pinned-current-behavior + deferred-fix ref
+- [x] 2.4 Timeout-propagation test fails if `scan()` swallows the executor rejection — 5e0b3d2
+- [x] 2.5 Scan-guard test fails if `SCAN_COMMAND` includes `-s` or `{{json .}}` — 5e0b3d2
+- [x] 2.6 Characterization test comment marks it as pinned-current-behavior + deferred-fix ref — 5e0b3d2
 
 ### Phase 3: Documentation + deferred-fix flag
 
 #### Automated
 
-- [ ] 3.1 §6.3 no longer reads `TBD`: `grep -n "TBD" context/foundation/test-plan.md`
-- [ ] 3.2 Format check passes: `npm run format:check`
+- [x] 3.1 §6.3 no longer reads `TBD`: `grep -n "TBD" context/foundation/test-plan.md`
+- [x] 3.2 Format check passes: `npm run format:check`
 
 #### Manual
 
-- [ ] 3.3 §6.3 pattern is sufficient for a new author to add an SSH boundary test
-- [ ] 3.4 §7 entries describe the (a) and (d) exclusions + re-evaluation triggers
-- [ ] 3.5 Deferred gap-d follow-up captured where it will be found again
+- [x] 3.3 §6.3 pattern is sufficient for a new author to add an SSH boundary test
+- [x] 3.4 §7 entries describe the (a) and (d) exclusions + re-evaluation triggers
+- [x] 3.5 Deferred gap-d follow-up captured where it will be found again

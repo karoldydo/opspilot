@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-16 (Phase 1 complete; Phase 2 next)
+> Last updated: 2026-06-16 (Phase 1–2 complete; Phase 3 next)
 
 ## 1. Strategy
 
@@ -81,7 +81,7 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name                              | Goal (one line)                                                                                                                | Risks covered | Test types                                 | Status        | Change folder                                          |
 |---|-----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|---------------|--------------------------------------------|---------------|--------------------------------------------------------|
 | 1 | Agent diagnosis under failure           | Prove `diagnoseLogs` returns a clean error (never crash/hang) on bad LLM output and times out within bound                     | #1            | integration (api, fake LLM)                | complete      | context/archive/2026-06-16-testing-agent-diagnosis-under-failure/ |
-| 2 | SSH executor lifecycle + timeout        | Prove connections are disposed after a run and a command/scan aborts within its bounded timeout                                | #2            | integration (api, fake SSH)                | change opened | context/changes/testing-ssh-executor-lifecycle-timeout/ |
+| 2 | SSH executor lifecycle + timeout        | Prove connections are disposed after a run and a command/scan aborts within its bounded timeout                                | #2            | integration (api, fake SSH)                | complete      | context/changes/testing-ssh-executor-lifecycle-timeout/ |
 | 3 | Security guardrails                     | Prove secrets never reach plaintext/transcript, the agent stays confined to per-device skills (incl. custom), and unauth → 401 | #4, #3, #5    | integration / contract (api, real temp DB) | not started   | —                                                      |
 | 4 | diagnoseLogs e2e + SSE through the edge | Prove the full UI→synthesis path renders the 4-field result and SSE narration streams with heartbeats                          | #1, #6        | e2e (Playwright)                           | not started   | —                                                      |
 
@@ -187,8 +187,46 @@ exercised — not a hand-mocked `streamObject`.
 
 ### 6.3 Adding an integration test (SSH executor boundary)
 
-- TBD — see §3 Phase 2 (defends Risk #2: connection disposal + bounded
-  command/scan timeout, via a fake/stub SSH boundary).
+Defends Risk #2: the SSH connection is disposed after **every** run (no leak)
+and a command/scan that exceeds its bounded timeout aborts with a clean
+504-mapped error — never a hang. There are **two seams**; pick by which layer
+you are pinning.
+
+- **Executor-internal seam (lifecycle + timeout)**: fake the node-ssh client at
+  the `SSH_CLIENT_FACTORY` token — the factory just hands the fake `NodeSSH`
+  back. This drives the **real** executor (`connect` → `execCommand` →
+  `finally` dispose, plus the hand-rolled `setTimeout` + `Promise.race` timer).
+  - **Hard rule — never `vi.mock('node-ssh')`.** That stub is file-scoped and
+    would replace the very transport whose disposal/timeout wiring is under
+    test, silently degrading the integration test to a unit test against a stub.
+  - **Canonical example**: `apps/api/src/integrations/executor/ssh.executor.spec.ts`.
+    Hand-build via `buildExecutor({ client, commandTimeoutMs })` (positional
+    `new SshExecutor(...)`, no DI graph) and pass a minimal `FakeClient`
+    (`connect`/`dispose`/`execCommand` as `vi.fn()`).
+  - **Timeout knob — no fake timers.** Use a **tiny real** `commandTimeoutMs`
+    (~20 ms) against a never-resolving `execCommand`
+    (`vi.fn().mockImplementation(() => new Promise(() => undefined))`); the race
+    rejects via the real timer with `SshCommandTimeoutError`. A per-call third
+    arg to `execute(...)` overrides the configured default.
+  - **Dispose matrix to pin**: success, connect-reject, command-timeout, and
+    `execCommand`-reject all flow through `finally` → `dispose` (assert
+    `client.dispose` called once); and a `dispose` that itself throws must
+    **not** mask the original mapped connect error.
+- **Consumer seam (scan boundary the user hits)**: fake the executor at the
+  `EXECUTOR` token via `.overrideProvider(EXECUTOR).useValue(mockExecutor)` on
+  the real temp-SQLite `TestingModule`. Here the executor is a mock, so the test
+  asserts **clean propagation**, not the timer: a rejected
+  `SshCommandTimeoutError` surfaces as the same 504 and writes **no** audit row
+  (matching the docker-error failure path).
+  - **Canonical example**: `apps/api/src/modules/service/service.service.spec.ts`
+    (`surfaces a timed-out executor as a clean 504 and writes no audit row`).
+  - Also lock `SCAN_COMMAND` against the `lessons.md` slow-form regression with a
+    **negative** content assertion (no `-s` / `--size` / `{{json .}}`, does
+    contain `{{json .Names}}`) — distinct from the full-string
+    `toHaveBeenCalledWith`, which would move in lockstep with any regression.
+- **Run locally**:
+  - `npx nx test api -- src/integrations/executor/ssh.executor.spec.ts`
+  - `npx nx test api -- src/modules/service/service.service.spec.ts`
 
 ### 6.4 Adding a security / guardrail test
 
@@ -216,6 +254,16 @@ here capturing anything surprising the rollout phase taught.)
   the injected cause-unwrap unit test, not by what v6 emits today. Captured via a
   real `MockLanguageModelV3` whose `doStream` errors its stream off
   `options.abortSignal` (`diagnose.service.real-model.spec.ts`).
+- **2026-06-16 — Phase 2 (Risk #2), executor already defended structurally:**
+  research found the executor disposes in an unconditional `finally` and bounds
+  the command timeout with a `setTimeout` + `Promise.race` rejecting a clean
+  `SshCommandTimeoutError` (504), so this phase built **no** new seam — it
+  extended the existing specs to close residual gaps: completed the dispose
+  matrix (`execCommand`-reject + dispose-doesn't-mask-original) in
+  `ssh.executor.spec.ts`, added the consumer-boundary 504-propagation +
+  `SCAN_COMMAND` regression guard in `service.service.spec.ts`. The
+  truncated-line parse fragility is pinned as current behavior, not fixed —
+  hardening deferred (see §7 and `change.md`).
 
 ## 7. What We Deliberately Don't Test
 
@@ -233,6 +281,22 @@ contributors should respect these unless the underlying assumption changes.
 - **Login rate-limit / brute-force abuse** — out of scope under the
   small-trusted-group, self-hosted threat model. Re-evaluate if opspilot is
   ever exposed to untrusted users. (Source: abuse-lens review, §2.)
+- **SSH connect-timeout (`readyTimeout`) wall-clock behavior** — this is
+  node-ssh's own option, passed straight through on `connect`; a test would
+  mostly assert node-ssh honors its own config and would lean on real
+  wall-clock delays (flaky). The executor's *command* timeout (our hand-rolled
+  `setTimeout` + `Promise.race`) is the part we own and it **is** pinned.
+  Re-evaluate if we ever wrap or override `readyTimeout` ourselves rather than
+  passing it through. (Source: Phase 2 research gap a.)
+- **Truncated-line NDJSON parse hardening** — `parseContainer` uses strict
+  `JSON.parse` + `z.strictObject` with no per-line try/catch, so one partial
+  line (as a timeout-killed `docker ps` can emit) fails the **whole** scan.
+  Current behavior is *pinned* by a characterization test
+  (`service.service.spec.ts`, "fails the whole scan on a truncated NDJSON
+  line"); the fix (per-line skip, keep valid containers) is deferred to a
+  separate implementation change so a testing phase does not smuggle a behavior
+  change. Re-evaluate when that follow-up change is opened (flagged in
+  `change.md`). (Source: Phase 2 research gap d.)
 
 ## 8. Freshness Ledger
 
