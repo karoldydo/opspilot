@@ -249,6 +249,64 @@ describe('DiagnoseService', () => {
     });
   });
 
+  it('emits a single logs-timeout error frame when the ssh logs fetch exceeds logsTimeoutMs, never reaching synthesis', async () => {
+    // executor never resolves, so the Promise.race in fetchLogs loses to the timer
+    // and the service's own setTimeout fires the DiagnosisLogsTimeoutError.
+    mockExecutor.execute.mockReturnValue(new Promise<ExecResult>(() => undefined));
+    const originalLogsTimeoutMs = config.logsTimeoutMs;
+    // tiny bound keeps the test fast — no multi-second hang.
+    config.logsTimeoutMs = 10;
+    try {
+      const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
+
+      expect(events).toHaveLength(1);
+      expect(events[0].data).toEqual({
+        code: 'logs-timeout',
+        message: `fetching logs for ${inputContainerName} timed out after 10ms`,
+        type: 'error',
+      });
+      // synthesis is never reached and nothing is persisted.
+      expect(mockedStreamObject).not.toHaveBeenCalled();
+      expect(mockRunRecordService.create).not.toHaveBeenCalled();
+    } finally {
+      config.logsTimeoutMs = originalLogsTimeoutMs;
+    }
+  });
+
+  it.each([['TimeoutError'], ['AbortError']])(
+    'maps a NoObjectGeneratedError whose cause name is %s (sdk-wrapped abort) to a timeout error frame',
+    async (causeName) => {
+      mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'some logs' }));
+      // the sdk wraps an AbortSignal.timeout abort inside NoObjectGeneratedError with
+      // the abort as its .cause — the unwrap branch must classify this as a timeout,
+      // not a generic synthesis failure.
+      const cause = new Error('the operation was aborted');
+      cause.name = causeName;
+      mockedStreamObject.mockReturnValue(
+        fakeStream([], {
+          reject: new NoObjectGeneratedError({
+            cause,
+            finishReason: 'stop',
+            message: 'no object',
+            response: undefined,
+            text: 'raw',
+            usage: undefined,
+          }),
+        })
+      );
+
+      const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
+
+      expect(events).toHaveLength(1);
+      expect(events[0].data).toEqual({
+        code: 'timeout',
+        message: 'active llm provider did not return a diagnosis in time',
+        type: 'error',
+      });
+      expect(mockRunRecordService.create).not.toHaveBeenCalled();
+    }
+  );
+
   it('maps a non-zero docker exit to an upstream error frame, never reaching synthesis', async () => {
     mockExecutor.execute.mockResolvedValue(execResult({ code: 1, stderr: 'Error: No such container: web-proxy' }));
 
