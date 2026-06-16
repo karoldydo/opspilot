@@ -154,9 +154,36 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.2 Adding an integration test (LLM boundary)
 
-- TBD — see §3 Phase 1 (defends Risk #1: schema-conformance + timeout +
-  clean error on bad LLM output, via a fake provider injected at the agent
-  boundary).
+Drives the **real** Vercel AI SDK (`streamObject`) against a fake model, so
+the genuine timeout/abort wiring and the SDK's own schema validation are
+exercised — not a hand-mocked `streamObject`.
+
+- **Seam**: inject a `MockLanguageModelV3` (from `ai/test`) at the
+  `LlmProviderClientFactory.create` boundary (the factory's `create()` just
+  hands the fake model back). This drives the **real** `streamObject` against
+  the real `diagnosisSynthesisSchema` from `@opspilot/shared`.
+- **Hard rule — do NOT `vi.mock('ai')` in this file.** That stub is
+  file-scoped; mocking `'ai'` would replace the very `streamObject` under test,
+  and the integration test silently degrades to a unit test against a stub.
+  Mapper-level cases that *do* want the stub live in the sibling
+  `*.service.spec.ts` instead.
+- **Canonical example**: `apps/api/src/modules/diagnose/diagnose.service.real-model.spec.ts`.
+  Hand-build the service (`new DiagnoseService(...positional mocks...)`, no DI
+  graph) and wire the fake model through `mockClientFactory.create`.
+- **Timeout knob**: drive the real `AbortSignal.timeout` with a tiny
+  `generateTimeoutMs` (~50 ms) on the positional `LlmConfig` (the Joi
+  `min(1000)` guards env at boot, not a spec's config object). The fake
+  `doStream` must wire its teardown to `options.abortSignal`
+  (`abortSignal.addEventListener('abort', () => controller.error(abortSignal.reason))`)
+  so the timer doesn't leak past suite end.
+- **Schema rejection**: have `doStream` emit `text-delta` parts that finish a
+  *non-conformant* object (e.g. `status: "exploded"`, outside the enum); the
+  SDK's real validation throws a genuine `NoObjectGeneratedError`, mapped to a
+  `synthesis-failed` frame.
+- **Oracle boundary**: assert schema-conformance, timeout-within-bound, and a
+  clean sanitized error frame (no raw model `.text` leak) — **never** that the
+  AI's content is "correct" (§7).
+- **Run locally**: `npx nx test api -- src/modules/diagnose/diagnose.service.real-model.spec.ts`.
 
 ### 6.3 Adding an integration test (SSH executor boundary)
 

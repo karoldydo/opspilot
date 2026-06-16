@@ -435,33 +435,33 @@ None — additive tests plus doc edits. No production code, schema, or config ch
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npx nx test api -- src/modules/diagnose/diagnose.service.spec.ts`
-- [x] 1.2 Lint passes: `npx nx lint api`
-- [x] 1.3 Typecheck passes (via the test build / `npx nx test api`)
-- [x] 1.4 The logs-timeout case asserts `streamObject` was not called and no run was persisted
-- [x] 1.5 The cause-unwrap case maps both `TimeoutError` and `AbortError` causes to `timeout`
+- [x] 1.1 Unit tests pass: `npx nx test api -- src/modules/diagnose/diagnose.service.spec.ts` — 522479e
+- [x] 1.2 Lint passes: `npx nx lint api` — 522479e
+- [x] 1.3 Typecheck passes (via the test build / `npx nx test api`) — 522479e
+- [x] 1.4 The logs-timeout case asserts `streamObject` was not called and no run was persisted — 522479e
+- [x] 1.5 The cause-unwrap case maps both `TimeoutError` and `AbortError` causes to `timeout` — 522479e
 
 #### Manual
 
-- [x] 1.6 The two new cases read as behavior assertions (frame `code`s), not implementation pokes
-- [x] 1.7 The logs-timeout test completes quickly (small `logsTimeoutMs`), no multi-second hang
+- [x] 1.6 The two new cases read as behavior assertions (frame `code`s), not implementation pokes — 522479e
+- [x] 1.7 The logs-timeout test completes quickly (small `logsTimeoutMs`), no multi-second hang — 522479e
 
 ### Phase 2: Real-SDK gaps (seam a) + cookbook
 
 #### Automated
 
-- [ ] 2.1 New spec passes: `npx nx test api -- src/modules/diagnose/diagnose.service.real-model.spec.ts`
-- [ ] 2.2 Full api suite green: `npx nx test api`
-- [ ] 2.3 Lint passes: `npx nx lint api`
-- [ ] 2.4 The real-abort case fires the genuine `AbortSignal.timeout` and yields a single `timeout` frame within bound
-- [ ] 2.5 The schema-rejection case produces a real `NoObjectGeneratedError` mapped to `synthesis-failed` with no raw-text leak
-- [ ] 2.6 The new file contains no `vi.mock('ai')` (grep check)
+- [x] 2.1 New spec passes: `npx nx test api -- src/modules/diagnose/diagnose.service.real-model.spec.ts`
+- [x] 2.2 Full api suite green: `npx nx test api`
+- [x] 2.3 Lint passes: `npx nx lint api`
+- [x] 2.4 The real-abort case fires the genuine `AbortSignal.timeout` and yields a single `timeout` frame within bound
+- [x] 2.5 The schema-rejection case produces a real `NoObjectGeneratedError` mapped to `synthesis-failed` with no raw-text leak
+- [x] 2.6 The new file contains no `vi.mock('ai')` (grep check)
 
 #### Manual
 
-- [ ] 2.7 The real-abort test completes in well under a second, with no leaked timer warning at suite end
-- [ ] 2.8 The schema-rejection assertion fails if the mapper echoes raw model text (verify, then revert)
-- [ ] 2.9 §6.2 reads as a usable recipe for the next LLM-boundary test author
+- [x] 2.7 The real-abort test completes in well under a second, with no leaked timer warning at suite end
+- [x] 2.8 The schema-rejection assertion fails if the mapper echoes raw model text (verify, then revert)
+- [x] 2.9 §6.2 reads as a usable recipe for the next LLM-boundary test author
 
 ### Phase 3: Ledger updates
 
