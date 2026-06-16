@@ -132,6 +132,35 @@ describe('SshExecutor', () => {
     expect(client.execCommand).not.toHaveBeenCalled();
   });
 
+  it('disposes the connection when execCommand itself rejects (non-timeout error)', async () => {
+    const client: FakeClient = {
+      connect: vi.fn().mockResolvedValue(undefined),
+      dispose: vi.fn(),
+      // a channel-level failure, not the timeout race — still flows through finally → dispose.
+      execCommand: vi.fn().mockRejectedValue(new Error('channel open failure')),
+    };
+    const { executor } = buildExecutor({ client });
+
+    await expect(executor.execute(inputDeviceId, 'echo')).rejects.toThrow('channel open failure');
+    expect(client.dispose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not let a dispose error mask the original mapped connect error', async () => {
+    const client: FakeClient = {
+      connect: vi.fn().mockRejectedValue(new Error('connect ECONNREFUSED 10.0.0.1:22')),
+      // dispose throws on the unconnected client; the inner try/catch must swallow it so the
+      // caller still sees the mapped connect error, not "dispose failed".
+      dispose: vi.fn(() => {
+        throw new Error('dispose failed');
+      }),
+      execCommand: vi.fn(),
+    };
+    const { executor } = buildExecutor({ client });
+
+    await expect(executor.execute(inputDeviceId, 'echo')).rejects.toBeInstanceOf(SshConnectError);
+    expect(client.dispose).toHaveBeenCalledTimes(1);
+  });
+
   it('maps an authentication rejection to the auth error', async () => {
     const client: FakeClient = {
       connect: vi.fn().mockRejectedValue(new Error('All configured authentication methods failed')),

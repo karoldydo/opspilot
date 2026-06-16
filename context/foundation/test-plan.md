@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-16 (Phase 1 implementing)
+> Last updated: 2026-06-16 (Phase 1 complete; Phase 2 next)
 
 ## 1. Strategy
 
@@ -80,8 +80,8 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name                              | Goal (one line)                                                                                                                | Risks covered | Test types                                 | Status        | Change folder                                          |
 |---|-----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|---------------|--------------------------------------------|---------------|--------------------------------------------------------|
-| 1 | Agent diagnosis under failure           | Prove `diagnoseLogs` returns a clean error (never crash/hang) on bad LLM output and times out within bound                     | #1            | integration (api, fake LLM)                | implementing  | context/changes/testing-agent-diagnosis-under-failure/ |
-| 2 | SSH executor lifecycle + timeout        | Prove connections are disposed after a run and a command/scan aborts within its bounded timeout                                | #2            | integration (api, fake SSH)                | not started   | —                                                      |
+| 1 | Agent diagnosis under failure           | Prove `diagnoseLogs` returns a clean error (never crash/hang) on bad LLM output and times out within bound                     | #1            | integration (api, fake LLM)                | complete      | context/archive/2026-06-16-testing-agent-diagnosis-under-failure/ |
+| 2 | SSH executor lifecycle + timeout        | Prove connections are disposed after a run and a command/scan aborts within its bounded timeout                                | #2            | integration (api, fake SSH)                | change opened | context/changes/testing-ssh-executor-lifecycle-timeout/ |
 | 3 | Security guardrails                     | Prove secrets never reach plaintext/transcript, the agent stays confined to per-device skills (incl. custom), and unauth → 401 | #4, #3, #5    | integration / contract (api, real temp DB) | not started   | —                                                      |
 | 4 | diagnoseLogs e2e + SSE through the edge | Prove the full UI→synthesis path renders the 4-field result and SSE narration streams with heartbeats                          | #1, #6        | e2e (Playwright)                           | not started   | —                                                      |
 
