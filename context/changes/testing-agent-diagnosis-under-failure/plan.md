@@ -450,27 +450,27 @@ None — additive tests plus doc edits. No production code, schema, or config ch
 
 #### Automated
 
-- [x] 2.1 New spec passes: `npx nx test api -- src/modules/diagnose/diagnose.service.real-model.spec.ts`
-- [x] 2.2 Full api suite green: `npx nx test api`
-- [x] 2.3 Lint passes: `npx nx lint api`
-- [x] 2.4 The real-abort case fires the genuine `AbortSignal.timeout` and yields a single `timeout` frame within bound
-- [x] 2.5 The schema-rejection case produces a real `NoObjectGeneratedError` mapped to `synthesis-failed` with no raw-text leak
-- [x] 2.6 The new file contains no `vi.mock('ai')` (grep check)
+- [x] 2.1 New spec passes: `npx nx test api -- src/modules/diagnose/diagnose.service.real-model.spec.ts` — 880b5a6
+- [x] 2.2 Full api suite green: `npx nx test api` — 880b5a6
+- [x] 2.3 Lint passes: `npx nx lint api` — 880b5a6
+- [x] 2.4 The real-abort case fires the genuine `AbortSignal.timeout` and yields a single `timeout` frame within bound — 880b5a6
+- [x] 2.5 The schema-rejection case produces a real `NoObjectGeneratedError` mapped to `synthesis-failed` with no raw-text leak — 880b5a6
+- [x] 2.6 The new file contains no `vi.mock('ai')` (grep check) — 880b5a6
 
 #### Manual
 
-- [x] 2.7 The real-abort test completes in well under a second, with no leaked timer warning at suite end
-- [x] 2.8 The schema-rejection assertion fails if the mapper echoes raw model text (verify, then revert)
-- [x] 2.9 §6.2 reads as a usable recipe for the next LLM-boundary test author
+- [x] 2.7 The real-abort test completes in well under a second, with no leaked timer warning at suite end — 880b5a6
+- [x] 2.8 The schema-rejection assertion fails if the mapper echoes raw model text (verify, then revert) — 880b5a6
+- [x] 2.9 §6.2 reads as a usable recipe for the next LLM-boundary test author — 880b5a6
 
 ### Phase 3: Ledger updates
 
 #### Automated
 
-- [ ] 3.1 `context/foundation/test-plan.md` §3 Phase 1 Status holds a valid status literal
-- [ ] 3.2 No test or lint regressions: `npx nx test api` && `npx nx lint api`
+- [x] 3.1 `context/foundation/test-plan.md` §3 Phase 1 Status holds a valid status literal
+- [x] 3.2 No test or lint regressions: `npx nx test api` && `npx nx lint api`
 
 #### Manual
 
-- [ ] 3.3 §6.6 note accurately reflects the abort-surface finding from Phase 2's real-abort test
-- [ ] 3.4 The status reflects reality (`complete` only after the tests are actually merged)
+- [x] 3.3 §6.6 note accurately reflects the abort-surface finding from Phase 2's real-abort test
+- [x] 3.4 The status reflects reality (`complete` only after the tests are actually merged)

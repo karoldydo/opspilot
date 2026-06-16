@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-16 (Phase 1 change opened)
+> Last updated: 2026-06-16 (Phase 1 implementing)
 
 ## 1. Strategy
 
@@ -80,7 +80,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name                              | Goal (one line)                                                                                                                | Risks covered | Test types                                 | Status        | Change folder                                          |
 |---|-----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|---------------|--------------------------------------------|---------------|--------------------------------------------------------|
-| 1 | Agent diagnosis under failure           | Prove `diagnoseLogs` returns a clean error (never crash/hang) on bad LLM output and times out within bound                     | #1            | integration (api, fake LLM)                | change opened | context/changes/testing-agent-diagnosis-under-failure/ |
+| 1 | Agent diagnosis under failure           | Prove `diagnoseLogs` returns a clean error (never crash/hang) on bad LLM output and times out within bound                     | #1            | integration (api, fake LLM)                | implementing  | context/changes/testing-agent-diagnosis-under-failure/ |
 | 2 | SSH executor lifecycle + timeout        | Prove connections are disposed after a run and a command/scan aborts within its bounded timeout                                | #2            | integration (api, fake SSH)                | not started   | —                                                      |
 | 3 | Security guardrails                     | Prove secrets never reach plaintext/transcript, the agent stays confined to per-device skills (incl. custom), and unauth → 401 | #4, #3, #5    | integration / contract (api, real temp DB) | not started   | —                                                      |
 | 4 | diagnoseLogs e2e + SSE through the edge | Prove the full UI→synthesis path renders the 4-field result and SSE narration streams with heartbeats                          | #1, #6        | e2e (Playwright)                           | not started   | —                                                      |
@@ -205,6 +205,17 @@ exercised — not a hand-mocked `streamObject`.
 
 (Optional. After each phase lands, `/10x-implement` appends a 2–3 line note
 here capturing anything surprising the rollout phase taught.)
+
+- **2026-06-16 — Phase 1 (Risk #1), abort surface (resolves research
+  open-question #1):** with `ai@6.0.201` + `@ai-sdk/provider@3.0.10`, a fired
+  `AbortSignal.timeout` driving the real `streamObject` surfaces **bare** — a
+  `DOMException` with `name: 'TimeoutError'`, `NoObjectGeneratedError.isInstance`
+  = false, no `.cause`. So the real-abort path hits the bare-name branch of
+  `isSynthesisTimeout` (`diagnose.errors.ts`); the `NoObjectGeneratedError`-with-
+  `cause` branch is a **defensive guard** against future SDK wrapping, covered by
+  the injected cause-unwrap unit test, not by what v6 emits today. Captured via a
+  real `MockLanguageModelV3` whose `doStream` errors its stream off
+  `options.abortSignal` (`diagnose.service.real-model.spec.ts`).
 
 ## 7. What We Deliberately Don't Test
 
