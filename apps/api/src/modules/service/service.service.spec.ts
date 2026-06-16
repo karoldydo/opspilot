@@ -6,6 +6,7 @@ import { MigrationService } from '@api/core/database/migration/migration.service
 import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
 import { device } from '@api/core/database/schema';
 import { user } from '@api/core/database/schema/auth.schema';
+import { SshCommandTimeoutError } from '@api/integrations/executor/executor.errors';
 import { ExecResult } from '@api/integrations/executor/executor.interface';
 import { EXECUTOR } from '@api/integrations/executor/executor.token';
 import { AuditService } from '@api/modules/audit/audit.service';
@@ -170,6 +171,46 @@ describe('ServiceService', () => {
     );
 
     await expect(service.scan(inputDeviceId, userId)).rejects.toBeInstanceOf(DockerDaemonDownError);
+  });
+
+  it('surfaces a timed-out executor as a clean 504 and writes no audit row', async () => {
+    // the "run never terminates" nfr is pinned inside the executor; here we prove the
+    // consumer boundary the user hits propagates that 504 cleanly (no hang, no swallow)
+    // and leaves no audit row — matching the docker-error failure path above.
+    mockExecutor.execute.mockRejectedValue(new SshCommandTimeoutError(30000));
+
+    await expect(service.scan(inputDeviceId, userId)).rejects.toBeInstanceOf(SshCommandTimeoutError);
+    expect(auditService.list({ offset: 0 })).toHaveLength(0);
+  });
+
+  it('never reverts SCAN_COMMAND to the slow whole-struct / size-walking form', async () => {
+    // locks the lessons.md incident: `{{json .}}` or `-s`/`--size` forces the
+    // per-container layer-size walk (~27s on synology), brushing the 30s timeout. this
+    // negative assertion bites independently of the full-string check above, which would
+    // move in lockstep with any regression.
+    mockExecutor.execute.mockResolvedValue(execResult({ stdout: '' }));
+
+    await service.scan(inputDeviceId, userId);
+
+    const [, actualCommand] = mockExecutor.execute.mock.calls[0];
+    expect(actualCommand).not.toContain('-s');
+    expect(actualCommand).not.toContain('--size');
+    expect(actualCommand).not.toContain('{{json .}}');
+    expect(actualCommand).toContain('{{json .Names}}');
+  });
+
+  it('fails the whole scan on a truncated NDJSON line (pinned current behavior)', async () => {
+    // characterization, not endorsement: a timeout-killed `docker ps` can emit a partial
+    // json line. parseContainer uses strict JSON.parse + z.strictObject with no per-line
+    // try/catch, so one bad line rejects the entire scan. the deferred fix (per-line skip)
+    // is flagged in change.md and test-plan.md §7 — do not "fix" it from this test.
+    const stdout = [
+      JSON.stringify({ Image: 'nginx', Labels: '', Names: 'web', State: 'running', Status: 'Up' }),
+      '{"Names":"api","Image":',
+    ].join('\n');
+    mockExecutor.execute.mockResolvedValue(execResult({ stdout }));
+
+    await expect(service.scan(inputDeviceId, userId)).rejects.toThrow();
   });
 
   it('round-trips a service through create / findAll / update / remove', async () => {

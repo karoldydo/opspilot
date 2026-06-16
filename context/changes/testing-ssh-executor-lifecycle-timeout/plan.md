@@ -346,27 +346,27 @@ None — test and documentation changes only; no production code or schema chang
 
 #### Automated
 
-- [x] 1.1 Executor spec passes: `npx nx test api -- src/integrations/executor/ssh.executor.spec.ts`
-- [x] 1.2 Lint passes: `npx nx lint api`
-- [x] 1.3 Full api suite green: `npx nx test api`
+- [x] 1.1 Executor spec passes: `npx nx test api -- src/integrations/executor/ssh.executor.spec.ts` — 52afdd4
+- [x] 1.2 Lint passes: `npx nx lint api` — 52afdd4
+- [x] 1.3 Full api suite green: `npx nx test api` — 52afdd4
 
 #### Manual
 
-- [x] 1.4 Both new tests fail if disposal / the dispose try-catch is removed (assertions bite)
+- [x] 1.4 Both new tests fail if disposal / the dispose try-catch is removed (assertions bite) — 52afdd4
 
 ### Phase 2: Consumer-level timeout propagation + scan-command guard
 
 #### Automated
 
-- [ ] 2.1 Service spec passes: `npx nx test api -- src/modules/service/service.service.spec.ts`
-- [ ] 2.2 Lint passes: `npx nx lint api`
-- [ ] 2.3 Full api suite green: `npx nx test api`
+- [x] 2.1 Service spec passes: `npx nx test api -- src/modules/service/service.service.spec.ts`
+- [x] 2.2 Lint passes: `npx nx lint api`
+- [x] 2.3 Full api suite green: `npx nx test api`
 
 #### Manual
 
-- [ ] 2.4 Timeout-propagation test fails if `scan()` swallows the executor rejection
-- [ ] 2.5 Scan-guard test fails if `SCAN_COMMAND` includes `-s` or `{{json .}}`
-- [ ] 2.6 Characterization test comment marks it as pinned-current-behavior + deferred-fix ref
+- [x] 2.4 Timeout-propagation test fails if `scan()` swallows the executor rejection
+- [x] 2.5 Scan-guard test fails if `SCAN_COMMAND` includes `-s` or `{{json .}}`
+- [x] 2.6 Characterization test comment marks it as pinned-current-behavior + deferred-fix ref
 
 ### Phase 3: Documentation + deferred-fix flag
 
