@@ -1,7 +1,7 @@
 ---
 change_id: testing-agent-diagnosis-under-failure
 title: Testing agent diagnosis under failure
-status: implementing
+status: implemented
 created: 2026-06-16
 updated: 2026-06-16
 archived_at: null

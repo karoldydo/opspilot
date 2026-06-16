@@ -467,10 +467,10 @@ None — additive tests plus doc edits. No production code, schema, or config ch
 
 #### Automated
 
-- [x] 3.1 `context/foundation/test-plan.md` §3 Phase 1 Status holds a valid status literal
-- [x] 3.2 No test or lint regressions: `npx nx test api` && `npx nx lint api`
+- [x] 3.1 `context/foundation/test-plan.md` §3 Phase 1 Status holds a valid status literal — 6f66121
+- [x] 3.2 No test or lint regressions: `npx nx test api` && `npx nx lint api` — 6f66121
 
 #### Manual
 
-- [x] 3.3 §6.6 note accurately reflects the abort-surface finding from Phase 2's real-abort test
-- [x] 3.4 The status reflects reality (`complete` only after the tests are actually merged)
+- [x] 3.3 §6.6 note accurately reflects the abort-surface finding from Phase 2's real-abort test — 6f66121
+- [x] 3.4 The status reflects reality (`complete` only after the tests are actually merged) — 6f66121
