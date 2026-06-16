@@ -1,7 +1,7 @@
 ---
 change_id: testing-ssh-executor-lifecycle-timeout
 title: Test SSH executor lifecycle + bounded timeout (test-plan Phase 2)
-status: implementing
+status: implemented
 created: 2026-06-16
 updated: 2026-06-16
 archived_at: null

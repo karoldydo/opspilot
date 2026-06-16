@@ -372,11 +372,11 @@ None — test and documentation changes only; no production code or schema chang
 
 #### Automated
 
-- [x] 3.1 §6.3 no longer reads `TBD`: `grep -n "TBD" context/foundation/test-plan.md`
-- [x] 3.2 Format check passes: `npm run format:check`
+- [x] 3.1 §6.3 no longer reads `TBD`: `grep -n "TBD" context/foundation/test-plan.md` — 9b90d88
+- [x] 3.2 Format check passes: `npm run format:check` — 9b90d88
 
 #### Manual
 
-- [x] 3.3 §6.3 pattern is sufficient for a new author to add an SSH boundary test
-- [x] 3.4 §7 entries describe the (a) and (d) exclusions + re-evaluation triggers
-- [x] 3.5 Deferred gap-d follow-up captured where it will be found again
+- [x] 3.3 §6.3 pattern is sufficient for a new author to add an SSH boundary test — 9b90d88
+- [x] 3.4 §7 entries describe the (a) and (d) exclusions + re-evaluation triggers — 9b90d88
+- [x] 3.5 Deferred gap-d follow-up captured where it will be found again — 9b90d88
