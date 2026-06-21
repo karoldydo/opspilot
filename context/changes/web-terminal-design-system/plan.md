@@ -640,11 +640,11 @@ pause for final manual confirmation.
 
 #### Automated
 
-- [x] 6.1 Web builds: `npm run build:web`; lint passes: `npx nx lint web`
-- [x] 6.2 Unit tests pass: `npx nx test web`
+- [x] 6.1 Web builds: `npm run build:web`; lint passes: `npx nx lint web` — 869c095
+- [x] 6.2 Unit tests pass: `npx nx test web` — 869c095
 
 #### Manual
 
-- [x] 6.3 Drilling into a service opens the diagnose-hero in terminal style
-- [x] 6.4 Re-run streams a live synthesis; result persists and appears in history
-- [x] 6.5 Visual match to the mockup's terminal diagnose presentation; no apply button
+- [x] 6.3 Drilling into a service opens the diagnose-hero in terminal style — 869c095
+- [x] 6.4 Re-run streams a live synthesis; result persists and appears in history — 869c095
+- [x] 6.5 Visual match to the mockup's terminal diagnose presentation; no apply button — 869c095
