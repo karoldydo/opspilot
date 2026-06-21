@@ -7,17 +7,14 @@ import {
   type LlmProviderFormDialogContext,
 } from '@app/features/llm-providers/dialogs/llm-provider-form.dialog';
 import { type LlmProvider } from '@opspilot/shared';
+import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
-import { HlmBadge } from '@spartan-ng/helm/badge';
-import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
-import { HlmEmptyImports } from '@spartan-ng/helm/empty';
-import { HlmTableImports } from '@spartan-ng/helm/table';
 
 // llm-provider config view (activate / edit / delete). store + client provided here (not providedIn: 'root', per angular.md); the form dialog gets the store via context since it renders in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, HlmBadge, HlmButton, ...HlmTableImports, ...HlmAlertDialogImports, ...HlmEmptyImports],
+  imports: [DatePipe, ...HlmAlertDialogImports],
   providers: [LlmProvidersClient, LlmProvidersStore],
   selector: 'app-llm-providers',
   templateUrl: './llm-providers.component.html',
@@ -34,13 +31,15 @@ export class LlmProvidersComponent {
   }
 
   async activate(provider: LlmProvider): Promise<void> {
-    await this.store.activate(provider.id);
+    const result = await this.store.activate(provider.id);
+    toast(result.error ? '[x] could not activate provider' : '[+] provider is now active');
   }
 
   async confirmDelete(dialog: { close: () => void }): Promise<void> {
     const provider = this.providerToDelete();
     if (provider) {
-      await this.store.remove(provider.id);
+      const result = await this.store.remove(provider.id);
+      toast(result.error ? '[x] could not delete provider' : '[-] provider deleted');
     }
     dialog.close();
   }

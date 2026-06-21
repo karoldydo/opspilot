@@ -1,81 +1,80 @@
-<main class="mx-auto flex min-h-svh max-w-4xl flex-col gap-6 p-8">
-  <header class="flex items-center justify-between gap-4">
-    <div class="flex flex-col gap-1">
-      <h1 class="text-foreground text-2xl font-semibold">Devices</h1>
-      <p class="text-muted-foreground text-sm">Shared inventory of every device and its SSH credentials.</p>
-    </div>
-    <button type="button" (click)="openCreate()" hlmBtn>Add device</button>
+<main class="text-op-ink max-w-[1040px] px-11 pt-10 pb-16">
+  <header class="mb-1.5 flex items-end justify-between gap-4">
+    <h1 class="text-[24px] font-bold tracking-[-0.4px]">devices</h1>
+    <button
+      class="bg-op-ink text-op-cream rounded-[4px] px-4 py-[9px] text-[13px] font-medium whitespace-nowrap"
+      type="button"
+      (click)="openCreate()"
+    >
+      + add device
+    </button>
   </header>
+  <p class="text-op-mute mb-7 text-[13.5px]">shared inventory of every device and its SSH credentials.</p>
 
   @if (store.error(); as error) {
-    <p class="text-destructive text-sm" role="alert">{{ error }}</p>
+    <p class="text-op-danger-text mb-4 text-sm" role="alert">{{ error }}</p>
   }
 
   @if (store.isEmpty()) {
-    <hlm-empty>
-      <hlm-empty-header>
-        <h2 hlmEmptyTitle>No devices yet</h2>
-        <p hlmEmptyDescription>Add your first device to start managing it from OpsPilot.</p>
-      </hlm-empty-header>
-      <hlm-empty-content>
-        <button type="button" (click)="openCreate()" hlmBtn variant="outline">Add device</button>
-      </hlm-empty-content>
-    </hlm-empty>
-  } @else {
-    <div hlmTableContainer>
-      <table hlmTable>
-        <thead hlmTHead>
-          <tr hlmTr>
-            <th hlmTh>Name</th>
-            <th hlmTh>Host</th>
-            <th hlmTh>Created</th>
-            <th hlmTh>Updated</th>
-            <th class="text-right" hlmTh>Actions</th>
-          </tr>
-        </thead>
-        <tbody hlmTBody>
-          @for (device of store.devices(); track device.id) {
-            <tr hlmTr>
-              <td class="font-medium" hlmTd>{{ device.name }}</td>
-              <td hlmTd>{{ device.host }}</td>
-              <td hlmTd>{{ device.createdAt | date: 'short' }}</td>
-              <td hlmTd>{{ device.updatedAt | date: 'short' }}</td>
-              <td class="flex justify-end gap-2" hlmTd>
-                <button type="button" (click)="openEdit(device)" hlmBtn size="sm" variant="outline">Edit</button>
-                <button
-                  type="button"
-                  (click)="requestDelete(device, deleteDialog)"
-                  hlmBtn
-                  size="sm"
-                  variant="destructive"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-            <tr hlmTr>
-              <td class="bg-muted/30 p-4" colspan="5" hlmTd>
-                <app-device-services [deviceId]="device.id" [deviceName]="device.name" />
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="border-op-hairline border px-5 py-10 text-center">
+      <p class="text-op-ink text-sm font-semibold">no devices yet</p>
+      <p class="text-op-mute mt-1 mb-4 text-[12.5px]">add your first device to start managing it from opspilot.</p>
+      <button
+        class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
+        type="button"
+        (click)="openCreate()"
+      >
+        + add device
+      </button>
     </div>
+  } @else {
+    @for (device of store.devices(); track device.id) {
+      <div class="border-op-hairline mb-[18px] border">
+        <div class="border-op-hairline flex items-center gap-4 border-b px-[18px] py-[15px]">
+          <div class="min-w-0 flex-1">
+            <div class="text-[15px] font-bold">{{ device.name }}</div>
+            <div class="text-op-mute mt-0.5 text-[11.5px]">{{ device.host }}</div>
+          </div>
+          <div class="text-op-ash flex-none text-right text-[11px] leading-relaxed">
+            <div>created {{ device.createdAt | date: 'short' }}</div>
+            <div>updated {{ device.updatedAt | date: 'short' }}</div>
+          </div>
+          <div class="flex flex-none gap-[7px]">
+            <button
+              class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
+              type="button"
+              (click)="openEdit(device)"
+            >
+              edit
+            </button>
+            <button
+              class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
+              type="button"
+              (click)="requestDelete(device, deleteDialog)"
+            >
+              delete
+            </button>
+          </div>
+        </div>
+        <div class="bg-op-surface-soft px-[18px] py-[14px]">
+          <app-device-services [deviceId]="device.id" [deviceName]="device.name" />
+        </div>
+      </div>
+    }
   }
 </main>
 
 <hlm-alert-dialog #deleteDialog="hlmAlertDialog">
   <hlm-alert-dialog-content *hlmAlertDialogPortal>
     <hlm-alert-dialog-header>
-      <h2 hlmAlertDialogTitle>Delete device?</h2>
+      <h2 hlmAlertDialogTitle>delete device?</h2>
       <p hlmAlertDialogDescription>
-        This permanently removes {{ deviceToDelete()?.name }} and its stored SSH credentials. This cannot be undone.
+        this permanently removes {{ deviceToDelete()?.name }} and its stored SSH credentials. this cannot be undone.
       </p>
     </hlm-alert-dialog-header>
     <hlm-alert-dialog-footer>
-      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>Cancel</button>
-      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>Delete</button>
+      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>cancel</button>
+      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>delete</button>
     </hlm-alert-dialog-footer>
   </hlm-alert-dialog-content>
 </hlm-alert-dialog>

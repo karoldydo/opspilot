@@ -5,6 +5,7 @@ import { type DeviceActionResult, type DevicesStore } from '@app/features/device
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { credentialCreateRequestSchema, type Device, deviceCreateRequestSchema } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
+import { toast } from '@spartan-ng/brain/sonner';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle } from '@spartan-ng/helm/dialog';
 import { HlmInput } from '@spartan-ng/helm/input';
@@ -144,6 +145,7 @@ export class DeviceFormDialog {
       this.errorMessage.set(result.error);
       return;
     }
+    toast(this.isEdit ? '[+] device updated' : '[+] device added');
     this.dialogRef.close(true);
   }
 }

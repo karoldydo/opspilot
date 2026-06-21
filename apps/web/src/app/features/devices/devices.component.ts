@@ -5,23 +5,14 @@ import { DevicesStore } from '@app/features/devices/data/devices.store';
 import { DeviceFormDialog, type DeviceFormDialogContext } from '@app/features/devices/dialogs/device-form.dialog';
 import { DeviceServicesComponent } from '@app/features/services/components/device-services.component';
 import { type Device } from '@opspilot/shared';
+import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
-import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
-import { HlmEmptyImports } from '@spartan-ng/helm/empty';
-import { HlmTableImports } from '@spartan-ng/helm/table';
 
 // device inventory view. store + client provided here (not providedIn: 'root', per angular.md); the form dialog gets the store via context since it renders in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    DatePipe,
-    HlmButton,
-    ...HlmTableImports,
-    ...HlmAlertDialogImports,
-    ...HlmEmptyImports,
-    DeviceServicesComponent,
-  ],
+  imports: [DatePipe, ...HlmAlertDialogImports, DeviceServicesComponent],
   providers: [DevicesClient, DevicesStore],
   selector: 'app-devices',
   templateUrl: './devices.component.html',
@@ -40,7 +31,8 @@ export class DevicesComponent {
   async confirmDelete(dialog: { close: () => void }): Promise<void> {
     const device = this.deviceToDelete();
     if (device) {
-      await this.store.remove(device.id);
+      const result = await this.store.remove(device.id);
+      toast(result.error ? '[x] could not delete device' : '[-] device deleted');
     }
     dialog.close();
   }

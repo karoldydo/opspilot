@@ -597,29 +597,29 @@ pause for final manual confirmation.
 
 #### Automated
 
-- [x] 3.1 Build succeeds: `npm run build`
-- [x] 3.2 Lint passes: `npm run lint`
-- [x] 3.3 Module boundaries hold (no enforce-module-boundaries errors)
+- [x] 3.1 Build succeeds: `npm run build` — 02783cd
+- [x] 3.2 Lint passes: `npm run lint` — 02783cd
+- [x] 3.3 Module boundaries hold (no enforce-module-boundaries errors) — 02783cd
 
 #### Manual
 
-- [x] 3.4 A manual `toast()` renders a terminal-styled toast in the correct position
-- [x] 3.5 Separator and tooltip render with terminal tokens
+- [x] 3.4 A manual `toast()` renders a terminal-styled toast in the correct position — 02783cd
+- [x] 3.5 Separator and tooltip render with terminal tokens — 02783cd
 
 ### Phase 4: Terminal Re-Skin of Existing Screens
 
 #### Automated
 
-- [ ] 4.1 Build succeeds: `npm run build:web`
-- [ ] 4.2 Lint passes: `npx nx lint web`
-- [ ] 4.3 Unit tests pass: `npx nx test web`
-- [ ] 4.4 Format check passes: `npm run format:check`
+- [x] 4.1 Build succeeds: `npm run build:web`
+- [x] 4.2 Lint passes: `npx nx lint web`
+- [x] 4.3 Unit tests pass: `npx nx test web`
+- [x] 4.4 Format check passes: `npm run format:check`
 
 #### Manual
 
-- [ ] 4.5 Each existing route visually matches its mockup section
-- [ ] 4.6 All dialogs open/close/submit with terminal styling
-- [ ] 4.7 Mutations fire correctly-styled toasts; no functional regressions
+- [x] 4.5 Each existing route visually matches its mockup section
+- [x] 4.6 All dialogs open/close/submit with terminal styling
+- [x] 4.7 Mutations fire correctly-styled toasts; no functional regressions
 
 ### Phase 5: Overview Dashboard (Full-Stack)
 

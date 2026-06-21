@@ -10,6 +10,7 @@ import {
   skillParameterSchema,
 } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
+import { toast } from '@spartan-ng/brain/sonner';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle } from '@spartan-ng/helm/dialog';
@@ -158,6 +159,7 @@ export class SkillFormDialog {
       this.errorMessage.set(result.error);
       return;
     }
+    toast(this.isEdit ? '[+] skill updated' : '[+] skill added');
     this.dialogRef.close(true);
   }
 }

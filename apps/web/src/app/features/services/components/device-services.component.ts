@@ -14,32 +14,28 @@ import {
   type ScanServicesDialogContext,
 } from '@app/features/services/dialogs/scan-services.dialog';
 import { type DiagnosisSynthesis, type RunRecord, type Service } from '@opspilot/shared';
+import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
-import { HlmBadge } from '@spartan-ng/helm/badge';
-import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
-import { HlmTableImports } from '@spartan-ng/helm/table';
 
-// status → badge classes. hlmBadge has no success/warning variant, so we keep its shape and color via tokens/utilities (down = destructive token; healthy/degraded = green/amber, no semantic token exists).
+// status → synthesis-badge fill (cream text on the on-cream status ramp, mockup statusBadge()).
 const BADGE_CLASS: Record<DiagnosisSynthesis['status'], string> = {
-  degraded: 'border-transparent bg-amber-500/15 text-amber-700 dark:text-amber-500',
-  down: 'border-transparent bg-destructive/15 text-destructive',
-  healthy: 'border-transparent bg-green-600/15 text-green-700 dark:text-green-400',
+  degraded: 'bg-op-warning text-op-cream',
+  down: 'bg-op-danger text-op-cream',
+  healthy: 'bg-op-success-text text-op-cream',
+};
+
+// status → recent-run dot text color (the ● glyph in a replay chip).
+const DOT_CLASS: Record<DiagnosisSynthesis['status'], string> = {
+  degraded: 'text-op-warning',
+  down: 'text-op-danger',
+  healthy: 'text-op-success-text',
 };
 
 // managed-services section for one device row (scan + curated table with rename/delete). each instance provides its own ServicesClient + ServicesStore (not providedIn: 'root', per angular.md) so rows stay isolated; the dialogs get the store via context since they render in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    DatePipe,
-    HlmBadge,
-    HlmButton,
-    ...HlmCardImports,
-    ...HlmTableImports,
-    ...HlmAlertDialogImports,
-    ServiceSkillsComponent,
-  ],
+  imports: [DatePipe, ...HlmAlertDialogImports, ServiceSkillsComponent],
   providers: [ServicesClient, ServicesStore, DiagnosisClient, DiagnosisStore],
   selector: 'app-device-services',
   templateUrl: './device-services.component.html',
@@ -88,9 +84,15 @@ export class DeviceServicesComponent {
   async confirmDelete(dialog: { close: () => void }): Promise<void> {
     const service = this.serviceToDelete();
     if (service) {
-      await this.store.remove(this.deviceId(), service.id);
+      const result = await this.store.remove(this.deviceId(), service.id);
+      toast(result.error ? '[x] could not delete service' : '[-] service deleted');
     }
     dialog.close();
+  }
+
+  // status → recent-run dot text color.
+  dotClass(status: DiagnosisSynthesis['status']): string {
+    return DOT_CLASS[status];
   }
 
   // opens a fresh live diagnosis stream for one service row; the store keys the

@@ -1,49 +1,66 @@
-<main class="bg-background flex min-h-svh items-center justify-center p-4">
-  <section class="w-full max-w-sm" hlmCard>
-    <div hlmCardHeader>
-      <h1 hlmCardTitle>Sign in</h1>
-      <p hlmCardDescription>Enter your credentials to access OpsPilot.</p>
+<main class="bg-op-cream text-op-ink flex min-h-svh items-center justify-center p-6">
+  <div class="w-full max-w-[380px]">
+    <!-- wordmark + blinking caret -->
+    <div class="mb-7 flex items-center justify-center gap-2">
+      <span class="text-[22px] font-extrabold tracking-[-0.6px]">opspilot</span>
+      <span class="animate-op-blink bg-op-ink inline-block h-5 w-[10px]"></span>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <div class="flex flex-col gap-4" hlmCardContent>
-        <div class="flex flex-col gap-2">
-          <label for="email" hlmLabel>Email</label>
+    <section class="border-op-hairline border px-[26px] py-7">
+      <h1 class="mb-1 text-[17px] font-bold">sign in</h1>
+      <p class="text-op-mute mb-[22px] text-[13px]">authenticate to reach the operational layer.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="mb-4 flex flex-col">
+          <label class="text-op-body mb-1.5 block text-xs" for="email">email</label>
           <input
+            class="text-op-ink border-op-hairline bg-op-surface-soft h-10 w-full rounded-[4px] border px-3 py-2 text-sm"
             id="email"
             type="email"
             autocomplete="email"
             formControlName="email"
-            hlmInput
-            placeholder="you@example.com"
+            placeholder="you@homelab.local"
           />
           @if (form.controls.email.touched && form.controls.email.invalid) {
-            <p class="text-destructive text-sm">{{ form.controls.email.getError('zod') }}</p>
+            <p class="text-op-danger-text mt-1.5 text-xs">{{ form.controls.email.getError('zod') }}</p>
           }
         </div>
 
-        <div class="flex flex-col gap-2">
-          <label for="password" hlmLabel>Password</label>
-          <input id="password" type="password" autocomplete="current-password" formControlName="password" hlmInput />
+        <div class="mb-[22px] flex flex-col">
+          <label class="text-op-body mb-1.5 block text-xs" for="password">password</label>
+          <input
+            class="text-op-ink border-op-hairline bg-op-surface-soft h-10 w-full rounded-[4px] border px-3 py-2 text-sm"
+            id="password"
+            type="password"
+            autocomplete="current-password"
+            formControlName="password"
+          />
           @if (form.controls.password.touched && form.controls.password.invalid) {
-            <p class="text-destructive text-sm">{{ form.controls.password.getError('zod') }}</p>
+            <p class="text-op-danger-text mt-1.5 text-xs">{{ form.controls.password.getError('zod') }}</p>
           }
         </div>
 
         @if (errorMessage()) {
-          <p class="text-destructive text-sm" role="alert">{{ errorMessage() }}</p>
+          <p class="text-op-danger-text mb-3 text-sm" role="alert">{{ errorMessage() }}</p>
         }
-      </div>
 
-      <div class="flex flex-col gap-3" hlmCardFooter>
-        <button class="w-full" type="submit" [disabled]="submitting()" hlmBtn>
-          {{ submitting() ? 'Signing in…' : 'Sign in' }}
+        <button
+          class="bg-op-ink text-op-cream h-[38px] w-full rounded-[4px] text-sm font-medium"
+          type="submit"
+          [disabled]="submitting()"
+        >
+          {{ submitting() ? 'signing in…' : 'sign in →' }}
         </button>
-        <p class="text-muted-foreground text-sm">
-          No account?
-          <a class="text-foreground underline underline-offset-4" routerLink="/register">Create one</a>
-        </p>
-      </div>
-    </form>
-  </section>
+      </form>
+
+      <p class="text-op-mute mt-[18px] text-center text-[12.5px]">
+        no account?
+        <a class="text-op-ink underline" routerLink="/register">create one</a>
+      </p>
+    </section>
+
+    <p class="text-op-ash mt-[18px] text-center text-[11.5px]">
+      [+] sessions are local · credentials encrypted at rest
+    </p>
+  </div>
 </main>

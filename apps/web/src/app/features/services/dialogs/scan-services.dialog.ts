@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { type ServicesStore } from '@app/features/services/data/services.store';
 import { type ScannedContainer } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
+import { toast } from '@spartan-ng/brain/sonner';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle } from '@spartan-ng/helm/dialog';
@@ -74,6 +75,7 @@ export class ScanServicesDialog {
       this.errorMessage.set(result.error);
       return;
     }
+    toast(containers.length === 1 ? '[+] added 1 service' : '[+] added ' + containers.length + ' services');
     this.dialogRef.close(true);
   }
 

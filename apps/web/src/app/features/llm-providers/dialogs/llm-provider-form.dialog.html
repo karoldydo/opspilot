@@ -1,18 +1,18 @@
 <hlm-dialog-header>
-  <h2 hlmDialogTitle>{{ isEdit ? 'Edit provider' : 'Add provider' }}</h2>
-  <p hlmDialogDescription>
-    {{ isEdit ? 'Update the provider; leave the API key blank to keep the current one.' : 'Enter the endpoint, model,
-    and API key. The provider is validated with a live test-call before it is saved.' }}
+  <h2 class="text-base font-bold" hlmDialogTitle>{{ isEdit ? 'edit provider' : 'add provider' }}</h2>
+  <p class="text-op-mute text-[12.5px]" hlmDialogDescription>
+    {{ isEdit ? 'update the endpoint; leave the API key blank to keep the current one.' : 'enter the endpoint, model and
+    API key. validated with a live test-call before it is saved.' }}
   </p>
 </hlm-dialog-header>
 
 <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <div class="flex flex-col gap-4 py-2">
     <div class="flex flex-col gap-2">
-      <label for="kind" hlmLabel>Kind</label>
+      <label class="text-op-body text-xs" for="kind" hlmLabel>kind</label>
       <hlm-select [itemToString]="kindLabel" formControlName="kind">
-        <hlm-select-trigger class="w-full" buttonId="kind">
-          <hlm-select-value placeholder="Select a kind" />
+        <hlm-select-trigger class="bg-op-surface-soft w-full" buttonId="kind">
+          <hlm-select-value placeholder="select a kind" />
         </hlm-select-trigger>
         <hlm-select-content *hlmSelectPortal>
           <hlm-select-group>
@@ -23,40 +23,61 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label for="baseURL" hlmLabel>Base URL</label>
-      <input id="baseURL" type="text" formControlName="baseURL" hlmInput placeholder="https://api.openai.com/v1" />
+      <label class="text-op-body text-xs" for="baseURL" hlmLabel>base URL</label>
+      <input
+        class="bg-op-surface-soft"
+        id="baseURL"
+        type="text"
+        formControlName="baseURL"
+        hlmInput
+        placeholder="https://api.openai.com/v1"
+      />
       @if (form.controls.baseURL.touched && form.controls.baseURL.invalid) {
-      <p class="text-destructive text-sm">{{ form.controls.baseURL.getError('zod') }}</p>
+      <p class="text-op-danger-text text-sm">{{ form.controls.baseURL.getError('zod') }}</p>
       }
     </div>
 
     <div class="flex flex-col gap-2">
-      <label for="model" hlmLabel>Model</label>
-      <input id="model" type="text" formControlName="model" hlmInput placeholder="gpt-4o-mini" />
+      <label class="text-op-body text-xs" for="model" hlmLabel>model</label>
+      <input
+        class="bg-op-surface-soft"
+        id="model"
+        type="text"
+        formControlName="model"
+        hlmInput
+        placeholder="gpt-4o-mini"
+      />
       @if (form.controls.model.touched && form.controls.model.invalid) {
-      <p class="text-destructive text-sm">{{ form.controls.model.getError('zod') }}</p>
+      <p class="text-op-danger-text text-sm">{{ form.controls.model.getError('zod') }}</p>
       }
     </div>
 
     <div class="flex flex-col gap-2">
-      <label for="apiKey" hlmLabel>API key</label>
-      <input id="apiKey" type="password" autocomplete="off" formControlName="apiKey" hlmInput />
+      <label class="text-op-body text-xs" for="apiKey" hlmLabel>API key</label>
+      <input
+        class="bg-op-surface-soft"
+        id="apiKey"
+        type="password"
+        autocomplete="off"
+        formControlName="apiKey"
+        hlmInput
+      />
       @if (form.controls.apiKey.touched && form.controls.apiKey.invalid) {
-      <p class="text-destructive text-sm">{{ form.controls.apiKey.getError('zod') }}</p>
+      <p class="text-op-danger-text text-sm">{{ form.controls.apiKey.getError('zod') }}</p>
       } @if (isEdit) {
-      <p class="text-muted-foreground text-sm">Leave blank to keep the current API key.</p>
+      <p class="text-op-mute text-[11.5px]">leave blank to keep the current API key.</p>
       }
     </div>
 
     @if (errorMessage()) {
-    <p class="text-destructive text-sm" role="alert">{{ errorMessage() }}</p>
+    <p class="text-op-danger-text text-sm" role="alert">{{ errorMessage() }}</p>
     }
   </div>
 
   <hlm-dialog-footer>
-    <button type="button" (click)="cancel()" hlmBtn variant="outline">Cancel</button>
+    <button type="button" (click)="cancel()" hlmBtn variant="outline">cancel</button>
     <button type="submit" [disabled]="submitting()" hlmBtn>
-      {{ submitting() ? 'Saving…' : isEdit ? 'Save changes' : 'Add provider' }}
+      {{ submitting() ? 'saving…' : isEdit ? 'save changes' : 'add provider' }}
     </button>
   </hlm-dialog-footer>
 </form>

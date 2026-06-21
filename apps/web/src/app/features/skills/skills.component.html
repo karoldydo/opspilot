@@ -1,69 +1,78 @@
-<main class="mx-auto flex min-h-svh max-w-4xl flex-col gap-6 p-8">
-  <header class="flex items-center justify-between gap-4">
-    <div class="flex flex-col gap-1">
-      <h1 class="text-foreground text-2xl font-semibold">Skills</h1>
-      <p class="text-muted-foreground text-sm">
-        Parameterized commands you can run on a service — global or scoped to one device.
-      </p>
-    </div>
-    <button type="button" (click)="openCreate()" hlmBtn>Add skill</button>
-  </header>
+<main class="max-w-[1040px] px-11 pt-10 pb-16">
+  <div class="mb-1.5 flex items-end justify-between gap-4">
+    <h1 class="text-[24px] font-bold tracking-[-0.4px]">skills</h1>
+    <button
+      class="bg-op-ink text-op-cream rounded-[4px] px-4 py-[9px] text-[13px] font-medium whitespace-nowrap"
+      type="button"
+      (click)="openCreate()"
+    >
+      + add skill
+    </button>
+  </div>
+  <p class="text-op-mute mb-7 text-[13.5px]">
+    parameterized commands the agent may run — global or scoped to one host.
+  </p>
 
   @if (store.error(); as error) {
-    <p class="text-destructive text-sm" role="alert">{{ error }}</p>
+    <p class="text-op-danger-text mb-4 text-sm" role="alert">{{ error }}</p>
   }
 
   @if (store.isEmpty()) {
-    <hlm-empty>
-      <hlm-empty-header>
-        <h2 hlmEmptyTitle>No skills yet</h2>
-        <p hlmEmptyDescription>Add your first skill to run parameterized commands on your services.</p>
-      </hlm-empty-header>
-      <hlm-empty-content>
-        <button type="button" (click)="openCreate()" hlmBtn variant="outline">Add skill</button>
-      </hlm-empty-content>
-    </hlm-empty>
+    <div class="border-op-hairline border px-[18px] py-12 text-center">
+      <p class="text-op-ash mb-4 text-[12.5px]">no skills yet. add your first to run parameterized commands.</p>
+      <button
+        class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
+        type="button"
+        (click)="openCreate()"
+      >
+        + add skill
+      </button>
+    </div>
   } @else {
-    <div hlmTableContainer>
-      <table hlmTable>
-        <thead hlmTHead>
-          <tr hlmTr>
-            <th hlmTh>Name</th>
-            <th hlmTh>Scope</th>
-            <th hlmTh>Parameters</th>
-            <th hlmTh>Updated</th>
-            <th class="text-right" hlmTh>Actions</th>
-          </tr>
-        </thead>
-        <tbody hlmTBody>
-          @for (skill of store.skills(); track skill.id) {
-            <tr hlmTr>
-              <td class="font-medium" hlmTd>{{ skill.name }}</td>
-              <td hlmTd>
-                @if (skill.deviceId === null) {
-                  <span hlmBadge variant="outline">Global</span>
-                } @else {
-                  <span hlmBadge>{{ scopeLabel(skill) }}</span>
-                }
-              </td>
-              <td hlmTd>{{ skill.parameters.length }}</td>
-              <td hlmTd>{{ skill.updatedAt | date: 'short' }}</td>
-              <td class="flex justify-end gap-2" hlmTd>
-                <button type="button" (click)="openEdit(skill)" hlmBtn size="sm" variant="outline">Edit</button>
-                <button
-                  type="button"
-                  (click)="requestDelete(skill, deleteDialog)"
-                  hlmBtn
-                  size="sm"
-                  variant="destructive"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="border-op-hairline border">
+      <div
+        class="text-op-mute border-op-hairline-strong flex gap-4 border-b px-[18px] py-[11px] text-[11px] font-bold tracking-[0.5px] uppercase"
+      >
+        <span class="w-[130px] flex-none">name</span>
+        <span class="w-[120px] flex-none">scope</span>
+        <span class="flex-1">command</span>
+        <span class="w-[74px] flex-none">params</span>
+        <span class="flex-none">actions</span>
+      </div>
+      @for (skill of store.skills(); track skill.id) {
+        <div class="border-op-hairline flex items-center gap-4 border-b px-[18px] py-[13px]">
+          <span class="w-[130px] flex-none truncate text-[13.5px] font-semibold">{{ skill.name }}</span>
+          <span class="w-[120px] flex-none">
+            @if (skill.deviceId === null) {
+              <span class="border-op-hairline text-op-mute rounded-[4px] border px-2 py-[2px] text-[11.5px]"
+                >global</span
+              >
+            } @else {
+              <span class="border-op-ink text-op-ink rounded-[4px] border px-2 py-[2px] text-[11.5px]">{{
+                scopeLabel(skill)
+              }}</span>
+            }
+          </span>
+          <span class="text-op-body flex-1 truncate text-[12.5px]">{{ skill.commandTemplate }}</span>
+          <span class="text-op-mute w-[74px] flex-none text-xs">{{ skill.parameters.length }}</span>
+          <span class="flex flex-none gap-2">
+            <button
+              class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
+              type="button"
+              (click)="openEdit(skill)"
+            >
+              edit
+            </button>
+            <button
+              class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
+              type="button"
+              (click)="requestDelete(skill, deleteDialog)"
+            >
+              delete
+            </button>
+          </span>
+        </div>
+      }
     </div>
   }
 </main>
@@ -71,12 +80,12 @@
 <hlm-alert-dialog #deleteDialog="hlmAlertDialog">
   <hlm-alert-dialog-content *hlmAlertDialogPortal>
     <hlm-alert-dialog-header>
-      <h2 hlmAlertDialogTitle>Delete skill?</h2>
-      <p hlmAlertDialogDescription>This permanently removes {{ skillToDelete()?.name }}. This cannot be undone.</p>
+      <h2 hlmAlertDialogTitle>delete skill?</h2>
+      <p hlmAlertDialogDescription>this permanently removes {{ skillToDelete()?.name }}. this cannot be undone.</p>
     </hlm-alert-dialog-header>
     <hlm-alert-dialog-footer>
-      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>Cancel</button>
-      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>Delete</button>
+      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>cancel</button>
+      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>delete</button>
     </hlm-alert-dialog-footer>
   </hlm-alert-dialog-content>
 </hlm-alert-dialog>

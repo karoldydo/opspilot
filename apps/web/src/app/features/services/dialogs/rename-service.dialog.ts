@@ -4,6 +4,7 @@ import { type ServicesStore } from '@app/features/services/data/services.store';
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { type Service, serviceUpdateRequestSchema } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
+import { toast } from '@spartan-ng/brain/sonner';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle } from '@spartan-ng/helm/dialog';
 import { HlmInput } from '@spartan-ng/helm/input';
@@ -72,6 +73,7 @@ export class RenameServiceDialog {
       this.errorMessage.set(result.error);
       return;
     }
+    toast('[+] service renamed');
     this.dialogRef.close(true);
   }
 }

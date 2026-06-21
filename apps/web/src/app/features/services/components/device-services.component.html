@@ -1,137 +1,166 @@
-<section class="flex flex-col gap-3">
-  <div class="flex items-center justify-between gap-4">
-    <h3 class="text-foreground text-sm font-semibold">Services</h3>
-    <button type="button" (click)="openScan()" hlmBtn size="sm" variant="outline">Scan</button>
+<section class="flex flex-col gap-2">
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex items-baseline gap-2">
+      <span class="text-[13px] font-bold">services</span>
+      <span class="text-op-ash text-[11px]">{{ store.services().length }} managed</span>
+    </div>
+    <button
+      class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[14px] py-1 text-xs font-medium"
+      type="button"
+      (click)="openScan()"
+    >
+      scan
+    </button>
   </div>
 
   @if (store.error()) {
-    <p class="text-destructive text-sm" role="alert">{{ store.error() }}</p>
+    <p class="text-op-danger-text text-sm" role="alert">{{ store.error() }}</p>
   }
 
   @if (store.isEmpty()) {
-    <p class="text-muted-foreground text-sm">No managed services yet. Scan the host to add some.</p>
+    <p class="text-op-ash my-1.5 text-[12.5px]">no managed services yet. scan the host to add some.</p>
   } @else {
-    <div hlmTableContainer>
-      <table hlmTable>
-        <thead hlmTHead>
-          <tr hlmTr>
-            <th hlmTh>Name</th>
-            <th hlmTh>Container</th>
-            <th class="text-right" hlmTh>Actions</th>
-          </tr>
-        </thead>
-        <tbody hlmTBody>
-          @for (service of store.services(); track service.id) {
-            @let diag = diagnosis.entry(service.id);
-            @let view = diag.result ?? diag.partial;
-            <tr hlmTr>
-              <td class="font-medium" hlmTd>{{ service.name }}</td>
-              <td hlmTd>{{ service.containerName }}</td>
-              <td class="flex justify-end gap-2" hlmTd>
-                <button
-                  type="button"
-                  [disabled]="diag.loading"
-                  (click)="diagnose(service)"
-                  hlmBtn
-                  size="sm"
-                  variant="outline"
-                >
-                  {{ diag.loading ? 'Diagnosing…' : 'Diagnose' }}
-                </button>
-                <app-service-skills [deviceId]="deviceId()" [service]="service" />
-                <button type="button" (click)="openRename(service)" hlmBtn size="sm" variant="outline">Edit</button>
-                <button
-                  type="button"
-                  (click)="requestDelete(service, deleteDialog)"
-                  hlmBtn
-                  size="sm"
-                  variant="destructive"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-
-            @if (diag.error || view || diag.loading || diag.runs.length) {
-              <tr hlmTr>
-                <td class="space-y-3 p-2" colspan="3" hlmTd>
-                  @if (diag.error) {
-                    <p class="text-destructive text-sm" role="alert">{{ diag.error }}</p>
-                  } @else if (view || diag.loading) {
-                    <section class="gap-3 p-4" hlmCard>
-                      <div class="flex-row items-center gap-2 p-0" hlmCardHeader>
-                        @if (view?.status; as status) {
-                          <span [class]="badgeClass(status)" hlmBadge>{{ status }}</span>
-                        }
-                        <p class="text-sm" hlmCardTitle>{{ view?.summary || 'Diagnosing…' }}</p>
-                      </div>
-                      <div class="grid gap-3 p-0 sm:grid-cols-2" hlmCardContent>
-                        <div class="flex flex-col gap-1">
-                          <h4 class="text-foreground text-xs font-semibold tracking-wide uppercase">Problems</h4>
-                          @if (view?.problems; as problems) {
-                            @if (problems.length) {
-                              <ul class="text-muted-foreground list-disc space-y-0.5 ps-4 text-sm">
-                                @for (problem of problems; track $index) {
-                                  <li>{{ problem }}</li>
-                                }
-                              </ul>
-                            } @else {
-                              <p class="text-muted-foreground text-sm">None detected.</p>
-                            }
-                          }
-                        </div>
-                        <div class="flex flex-col gap-1">
-                          <h4 class="text-foreground text-xs font-semibold tracking-wide uppercase">Suggestions</h4>
-                          @if (view?.suggestions; as suggestions) {
-                            @if (suggestions.length) {
-                              <ul class="text-muted-foreground list-disc space-y-0.5 ps-4 text-sm">
-                                @for (suggestion of suggestions; track $index) {
-                                  <li>{{ suggestion }}</li>
-                                }
-                              </ul>
-                            } @else {
-                              <p class="text-muted-foreground text-sm">None.</p>
-                            }
-                          }
-                        </div>
-                      </div>
-                    </section>
-                  }
-
-                  @if (diag.runs.length) {
-                    <div class="flex flex-col gap-1">
-                      <h4 class="text-foreground text-xs font-semibold tracking-wide uppercase">Recent runs</h4>
-                      <div class="flex flex-wrap gap-2">
-                        @for (run of diag.runs; track run.id) {
-                          <button type="button" (click)="replay(service, run)" hlmBtn size="sm" variant="ghost">
-                            {{ run.createdAt | date: 'short' }} · {{ run.synthesis.status }}
-                          </button>
-                        }
-                      </div>
-                    </div>
-                  }
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
+    <div
+      class="text-op-mute border-op-hairline-strong flex gap-3 border-b px-0.5 py-[7px] text-[10.5px] font-bold tracking-[0.5px] uppercase"
+    >
+      <span class="w-[130px] flex-none">name</span>
+      <span class="flex-1">container</span>
+      <span class="flex-none">actions</span>
     </div>
+    @for (service of store.services(); track service.id) {
+      @let diag = diagnosis.entry(service.id);
+      @let view = diag.result ?? diag.partial;
+      <div class="border-op-hairline border-b">
+        <div class="flex flex-wrap items-center gap-3 px-0.5 py-[11px]">
+          <span class="w-[130px] flex-none truncate text-[13.5px] font-semibold">{{ service.name }}</span>
+          <div class="min-w-[130px] flex-1">
+            <span class="text-op-body text-[12.5px]">{{ service.containerName }}</span>
+          </div>
+          <div class="flex flex-none flex-wrap justify-end gap-1.5">
+            <button
+              class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[11px] py-1 text-xs font-medium whitespace-nowrap"
+              type="button"
+              [disabled]="diag.loading"
+              (click)="diagnose(service)"
+            >
+              {{ diag.loading ? 'diagnosing…' : 'diagnose' }}
+            </button>
+            <app-service-skills [deviceId]="deviceId()" [service]="service" />
+            <button
+              class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs"
+              type="button"
+              (click)="openRename(service)"
+            >
+              edit
+            </button>
+            <button
+              class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs"
+              type="button"
+              (click)="requestDelete(service, deleteDialog)"
+            >
+              delete
+            </button>
+          </div>
+        </div>
+
+        @if (diag.error || view || diag.loading || diag.runs.length) {
+          <div class="space-y-3 px-0.5 pt-0.5 pb-4">
+            @if (diag.error) {
+              <p class="text-op-danger-text text-sm" role="alert">{{ diag.error }}</p>
+            } @else if (diag.loading && !view) {
+              <div class="bg-op-ink flex items-center gap-2 rounded-[4px] px-4 py-[14px]">
+                <span class="text-op-ash text-xs">running diagnosis…</span>
+                <span class="animate-op-blink bg-op-cream inline-block h-[13px] w-[7px]"></span>
+              </div>
+            }
+
+            @if (view; as v) {
+              <div class="border-op-hairline bg-op-cream animate-op-fade rounded-[4px] border px-[18px] py-4">
+                <div class="mb-3 flex flex-wrap items-center gap-2.5">
+                  @if (v.status; as status) {
+                    <span
+                      class="text-op-cream rounded-[4px] px-[9px] py-0.5 text-[10.5px] font-bold tracking-[0.5px] uppercase {{
+                        badgeClass(status)
+                      }}"
+                      >{{ status }}</span
+                    >
+                  }
+                  <span class="text-op-ink text-[13.5px]">{{ v.summary || 'diagnosing…' }}</span>
+                </div>
+                <div class="grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <div class="text-op-warning-text mb-1.5 text-[11px] font-bold tracking-[0.5px] uppercase">
+                      problems
+                    </div>
+                    @if (v.problems; as problems) {
+                      @if (problems.length) {
+                        @for (problem of problems; track $index) {
+                          <div class="text-op-body flex gap-2 py-1 text-[12.5px]">
+                            <span class="text-op-danger flex-none font-bold">[x]</span><span>{{ problem }}</span>
+                          </div>
+                        }
+                      } @else {
+                        <div class="text-op-ash text-[12.5px]">none detected.</div>
+                      }
+                    }
+                  </div>
+                  <div>
+                    <div class="text-op-success-text mb-1.5 text-[11px] font-bold tracking-[0.5px] uppercase">
+                      suggestions
+                    </div>
+                    @if (v.suggestions; as suggestions) {
+                      @if (suggestions.length) {
+                        @for (suggestion of suggestions; track $index) {
+                          <div class="text-op-body flex gap-2 py-1 text-[12.5px]">
+                            <span class="text-op-success-text flex-none font-bold">[+]</span
+                            ><span>{{ suggestion }}</span>
+                          </div>
+                        }
+                      } @else {
+                        <div class="text-op-ash text-[12.5px]">none.</div>
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (diag.runs.length) {
+              <div>
+                <div class="text-op-mute mb-1.5 text-[10.5px] font-bold tracking-[0.5px] uppercase">recent runs</div>
+                <div class="flex flex-wrap gap-[7px]">
+                  @for (run of diag.runs; track run.id) {
+                    <button
+                      class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-[11.5px]"
+                      type="button"
+                      (click)="replay(service, run)"
+                    >
+                      <span class="font-bold {{ dotClass(run.synthesis.status) }}">●</span>
+                      {{ run.createdAt | date: 'short' }} · {{ run.synthesis.status }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
   }
 </section>
 
 <hlm-alert-dialog #deleteDialog="hlmAlertDialog">
   <hlm-alert-dialog-content *hlmAlertDialogPortal>
     <hlm-alert-dialog-header>
-      <h2 hlmAlertDialogTitle>Delete service?</h2>
+      <h2 hlmAlertDialogTitle>delete service?</h2>
       <p hlmAlertDialogDescription>
-        This stops managing {{ serviceToDelete()?.name }} in OpsPilot. The container itself is not touched. This cannot
+        this stops managing {{ serviceToDelete()?.name }} in opspilot. the container itself is not touched. this cannot
         be undone.
       </p>
     </hlm-alert-dialog-header>
     <hlm-alert-dialog-footer>
-      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>Cancel</button>
-      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>Delete</button>
+      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>cancel</button>
+      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>delete</button>
     </hlm-alert-dialog-footer>
   </hlm-alert-dialog-content>
 </hlm-alert-dialog>

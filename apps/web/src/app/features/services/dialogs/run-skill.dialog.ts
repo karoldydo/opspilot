@@ -10,6 +10,7 @@ import { type SkillRunStore } from '@app/features/services/data/skill-run.store'
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { type Skill, type SkillParameter, skillParameterValueSchema } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
+import { toast } from '@spartan-ng/brain/sonner';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle } from '@spartan-ng/helm/dialog';
 import { HlmInput } from '@spartan-ng/helm/input';
@@ -102,6 +103,7 @@ export class RunSkillDialog {
       this.errorMessage.set(result.error);
       return;
     }
+    toast('[+] ran ' + this.skillName + ' on ' + this.serviceName);
     this.dialogRef.close(true);
   }
 

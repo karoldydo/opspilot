@@ -1,33 +1,38 @@
 <hlm-dialog-header>
-  <h2 hlmDialogTitle>Run {{ skillName }}</h2>
-  <p hlmDialogDescription>
-    Run <code>{{ skillName }}</code> on {{ serviceName }}. This executes the command below on the host.
+  <h2 class="text-base font-bold" hlmDialogTitle>run {{ skillName }}</h2>
+  <p class="text-op-mute text-[12.5px]" hlmDialogDescription>
+    run <code class="bg-op-surface-card rounded-[3px] px-[5px] py-px">{{ skillName }}</code> on {{ serviceName }}. this
+    executes the command below on the host.
   </p>
 </hlm-dialog-header>
 
 <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <div class="flex flex-col gap-4 py-2">
-    <pre class="bg-muted text-muted-foreground overflow-x-auto rounded-md p-3 text-xs">{{ commandTemplate }}</pre>
+    <pre class="bg-op-ink overflow-x-auto rounded-[4px] px-[14px] py-3 text-xs text-[#cfcccc]">
+{{ commandTemplate }}</pre
+    >
 
     @for (parameter of inputParameters; track parameter.name) {
     <div class="flex flex-col gap-2">
-      <label [for]="parameter.name" hlmLabel>
+      <label class="text-op-body text-xs" [for]="parameter.name" hlmLabel>
         {{ parameter.name }} @if (!parameter.required) {
-        <span class="text-muted-foreground">(optional)</span>
+        <span class="text-op-mute">(optional)</span>
         }
       </label>
-      <input type="text" [formControlName]="parameter.name" [id]="parameter.name" hlmInput />
+      <input class="bg-op-surface-soft" type="text" [formControlName]="parameter.name" [id]="parameter.name" hlmInput />
       @if (form.get(parameter.name)?.touched && form.get(parameter.name)?.invalid) {
-      <p class="text-destructive text-sm">{{ form.get(parameter.name)?.getError('zod') }}</p>
+      <p class="text-op-danger-text text-sm">{{ form.get(parameter.name)?.getError('zod') }}</p>
       }
     </div>
+    } @if (inputParameters.length === 0) {
+    <p class="text-op-ash text-xs">no inputs required — the container is resolved from the service row.</p>
     } @if (errorMessage()) {
-    <p class="text-destructive text-sm" role="alert">{{ errorMessage() }}</p>
+    <p class="text-op-danger-text text-sm" role="alert">{{ errorMessage() }}</p>
     }
   </div>
 
   <hlm-dialog-footer>
-    <button type="button" (click)="cancel()" hlmBtn variant="outline">Cancel</button>
-    <button type="submit" [disabled]="submitting()" hlmBtn>{{ submitting() ? 'Running…' : 'Run' }}</button>
+    <button type="button" (click)="cancel()" hlmBtn variant="outline">cancel</button>
+    <button type="submit" [disabled]="submitting()" hlmBtn>{{ submitting() ? 'running…' : 'run' }}</button>
   </hlm-dialog-footer>
 </form>

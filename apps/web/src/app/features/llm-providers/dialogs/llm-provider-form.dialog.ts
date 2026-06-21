@@ -7,6 +7,7 @@ import {
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { type LlmProvider, llmProviderCreateRequestSchema, type LlmProviderUpdateRequest } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
+import { toast } from '@spartan-ng/brain/sonner';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle } from '@spartan-ng/helm/dialog';
 import { HlmInput } from '@spartan-ng/helm/input';
@@ -119,6 +120,7 @@ export class LlmProviderFormDialog {
       this.errorMessage.set(result.error);
       return;
     }
+    toast(this.isEdit ? '[+] provider updated' : '[+] provider added');
     this.dialogRef.close(true);
   }
 }

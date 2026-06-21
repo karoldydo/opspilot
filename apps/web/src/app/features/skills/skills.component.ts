@@ -1,21 +1,17 @@
-import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { SkillsClient } from '@app/features/skills/data/skills.client';
 import { SkillsStore } from '@app/features/skills/data/skills.store';
 import { SkillFormDialog, type SkillFormDialogContext } from '@app/features/skills/dialogs/skill-form.dialog';
 import { type Device, type Skill } from '@opspilot/shared';
+import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
-import { HlmBadge } from '@spartan-ng/helm/badge';
-import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
-import { HlmEmptyImports } from '@spartan-ng/helm/empty';
-import { HlmTableImports } from '@spartan-ng/helm/table';
 
 // skill catalog view (global + per-device). store/client + DevicesClient (for the scope select) provided here (not providedIn: 'root', per angular.md); the form dialog gets the store + device list via context since it renders in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, HlmBadge, HlmButton, ...HlmTableImports, ...HlmAlertDialogImports, ...HlmEmptyImports],
+  imports: [...HlmAlertDialogImports],
   providers: [SkillsClient, SkillsStore, DevicesClient],
   selector: 'app-skills',
   templateUrl: './skills.component.html',
@@ -42,7 +38,8 @@ export class SkillsComponent {
   async confirmDelete(dialog: { close: () => void }): Promise<void> {
     const skill = this.skillToDelete();
     if (skill) {
-      await this.store.remove(skill.id);
+      const result = await this.store.remove(skill.id);
+      toast(result.error ? '[x] could not delete skill' : '[-] skill deleted');
     }
     dialog.close();
   }

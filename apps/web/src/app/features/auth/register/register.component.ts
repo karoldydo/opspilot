@@ -4,14 +4,10 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from '@app/core/auth/auth.store';
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { authRegisterRequestSchema } from '@opspilot/shared';
-import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmCardImports } from '@spartan-ng/helm/card';
-import { HlmInput } from '@spartan-ng/helm/input';
-import { HlmLabel } from '@spartan-ng/helm/label';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, HlmButton, HlmInput, HlmLabel, ...HlmCardImports],
+  imports: [ReactiveFormsModule, RouterLink],
   selector: 'app-register',
   templateUrl: './register.component.html',
 })
