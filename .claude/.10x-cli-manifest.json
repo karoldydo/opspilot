@@ -1,9 +1,9 @@
 {
   "package": "@przeprogramowani/10x-cli",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "manifestVersion": 3,
-  "lastApplied": "2026-06-16T13:39:52.545Z",
-  "lessonId": "m3l5",
+  "lastApplied": "2026-06-21T21:34:56.320Z",
+  "lessonId": "m5l5",
   "course": "10xdevs3",
   "tool": "claude-code",
   "files": {
@@ -239,6 +239,66 @@
           "references/seed-test-pattern.md": "90fa8778a557d0c88320e839c6a8879735b3390b68ed89b3487258f2562b2f80",
           "SKILL.md": "994b511efafdcbe7526bb32a9908b330bd78326c42c5e41896983e497c61cd54"
         }
+      },
+      "10x-opportunity-map": {
+        "files": [
+          "SKILL.md"
+        ],
+        "contentHashes": {
+          "SKILL.md": "df8ddeb8377253b41b2de7812dedcf3fce8ddf3489e4ad52a7cc20e8b72f939f"
+        }
+      },
+      "10x-mom-test": {
+        "files": [
+          "SKILL.md"
+        ],
+        "contentHashes": {
+          "SKILL.md": "6b992b77c723413a9b805280cf83da0ca5b848742dca49129d34f59e241149e8"
+        }
+      },
+      "10x-impl-review-ci": {
+        "files": [
+          "references/impl-review-instructions.md",
+          "references/workflow-template.yml",
+          "SKILL.md"
+        ],
+        "contentHashes": {
+          "references/impl-review-instructions.md": "b045095889ac573f6f03b6e4d5c79f0bf199bb530a2dd40b3fee319d44af1cee",
+          "references/workflow-template.yml": "f9c039b74d595790ebb931876e08b30061d2f4d4064d0cb5466c52a064d64904",
+          "SKILL.md": "329af627486e1f0fd68e7546a0a758cee1c3cb2cd911c6d490a8152cceb03378"
+        }
+      },
+      "pack-init": {
+        "files": [
+          "SKILL.md"
+        ],
+        "contentHashes": {
+          "SKILL.md": "044642e3cd6a68faa56f4913fc37f8f4b0d45807496d79fc8e82a726e73c73a6"
+        }
+      },
+      "tf-registry": {
+        "files": [
+          "SKILL.md"
+        ],
+        "contentHashes": {
+          "SKILL.md": "292010b5bd488bae801e5046cf6fa2d7866b828e8080a2585d3f858a22e7377e"
+        }
+      },
+      "setup-cicd": {
+        "files": [
+          "SKILL.md"
+        ],
+        "contentHashes": {
+          "SKILL.md": "7d9a05f1efb4780b5dd3d4e6a34d7eb529d385c8e1f2c2c66c2e53e2f07abceb"
+        }
+      },
+      "10x-goal-implement": {
+        "files": [
+          "SKILL.md"
+        ],
+        "contentHashes": {
+          "SKILL.md": "436470382fd1594bc4815ea297fcad64eb53670af2ca98fca512dcd825629ef9"
+        }
       }
     },
     "prompts": [
@@ -247,21 +307,73 @@
       "m1l5-2-constrain-approach.md",
       "m1l5-3-extend-prerequisites.md",
       "m1l5-4-store-plan.md",
-      "m3l2-ad-hoc-testing.md"
+      "m3l2-ad-hoc-testing.md",
+      "m0l1-prework.md",
+      "m4l2-1-territory-git-history.md",
+      "m4l2-2-structure-dependency-cruiser.md",
+      "m4l2-3-contributors-git.md",
+      "m4l2-repo-map-synthesis.md",
+      "m4l3-1-research-with-map.md",
+      "m4l3-2-ast-grep-verification.md",
+      "m4l4-1-new-change-intention.md",
+      "m4l4-2-refactor-opportunities-research.md",
+      "m4l4-3-ranking-ast-grep-verification.md",
+      "m4l5-1-domain-distillation.md",
+      "m4l5-2-invariant-aggregate-refactor.md",
+      "m4l5-3-anti-corruption-layer.md",
+      "m5l2-agent.md",
+      "m5l3-requirements.md",
+      "m5l3-cicd.md",
+      "m5l3-promptfoo.md",
+      "m5l4-shared-conventions.md",
+      "m5l4-shared-spec-skill.md",
+      "m5l4-github-packages-spec-pack.md",
+      "m5l4-github-packages-spec-cicd.md",
+      "m5l4-codeartifact-spec-cicd.md",
+      "m5l4-codeartifact-spec-terraform.md"
     ],
-    "configs": [],
+    "configs": [
+      "m5l4-github-packages-package.json.template",
+      "m5l4-github-packages-consumer.npmrc.template",
+      "m5l4-github-packages-install.js.template",
+      "m5l4-github-packages-uninstall.js.template",
+      "m5l4-github-packages-publish-ai-toolkit.yml.template"
+    ],
     "promptHashes": {
       "skill-explainer.md": "6ee36d65134a8f6ecc8062b15362bde673c702e1b71c09ac7455bc84e29b2848",
       "m1l5-1-plan-integration.md": "153e2dbc3d03c07e0e03776e3295fdeafc2b395e57454029f9403ff6ea29f606",
       "m1l5-2-constrain-approach.md": "1d2477cdc3c2a867a4bf79d3d1ba1151f0468875237f2322126b26e5d506c505",
       "m1l5-3-extend-prerequisites.md": "3418ae7c2ffc10f9cce9ad23b48b845033b57793fc2816df66c6deb8b6eae867",
       "m1l5-4-store-plan.md": "0f72fd90618f05bd8f6784825d217e128fa3148def28024995f1ad1026b34f48",
-      "m3l2-ad-hoc-testing.md": "6a4509b6b90d3ea9229d19dbec77aea0c6812d0d706144006f9465e195f5387f"
+      "m3l2-ad-hoc-testing.md": "6a4509b6b90d3ea9229d19dbec77aea0c6812d0d706144006f9465e195f5387f",
+      "m0l1-prework.md": "283fad38191ae2391ec6c98ab5ea2b263804679fdfadf8e51db8e61cde336404",
+      "m4l2-1-territory-git-history.md": "37a48d9095fa02fe2147190a9d4fdcf74a780f556b1e9d25945dd06f33bec5f2",
+      "m4l2-2-structure-dependency-cruiser.md": "0b0a15d46647bc28c0d41c901b2d07366edb9172bc0a529abe03488fb8de186c",
+      "m4l2-3-contributors-git.md": "fc600f19f40cfbc16bec152e1326021b3118d95f43c7bd2519986dcf3318fb50",
+      "m4l2-repo-map-synthesis.md": "8112d4b13fcb4a909308a82a696a64ef1a659e9e3b20238eeae7cccf228352b4",
+      "m4l3-1-research-with-map.md": "b21933bc50ad0de9ad32bf3908d6081bd33632ed4dfb2519747c1a4294b2cec4",
+      "m4l3-2-ast-grep-verification.md": "6d0c4cc38281f68a2bb728580c177499dc0d812988cb68ae84885080148d62b8",
+      "m4l4-1-new-change-intention.md": "932b65e90f5f4c4ed289b14a457c9950ff59edd22e1a8a2baba5f6e8db3f20a0",
+      "m4l4-2-refactor-opportunities-research.md": "085635e4e677824f475daaadc2b6f7d1df2af6591bfd6fdfc0facbdefeee4413",
+      "m4l4-3-ranking-ast-grep-verification.md": "986364bd6fda83c28d746ef7bbd9f9383d6b9d26af84430cc6a28e89c74138c2",
+      "m4l5-1-domain-distillation.md": "9ff353da7881fb0e08f7950f18c3d3a3bf31dfd8b15a12d52d7cfbb02e2be20a",
+      "m4l5-2-invariant-aggregate-refactor.md": "fcf22eb1676913dabf73e278515b7d8e47d04bc271ed46bc658c08a3792b7721",
+      "m4l5-3-anti-corruption-layer.md": "c3ad9792233c1eeeadbb6f9522f01f0d4594448f17bbfd2e4002a6eabfb9e386",
+      "m5l2-agent.md": "76fdba2cd34ad290ffefef3c28d4adb9d6cac7964dc74bf57b84084ead8f336b",
+      "m5l3-requirements.md": "9afb43da9b7b35370c0a2e0f540e279911062cd4978e1f7ef8778eb2a9aaaa12",
+      "m5l3-cicd.md": "872a98942779fbb17172920e1c61d4f69a3397d7fb19231a2cd05ef0c3ae2767",
+      "m5l3-promptfoo.md": "806be147011125baf15437661ead810aa24bdb55e80089aa185ed6fd4894ae7f",
+      "m5l4-shared-conventions.md": "0627da1d55aa906424e750944d452859db84add0e2ab953b4528e8725fe697ec",
+      "m5l4-shared-spec-skill.md": "8bc4ebe1c178f545278305c6cc68569921a636894b9295a62846ab22bf11d4bb",
+      "m5l4-github-packages-spec-pack.md": "2f88d2d5ea99111bb29e4d4738186faea22d130ab00f7695955eb2eeedc0b9f4",
+      "m5l4-github-packages-spec-cicd.md": "fc2c73044682dddf89f06001c02b8f50ba34e35713f614e3615f6364b6542e1c",
+      "m5l4-codeartifact-spec-cicd.md": "49cc310354df0df3dddf2c124a0680d1160cdd557d6e67c2d101fb5a91f41ba9",
+      "m5l4-codeartifact-spec-terraform.md": "4dac6deb9695a02688f140c2c5c7a74ad7529155cb420cf57ff3c4d3c03e9db3"
     }
   },
   "lessons": {
     "m1l3": {
-      "appliedAt": "2026-05-25T22:23:00.435Z",
+      "appliedAt": "2026-06-21T21:34:52.560Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -315,11 +427,14 @@
           ]
         }
       },
-      "prompts": [],
-      "configs": []
+      "prompts": [
+        "skill-explainer.md"
+      ],
+      "configs": [],
+      "catalogContentHash": "1ae692d06b059e33daa0deaf83f95311aae1f89d35e28732769a4d4b8099ece1"
     },
     "m1l4": {
-      "appliedAt": "2026-05-28T19:04:16.515Z",
+      "appliedAt": "2026-06-21T21:34:52.748Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -391,10 +506,11 @@
       "prompts": [
         "skill-explainer.md"
       ],
-      "configs": []
+      "configs": [],
+      "catalogContentHash": "662b774be10c88aae2c4badf81954c84d2739f62247fa5b02823130e7e4419ba"
     },
     "m1l5": {
-      "appliedAt": "2026-05-29T21:34:56.303Z",
+      "appliedAt": "2026-06-21T21:34:52.923Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -476,10 +592,11 @@
         "m1l5-3-extend-prerequisites.md",
         "m1l5-4-store-plan.md"
       ],
-      "configs": []
+      "configs": [],
+      "catalogContentHash": "bbb8dccb95677579e824cfe9c1faae071b43939482d272630d61f8b13e8f3361"
     },
     "m2l1": {
-      "appliedAt": "2026-05-30T20:52:19.861Z",
+      "appliedAt": "2026-06-21T21:34:53.117Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -566,10 +683,11 @@
         "m1l5-3-extend-prerequisites.md",
         "m1l5-4-store-plan.md"
       ],
-      "configs": []
+      "configs": [],
+      "catalogContentHash": "084add9b325da4a4500a279544aca3795df5832b87af709c0fdb39e09f7f8c34"
     },
     "m2l2": {
-      "appliedAt": "2026-05-30T22:46:54.993Z",
+      "appliedAt": "2026-06-21T21:34:53.298Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -682,10 +800,11 @@
         "m1l5-3-extend-prerequisites.md",
         "m1l5-4-store-plan.md"
       ],
-      "configs": []
+      "configs": [],
+      "catalogContentHash": "689f3bb75ba63ac84ed3c3bdfd1eb3cc8a9ac61127f997094ef98351524bbc99"
     },
     "m2l3": {
-      "appliedAt": "2026-06-07T20:35:42.673Z",
+      "appliedAt": "2026-06-21T21:34:53.531Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -803,10 +922,11 @@
         "m1l5-3-extend-prerequisites.md",
         "m1l5-4-store-plan.md"
       ],
-      "configs": []
+      "configs": [],
+      "catalogContentHash": "36cab01a4b9a745a46acaac3b8df5c8530bc865d06aca465517cd19b27ab02fc"
     },
     "m2l4": {
-      "appliedAt": "2026-06-07T20:35:22.349Z",
+      "appliedAt": "2026-06-21T21:34:53.725Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -934,10 +1054,11 @@
         "m1l5-3-extend-prerequisites.md",
         "m1l5-4-store-plan.md"
       ],
-      "configs": []
+      "configs": [],
+      "catalogContentHash": "b8e3df6c778d9e028775ffba1eaba1e37620990c7b7829c14ba330fc1badf05c"
     },
     "m2l5": {
-      "appliedAt": "2026-06-07T20:35:47.154Z",
+      "appliedAt": "2026-06-21T21:34:53.950Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1065,10 +1186,11 @@
         "m1l5-3-extend-prerequisites.md",
         "m1l5-4-store-plan.md"
       ],
-      "configs": []
+      "configs": [],
+      "catalogContentHash": "0e01e0f465ecd1dd87894371e6498925773c76eb312a52f3e75664a522f1c102"
     },
     "m3l1": {
-      "appliedAt": "2026-06-16T13:39:09.717Z",
+      "appliedAt": "2026-06-21T21:34:54.150Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1202,10 +1324,11 @@
         "m1l5-3-extend-prerequisites.md",
         "m1l5-4-store-plan.md"
       ],
-      "configs": []
+      "configs": [],
+      "catalogContentHash": "ef6ad3aba9fe35352b798115566f58dbd8e2fabad0a676920db39daca964e601"
     },
     "m3l2": {
-      "appliedAt": "2026-06-16T13:39:14.763Z",
+      "appliedAt": "2026-06-21T21:34:54.363Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1345,10 +1468,11 @@
         "m1l5-4-store-plan.md",
         "m3l2-ad-hoc-testing.md"
       ],
-      "configs": []
+      "configs": [],
+      "catalogContentHash": "08a0fafb639deb8f1f3bf8b36ed33ae8dff35e0ce50882668d99e404759510a8"
     },
     "m3l3": {
-      "appliedAt": "2026-06-16T13:39:18.292Z",
+      "appliedAt": "2026-06-21T21:34:54.571Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1488,10 +1612,11 @@
         "m1l5-4-store-plan.md",
         "m3l2-ad-hoc-testing.md"
       ],
-      "configs": []
+      "configs": [],
+      "catalogContentHash": "d3da2609d058b9b463e8ec92e145a6e4bfa8de0c5ac4d81bbf61d6916e791f2d"
     },
     "m3l4": {
-      "appliedAt": "2026-06-16T13:39:43.445Z",
+      "appliedAt": "2026-06-21T21:34:54.772Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1641,10 +1766,11 @@
         "m1l5-4-store-plan.md",
         "m3l2-ad-hoc-testing.md"
       ],
-      "configs": []
+      "configs": [],
+      "catalogContentHash": "36713b11254dcee46cd486ec7ed8d3f636545029362f6b8584b373579b6ef2e0"
     },
     "m3l5": {
-      "appliedAt": "2026-06-16T13:39:52.543Z",
+      "appliedAt": "2026-06-21T21:34:54.970Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1794,7 +1920,229 @@
         "m1l5-4-store-plan.md",
         "m3l2-ad-hoc-testing.md"
       ],
+      "configs": [],
+      "catalogContentHash": "192ad96daaddc18a11f0c9bb35ffb311d8945e52d062d636ac11c276c93df282"
+    },
+    "m0l1": {
+      "appliedAt": "2026-06-21T21:34:51.981Z",
+      "skills": {},
+      "prompts": [
+        "m0l1-prework.md"
+      ],
+      "configs": [],
+      "catalogContentHash": "cc6d52d71b4b1c8dd8fa6336a0f7c7be6ee24edd4aad96aa14073a08a909e3e3"
+    },
+    "m1l1": {
+      "appliedAt": "2026-06-21T21:34:52.132Z",
+      "skills": {
+        "10x-init": {
+          "files": [
+            "SKILL.md"
+          ]
+        },
+        "10x-shape": {
+          "files": [
+            "references/prd-schema.md",
+            "SKILL.md"
+          ]
+        },
+        "10x-prd": {
+          "files": [
+            "SKILL.md"
+          ]
+        }
+      },
+      "prompts": [],
+      "configs": [],
+      "catalogContentHash": "5f20c9fd41c8fa03d49d389f0bfd6a5a44fe08778583d1a14ae2cb7d21e5b468"
+    },
+    "m1l2": {
+      "appliedAt": "2026-06-21T21:34:52.309Z",
+      "skills": {
+        "10x-init": {
+          "files": [
+            "SKILL.md"
+          ]
+        },
+        "10x-shape": {
+          "files": [
+            "references/prd-schema.md",
+            "SKILL.md"
+          ]
+        },
+        "10x-prd": {
+          "files": [
+            "SKILL.md"
+          ]
+        },
+        "10x-tech-stack-selector": {
+          "files": [
+            "references/agent-friendly-criteria.md",
+            "references/decision-flow.md",
+            "references/eval-cases.md",
+            "references/handoff-schema.md",
+            "references/residual-interview.md",
+            "references/starter-registry.yaml",
+            "SKILL.md"
+          ]
+        },
+        "10x-stack-assess": {
+          "files": [
+            "references/agent-friendly-criteria.md",
+            "SKILL.md"
+          ]
+        }
+      },
+      "prompts": [
+        "skill-explainer.md"
+      ],
+      "configs": [],
+      "catalogContentHash": "89b903a90b80bba6e9019f30120e9fdc1b01cf6dc41f61c785f65ca3745661bd"
+    },
+    "m4l1": {
+      "appliedAt": "2026-06-21T21:34:55.094Z",
+      "skills": {},
+      "prompts": [],
       "configs": []
+    },
+    "m4l2": {
+      "appliedAt": "2026-06-21T21:34:55.217Z",
+      "skills": {},
+      "prompts": [
+        "m4l2-1-territory-git-history.md",
+        "m4l2-2-structure-dependency-cruiser.md",
+        "m4l2-3-contributors-git.md",
+        "m4l2-repo-map-synthesis.md"
+      ],
+      "configs": [],
+      "catalogContentHash": "1b39849175e6504cd959c89b080e5d2bd232b8b7dfdd8f17647379ad47e4bbb7"
+    },
+    "m4l3": {
+      "appliedAt": "2026-06-21T21:34:55.414Z",
+      "skills": {},
+      "prompts": [
+        "m4l3-1-research-with-map.md",
+        "m4l3-2-ast-grep-verification.md"
+      ],
+      "configs": [],
+      "catalogContentHash": "737519e7c5af6638d98e5a08ace0a6f29f712c0103e1b692f4b5e37e41041c4b"
+    },
+    "m4l4": {
+      "appliedAt": "2026-06-21T21:34:55.532Z",
+      "skills": {},
+      "prompts": [
+        "m4l4-1-new-change-intention.md",
+        "m4l4-2-refactor-opportunities-research.md",
+        "m4l4-3-ranking-ast-grep-verification.md"
+      ],
+      "configs": [],
+      "catalogContentHash": "81c986008f7cb19009f7d88be235a123f8ef07b132ddcf753e27cf646e954fb5"
+    },
+    "m4l5": {
+      "appliedAt": "2026-06-21T21:34:55.656Z",
+      "skills": {},
+      "prompts": [
+        "m4l5-1-domain-distillation.md",
+        "m4l5-2-invariant-aggregate-refactor.md",
+        "m4l5-3-anti-corruption-layer.md"
+      ],
+      "configs": [],
+      "catalogContentHash": "e5654e2d730fa279794df72891dd6ae919b890328fff6d08cc6cd40c7621c3ad"
+    },
+    "m5l1": {
+      "appliedAt": "2026-06-21T21:34:55.789Z",
+      "skills": {
+        "10x-opportunity-map": {
+          "files": [
+            "SKILL.md"
+          ]
+        },
+        "10x-mom-test": {
+          "files": [
+            "SKILL.md"
+          ]
+        }
+      },
+      "prompts": [],
+      "configs": [],
+      "catalogContentHash": "7c45f387dc1f2e8eec70b76002732caa44f4545426e1cad81b268ade3a95e81e"
+    },
+    "m5l2": {
+      "appliedAt": "2026-06-21T21:34:55.910Z",
+      "skills": {},
+      "prompts": [
+        "m5l2-agent.md"
+      ],
+      "configs": [],
+      "catalogContentHash": "bb121cfeb42a8182b07a4ee20aeeeccc9f252fa48cc41936f33f1769e8b0fc31"
+    },
+    "m5l3": {
+      "appliedAt": "2026-06-21T21:34:56.050Z",
+      "skills": {
+        "10x-impl-review-ci": {
+          "files": [
+            "references/impl-review-instructions.md",
+            "references/workflow-template.yml",
+            "SKILL.md"
+          ]
+        }
+      },
+      "prompts": [
+        "m5l3-requirements.md",
+        "m5l3-cicd.md",
+        "m5l3-promptfoo.md"
+      ],
+      "configs": [],
+      "catalogContentHash": "44e4d195d1df53f5945997a1e736d8b0b6f5b800aa89371f4c30aa76d6687ccc"
+    },
+    "m5l4": {
+      "appliedAt": "2026-06-21T21:34:56.186Z",
+      "skills": {
+        "pack-init": {
+          "files": [
+            "SKILL.md"
+          ]
+        },
+        "tf-registry": {
+          "files": [
+            "SKILL.md"
+          ]
+        },
+        "setup-cicd": {
+          "files": [
+            "SKILL.md"
+          ]
+        }
+      },
+      "prompts": [
+        "m5l4-shared-conventions.md",
+        "m5l4-shared-spec-skill.md",
+        "m5l4-github-packages-spec-pack.md",
+        "m5l4-github-packages-spec-cicd.md",
+        "m5l4-codeartifact-spec-cicd.md",
+        "m5l4-codeartifact-spec-terraform.md"
+      ],
+      "configs": [
+        "m5l4-github-packages-package.json.template",
+        "m5l4-github-packages-consumer.npmrc.template",
+        "m5l4-github-packages-install.js.template",
+        "m5l4-github-packages-uninstall.js.template",
+        "m5l4-github-packages-publish-ai-toolkit.yml.template"
+      ],
+      "catalogContentHash": "92316a0634706367795ee7da9b357eb69c4df53f536e20e595bf7f6d13b4dfc0"
+    },
+    "m5l5": {
+      "appliedAt": "2026-06-21T21:34:56.319Z",
+      "skills": {
+        "10x-goal-implement": {
+          "files": [
+            "SKILL.md"
+          ]
+        }
+      },
+      "prompts": [],
+      "configs": [],
+      "catalogContentHash": "e50b3d7c4300eed85737ea47bbac4a91aac173e7dc28ef29b34d3abdf01f4373"
     }
   }
 }
