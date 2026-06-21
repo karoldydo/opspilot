@@ -235,23 +235,23 @@ None — additive test + documentation only; no schema, API, or runtime behavior
 
 #### Automated
 
-- [x] 1.1 New spec passes: `npx nx test api -- src/core/auth/auth.boundary.spec.ts`
-- [x] 1.2 Full api suite green: `npx nx test api`
-- [x] 1.3 Lint + typecheck pass: `npx nx lint api`
+- [x] 1.1 New spec passes: `npx nx test api -- src/core/auth/auth.boundary.spec.ts` — cd89a1f
+- [x] 1.2 Full api suite green: `npx nx test api` — cd89a1f
+- [x] 1.3 Lint + typecheck pass: `npx nx lint api` — cd89a1f
 
 #### Manual
 
-- [x] 1.4 401 sweep hits at least one route per operational module (reviewed against research route list)
-- [x] 1.5 A stray `@Public()` would fail block B (reasoning or throwaway local edit)
+- [x] 1.4 401 sweep hits at least one route per operational module (reviewed against research route list) — cd89a1f
+- [x] 1.5 A stray `@Public()` would fail block B (reasoning or throwaway local edit) — cd89a1f
 
 ### Phase 2: Characterization & plan closure (docs)
 
 #### Automated
 
-- [ ] 2.1 Formatting clean: `npm run format:check`
-- [ ] 2.2 Full api suite still green: `npx nx test api`
+- [x] 2.1 Formatting clean: `npm run format:check`
+- [x] 2.2 Full api suite still green: `npx nx test api`
 
 #### Manual
 
-- [ ] 2.3 §6.4 reads as a complete recipe with correct file references (no "TBD")
-- [ ] 2.4 §7 author-trust exclusion present; §6.6 Phase 3 note present; §3 Phase 3 Status `complete`
+- [x] 2.3 §6.4 reads as a complete recipe with correct file references (no "TBD")
+- [x] 2.4 §7 author-trust exclusion present; §6.6 Phase 3 note present; §3 Phase 3 Status `complete`

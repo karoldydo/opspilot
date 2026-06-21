@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-16 (Phase 1–2 complete; Phase 3 change opened)
+> Last updated: 2026-06-21 (Phase 1–3 complete; Phase 4 not started)
 
 ## 1. Strategy
 
@@ -82,7 +82,7 @@ orchestrator updates Status as artifacts appear on disk.
 |---|-----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|---------------|--------------------------------------------|---------------|--------------------------------------------------------|
 | 1 | Agent diagnosis under failure           | Prove `diagnoseLogs` returns a clean error (never crash/hang) on bad LLM output and times out within bound                     | #1            | integration (api, fake LLM)                | complete      | context/archive/2026-06-16-testing-agent-diagnosis-under-failure/ |
 | 2 | SSH executor lifecycle + timeout        | Prove connections are disposed after a run and a command/scan aborts within its bounded timeout                                | #2            | integration (api, fake SSH)                | complete      | context/changes/testing-ssh-executor-lifecycle-timeout/ |
-| 3 | Security guardrails                     | Prove secrets never reach plaintext/transcript, the agent stays confined to per-device skills (incl. custom), and unauth → 401 | #4, #3, #5    | integration / contract (api, real temp DB) | change opened | context/changes/testing-security-guardrails/           |
+| 3 | Security guardrails                     | Prove secrets never reach plaintext/transcript, the agent stays confined to per-device skills (incl. custom), and unauth → 401 | #4, #3, #5    | integration / contract (api, real temp DB) | complete      | context/changes/testing-security-guardrails/           |
 | 4 | diagnoseLogs e2e + SSE through the edge | Prove the full UI→synthesis path renders the 4-field result and SSE narration streams with heartbeats                          | #1, #6        | e2e (Playwright)                           | not started   | —                                                      |
 
 **Status vocabulary** (fixed — parser literals): `not started` →
@@ -230,9 +230,71 @@ you are pinning.
 
 ### 6.4 Adding a security / guardrail test
 
-- TBD — see §3 Phase 3 (defends Risks #4/#3/#5: secret-at-rest round-trip
-  on a real temp DB, per-device skill confinement incl. custom skills,
-  unauth → 401).
+Defends Risks #4 (secret leakage), #3 (per-device skill confinement +
+parameter injection), and #5 (auth boundary). Three distinct patterns —
+pick by which guardrail you are pinning. All three run on a **real temp
+SQLite DB** (no mock persistence), so secrets and scope filters are
+exercised against actual storage.
+
+- **(a) Secret-at-rest round-trip (Risk #4)** — prove a stored secret is
+  ciphertext in its column on disk, the audit transcript / read contract is
+  secret-free, and the `encrypt → store → decrypt` round-trip recovers the
+  plaintext. Boot a `TestingModule` against a temp-file DB
+  (`tmpdir()` path + `databaseConfig.KEY`/`cryptoConfig.KEY` overrides, fixed
+  key `AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=`, `-wal`/`-shm` teardown).
+  Four assertions per secret: (1) the read/response contract carries no
+  secret field, (2) the audit transcript row is secret-free, (3) the
+  on-disk column is ciphertext (not the plaintext), (4) `getDecrypted*`
+  round-trips back to the plaintext.
+  - **Canonical examples**: `apps/api/src/core/credential/credential.service.spec.ts`
+    (credential; response-body safety at `apps/api/src/modules/device/device.controller.spec.ts`),
+    `apps/api/src/modules/llm-provider/llm-provider.service.spec.ts` (LLM API key).
+  - Run: `npx nx test api -- src/core/credential/credential.service.spec.ts`
+    and `npx nx test api -- src/modules/llm-provider/llm-provider.service.spec.ts`.
+- **(b) Per-device skill confinement + parameter injection (Risk #3)** —
+  prove a skill not scoped to device D is never callable on D (incl.
+  user-defined custom skills), and a skill parameter substitutes as an
+  *argument*, not as injectable shell.
+  - **Confinement**: `requireInScope` → **404** for an out-of-scope /
+    forged / cross-device id, over real HTTP and at the service layer. The
+    custom-skill-scoped-to-another-device → 404 case is the S-08 proof
+    (`skill-run.controller.spec.ts`).
+  - **Injection**: assert the **charset whitelist rejects** a tainted value
+    (shell metacharacters → **400** at the wire / `ZodError` at the service),
+    and **no command runs** — *not* that the value is shell-quoted. The guard
+    is on the substituted parameter *value*, not the operator-authored
+    `commandTemplate` (see §7 author-trust exclusion).
+  - **Canonical examples**: `apps/api/src/modules/skill/skill-run.controller.spec.ts`
+    (custom-skill 404, shell-metacharacter 400), `apps/api/src/modules/skill/skill-run.service.spec.ts`
+    (tainted value → ZodError, out-of-scope/forged → 404), `apps/api/src/modules/skill/skill.service.spec.ts`
+    (`findForDevice` scope filter = global + that device only).
+  - Run: `npx nx test api -- src/modules/skill/skill-run.controller.spec.ts`
+    and `npx nx test api -- src/modules/skill/skill-run.service.spec.ts`.
+- **(c) Wire-level auth boundary (Risk #5)** — prove every operational
+  endpoint returns **401** without a valid session, the public health route
+  returns 200, and the `@Public()` allowlist is exactly
+  `{ AuthController, HealthController }` so a stray `@Public()` fails the
+  suite. Boot the **real** `AppModule` (the only way to get the production
+  `APP_GUARD` + the real route list), override `AUTH_INSTANCE` with a fake
+  `getSession` and `databaseConfig.KEY`/`cryptoConfig.KEY` with a temp DB,
+  then `app.setGlobalPrefix('api')` + `app.init()`. Two describe blocks off
+  one boot:
+  - **401 sweep**: `getSession` → `null`, supertest one representative route
+    per operational module; each `.expect(401)` and asserts the canonical
+    envelope `{ message: 'valid session required', status: 401, timestamp: expect.any(String) }`.
+    `GET /api/health` → 200 (public control). Then flip `getSession` to a
+    session object and assert one previously-401 route no longer 401s
+    (positive control — guards against a blanket-401 tautology).
+  - **`@Public` sweep**: resolve `DiscoveryService` + `MetadataScanner` +
+    `Reflector` from the booted context, enumerate every controller +
+    handler, collect those where `IS_PUBLIC_KEY` is truthy, and assert the
+    set of owning controller classes equals exactly
+    `{ AuthController, HealthController }`.
+  - **Hard rule — do NOT stand in a fake-session middleware** as the
+    `*.controller.spec.ts` files do; that strips the real guard and the test
+    silently degrades to asserting nothing. Boot the real `AppModule`.
+  - **Canonical example**: `apps/api/src/core/auth/auth.boundary.spec.ts`.
+  - Run: `npx nx test api -- src/core/auth/auth.boundary.spec.ts`.
 
 ### 6.5 Adding an e2e test
 
@@ -264,6 +326,21 @@ here capturing anything surprising the rollout phase taught.)
   `SCAN_COMMAND` regression guard in `service.service.spec.ts`. The
   truncated-line parse fragility is pinned as current behavior, not fixed —
   hardening deferred (see §7 and `change.md`).
+- **2026-06-21 — Phase 3 (Risks #4/#3/#5), guardrails already protected
+  structurally:** research + a direct spec audit found #4 (secret leakage)
+  and #3 (per-device skill confinement incl. custom skills + parameter
+  injection) **already fully covered** — secrets prove ciphertext-on-disk +
+  secret-free transcript + round-trip (`credential.service.spec.ts`,
+  `llm-provider.service.spec.ts`), and confinement proves `requireInScope`
+  → 404 incl. the custom-skill S-08 case + charset-whitelist rejection
+  (`skill-run.controller.spec.ts`, `skill-run.service.spec.ts`). The single
+  genuine gap was #5: every controller spec strips the global guard, so
+  **no test asserted unauth → 401 over the wire**. The phase closed only
+  that gap with `auth.boundary.spec.ts` — booting the real `AppModule` for a
+  supertest 401 sweep across operational modules (+ public-route control +
+  positive-session control) plus a `DiscoveryService` `@Public` metadata
+  sweep that pins the allowlist to `{ AuthController, HealthController }`.
+  The author-trust / `commandTemplate` exclusion is recorded in §7.
 
 ## 7. What We Deliberately Don't Test
 
@@ -297,6 +374,14 @@ contributors should respect these unless the underlying assumption changes.
   separate implementation change so a testing phase does not smuggle a behavior
   change. Re-evaluate when that follow-up change is opened (flagged in
   `change.md`). (Source: Phase 2 research gap d.)
+- **Malicious skill-author / `commandTemplate` injection** — parameter
+  injection is guarded on the substituted parameter *values* (charset
+  whitelist), not on the operator-authored `commandTemplate`. An operator
+  who can author a skill is trusted under the small-trusted-group,
+  self-hosted threat model — blocking shell in a template would be a
+  behavior change, not a test. Consistent with host-key TOFU and the login
+  rate-limit exclusion. Re-evaluate if skill authoring is ever exposed to
+  untrusted users. (Source: Phase 3 planning.)
 
 ## 8. Freshness Ledger
 
