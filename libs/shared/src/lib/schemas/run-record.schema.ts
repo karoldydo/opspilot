@@ -15,6 +15,9 @@ const isoTimestamp = z.preprocess((value) => (value instanceof Date ? value.toIS
 export const runRecordSchema = z.strictObject({
   createdAt: isoTimestamp,
   deviceId: z.string(),
+  // wall-clock ms the synthesis took to generate. optional/absent on runs predating
+  // the durationMs column (s-05 overview); feeds the avg-diagnose tile aggregate.
+  durationMs: z.number().int().nonnegative().optional(),
   id: z.string(),
   serviceId: z.string(),
   synthesis: diagnosisSynthesisSchema,

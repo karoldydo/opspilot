@@ -19,6 +19,7 @@ export * from './lib/schemas/health-response.schema';
 export * from './lib/schemas/llm-provider-create-request.schema';
 export * from './lib/schemas/llm-provider-update-request.schema';
 export * from './lib/schemas/llm-provider.schema';
+export * from './lib/schemas/overview-metrics.schema';
 export * from './lib/schemas/run-narration-event.schema';
 export * from './lib/schemas/run-record.schema';
 export * from './lib/schemas/scan-result.schema';

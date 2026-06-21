@@ -36,7 +36,8 @@ export const appRoutes: Route[] = [
         path: 'skills',
       },
       {
-        loadComponent: () => import('./features/home/home.component').then(({ HomeComponent }) => HomeComponent),
+        loadComponent: () =>
+          import('./features/overview/overview.component').then(({ OverviewComponent }) => OverviewComponent),
         path: '',
       },
     ],

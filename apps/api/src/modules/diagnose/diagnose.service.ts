@@ -91,6 +91,9 @@ export class DiagnoseService {
           // timeout + teardown controller. pass `system` only when the trimmed persona is
           // non-empty, so null / '' / whitespace-only all behave identically.
           const system = agentContext?.trim();
+          // measure wall-clock around the synthesis so the avg-diagnose tile (s-05) has
+          // real data: start before the stream opens, stop once `object` resolves.
+          const startedAt = Date.now();
           const { object, partialObjectStream } = streamObject({
             abortSignal: AbortSignal.any([AbortSignal.timeout(this.config.generateTimeoutMs), controller.signal]),
             model,
@@ -109,9 +112,10 @@ export class DiagnoseService {
           if (controller.signal.aborted) {
             return;
           }
+          const durationMs = Date.now() - startedAt;
           // persist BEFORE `done` so the frame carries the real saved record (id + createdAt);
-          // the run now carries the authenticated user (s-09).
-          const saved = this.runRecordService.create({ deviceId, serviceId, synthesis, userId });
+          // the run now carries the authenticated user (s-09) and its synthesis duration (s-05).
+          const saved = this.runRecordService.create({ deviceId, durationMs, serviceId, synthesis, userId });
           // tier-2 record-on-invocation: no tx (sse hot path has none); runRecordId links the
           // timeline row to its synthesis. best-effort — a failed insert is logged, not thrown.
           this.auditService.recordOnInvocation({

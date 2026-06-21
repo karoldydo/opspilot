@@ -9,6 +9,7 @@ import { AuditModule } from '@api/modules/audit/audit.module';
 import { DeviceModule } from '@api/modules/device/device.module';
 import { DiagnoseModule } from '@api/modules/diagnose/diagnose.module';
 import { LlmProviderModule } from '@api/modules/llm-provider/llm-provider.module';
+import { OverviewModule } from '@api/modules/overview/overview.module';
 import { ServiceModule } from '@api/modules/service/service.module';
 import { SkillModule } from '@api/modules/skill/skill.module';
 import { Module } from '@nestjs/common';
@@ -25,6 +26,7 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
     DiagnoseModule,
     HealthModule,
     LlmProviderModule,
+    OverviewModule,
     ServiceModule,
     SkillModule,
   ],

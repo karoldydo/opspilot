@@ -91,6 +91,16 @@ describe('RunRecordService', () => {
     expect(actual).not.toHaveProperty('userId');
   });
 
+  it('persists durationMs and surfaces it on the contract when provided', () => {
+    const actual = runRecordService.create({ deviceId, durationMs: 11_400, serviceId, synthesis, userId });
+    expect(actual.durationMs).toBe(11_400);
+  });
+
+  it('omits durationMs from the contract when not captured', () => {
+    const actual = runRecordService.create({ deviceId, serviceId, synthesis, userId });
+    expect(actual).not.toHaveProperty('durationMs');
+  });
+
   it('prunes older runs beyond retention, keeping the newest historyRetention', async () => {
     const ids: string[] = [];
     for (let i = 0; i < retention + 3; i++) {

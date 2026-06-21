@@ -56,6 +56,13 @@
       "tag": "0007_mysterious_radioactive_man",
       "version": "6",
       "when": 1781373380212
+    },
+    {
+      "breakpoints": true,
+      "idx": 8,
+      "tag": "0008_cooing_chamber",
+      "version": "6",
+      "when": 1782072985357
     }
   ],
   "version": "7"

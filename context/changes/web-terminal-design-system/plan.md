@@ -610,31 +610,31 @@ pause for final manual confirmation.
 
 #### Automated
 
-- [x] 4.1 Build succeeds: `npm run build:web`
-- [x] 4.2 Lint passes: `npx nx lint web`
-- [x] 4.3 Unit tests pass: `npx nx test web`
-- [x] 4.4 Format check passes: `npm run format:check`
+- [x] 4.1 Build succeeds: `npm run build:web` — 10ff9b6
+- [x] 4.2 Lint passes: `npx nx lint web` — 10ff9b6
+- [x] 4.3 Unit tests pass: `npx nx test web` — 10ff9b6
+- [x] 4.4 Format check passes: `npm run format:check` — 10ff9b6
 
 #### Manual
 
-- [x] 4.5 Each existing route visually matches its mockup section
-- [x] 4.6 All dialogs open/close/submit with terminal styling
-- [x] 4.7 Mutations fire correctly-styled toasts; no functional regressions
+- [x] 4.5 Each existing route visually matches its mockup section — 10ff9b6
+- [x] 4.6 All dialogs open/close/submit with terminal styling — 10ff9b6
+- [x] 4.7 Mutations fire correctly-styled toasts; no functional regressions — 10ff9b6
 
 ### Phase 5: Overview Dashboard (Full-Stack)
 
 #### Automated
 
-- [ ] 5.1 Migration applies cleanly on a fresh DB
-- [ ] 5.2 API builds and tests pass: `npx nx build api`, `npx nx test api`
-- [ ] 5.3 Shared lib builds/tests pass: `npx nx test shared`
-- [ ] 5.4 Web builds: `npm run build:web`; lint passes: `npm run lint`
+- [x] 5.1 Migration applies cleanly on a fresh DB
+- [x] 5.2 API builds and tests pass: `npx nx build api`, `npx nx test api`
+- [x] 5.3 Shared lib builds/tests pass: `npx nx test shared`
+- [x] 5.4 Web builds: `npm run build:web`; lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 5.5 Tiles show real numbers after a skill run and a diagnose; success rate correct
-- [ ] 5.6 Fleet / recent / needs-attention render; empty states on fresh install
-- [ ] 5.7 avg-diagnose updates after a new diagnose run records a duration
+- [x] 5.5 Tiles show real numbers after a skill run and a diagnose; success rate correct
+- [x] 5.6 Fleet / recent / needs-attention render; empty states on fresh install
+- [x] 5.7 avg-diagnose updates after a new diagnose run records a duration
 
 ### Phase 6: Diagnose-Hero (Drill-In Screen)
 

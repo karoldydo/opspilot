@@ -10,6 +10,8 @@ import { randomUUID } from 'node:crypto';
 // (s-09) and never surfaced in the s-05 wire contract.
 interface RunRecordCreate {
   deviceId: string;
+  // wall-clock ms the synthesis generation took; omitted leaves the column null.
+  durationMs?: number;
   serviceId: string;
   synthesis: DiagnosisSynthesis;
   userId?: string;
@@ -33,6 +35,7 @@ export class RunRecordService {
         .insert(runRecord)
         .values({
           deviceId: input.deviceId,
+          durationMs: input.durationMs,
           id: randomUUID(),
           serviceId: input.serviceId,
           synthesis: JSON.stringify(input.synthesis),
@@ -76,6 +79,8 @@ export class RunRecordService {
       id: row.id,
       serviceId: row.serviceId,
       synthesis: JSON.parse(row.synthesis),
+      // omit (not null) when absent so the optional contract field stays unset.
+      ...(row.durationMs == null ? {} : { durationMs: row.durationMs }),
     });
   }
 }

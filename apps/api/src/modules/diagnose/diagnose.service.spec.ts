@@ -176,10 +176,11 @@ describe('DiagnoseService', () => {
     expect(events.map((e) => (e.data as { type: string }).type)).toEqual(['delta', 'delta', 'done']);
     expect((events[0].data as { partial: unknown }).partial).toEqual({ summary: 'service is' });
     expect((events[2].data as { run: RunRecord }).run).toEqual(savedRun);
-    // persisted with the accumulated final synthesis + the authenticated user, before
-    // the done frame.
+    // persisted with the accumulated final synthesis + the authenticated user + the
+    // measured synthesis duration (s-05), before the done frame.
     expect(mockRunRecordService.create).toHaveBeenCalledWith({
       deviceId: inputDeviceId,
+      durationMs: expect.any(Number),
       serviceId: inputServiceId,
       synthesis: validSynthesis,
       userId,

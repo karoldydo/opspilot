@@ -20,6 +20,10 @@ export const runRecord = sqliteTable(
     deviceId: text('device_id')
       .notNull()
       .references(() => device.id, { onDelete: 'cascade' }),
+    // wall-clock ms the synthesis generation took (s-05 avg-diagnose tile). nullable:
+    // backfill is unnecessary — rows predating this column read null and are excluded
+    // from the average; new runs populate it in the same insert.
+    durationMs: integer('duration_ms'),
     id: text('id').primaryKey(),
     serviceId: text('service_id')
       .notNull()

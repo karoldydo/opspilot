@@ -1,0 +1,108 @@
+<main class="max-w-[1040px] px-11 pt-10 pb-16">
+  <h1 class="text-[24px] font-bold tracking-[-0.4px]">overview</h1>
+  <p class="text-op-mute mt-1.5 mb-7 text-[13.5px]">fleet status across every managed host.</p>
+
+  @if (store.error(); as error) {
+    <p class="text-op-danger-text mb-4 text-sm" role="alert">{{ error }}</p>
+  }
+
+  @if (store.isEmpty()) {
+    <div class="border-op-hairline border px-[18px] py-12 text-center">
+      <p class="text-op-ash text-[12.5px]">no hosts yet. add a device to start managing your fleet.</p>
+      <a class="text-op-ink mt-3 inline-block text-[12.5px] underline underline-offset-4" routerLink="/devices"
+        >+ add device</a
+      >
+    </div>
+  } @else {
+    <!-- tiles -->
+    <div class="mb-8 grid grid-cols-4 gap-[14px]">
+      <div class="border-op-hairline border px-4 pt-4 pb-3.5">
+        <div class="text-op-mute text-[11.5px] lowercase">devices</div>
+        <div class="my-1 text-[28px] font-bold tracking-[-1px]">{{ store.deviceCount() }}</div>
+        <div class="text-op-mute text-[11.5px]">managed hosts</div>
+      </div>
+      <div class="border-op-hairline border px-4 pt-4 pb-3.5">
+        <div class="text-op-mute text-[11.5px] lowercase">services</div>
+        <div class="my-1 text-[28px] font-bold tracking-[-1px]">{{ store.serviceCount() }}</div>
+        <div class="text-op-mute text-[11.5px]">
+          {{ servicesUp() }} up · {{ store.serviceCount() - servicesUp() }} down
+        </div>
+      </div>
+      <div class="border-op-hairline border px-4 pt-4 pb-3.5">
+        <div class="text-op-mute text-[11.5px] lowercase">skill runs · 24h</div>
+        <div class="my-1 text-[28px] font-bold tracking-[-1px]">{{ store.metrics()?.skillRuns24h?.count ?? '—' }}</div>
+        <div class="text-op-mute text-[11.5px]">{{ successPercent() }}% success</div>
+      </div>
+      <div class="border-op-hairline border px-4 pt-4 pb-3.5">
+        <div class="text-op-mute text-[11.5px] lowercase">avg diagnose</div>
+        <div class="text-op-success-text my-1 text-[28px] font-bold tracking-[-1px]">{{ avgDiagnose() }}</div>
+        <div class="text-op-mute text-[11.5px]">target &lt; 15s</div>
+      </div>
+    </div>
+
+    <!-- needs attention -->
+    @if (store.attention(); as attention) {
+      <div
+        class="border-op-hairline border-l-op-warning mb-8 flex flex-wrap items-center gap-5 border border-l-[3px] px-5 py-[18px]"
+      >
+        <div class="min-w-[240px] flex-1">
+          <div class="mb-1.5 flex flex-wrap items-center gap-[9px]">
+            <span class="text-op-warning-text text-xs font-bold">[!] needs attention</span>
+            <span class="text-op-ash text-xs">· {{ attention.serviceName }} &#64; {{ attention.deviceName }}</span>
+          </div>
+          <div class="text-op-ink text-sm">{{ attention.summary }}</div>
+        </div>
+        <a
+          class="bg-op-ink text-op-cream flex-none rounded-[4px] px-[18px] py-[9px] text-[13px] font-medium whitespace-nowrap"
+          routerLink="/devices"
+          >diagnose →</a
+        >
+      </div>
+    }
+
+    <!-- fleet + recent -->
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1.3fr_1fr]">
+      <div>
+        <div class="border-op-mute mb-1 border-b pb-2 text-[13px] font-bold">fleet</div>
+        @for (row of store.fleet(); track row.deviceId) {
+          <a
+            class="border-op-hairline flex cursor-pointer items-center gap-3 border-b px-0.5 py-[13px]"
+            routerLink="/devices"
+          >
+            <span class="h-2 w-2 flex-none rounded-full" [class]="dotClass(row.status)"></span>
+            <div class="min-w-0 flex-1">
+              <div class="text-[13.5px] font-semibold">{{ row.name }}</div>
+              <div class="text-op-mute text-[11.5px]">{{ row.host }}</div>
+            </div>
+            <div class="text-op-mute text-right text-xs">{{ row.serviceCount }} services · {{ row.upCount }} up</div>
+          </a>
+        } @empty {
+          <p class="text-op-ash py-4 text-[12.5px]">no devices in the fleet yet.</p>
+        }
+      </div>
+      <div>
+        <div class="border-op-mute mb-1 border-b pb-2 text-[13px] font-bold">recent runs</div>
+        @for (row of store.recent(); track row.id) {
+          <div class="border-op-hairline flex items-baseline gap-[10px] border-b px-0.5 py-[11px]">
+            <span class="text-op-ash w-[52px] flex-none text-[11.5px]">{{ row.createdAt | date: 'HH:mm' }}</span>
+            <div class="min-w-0 flex-1">
+              <div class="text-[13px]">
+                <span class="font-semibold">{{ row.action }}</span>
+                @if (row.targetType) {
+                  <span class="text-op-mute"> · {{ row.targetType }}</span>
+                }
+              </div>
+            </div>
+            @if (row.result) {
+              <span class="flex-none text-[11.5px] font-semibold" [class]="resultClass(row.resultKind)">{{
+                row.result
+              }}</span>
+            }
+          </div>
+        } @empty {
+          <p class="text-op-ash py-4 text-[12.5px]">no activity yet.</p>
+        }
+      </div>
+    </div>
+  }
+</main>
