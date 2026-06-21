@@ -4,6 +4,13 @@
 @import 'tailwindcss/utilities.css';
 @import '@spartan-ng/brain/hlm-tailwind-preset.css';
 
+// tailwind v4 auto-detects content across the whole repo (respecting .gitignore);
+// markdown docs are never templates, yet tokens like `[file:line]` in .claude/ and
+// context/ md files leak in as arbitrary-property candidates (dead `.\[file\:line\]`
+// rule + a build warning). exclude all markdown from scanning — keeps detection on
+// for real app sources without a hand-maintained content glob.
+@source not '../../../**/*.md';
+
 // self-hosted jetbrains mono — vendored woff2 weights, no external font request
 @font-face {
   font-family: 'JetBrains Mono';

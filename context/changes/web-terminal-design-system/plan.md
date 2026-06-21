@@ -625,26 +625,26 @@ pause for final manual confirmation.
 
 #### Automated
 
-- [x] 5.1 Migration applies cleanly on a fresh DB
-- [x] 5.2 API builds and tests pass: `npx nx build api`, `npx nx test api`
-- [x] 5.3 Shared lib builds/tests pass: `npx nx test shared`
-- [x] 5.4 Web builds: `npm run build:web`; lint passes: `npm run lint`
+- [x] 5.1 Migration applies cleanly on a fresh DB — d82d3c0
+- [x] 5.2 API builds and tests pass: `npx nx build api`, `npx nx test api` — d82d3c0
+- [x] 5.3 Shared lib builds/tests pass: `npx nx test shared` — d82d3c0
+- [x] 5.4 Web builds: `npm run build:web`; lint passes: `npm run lint` — d82d3c0
 
 #### Manual
 
-- [x] 5.5 Tiles show real numbers after a skill run and a diagnose; success rate correct
-- [x] 5.6 Fleet / recent / needs-attention render; empty states on fresh install
-- [x] 5.7 avg-diagnose updates after a new diagnose run records a duration
+- [x] 5.5 Tiles show real numbers after a skill run and a diagnose; success rate correct — d82d3c0
+- [x] 5.6 Fleet / recent / needs-attention render; empty states on fresh install — d82d3c0
+- [x] 5.7 avg-diagnose updates after a new diagnose run records a duration — d82d3c0
 
 ### Phase 6: Diagnose-Hero (Drill-In Screen)
 
 #### Automated
 
-- [ ] 6.1 Web builds: `npm run build:web`; lint passes: `npx nx lint web`
-- [ ] 6.2 Unit tests pass: `npx nx test web`
+- [x] 6.1 Web builds: `npm run build:web`; lint passes: `npx nx lint web`
+- [x] 6.2 Unit tests pass: `npx nx test web`
 
 #### Manual
 
-- [ ] 6.3 Drilling into a service opens the diagnose-hero in terminal style
-- [ ] 6.4 Re-run streams a live synthesis; result persists and appears in history
-- [ ] 6.5 Visual match to the mockup's terminal diagnose presentation; no apply button
+- [x] 6.3 Drilling into a service opens the diagnose-hero in terminal style
+- [x] 6.4 Re-run streams a live synthesis; result persists and appears in history
+- [x] 6.5 Visual match to the mockup's terminal diagnose presentation; no apply button

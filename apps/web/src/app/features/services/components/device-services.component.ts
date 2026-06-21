@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DiagnosisClient } from '@app/features/diagnosis/data/diagnosis.client';
 import { DiagnosisStore } from '@app/features/diagnosis/data/diagnosis.store';
 import { ServiceSkillsComponent } from '@app/features/services/components/service-skills.component';
@@ -35,7 +36,7 @@ const DOT_CLASS: Record<DiagnosisSynthesis['status'], string> = {
 // managed-services section for one device row (scan + curated table with rename/delete). each instance provides its own ServicesClient + ServicesStore (not providedIn: 'root', per angular.md) so rows stay isolated; the dialogs get the store via context since they render in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, ...HlmAlertDialogImports, ServiceSkillsComponent],
+  imports: [DatePipe, RouterLink, ...HlmAlertDialogImports, ServiceSkillsComponent],
   providers: [ServicesClient, ServicesStore, DiagnosisClient, DiagnosisStore],
   selector: 'app-device-services',
   templateUrl: './device-services.component.html',

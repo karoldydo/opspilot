@@ -45,6 +45,12 @@
             >
               {{ diag.loading ? 'diagnosing…' : 'diagnose' }}
             </button>
+            <a
+              class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs whitespace-nowrap"
+              [queryParams]="{ device: deviceName(), service: service.name }"
+              [routerLink]="['/devices', deviceId(), 'services', service.id, 'diagnose']"
+              >open →</a
+            >
             <app-service-skills [deviceId]="deviceId()" [service]="service" />
             <button
               class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs"

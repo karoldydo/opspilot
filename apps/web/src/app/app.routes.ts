@@ -24,6 +24,14 @@ export const appRoutes: Route[] = [
         path: 'devices',
       },
       {
+        // diagnose-hero: drill-in from a service row, parameterised by device + service.
+        loadComponent: () =>
+          import('./features/diagnosis/diagnose-hero.component').then(
+            ({ DiagnoseHeroComponent }) => DiagnoseHeroComponent
+          ),
+        path: 'devices/:deviceId/services/:serviceId/diagnose',
+      },
+      {
         loadComponent: () =>
           import('./features/llm-providers/llm-providers.component').then(
             ({ LlmProvidersComponent }) => LlmProvidersComponent
