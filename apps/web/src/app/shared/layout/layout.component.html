@@ -57,4 +57,7 @@
   <main class="max-h-screen min-w-0 flex-1 overflow-y-auto">
     <router-outlet />
   </main>
+
+  <!-- single app-wide toaster — toast() works everywhere; bottom-center per mockup -->
+  <hlm-toaster [style]="toasterStyle" [toastOptions]="toasterOptions" position="bottom-center" />
 </div>

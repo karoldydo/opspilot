@@ -583,28 +583,28 @@ pause for final manual confirmation.
 
 #### Automated
 
-- [x] 2.1 Build succeeds: `npm run build:web`
-- [x] 2.2 Lint passes: `npx nx lint web`
-- [x] 2.3 Unit tests pass: `npx nx test web`
+- [x] 2.1 Build succeeds: `npm run build:web` — c8656a1
+- [x] 2.2 Lint passes: `npx nx lint web` — c8656a1
+- [x] 2.3 Unit tests pass: `npx nx test web` — c8656a1
 
 #### Manual
 
-- [x] 2.4 Sidebar persists across authed routes; login/register render without it
-- [x] 2.5 Active nav shows `▸` + surface-card bg; caret blinks
-- [x] 2.6 Footer sign-out logs out and routes to login
+- [x] 2.4 Sidebar persists across authed routes; login/register render without it — c8656a1
+- [x] 2.5 Active nav shows `▸` + surface-card bg; caret blinks — c8656a1
+- [x] 2.6 Footer sign-out logs out and routes to login — c8656a1
 
 ### Phase 3: Additive Primitives
 
 #### Automated
 
-- [ ] 3.1 Build succeeds: `npm run build`
-- [ ] 3.2 Lint passes: `npm run lint`
-- [ ] 3.3 Module boundaries hold (no enforce-module-boundaries errors)
+- [x] 3.1 Build succeeds: `npm run build`
+- [x] 3.2 Lint passes: `npm run lint`
+- [x] 3.3 Module boundaries hold (no enforce-module-boundaries errors)
 
 #### Manual
 
-- [ ] 3.4 A manual `toast()` renders a terminal-styled toast in the correct position
-- [ ] 3.5 Separator and tooltip render with terminal tokens
+- [x] 3.4 A manual `toast()` renders a terminal-styled toast in the correct position
+- [x] 3.5 Separator and tooltip render with terminal tokens
 
 ### Phase 4: Terminal Re-Skin of Existing Screens
 
