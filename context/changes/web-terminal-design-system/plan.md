@@ -569,29 +569,29 @@ pause for final manual confirmation.
 
 #### Automated
 
-- [x] 1.1 Build succeeds: `npm run build:web`
-- [x] 1.2 Lint passes: `npx nx lint web`
-- [x] 1.3 Format check passes: `npm run format:check`
+- [x] 1.1 Build succeeds: `npm run build:web` — 3a95018
+- [x] 1.2 Lint passes: `npx nx lint web` — 3a95018
+- [x] 1.3 Format check passes: `npm run format:check` — 3a95018
 
 #### Manual
 
-- [x] 1.4 Every screen renders in JetBrains Mono with no network font request (offline check)
-- [x] 1.5 Canvas cream / text ink; interactive 4px, containers 0px radius
-- [x] 1.6 No dark-mode flash or inversion
+- [x] 1.4 Every screen renders in JetBrains Mono with no network font request (offline check) — 3a95018
+- [x] 1.5 Canvas cream / text ink; interactive 4px, containers 0px radius — 3a95018
+- [x] 1.6 No dark-mode flash or inversion — 3a95018
 
 ### Phase 2: App-Shell & Sidebar
 
 #### Automated
 
-- [ ] 2.1 Build succeeds: `npm run build:web`
-- [ ] 2.2 Lint passes: `npx nx lint web`
-- [ ] 2.3 Unit tests pass: `npx nx test web`
+- [x] 2.1 Build succeeds: `npm run build:web`
+- [x] 2.2 Lint passes: `npx nx lint web`
+- [x] 2.3 Unit tests pass: `npx nx test web`
 
 #### Manual
 
-- [ ] 2.4 Sidebar persists across authed routes; login/register render without it
-- [ ] 2.5 Active nav shows `▸` + surface-card bg; caret blinks
-- [ ] 2.6 Footer sign-out logs out and routes to login
+- [x] 2.4 Sidebar persists across authed routes; login/register render without it
+- [x] 2.5 Active nav shows `▸` + surface-card bg; caret blinks
+- [x] 2.6 Footer sign-out logs out and routes to login
 
 ### Phase 3: Additive Primitives
 

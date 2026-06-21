@@ -13,31 +13,35 @@ export const appRoutes: Route[] = [
   },
   {
     canActivate: [authGuard],
-    loadComponent: () => import('./features/audit/audit.component').then(({ AuditComponent }) => AuditComponent),
-    path: 'audit',
-  },
-  {
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/devices/devices.component').then(({ DevicesComponent }) => DevicesComponent),
-    path: 'devices',
-  },
-  {
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/llm-providers/llm-providers.component').then(
-        ({ LlmProvidersComponent }) => LlmProvidersComponent
-      ),
-    path: 'llm-providers',
-  },
-  {
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/skills/skills.component').then(({ SkillsComponent }) => SkillsComponent),
-    path: 'skills',
-  },
-  {
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/home/home.component').then(({ HomeComponent }) => HomeComponent),
+    children: [
+      {
+        loadComponent: () => import('./features/audit/audit.component').then(({ AuditComponent }) => AuditComponent),
+        path: 'audit',
+      },
+      {
+        loadComponent: () =>
+          import('./features/devices/devices.component').then(({ DevicesComponent }) => DevicesComponent),
+        path: 'devices',
+      },
+      {
+        loadComponent: () =>
+          import('./features/llm-providers/llm-providers.component').then(
+            ({ LlmProvidersComponent }) => LlmProvidersComponent
+          ),
+        path: 'llm-providers',
+      },
+      {
+        loadComponent: () =>
+          import('./features/skills/skills.component').then(({ SkillsComponent }) => SkillsComponent),
+        path: 'skills',
+      },
+      {
+        loadComponent: () => import('./features/home/home.component').then(({ HomeComponent }) => HomeComponent),
+        path: '',
+      },
+    ],
+    // authed shell: the layout renders the persistent sidebar + a content outlet for these children.
+    loadComponent: () => import('./shared/layout/layout.component').then(({ LayoutComponent }) => LayoutComponent),
     path: '',
   },
   { path: '**', redirectTo: '' },

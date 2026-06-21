@@ -1,0 +1,60 @@
+<div class="bg-op-cream text-op-ink flex min-h-screen text-sm leading-normal">
+  <!-- sidebar -->
+  <aside class="border-op-hairline bg-op-cream sticky top-0 flex h-screen w-[236px] flex-none flex-col border-r">
+    <!-- wordmark + blinking caret -->
+    <div class="border-op-hairline border-b px-[18px] pt-5 pb-4">
+      <div class="flex items-center gap-2">
+        <span class="text-base font-extrabold tracking-[-0.5px]">opspilot</span>
+        <span class="animate-op-blink bg-op-ink inline-block h-[15px] w-2"></span>
+      </div>
+      <div class="text-op-mute mt-[5px] text-xs">homelab control</div>
+    </div>
+
+    <!-- nav: ▸ active marker, surface-card active bg, weight 700 active -->
+    <nav class="flex flex-1 flex-col gap-[2px] px-[10px] py-[14px]">
+      @for (item of navItems; track item.path) {
+        <a
+          class="flex items-center gap-[10px] rounded-[4px] px-[10px] py-2 text-[13.5px]"
+          #rla="routerLinkActive"
+          [class.bg-op-surface-card]="rla.isActive"
+          [class.font-bold]="rla.isActive"
+          [class.font-medium]="!rla.isActive"
+          [class.text-op-body]="!rla.isActive"
+          [class.text-op-ink]="rla.isActive"
+          [routerLink]="item.path"
+          [routerLinkActiveOptions]="item.options"
+          routerLinkActive
+        >
+          <span class="text-op-ink w-[18px]">{{ rla.isActive ? '▸' : '' }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <!-- user footer + sign-out -->
+    <div class="border-op-hairline flex flex-col gap-[10px] border-t px-4 py-[14px]">
+      <div class="flex items-center gap-[9px]">
+        <span
+          class="bg-op-ink text-op-cream flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full text-xs font-bold"
+          >op</span
+        >
+        <div class="min-w-0">
+          <div class="truncate text-[12.5px] font-semibold">{{ user()?.email }}</div>
+          <div class="text-op-mute text-[11px]">self-hosted</div>
+        </div>
+      </div>
+      <button
+        class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-3 py-[5px] text-[12.5px] font-medium"
+        type="button"
+        (click)="signOut()"
+      >
+        sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- content -->
+  <main class="max-h-screen min-w-0 flex-1 overflow-y-auto">
+    <router-outlet />
+  </main>
+</div>
