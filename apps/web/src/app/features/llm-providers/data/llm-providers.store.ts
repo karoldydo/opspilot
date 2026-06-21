@@ -21,11 +21,10 @@ interface LlmProvidersState {
   providers: LlmProvider[];
 }
 
-// pulls the user-facing message out of an http failure — the global exception
-// filter shapes every error body as apiErrorSchema, so prefer that message and
-// fall back to a generic line for transport-level failures. the test-call domain
-// errors (502/503/504) arrive shaped this way too, so a bad-key/unreachable/timeout
-// reaches the dialog as a legible line.
+// pulls the user-facing message out of an http failure — the global exception filter
+// shapes every error body as apiErrorSchema; falls back to a generic transport line.
+// test-call domain errors (502/503/504) arrive shaped this way too, so a
+// bad-key/unreachable/timeout reaches the dialog as a legible line.
 function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof HttpErrorResponse) {
     const parsed = apiErrorSchema.safeParse(error.error);
@@ -36,10 +35,10 @@ function errorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-// signal-based llm-provider state with mutate-then-refetch, mirroring DevicesStore.
-// provided at the llm-providers route (not providedIn: 'root') so the feature owns
-// its lifecycle. the app is zoneless — async client callbacks don't trigger change
-// detection, so state lives in a signalState container mutated through patchState.
+// signal-based llm-provider state with mutate-then-refetch, provided at the
+// llm-providers route (not providedIn: 'root', per angular.md). zoneless — async
+// client callbacks don't trigger cd, so state rides a signalState container mutated
+// through patchState.
 @Injectable()
 export class LlmProvidersStore {
   private readonly client = inject(LlmProvidersClient);

@@ -2,10 +2,7 @@ import { FormControl } from '@angular/forms';
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { skillCreateRequestSchema, skillParameterSchema } from '@opspilot/shared';
 
-// the skill form derives every field validator from the shared schema (contracts.md:
-// no second, fe-only rule). these tests pin that the bridge wires the skill schemas
-// correctly and that the parity check the submit handler relies on rejects a
-// template/parameter mismatch.
+// validators derived from the shared schema (contracts.md, no fe-only rule); also pins the cross-field parity refine the submit handler relies on.
 describe('skill form validators', () => {
   it('rejects an empty name and accepts a non-empty one', () => {
     const validate = schemaValidator(skillCreateRequestSchema.shape.name);
@@ -27,8 +24,7 @@ describe('skill form validators', () => {
   });
 
   it('rejects a template/parameter mismatch on the assembled payload', () => {
-    // an undeclared {{placeholder}} fails the cross-field parity refine — the same
-    // check the form runs before the round-trip.
+    // an undeclared {{placeholder}} fails the cross-field parity refine — the same check the form runs before submit.
     const mismatch = skillCreateRequestSchema.safeParse({
       commandTemplate: 'docker restart {{containerName}}',
       deviceId: null,

@@ -36,7 +36,7 @@ describe('SkillRunClient', () => {
   it('rejects a result carrying a leaked unknown key', async () => {
     const promise = client.run(deviceId, serviceId, skillId, { inputs: {} });
     const request = httpMock.expectOne(`/api/devices/${deviceId}/services/${serviceId}/skills/${skillId}/run`);
-    // a leaked field must fail the strict parse at the boundary.
+    // a leaked key must fail the strict parse at the boundary.
     request.flush({ extra: 'leak', message: 'started', status: 'succeeded' });
 
     await expect(promise).rejects.toThrow();

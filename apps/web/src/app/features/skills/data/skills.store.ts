@@ -16,9 +16,8 @@ interface SkillsState {
   skills: Skill[];
 }
 
-// pulls the user-facing message out of an http failure — the global exception
-// filter shapes every error body as apiErrorSchema, so prefer that message and fall
-// back to a generic line for transport-level failures.
+// pulls the user-facing message out of an http failure — the global exception filter
+// shapes every error body as apiErrorSchema; falls back to a generic transport line.
 function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof HttpErrorResponse) {
     const parsed = apiErrorSchema.safeParse(error.error);
@@ -29,10 +28,9 @@ function errorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-// signal-based skill state with mutate-then-refetch, mirroring DevicesStore. provided
-// at the skills route (not providedIn: 'root') so the feature owns its lifecycle. the
-// app is zoneless — async client callbacks don't trigger change detection, so state
-// lives in a signalState container mutated through patchState (@ngrx/signals).
+// signal-based skill state with mutate-then-refetch, provided at the skills route
+// (not providedIn: 'root', per angular.md). zoneless — async client callbacks don't
+// trigger cd, so state rides a signalState container mutated through patchState.
 @Injectable()
 export class SkillsStore {
   private readonly client = inject(SkillsClient);

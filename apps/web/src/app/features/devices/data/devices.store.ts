@@ -26,9 +26,8 @@ interface DevicesState {
   loading: boolean;
 }
 
-// pulls the user-facing message out of an http failure — the global exception
-// filter shapes every error body as apiErrorSchema, so prefer that message and
-// fall back to a generic line for transport-level failures.
+// pulls the user-facing message out of an http failure — the global exception filter
+// shapes every error body as apiErrorSchema; falls back to a generic transport line.
 function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof HttpErrorResponse) {
     const parsed = apiErrorSchema.safeParse(error.error);
@@ -39,10 +38,9 @@ function errorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-// signal-based device state with mutate-then-refetch, mirroring AuthStore. provided
-// at the devices route (not providedIn: 'root') so the feature owns its lifecycle.
-// the app is zoneless — async client callbacks don't trigger change detection, so
-// state lives in a signalState container mutated through patchState (@ngrx/signals).
+// signal-based device state with mutate-then-refetch, provided at the devices route
+// (not providedIn: 'root', per angular.md). zoneless — async client callbacks don't
+// trigger cd, so state rides a signalState container mutated through patchState.
 @Injectable()
 export class DevicesStore {
   private readonly client = inject(DevicesClient);
@@ -56,10 +54,9 @@ export class DevicesStore {
 
   readonly loading = this.state.loading;
 
-  // creates a device and its credential as two calls. the credential contract
-  // requires the device id, so the device must land first. if the credential call
-  // fails, roll back the orphaned device (best-effort) and surface the original
-  // credential error — no device is ever left without credentials.
+  // creates a device then its credential as two calls — the credential contract needs
+  // the device id, so the device lands first. if the credential call fails, roll back the
+  // orphaned device (best-effort) and surface the original error — no device left credential-less.
   async add(deviceInput: DeviceCreateRequest, credentialInput: CredentialInput): Promise<DeviceActionResult> {
     let device: Device;
     try {
@@ -107,9 +104,8 @@ export class DevicesStore {
     return { error: null };
   }
 
-  // there is no credential rotation endpoint — replacing a secret is recreate +
-  // delete. store the new credential first, then drop the prior ones only on
-  // success, so a failed create never leaves the device with zero credentials.
+  // no credential rotation endpoint — replacing a secret is recreate + delete: store the
+  // new one first, drop the prior ones only on success, so a failed create never leaves zero.
   async replaceCredential(deviceId: string, credentialInput: CredentialInput): Promise<DeviceActionResult> {
     try {
       const existing = await this.client.listCredentials(deviceId);

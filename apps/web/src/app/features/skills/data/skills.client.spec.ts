@@ -50,7 +50,7 @@ describe('SkillsClient', () => {
     });
     const request = httpMock.expectOne('/api/skills');
     expect(request.request.method).toBe('POST');
-    // an unexpected leaked field must fail the strict parse at the boundary.
+    // a leaked key must fail the strict parse at the boundary.
     request.flush({ ...skill, secretColumn: 'leak' });
 
     await expect(promise).rejects.toThrow();

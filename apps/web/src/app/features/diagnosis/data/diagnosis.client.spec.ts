@@ -21,8 +21,7 @@ const run: RunRecord = {
   },
 };
 
-// a minimal stand-in for the native EventSource — jsdom has none. captures the url and
-// exposes the handlers so a test can drive message/error frames and assert close().
+// minimal EventSource stand-in (jsdom has none) — captures the url + handlers so a test can drive frames and assert close().
 class FakeEventSource {
   static instances: FakeEventSource[] = [];
   readonly close = vi.fn();
@@ -67,7 +66,7 @@ describe('DiagnosisClient', () => {
     it('rejects a record carrying an unknown key', async () => {
       const promise = client.recentRuns(deviceId, serviceId);
       const request = httpMock.expectOne(`/api/devices/${deviceId}/services/${serviceId}/diagnose/runs`);
-      // a leaked column (e.g. userId) must fail the strict parse at the boundary.
+      // a leaked key must fail the strict parse at the boundary.
       request.flush([{ ...run, userId: 'should-not-be-here' }]);
 
       await expect(promise).rejects.toThrow();

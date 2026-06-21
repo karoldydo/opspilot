@@ -11,9 +11,9 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 // typed http i/o against the scan + services endpoints, nested under the device.
-// every response is parsed through the shared zod contract so timestamps normalize
-// to iso strings and any leaked runtime/secret key fails the strict parse at the
-// boundary. mirrors devices.client.ts.
+// relative '/api' urls ride the same-origin session cookie (withFetch). responses parse
+// through the shared zod contract so timestamps normalize and any leaked runtime/secret
+// key fails the strict parse.
 @Injectable()
 export class ServicesClient {
   private readonly http = inject(HttpClient);

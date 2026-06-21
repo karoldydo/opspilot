@@ -106,7 +106,6 @@ describe('ServicesStore', () => {
     // the second create (nginx) rejects — its name is reported, redis still lands.
     expect(result).toEqual({ error: 'could not add: nginx' });
     expect(createService).toHaveBeenCalledTimes(2);
-    // the list is refetched regardless so the successful add shows immediately.
     expect(listServices).toHaveBeenCalledWith(deviceId);
     expect(store.services()).toEqual([service]);
   });
@@ -131,7 +130,6 @@ describe('ServicesStore', () => {
     const result = await store.rename(deviceId, service.id, '');
 
     expect(result).toEqual({ error: 'name is required' });
-    // a failed mutation never refetches.
     expect(listServices).not.toHaveBeenCalled();
   });
 

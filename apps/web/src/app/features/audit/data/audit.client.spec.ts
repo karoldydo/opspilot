@@ -56,7 +56,7 @@ describe('AuditClient', () => {
   it('rejects a row carrying a leaked unknown key', async () => {
     const promise = client.list();
     const request = httpMock.expectOne('/api/audit');
-    // a leaked column must fail the strict parse at the boundary.
+    // a leaked key must fail the strict parse at the boundary.
     request.flush([{ ...event, secret: 'leaked' }]);
 
     await expect(promise).rejects.toThrow();

@@ -42,7 +42,6 @@ describe('LlmProvidersStore', () => {
 
     expect(result).toEqual({ error: null });
     expect(create).toHaveBeenCalledOnce();
-    // mutate-then-refetch: a successful create reloads the list.
     expect(list).toHaveBeenCalledOnce();
     expect(store.providers()).toEqual([provider]);
   });
@@ -60,7 +59,6 @@ describe('LlmProvidersStore', () => {
     });
 
     expect(result).toEqual({ error: 'llm provider at https://x unreachable' });
-    // a failed create never refetches — the list stays as it was.
     expect(list).not.toHaveBeenCalled();
     expect(store.providers()).toEqual([]);
   });

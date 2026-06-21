@@ -4,11 +4,10 @@ import { type SkillRunRequest, type SkillRunResult, skillRunResultSchema } from 
 import { firstValueFrom } from 'rxjs';
 
 // single request/response client against the skill-run endpoint, nested under the
-// device/service/skill path. the body carries values only for `input`-source params;
-// `service`-source params are resolved server-side from the service row and are never
-// sent from here (the s-06 guarantee). the result is parsed through the shared zod
-// contract so a malformed/leaked shape fails at the boundary. plain HttpClient so the
-// 401 session-expiry interceptor applies (auth.interceptor.ts). mirrors skills.client.
+// device/service/skill path. the body carries `input`-source param values only;
+// `service`-source params resolve server-side and are never sent (the s-06 guarantee).
+// the result parses through the shared zod contract. plain HttpClient, so the 401
+// session-expiry interceptor applies (auth.interceptor.ts).
 @Injectable()
 export class SkillRunClient {
   private readonly http = inject(HttpClient);

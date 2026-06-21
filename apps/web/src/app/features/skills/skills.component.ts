@@ -12,12 +12,7 @@ import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 
-// the skill catalog view: a table of every skill (global + per-device) with its
-// scope, parameters, edit/delete row actions, an empty state, and an add button.
-// the skill store/client are provided here (not providedIn: 'root', per angular.md);
-// DevicesClient is provided too so the scope select in the form can list devices.
-// the form dialog renders in a cdk overlay outside this injector, so the list passes
-// the store + device list via dialog context.
+// skill catalog view (global + per-device). store/client + DevicesClient (for the scope select) provided here (not providedIn: 'root', per angular.md); the form dialog gets the store + device list via context since it renders in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, HlmBadge, HlmButton, ...HlmTableImports, ...HlmAlertDialogImports, ...HlmEmptyImports],
@@ -34,7 +29,6 @@ export class SkillsComponent {
   // devices drive the scope select in the form and the scope label in the table.
   protected readonly devices = signal<Device[]>([]);
 
-  // the skill a pending delete confirmation refers to — drives the alert-dialog copy.
   protected readonly skillToDelete = signal<null | Skill>(null);
 
   // device id → name lookup so a per-device skill renders its device name.

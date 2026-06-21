@@ -4,9 +4,8 @@ import { type Skill, type SkillCreateRequest, skillSchema, type SkillUpdateReque
 import { firstValueFrom } from 'rxjs';
 
 // typed http i/o against the skill crud endpoints. relative '/api' urls ride the
-// same-origin session cookie automatically (withFetch). every entity-returning
-// response is parsed through skillSchema so timestamps normalize to iso strings and
-// any leaked column fails the strict parse at the boundary.
+// same-origin session cookie (withFetch). responses parse through skillSchema so
+// timestamps normalize to iso strings and any leaked column fails the strict parse.
 @Injectable()
 export class SkillsClient {
   private readonly http = inject(HttpClient);

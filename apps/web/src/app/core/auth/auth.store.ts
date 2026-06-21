@@ -3,8 +3,7 @@ import { authClient } from '@app/core/auth/auth.client';
 import { patchState, signalState } from '@ngrx/signals';
 import { type AuthLoginRequest, type AuthRegisterRequest, type AuthUser, authUserSchema } from '@opspilot/shared';
 
-// normalized result our login/register screens render: error is a user-facing
-// message on failure, null on success.
+// login/register result: user-facing error message on failure, null on success.
 export interface AuthActionResult {
   error: null | string;
 }
@@ -13,11 +12,9 @@ interface AuthState {
   user: AuthUser | null;
 }
 
-// the single source of truth for session state, provided explicitly at the app
-// root (not providedIn: 'root', per angular.md) so guard, interceptor, and the
-// auth screens all read/write the same state. the app is zoneless — better-auth's
-// async client callbacks don't trigger change detection, so state lives in a
-// signalState container mutated through patchState (@ngrx/signals).
+// single source of truth for session state, provided at the app root
+// (not providedIn: 'root', per angular.md). zoneless — better-auth's async callbacks
+// don't trigger cd, so state rides a signalState container mutated through patchState.
 @Injectable()
 export class AuthStore {
   private readonly state = signalState<AuthState>({ user: null });
@@ -26,14 +23,13 @@ export class AuthStore {
 
   readonly user = this.state.user;
 
-  // drops local session state — called by the 401 interceptor when the server
-  // rejects a stale session so the ui never stays half-authenticated.
+  // drops local session state; called by the 401 interceptor so the ui never stays half-authenticated.
   clear(): void {
     patchState(this.state, { user: null });
   }
 
-  // hydrates the session state from the server cookie. run at app init (before the
-  // guard's first navigation) so a page reload while logged in stays authenticated.
+  // hydrates session from the server cookie at app init (before the guard's first
+  // navigation) so a reload while logged in stays authenticated.
   async loadSession(): Promise<void> {
     try {
       const { data } = await authClient.getSession();

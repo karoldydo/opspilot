@@ -17,18 +17,17 @@ export interface DiagnosisEntry {
 }
 
 interface DiagnosisState {
-  // keyed by serviceId so diagnosing one row never clobbers another row's panel. the
-  // component provides one store per device row, but a device has many service rows
-  // sharing that store — the key keeps them isolated.
+  // keyed by serviceId so diagnosing one row never clobbers another — one store per
+  // device row, but many service rows share it, so the key keeps their panels isolated.
   entries: Record<string, DiagnosisEntry>;
 }
 
 const emptyEntry: DiagnosisEntry = { error: null, loading: false, partial: null, result: null, runs: [] };
 
-// signal-based, per-service diagnosis state. provided at the device-services component
-// (not providedIn: 'root') so each device row owns its lifecycle. the app is zoneless —
-// the EventSource callbacks don't trigger change detection, so state lives in a
-// signalState container mutated through patchState (sse.md / angular.md).
+// signal-based, per-service diagnosis state, provided at the device-services component
+// (not providedIn: 'root', per angular.md) so each device row owns its lifecycle.
+// zoneless — EventSource callbacks don't trigger cd, so state rides a signalState
+// container mutated through patchState (sse.md).
 @Injectable()
 export class DiagnosisStore {
   private readonly client = inject(DiagnosisClient);
@@ -39,8 +38,7 @@ export class DiagnosisStore {
   private readonly teardowns = new Map<string, () => void>();
 
   constructor() {
-    // the store is provided at the device-services component, so this fires when the
-    // row's section is destroyed — close every open stream (sse.md: never leak one).
+    // store is provided per device-services row; on destroy close every open stream (sse.md: never leak).
     this.destroyRef.onDestroy(() => this.closeAll());
   }
 
@@ -119,11 +117,10 @@ export class DiagnosisStore {
     this.teardown(serviceId);
   }
 
-  // a native EventSource failure (dropped connection or a non-200 pre-flight — 404/409 —
-  // whose status/body EventSource hides). only meaningful while the stream is still
-  // open; a failure fired by the server's normal close after a terminal frame is ignored
-  // (the source was already torn down). renders a generic legible line, never a 401 /
-  // session-expiry redirect (this bypasses HttpClient and its interceptor).
+  // a native EventSource failure (dropped connection or non-200 pre-flight EventSource
+  // hides). only meaningful while the stream is open — a failure from the server's normal
+  // close after a terminal frame is ignored. renders a generic line, never a 401 redirect
+  // (this bypasses HttpClient and its interceptor).
   private handleTransportError(serviceId: string): void {
     const entry = this.entry(serviceId);
     if (!entry.loading) {
@@ -133,12 +130,10 @@ export class DiagnosisStore {
     this.teardown(serviceId);
   }
 
-  // merges one row's slice into the keyed record, preserving every other key.
   private patchEntry(serviceId: string, entry: DiagnosisEntry): void {
     patchState(this.state, { entries: { ...this.state.entries(), [serviceId]: entry } });
   }
 
-  // closes and forgets one row's open stream, if any.
   private teardown(serviceId: string): void {
     const close = this.teardowns.get(serviceId);
     if (close) {

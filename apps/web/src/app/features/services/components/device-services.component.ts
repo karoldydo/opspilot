@@ -21,20 +21,14 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 
-// status → badge classes. spartan's hlmBadge has no success/warning variant, so we
-// keep its shape and color via tokens/utilities: down uses the semantic destructive
-// token; healthy/degraded use the green/amber palette (no semantic token exists).
+// status → badge classes. hlmBadge has no success/warning variant, so we keep its shape and color via tokens/utilities (down = destructive token; healthy/degraded = green/amber, no semantic token exists).
 const BADGE_CLASS: Record<DiagnosisSynthesis['status'], string> = {
   degraded: 'border-transparent bg-amber-500/15 text-amber-700 dark:text-amber-500',
   down: 'border-transparent bg-destructive/15 text-destructive',
   healthy: 'border-transparent bg-green-600/15 text-green-700 dark:text-green-400',
 };
 
-// the managed-services section for one device row: a Scan action that opens the
-// curation dialog plus a table of curated services with rename/delete. each
-// instance provides its own ServicesClient + ServicesStore (not providedIn: 'root',
-// per angular.md) so every device row owns isolated state; the dialogs render in a
-// cdk overlay outside this injector, so the store instance is passed via context.
+// managed-services section for one device row (scan + curated table with rename/delete). each instance provides its own ServicesClient + ServicesStore (not providedIn: 'root', per angular.md) so rows stay isolated; the dialogs get the store via context since they render in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -63,7 +57,6 @@ export class DeviceServicesComponent {
 
   protected readonly store = inject(ServicesStore);
 
-  // the service a pending delete confirmation refers to — drives the alert copy.
   protected readonly serviceToDelete = signal<null | Service>(null);
 
   // serviceIds whose recent-runs list has already been fetched — guards the runs
@@ -88,7 +81,6 @@ export class DeviceServicesComponent {
     }
   });
 
-  // badge classes for a synthesis status — drives the result panel's status chip.
   badgeClass(status: DiagnosisSynthesis['status']): string {
     return BADGE_CLASS[status];
   }

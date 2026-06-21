@@ -17,10 +17,7 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 
-// context the list component passes into the dialog. the store instance and the
-// device list ride the context (not DI) because the dialog renders in a cdk overlay
-// outside the route injector that provides SkillsStore; the device list drives the
-// scope select (global vs a device).
+// context passed into the dialog — the store + device list ride context not DI because the dialog renders in a cdk overlay outside the injector that provides SkillsStore; the device list drives the scope select.
 export interface SkillFormDialogContext {
   devices: Device[];
   mode: 'create' | 'edit';
@@ -28,17 +25,13 @@ export interface SkillFormDialogContext {
   store: SkillsStore;
 }
 
-// one typed parameter row in the parameters FormArray.
 type ParameterGroup = FormGroup<{
   name: FormControl<string>;
   required: FormControl<boolean>;
   source: FormControl<'input' | 'service'>;
 }>;
 
-// add/edit form for a skill: name, command template, scope (global vs a device),
-// optional per-skill timeout, and a list of typed parameters (name + source). the
-// parameter/placeholder parity and per-scope name uniqueness are re-checked against
-// the shared schema on submit (no second, fe-only rule) and again server-side.
+// add/edit form for a skill (name, command template, scope, optional timeout, typed parameters). parameter/placeholder parity and per-scope name uniqueness are re-checked against the shared schema on submit (no second fe-only rule) and again server-side.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -67,8 +60,7 @@ export class SkillFormDialog {
 
   protected readonly form = this.formBuilder.nonNullable.group({
     commandTemplate: ['', [schemaValidator(skillCreateRequestSchema.shape.commandTemplate)]],
-    // '' = global scope; a uuid scopes the skill to that device. converted to null on
-    // submit; no schema validator — the select can only hold valid options.
+    // '' = global scope, a uuid scopes to that device; converted to null on submit. no validator — the select can only hold valid options.
     deviceId: [''],
     name: ['', [schemaValidator(skillCreateRequestSchema.shape.name)]],
     parameters: this.formBuilder.array<ParameterGroup>([]),
@@ -82,11 +74,9 @@ export class SkillFormDialog {
 
   protected readonly submitting = signal(false);
 
-  // human label for the scope select trigger.
   protected readonly scopeLabel = (value: string): string =>
     value === '' ? 'Global' : (this.devices.find((device) => device.id === value)?.name ?? value);
 
-  // human label for the parameter source select trigger.
   protected readonly sourceLabel = (value: string): string => (value === 'service' ? 'Service' : 'Input');
 
   constructor() {
@@ -130,10 +120,7 @@ export class SkillFormDialog {
       timeoutMs: value.timeoutMs,
     };
 
-    // the form always assembles a complete skill, so re-check the parameter/
-    // placeholder parity against the shared create schema in both modes, surfacing
-    // the cross-field message inline before the round-trip (the edit path then sends
-    // the full payload as a patch — the server re-validates parity on the merged row).
+    // re-check parameter/placeholder parity against the shared create schema in both modes, surfacing the cross-field message inline before the round-trip (edit sends the full payload as a patch; the server re-validates parity on the merged row).
     const parsed = skillCreateRequestSchema.safeParse(payload);
     if (!parsed.success) {
       this.errorMessage.set(parsed.error.issues[0]?.message ?? 'invalid skill');

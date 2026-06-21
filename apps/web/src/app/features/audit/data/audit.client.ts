@@ -4,9 +4,8 @@ import { type AuditEvent, auditEventSchema, type AuditListQuery } from '@opspilo
 import { firstValueFrom } from 'rxjs';
 
 // typed http i/o against the audit timeline endpoint. relative '/api' urls ride the
-// same-origin session cookie automatically (withFetch). the list response is parsed
-// through auditEventSchema so timestamps normalize to iso strings and any leaked
-// column fails the strict parse at the boundary. mirrors skills.client.ts.
+// same-origin session cookie (withFetch). responses parse through auditEventSchema so
+// timestamps normalize to iso strings and any leaked column fails the strict parse.
 @Injectable()
 export class AuditClient {
   private readonly http = inject(HttpClient);

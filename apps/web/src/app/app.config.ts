@@ -11,11 +11,9 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes),
     // same-origin fetch backend + the 401 interceptor. no provideZoneChangeDetection — zoneless.
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
-    // session source of truth shared by guard, interceptor, and the auth screens —
-    // provided explicitly at the app root, not providedIn: 'root' (angular.md).
+    // session source of truth, provided at the app root (not providedIn: 'root', per angular.md).
     AuthStore,
-    // hydrate the session before the first navigation so a reload while logged in
-    // doesn't bounce through the guard to /login.
+    // hydrate session before the first navigation so a reload while logged in stays authenticated.
     provideAppInitializer(() => inject(AuthStore).loadSession()),
   ],
 };

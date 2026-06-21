@@ -9,20 +9,14 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 
-// status → badge classes. spartan's hlmBadge has no success/warning variant, so we
-// keep its shape and color via tokens/utilities — mirrors device-services.component.
+// status → badge classes. hlmBadge has no success/warning variant, so we keep its shape and color via tokens/utilities — mirrors device-services.component.
 const BADGE_CLASS: Record<DiagnosisSynthesis['status'], string> = {
   degraded: 'border-transparent bg-amber-500/15 text-amber-700 dark:text-amber-500',
   down: 'border-transparent bg-destructive/15 text-destructive',
   healthy: 'border-transparent bg-green-600/15 text-green-700 dark:text-green-400',
 };
 
-// the merged audit timeline view (/audit): one chronological list driven by
-// audit_log, newest-first. a run-linked row (its synthesis came inline via the
-// server LEFT JOIN) expands to the saved synthesis card — the same renderer s-05
-// uses for replay. all data fetching lives in the store; the component only reads
-// signals and toggles the expanded row. store + client are provided here (not
-// providedIn: 'root', per angular.md) so the lazy feature owns their lifecycle.
+// merged audit timeline (/audit), newest-first from audit_log; a run-linked row expands to its saved synthesis card (the synthesis arrives inline via the server LEFT JOIN). store + client provided here (not providedIn: 'root', per angular.md).
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, HlmBadge, HlmButton, ...HlmCardImports, ...HlmEmptyImports, ...HlmTableImports],

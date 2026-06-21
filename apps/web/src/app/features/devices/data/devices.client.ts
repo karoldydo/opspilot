@@ -11,10 +11,9 @@ import {
 } from '@opspilot/shared';
 import { firstValueFrom } from 'rxjs';
 
-// typed http i/o against the device + credential endpoints. relative '/api' urls
-// ride the same-origin session cookie automatically (withFetch). responses are
-// parsed through the shared zod contracts so timestamps normalize to iso strings
-// and any leaked secret-bearing key fails the strict parse at the boundary.
+// typed http i/o against the device + credential endpoints. relative '/api' urls ride
+// the same-origin session cookie (withFetch). responses parse through the shared zod
+// contracts so timestamps normalize and any leaked secret-bearing key fails the strict parse.
 @Injectable()
 export class DevicesClient {
   private readonly http = inject(HttpClient);

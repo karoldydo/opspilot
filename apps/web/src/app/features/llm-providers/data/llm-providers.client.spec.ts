@@ -49,7 +49,7 @@ describe('LlmProvidersClient', () => {
     });
     const request = httpMock.expectOne('/api/llm-providers');
     expect(request.request.method).toBe('POST');
-    // a leaked secret field must fail the strict parse at the boundary.
+    // a leaked key must fail the strict parse at the boundary.
     request.flush({ ...provider, ciphertext: 'deadbeef' });
 
     await expect(promise).rejects.toThrow();

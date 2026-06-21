@@ -15,9 +15,7 @@ import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle 
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 
-// context the service-skills component passes in. the store instance rides the
-// context (not DI) because the dialog renders in a cdk overlay outside the component
-// injector that provides SkillRunStore. serviceName drives the confirm copy.
+// context passed into the dialog — the store rides context not DI because the dialog renders in a cdk overlay outside the injector that provides SkillRunStore. serviceName drives the confirm copy.
 export interface RunSkillDialogContext {
   deviceId: string;
   serviceId: string;
@@ -26,20 +24,13 @@ export interface RunSkillDialogContext {
   store: SkillRunStore;
 }
 
-// allows an empty optional input (the run request simply omits it), otherwise
-// delegates to the charset schema — the same value guard the server re-applies at
-// the shell boundary.
+// empty optional input is allowed (the run omits it); otherwise the charset schema — the same guard the server re-applies at the shell boundary.
 function optionalValueValidator(): ValidatorFn {
   const required = schemaValidator(skillParameterValueSchema);
   return (control: AbstractControl) => (control.value === '' ? null : required(control));
 }
 
-// the uniform run affordance for one skill on one service: a command preview (so the
-// dialog doubles as the destructive-action confirm — the data model carries no
-// destructive flag) plus a field per `input`-source parameter. `service`-source
-// params are filled server-side from the resolved service row and never appear here.
-// running posts the collected inputs through the store, which keeps the per-service
-// result line on the row below.
+// uniform run dialog for one skill: a command preview (doubling as the destructive-action confirm — the data model carries no destructive flag) plus a field per `input`-source param. `service`-source params are filled server-side and never appear here.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [

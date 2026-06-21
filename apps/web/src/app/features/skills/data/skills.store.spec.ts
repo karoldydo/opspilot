@@ -43,7 +43,6 @@ describe('SkillsStore', () => {
 
     expect(result).toEqual({ error: null });
     expect(create).toHaveBeenCalledOnce();
-    // mutate-then-refetch: a successful create reloads the list.
     expect(list).toHaveBeenCalledOnce();
     expect(store.skills()).toEqual([skill]);
   });
@@ -62,7 +61,6 @@ describe('SkillsStore', () => {
     });
 
     expect(result).toEqual({ error: 'skill named restart already exists in this scope' });
-    // a failed create never refetches — the list stays as it was.
     expect(list).not.toHaveBeenCalled();
     expect(store.skills()).toEqual([]);
   });

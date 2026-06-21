@@ -11,12 +11,7 @@ import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 
-// the shared device inventory view: a table of every device with edit/delete row
-// actions, an empty state, and an add button. all data fetching lives in the
-// store; the component only opens dialogs and reads signals. the store + client
-// are provided here (not providedIn: 'root', per angular.md) so the lazy feature
-// owns their lifecycle; the form dialog renders in a cdk overlay outside this
-// injector, so the list passes the store instance via dialog context.
+// device inventory view. store + client provided here (not providedIn: 'root', per angular.md); the form dialog gets the store via context since it renders in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -36,7 +31,6 @@ export class DevicesComponent {
 
   protected readonly store = inject(DevicesStore);
 
-  // the device a pending delete confirmation refers to — drives the alert-dialog copy.
   protected readonly deviceToDelete = signal<Device | null>(null);
 
   constructor() {

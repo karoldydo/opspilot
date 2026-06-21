@@ -74,7 +74,6 @@ describe('DevicesStore', () => {
 
     expect(result).toEqual({ error: 'secret is required' });
     expect(removeDevice).toHaveBeenCalledWith(device.id);
-    // a failed create never refetches — the list stays as it was.
     expect(listDevices).not.toHaveBeenCalled();
     expect(store.devices()).toEqual([]);
   });

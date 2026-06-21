@@ -13,9 +13,8 @@ interface AuditState {
   selectedId: null | string;
 }
 
-// pulls the user-facing message out of an http failure — the global exception
-// filter shapes every error body as apiErrorSchema, so prefer that message and
-// fall back to a generic line for transport-level failures (devices.store.ts).
+// pulls the user-facing message out of an http failure — the global exception filter
+// shapes every error body as apiErrorSchema; falls back to a generic transport line.
 function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof HttpErrorResponse) {
     const parsed = apiErrorSchema.safeParse(error.error);
@@ -26,10 +25,9 @@ function errorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-// signal-based audit timeline state. provided at the audit route (not
-// providedIn: 'root', per angular.md) so the lazy feature owns its lifecycle. the
-// app is zoneless — async client callbacks don't trigger change detection, so
-// state lives in a signalState container mutated through patchState (@ngrx/signals).
+// signal-based audit timeline state, provided at the audit route (not providedIn:
+// 'root', per angular.md). zoneless — async client callbacks don't trigger cd, so
+// state rides a signalState container mutated through patchState.
 @Injectable()
 export class AuditStore {
   private readonly client = inject(AuditClient);

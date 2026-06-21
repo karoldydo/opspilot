@@ -11,20 +11,14 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 
-// context the list component passes into the dialog. the store instance rides the
-// context (not DI) because the dialog renders in a cdk overlay outside the route
-// injector that provides DevicesStore.
+// context passed into the dialog — the store rides context not DI because the dialog renders in a cdk overlay outside the injector that provides DevicesStore.
 export interface DeviceFormDialogContext {
   device: Device | null;
   mode: 'create' | 'edit';
   store: DevicesStore;
 }
 
-// single-step add/edit form: device identity (name + host) plus ssh credentials
-// (username, authType, secret). create issues the store's two-call flow; edit
-// patches name/host and, when a secret is supplied, replaces the credential via
-// delete + recreate. the secret control swaps single-line (password) vs multiline
-// (private key) on the authType value.
+// single-step add/edit form (device identity + ssh credentials). create runs the store's two-call flow; edit patches name/host and replaces the credential via delete + recreate only when a secret is supplied. the secret control swaps single-line vs multiline on the authType value.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -63,15 +57,13 @@ export class DeviceFormDialog {
 
   protected readonly submitting = signal(false);
 
-  // reactive mirror of the authType control so the template swaps the secret
-  // control (single-line vs textarea) without relying on zone change detection.
+  // reactive mirror of authType so the template swaps the secret control without relying on zone change detection.
   private readonly authType = toSignal(this.form.controls.authType.valueChanges, {
     initialValue: this.form.controls.authType.value,
   });
 
   protected readonly secretIsKey = computed(() => this.authType() === 'key');
 
-  // human label for the authType select trigger.
   protected readonly authTypeLabel = (value: string): string => (value === 'key' ? 'SSH key' : 'Password');
 
   constructor() {
@@ -127,8 +119,7 @@ export class DeviceFormDialog {
       return;
     }
 
-    // replace credentials only when the operator supplied new ones; require both
-    // username and secret together so a half-filled replace can't slip through.
+    // replace credentials only when supplied; require username + secret together so a half-filled replace can't slip through.
     const wantsReplace = value.secret.trim() !== '' || value.username.trim() !== '';
     if (!wantsReplace) {
       this.finish({ error: null });

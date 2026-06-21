@@ -9,9 +9,8 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 // typed http i/o against the llm-provider endpoints. relative '/api' urls ride the
-// same-origin session cookie automatically (withFetch). every entity-returning
-// response is parsed through llmProviderSchema so timestamps normalize to iso
-// strings and any leaked secret-bearing key fails the strict parse at the boundary.
+// same-origin session cookie (withFetch). responses parse through llmProviderSchema so
+// timestamps normalize and any leaked secret-bearing key fails the strict parse.
 @Injectable()
 export class LlmProvidersClient {
   private readonly http = inject(HttpClient);

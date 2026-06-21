@@ -13,20 +13,14 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 
-// context the list component passes into the dialog. the store instance rides the
-// context (not DI) because the dialog renders in a cdk overlay outside the route
-// injector that provides LlmProvidersStore.
+// context passed into the dialog — the store rides context not DI because the dialog renders in a cdk overlay outside the injector that provides LlmProvidersStore.
 export interface LlmProviderFormDialogContext {
   mode: 'create' | 'edit';
   provider: LlmProvider | null;
   store: LlmProvidersStore;
 }
 
-// single-step add/edit form: kind + baseURL + model + apiKey. create issues the
-// store's create flow (the server test-calls the endpoint before persisting); edit
-// patches baseURL/model/kind and, when an apiKey is supplied, rotates the key —
-// a blank apiKey on edit keeps the stored one. the apiKey control is a password and
-// is only required on create.
+// single-step add/edit form (kind + baseURL + model + apiKey). create runs the store's create flow (the server test-calls the endpoint before persisting); edit patches baseURL/model/kind and rotates the key only when an apiKey is supplied, a blank one keeping the stored key.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -63,7 +57,6 @@ export class LlmProviderFormDialog {
 
   protected readonly submitting = signal(false);
 
-  // human label for the kind select trigger.
   protected readonly kindLabel = (value: string): string =>
     value === 'openai-compatible' ? 'OpenAI-compatible' : value;
 

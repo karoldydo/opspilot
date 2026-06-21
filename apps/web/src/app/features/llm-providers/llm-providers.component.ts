@@ -14,13 +14,7 @@ import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 
-// the llm-provider configuration view: a table of every configured provider with an
-// active badge + an "activate" action, edit/delete row actions, an empty state, and
-// an add button. all data fetching lives in the store; the component only opens
-// dialogs and reads signals. the store + client are provided here (not
-// providedIn: 'root', per angular.md) so the lazy feature owns their lifecycle; the
-// form dialog renders in a cdk overlay outside this injector, so the list passes the
-// store instance via dialog context.
+// llm-provider config view (activate / edit / delete). store + client provided here (not providedIn: 'root', per angular.md); the form dialog gets the store via context since it renders in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, HlmBadge, HlmButton, ...HlmTableImports, ...HlmAlertDialogImports, ...HlmEmptyImports],
@@ -33,7 +27,6 @@ export class LlmProvidersComponent {
 
   protected readonly store = inject(LlmProvidersStore);
 
-  // the provider a pending delete confirmation refers to — drives the alert-dialog copy.
   protected readonly providerToDelete = signal<LlmProvider | null>(null);
 
   constructor() {

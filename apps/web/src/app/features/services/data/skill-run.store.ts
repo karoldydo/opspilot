@@ -31,8 +31,7 @@ interface SkillRunState {
 const emptyEntry: SkillRunEntry = { error: null, pending: null, result: null };
 
 // pulls the user-facing message out of an http failure — the global exception filter
-// shapes every error body as apiErrorSchema, so prefer that message and fall back to a
-// generic line for transport-level failures. mirrors the other stores.
+// shapes every error body as apiErrorSchema; falls back to a generic transport line.
 function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof HttpErrorResponse) {
     const parsed = apiErrorSchema.safeParse(error.error);
@@ -43,11 +42,10 @@ function errorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-// signal-based, per-service skill-run state. provided at the service-skills component
-// (not providedIn: 'root', per angular.md) so each row owns its lifecycle. the app is
-// zoneless — async client callbacks don't trigger change detection, so state lives in
-// a signalState container mutated through patchState. mirrors the retired
-// service-operations.store, generalized from a fixed op enum to a skillId.
+// signal-based, per-service skill-run state, provided at the service-skills component
+// (not providedIn: 'root', per angular.md) so each row owns its lifecycle. zoneless —
+// async client callbacks don't trigger cd, so state rides a signalState container
+// mutated through patchState.
 @Injectable()
 export class SkillRunStore {
   private readonly client = inject(SkillRunClient);
@@ -82,7 +80,6 @@ export class SkillRunStore {
     }
   }
 
-  // merges one row's slice into the keyed record, preserving every other key.
   private patchEntry(serviceId: string, entry: SkillRunEntry): void {
     patchState(this.state, { entries: { ...this.state.entries(), [serviceId]: entry } });
   }

@@ -57,7 +57,7 @@ describe('ServicesClient', () => {
     const promise = client.createService(deviceId, { containerName: 'nginx', deviceId, name: 'nginx' });
     const request = httpMock.expectOne(`/api/devices/${deviceId}/services`);
     expect(request.request.method).toBe('POST');
-    // a leaked runtime/secret field must fail the strict parse at the boundary.
+    // a leaked key must fail the strict parse at the boundary.
     request.flush({ ...service, status: 'Up 2 hours' });
 
     await expect(promise).rejects.toThrow();

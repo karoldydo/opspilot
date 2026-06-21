@@ -4,8 +4,7 @@ import { Router } from '@angular/router';
 import { AuthStore } from '@app/core/auth/auth.store';
 import { catchError, throwError } from 'rxjs';
 
-// on any 401, clear local session state and redirect to /login so an expired
-// session never leaves the ui half-authenticated. all other errors pass through.
+// on any 401 clear session + redirect to /login; all other errors pass through.
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStore);
   const router = inject(Router);

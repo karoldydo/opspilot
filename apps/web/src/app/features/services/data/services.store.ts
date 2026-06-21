@@ -14,9 +14,8 @@ interface ServicesState {
   services: Service[];
 }
 
-// pulls the user-facing message out of an http failure — the global exception
-// filter shapes every error body as apiErrorSchema, so prefer that message and
-// fall back to a generic line for transport-level failures. mirrors devices.store.
+// pulls the user-facing message out of an http failure — the global exception filter
+// shapes every error body as apiErrorSchema; falls back to a generic transport line.
 function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof HttpErrorResponse) {
     const parsed = apiErrorSchema.safeParse(error.error);
@@ -27,11 +26,10 @@ function errorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-// per-device signal state with mutate-then-refetch, mirroring DevicesStore.
-// provided at the device-services component (not providedIn: 'root') so each
-// device row owns its own store instance and the deviceId passed to every method
-// is the single source of truth. the app is zoneless — async client callbacks
-// don't trigger change detection, so state lives in a signalState container.
+// per-device signal state with mutate-then-refetch, provided at the device-services
+// component (not providedIn: 'root', per angular.md) so each row owns its store and the
+// deviceId passed to every method is the source of truth. zoneless — async client
+// callbacks don't trigger cd, so state rides a signalState container.
 @Injectable()
 export class ServicesStore {
   private readonly client = inject(ServicesClient);

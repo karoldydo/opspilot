@@ -8,8 +8,7 @@ const deviceId = '00000000-0000-0000-0000-000000000001';
 const serviceA = '00000000-0000-0000-0000-0000000000aa';
 const serviceB = '00000000-0000-0000-0000-0000000000bb';
 
-// a fake client that captures the per-service stream handlers so a test can drive
-// frames, plus a close spy per open stream. recentRuns is a plain spy.
+// fake client capturing the per-service stream handlers + a close spy per stream, so a test can drive frames.
 function makeClient() {
   const handlers = new Map<string, DiagnosisStreamHandlers>();
   const closes = new Map<string, ReturnType<typeof vi.fn>>();
@@ -131,7 +130,7 @@ describe('DiagnosisStore', () => {
     m.emit(serviceA, { run, type: 'done' });
     m.transportError(serviceA);
 
-    // the done result stands; the late transport error does not overwrite it.
+    // a late transport error does not overwrite the done result.
     expect(store.entry(serviceA).result).toEqual(run.synthesis);
     expect(store.entry(serviceA).error).toBeNull();
   });
