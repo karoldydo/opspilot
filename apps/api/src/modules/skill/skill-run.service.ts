@@ -17,18 +17,14 @@ import {
 
 import { SkillService } from './skill.service';
 
-// the synology PATH prefix that resolves docker on a host whose non-interactive ssh
-// session omits it (ssh.md); harmless elsewhere. mirrors service.service's SCAN_COMMAND
-// and the retired operation.service's prefix — prepended by the renderer at run time,
-// never stored in a skill's command template.
+// synology PATH prefix so docker resolves on a non-interactive ssh session (ssh.md), harmless
+// elsewhere; prepended by the renderer at run time, never stored in a skill's command template.
 const PATH_PREFIX = 'export PATH="/usr/local/bin:/usr/local/sbin:/volume1/@appstore/ContainerManager/usr/bin:$PATH"; ';
 
-// matches one {{name}} placeholder (whitespace tolerant), capturing the identifier —
-// the same grammar skillCommandTemplateSchema validates the template against.
+// matches one {{name}} placeholder — same grammar skillCommandTemplateSchema validates against.
 const PLACEHOLDER = /\{\{\s*([a-zA-Z][a-zA-Z0-9_]*)\s*\}\}/g;
 
-// the known service-derived fields a `service`-source parameter binds to (the set
-// skillParameterSchema constrains the name to). read off the resolved row at run time.
+// the service-derived fields a `service`-source parameter binds to, read off the resolved row.
 type ServiceField = 'composePath' | 'composeProject' | 'containerName';
 
 @Injectable()
@@ -43,14 +39,10 @@ export class SkillRunService {
     @Inject(skillConfig.KEY) private readonly config: SkillConfig
   ) {}
 
-  // run one skill against a resolved service row, synchronously — the generalization of
-  // the retired operation.service.run. (1) resolve the service (404 + identity fields);
-  // (2) load the skill and assert it is in scope for this device (global or that device)
-  // else 404 — the runtime guardrail that replaced the op enum; (3) fill `service` params
-  // from the resolved row and `input` params from the request, re-parsing every value at
-  // the shell boundary while rendering the template; (4) prepend the PATH prefix; (5)
-  // execute under the skill row's timeout or the config default; (6) map the exit to an
-  // ephemeral result, then record a tier-2 audit row on invocation (s-09).
+  // run one skill against a resolved service row, synchronously: resolve service (404) →
+  // assert skill in scope for the device (404 guardrail) → render the template (re-parsing
+  // every value at the shell boundary) → execute under the skill/config timeout → map the
+  // exit → tier-2 audit on invocation (s-09).
   async run(
     deviceId: string,
     serviceId: string,
@@ -58,18 +50,14 @@ export class SkillRunService {
     inputs: SkillRunRequest['inputs'],
     userId: string
   ): Promise<SkillRunResult> {
-    // 404 if the service is absent or belongs to another device; carries the
-    // containerName / composePath / composeProject identity fields.
+    // 404 if the service is absent or cross-device; carries the identity fields.
     const service = await this.serviceService.findOne(deviceId, serviceId);
     const skill = await this.requireInScope(deviceId, skillId);
     const command = this.renderCommand(skill, service, inputs);
-    // a slow `up -d` image pull can outlast the executor's 30s default, so the run
-    // overrides it with the skill's own timeout or the config fallback.
+    // a slow `up -d` pull can outlast the 30s default, so override with the skill/config timeout.
     const result = await this.executor.execute(deviceId, command, skill.timeoutMs ?? this.config.timeoutMs);
-    // classifyExit throws an infra 503 (daemon-down / docker-not-found) or returns a
-    // cleaned message for a skill-specific non-zero exit — that returned case is what
-    // gives `status: 'failed'` meaning distinct from infra. an infra throw here leaves
-    // no audit row (record-on-invocation, the accepted tier-2 limitation).
+    // classifyExit throws an infra 503 (daemon-down / not-found) or returns a cleaned message
+    // for a skill-specific exit — the `status: 'failed'` case. an infra throw leaves no audit row.
     const outcome =
       result.code === 0
         ? skillRunResultSchema.parse({ message: this.cleanOutput(result.stdout, result.stderr), status: 'succeeded' })
@@ -77,9 +65,8 @@ export class SkillRunService {
             message: this.classifyExit(skill, deviceId, result.code, result.stdout, result.stderr).message,
             status: 'failed',
           });
-    // tier-2: no db transaction to join, so record on invocation with the observed
-    // outcome on the base connection (no tx). secret-free metadata (skill name + status).
-    // best-effort: the run already succeeded, so a failed audit insert is logged, not thrown.
+    // tier-2 record-on-invocation: no tx, secret-free metadata (skill name + status); best-effort,
+    // a failed insert is logged not thrown since the run already succeeded.
     this.auditService.recordOnInvocation({
       action: 'skill.run',
       metadata: { outcome: outcome.status, skillName: skill.name },
@@ -90,10 +77,8 @@ export class SkillRunService {
     return outcome;
   }
 
-  // the scope guardrail: a device may run a global skill (deviceId null) or one of its
-  // own. findForDevice returns exactly that set, so a skill outside it — a forged id or
-  // one belonging to another device — is indistinguishable from absent and yields a
-  // single 404. this is the runtime check that replaced the compile-time op enum.
+  // scope guardrail: findForDevice returns the device's global + own skills, so anything
+  // outside it (forged or other-device id) is indistinguishable from absent → a single 404.
   private async requireInScope(deviceId: string, skillId: string): Promise<Skill> {
     const inScope = await this.skillService.findForDevice(deviceId);
     const found = inScope.find((candidate) => candidate.id === skillId);
@@ -103,12 +88,9 @@ export class SkillRunService {
     return found;
   }
 
-  // build the PATH-prefixed command: fill each declared parameter, re-parse its value
-  // through skillParameterValueSchema at this boundary (defense-in-depth — service
-  // fields may predate the create-time constraint; inputs are re-checked after the
-  // controller pipe), then substitute it for its {{name}} placeholder. a failed charset
-  // parse throws a ZodError before the command is assembled; an unfilled placeholder
-  // throws a 400.
+  // build the PATH-prefixed command: re-parse each value through skillParameterValueSchema
+  // at this boundary (defense-in-depth — service fields may predate the create constraint),
+  // then substitute for its {{name}}. bad charset → ZodError; unfilled placeholder → 400.
   private renderCommand(skill: Skill, service: Service, inputs: SkillRunRequest['inputs']): string {
     const values = new Map<string, string>();
     for (const parameter of skill.parameters) {
@@ -116,8 +98,7 @@ export class SkillRunService {
         parameter.source === 'service'
           ? this.resolveServiceValue(skill, parameter, service)
           : this.resolveInputValue(skill, parameter, inputs);
-      // an optional param with no value is left out; the substitution below rejects any
-      // resulting unfilled placeholder.
+      // an optional param with no value is left out; the substitution rejects an unfilled placeholder.
       if (raw === undefined) {
         continue;
       }
@@ -133,9 +114,8 @@ export class SkillRunService {
     return `${PATH_PREFIX}${rendered}`;
   }
 
-  // a `service` param is read off the resolved row; a null compose field surfaces the
-  // existing compose-managed 400, preserving the up/down gating without special-casing.
-  // containerName is never null, so that branch only fires for compose fields.
+  // a `service` param is read off the row; a null compose field surfaces the compose-managed
+  // 400 (up/down gating), and containerName is never null so that branch only fires for compose.
   private resolveServiceValue(skill: Skill, parameter: SkillParameter, service: Service): string | undefined {
     const value = service[parameter.name as ServiceField];
     if (value === null) {
@@ -147,9 +127,8 @@ export class SkillRunService {
     return value;
   }
 
-  // an `input` param is read from the request body; a missing required input is a 400.
-  // the value is charset-checked at the controller (skillRunRequestSchema) and re-parsed
-  // again in renderCommand.
+  // an `input` param is read from the request body; a missing required one is a 400 (charset
+  // checked at the controller and re-parsed in renderCommand).
   private resolveInputValue(
     skill: Skill,
     parameter: SkillParameter,
@@ -165,10 +144,8 @@ export class SkillRunService {
     return value;
   }
 
-  // interpret a non-zero exit, carried over verbatim from operation.service (s-06
-  // behavior preserved): daemon-down first (docker's cli message is english regardless
-  // of host locale), then the missing-binary case (exit 127). anything else is a
-  // skill-specific failure — returned as a cleaned message for `status: 'failed'`.
+  // interpret a non-zero exit: daemon-down first (cli message is english regardless of locale),
+  // then exit 127; anything else is a skill-specific failure → cleaned message for `status: 'failed'`.
   private classifyExit(
     skill: Skill,
     deviceId: string,
@@ -185,8 +162,7 @@ export class SkillRunService {
     return { message: this.cleanOutput(stdout, stderr) || `skill ${skill.name} failed` };
   }
 
-  // merge stdout + stderr into a single confirmation line, dropping empties (docker
-  // compose writes progress to stderr, plain `docker start` to stdout).
+  // merge stdout + stderr into one line, dropping empties (compose writes to stderr, `docker start` to stdout).
   private cleanOutput(stdout: string, stderr: string): string {
     return [stdout, stderr]
       .map((stream) => stream.trim())

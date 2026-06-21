@@ -59,11 +59,7 @@ function parseSseData(body: string): { [key: string]: unknown; type: string }[] 
     .map((line) => JSON.parse(line.slice('data:'.length).trim()));
 }
 
-// e2e against a live temp db with a faked executor + faked llm stream. the global
-// AuthAppGuard is not wired here (only AppModule registers it), so routes are open —
-// guard behavior is covered by auth.guard.spec.ts. asserts the live sse stream, the
-// stderr merge, persistence + the replay list, and that the no-active precondition
-// stays a clean 409 before any stream opens.
+// guard faked here; real auth boundary is covered in auth.guard.spec.ts / auth.boundary.spec.ts
 describe('DiagnoseController (e2e)', () => {
   const inputKey = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=';
   const inputDeviceId = '11111111-1111-4111-8111-111111111111';
@@ -116,8 +112,7 @@ describe('DiagnoseController (e2e)', () => {
       .useValue(mockExecutor)
       .compile();
     app = moduleRef.createNestApplication();
-    // stand in for the unwired AuthAppGuard: attach the session the guard would so
-    // @CurrentUserId resolves a non-null id for the run's userId + the linked audit row.
+    // fake the guard's session so @CurrentUserId resolves for the run + audit writes.
     app.use((req: { session?: { user: { id: string } } }, _res: unknown, next: () => void) => {
       req.session = { user: { id: userId } };
       next();
@@ -125,7 +120,6 @@ describe('DiagnoseController (e2e)', () => {
     await app.init();
     db = moduleRef.get<DatabaseConnection>(DATABASE_CONNECTION);
     db.insert(device).values({ host: '10.0.0.1', id: inputDeviceId, name: 'host-a' }).run();
-    // seed the audit fk target — the fixture create calls write audit rows.
     db.insert(user).values({ email: 'u1@example.com', id: userId, name: 'u1' }).run();
     // seed a managed service row (the diagnose resolver turns serviceId → containerName).
     const service = await moduleRef

@@ -21,13 +21,9 @@ import { DockerDaemonDownError, DockerNotFoundError } from './service.errors';
 
 type ServiceRow = typeof service.$inferSelect;
 
-// explicit-field json template (not the whole-struct json marshal, which forces
-// the per-container layer-size walk — see lessons.md): emit one json object per line
-// carrying only the fields parseContainer reads. ndjson so spaces in names don't
-// break parsing; --no-trunc keeps full names/labels. compose project/path are read
-// out of the container labels. the PATH prefix resolves docker on hosts whose
-// non-interactive ssh session omits it (synology keeps docker off the default
-// PATH — ssh.md); harmless elsewhere.
+// explicit-field ndjson (not whole-struct json, which forces the per-container
+// layer-size walk — lessons.md); --no-trunc keeps full names/labels; PATH prefix
+// resolves docker on synology's non-interactive ssh session (ssh.md), harmless elsewhere.
 const SCAN_COMMAND =
   'export PATH="/usr/local/bin:/usr/local/sbin:/volume1/@appstore/ContainerManager/usr/bin:$PATH"; ' +
   'docker ps --no-trunc --format ' +
@@ -43,9 +39,8 @@ export class ServiceService {
     @Inject(AuditService) private readonly auditService: AuditService
   ) {}
 
-  // ephemeral: run docker ps over ssh and parse the live host state for the
-  // curation ui. connect/auth/timeout already arrive as executor domain errors and
-  // propagate; here we only interpret the docker-specific failures.
+  // run docker ps over ssh for live host state; executor already maps connect/auth/timeout,
+  // here we only interpret the docker-specific failures.
   async scan(deviceId: string, userId: string): Promise<ScanResult> {
     const result = await this.executor.execute(deviceId, SCAN_COMMAND);
     if (result.code !== 0) {
@@ -57,10 +52,8 @@ export class ServiceService {
       .filter((line) => line.length > 0)
       .map((line) => this.parseContainer(line));
     const scanResult = scanResultSchema.parse({ containers });
-    // tier-2 record-on-invocation: the scan persists nothing of its own, so the audit
-    // row is written on the base connection (no tx) with the live container count. a
-    // failed scan throws above and leaves no row (the accepted tier-2 limitation); a
-    // failed audit insert is logged, not thrown — the scan already succeeded.
+    // tier-2 record-on-invocation: no tx (scan persists nothing); a failed scan leaves
+    // no row, a failed audit insert is logged not thrown — the scan already succeeded.
     this.auditService.recordOnInvocation({
       action: 'service.scan',
       metadata: { found: scanResult.containers.length },
@@ -76,17 +69,15 @@ export class ServiceService {
     return rows.map((row) => this.toContract(row));
   }
 
-  // read a single managed service scoped to its device (404 if absent or
-  // cross-device). the resolution hook s-04 diagnose composes to turn a serviceId
-  // into the containerName it fetches logs for.
+  // single managed service scoped to its device (404 if absent or cross-device);
+  // s-04 diagnose composes this to turn a serviceId into its containerName.
   async findOne(deviceId: string, id: string): Promise<Service> {
     return this.toContract(this.requireRow(deviceId, id));
   }
 
   async create(input: ServiceCreateRequest, userId: string): Promise<Service> {
     try {
-      // wrap the insert + audit row in one transaction so they commit or roll back
-      // together; the unique-constraint rejection still surfaces below as a 409.
+      // insert + audit row in one transaction; the unique-constraint rejection surfaces as a 409 below.
       const row = this.db.transaction((tx) => {
         const inserted = tx
           .insert(service)
@@ -114,8 +105,7 @@ export class ServiceService {
       });
       return this.toContract(row);
     } catch (error) {
-      // the (deviceId, containerName) unique index rejects a duplicate container —
-      // surface it as a legible 409 rather than an opaque 500.
+      // the (deviceId, containerName) unique index rejects a duplicate — surface a 409, not an opaque 500.
       if (error instanceof Error && /unique constraint failed/i.test(error.message)) {
         throw new ConflictException(`container ${input.containerName} is already managed on device ${input.deviceId}`);
       }
@@ -137,8 +127,6 @@ export class ServiceService {
     return this.toContract(row);
   }
 
-  // delete scoped to the device (the nested route's :deviceId is the source of
-  // truth); a service that doesn't belong to the device yields a 404.
   async remove(deviceId: string, id: string, userId: string): Promise<void> {
     const existing = this.requireRow(deviceId, id);
     this.db.transaction((tx) => {
@@ -156,12 +144,9 @@ export class ServiceService {
     });
   }
 
-  // map docker's non-zero exit + stderr to the docker half of the taxonomy. check
-  // daemon-down first (docker's own cli message is english regardless of host
-  // locale), then the missing-binary case. exit code 127 is the shell's
-  // locale-independent "command not found" — the stderr text is localized (e.g.
-  // polish "nie odnaleziono polecenia"), so the code is the robust signal; keep the
-  // english regex as a secondary fallback.
+  // map non-zero exit + stderr to the docker taxonomy: daemon-down first (cli message is
+  // english regardless of host locale), then missing-binary. exit 127 is the locale-independent
+  // "command not found" signal; the localized stderr regex is only a secondary fallback.
   private mapDockerError(deviceId: string, code: null | number, stderr: string): ServiceUnavailableException {
     if (/cannot connect to the docker daemon/i.test(stderr)) {
       return new DockerDaemonDownError(deviceId);
@@ -172,9 +157,6 @@ export class ServiceService {
     return new ServiceUnavailableException(`docker ps failed on device ${deviceId}: ${stderr.trim()}`);
   }
 
-  // parse one explicit-field `docker ps` json line (Names/Image/State/Status/Labels)
-  // into the ephemeral scanned-container contract, deriving compose project/path
-  // from the labels.
   private parseContainer(line: string): ScannedContainer {
     const raw = JSON.parse(line) as Record<string, unknown>;
     const labels = this.parseLabels(typeof raw.Labels === 'string' ? raw.Labels : '');
@@ -188,9 +170,8 @@ export class ServiceService {
     });
   }
 
-  // docker emits labels as a flat `key=value,key=value` string. split on the first
-  // `=` per pair so values containing `=` survive; best-effort for the rare case of
-  // a comma-bearing config_files path (single-file compose is the homelab norm).
+  // labels are a flat `key=value,key=value` string; split on the first `=` so values with
+  // `=` survive (comma-bearing paths are best-effort — single-file compose is the homelab norm).
   private parseLabels(labels: string): Map<string, string> {
     const map = new Map<string, string>();
     for (const pair of labels.split(',')) {
@@ -206,8 +187,6 @@ export class ServiceService {
     return map;
   }
 
-  // read the row scoped to its device or fail with an entity-naming 404 — a
-  // cross-device id yields a 404, never a cross-device mutation (nestjs.md).
   private requireRow(deviceId: string, id: string): ServiceRow {
     const row = this.db
       .select()
@@ -220,8 +199,7 @@ export class ServiceService {
     return row;
   }
 
-  // project safe fields only (never spread the row) and validate through the shared
-  // contract, which normalizes the timestamp_ms dates to iso strings.
+  // project safe fields; iso-normalize timestamps; never spread
   private toContract(row: ServiceRow): Service {
     return serviceSchema.parse({
       composePath: row.composePath,

@@ -1,8 +1,6 @@
 import { ConfigType, registerAs } from '@nestjs/config';
 
-// ssh-executor tunables — connect/command timeouts routed through the config
-// layer, never baked-in consts (see lessons.md config-tunable rule). joi writes
-// defaults back to process.env as strings, so coerce numerics with Number(...).
+// config-tunable timeouts, not baked-in consts (lessons.md); coerce with Number(...) — joi writes defaults back as strings.
 export const sshConfig = registerAs('ssh', () => ({
   commandTimeoutMs: Number(process.env.SSH_COMMAND_TIMEOUT_MS),
   connectTimeoutMs: Number(process.env.SSH_CONNECT_TIMEOUT_MS),

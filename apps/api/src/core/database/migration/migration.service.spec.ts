@@ -17,7 +17,6 @@ describe('MigrationService', () => {
   let dbPath: string;
   let migrationsFolder: string;
 
-  // a migrations folder with an empty journal (nothing to apply).
   function emptyMigrations(): string {
     const folder = join(tmpdir(), `opspilot-mig-empty-${process.pid}-${Date.now()}`);
     mkdirSync(join(folder, 'meta'), { recursive: true });
@@ -28,7 +27,6 @@ describe('MigrationService', () => {
     return folder;
   }
 
-  // a migrations folder with one real, applyable migration + journal entry.
   function oneMigration(): string {
     const folder = join(tmpdir(), `opspilot-mig-one-${process.pid}-${Date.now()}`);
     mkdirSync(join(folder, 'meta'), { recursive: true });
@@ -44,7 +42,6 @@ describe('MigrationService', () => {
     return folder;
   }
 
-  // build the module against the temp-db path + folder and trigger bootstrap.
   async function boot(): Promise<void> {
     moduleRef = await Test.createTestingModule({
       imports: [ConfigModule, DatabaseModule],
@@ -114,8 +111,6 @@ describe('MigrationService', () => {
       writeFileSync(`${dbPath}.2020-01-0${day}T00-00-00-000Z.bak`, '');
     }
     await boot();
-    // gate fired (pending migration) and the prune capped the total at retention:
-    // 6 stale + 1 fresh = 7, pruned down to the newest 5.
     expect(backupCount()).toBe(5);
   });
 });

@@ -6,10 +6,8 @@ import { DiagnosisSynthesis, RunRecord, runRecordSchema } from '@opspilot/shared
 import { and, desc, eq, notInArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
-// the input the diagnose stream hands over once the synthesis is final. userId is
-// the authenticated session user persisted on the run (s-09); the column is
-// nullable so it stays optional here (the diagnose flow threads the real id in
-// phase 3), and it is still never surfaced in the s-05 wire contract.
+// input the diagnose stream hands over once synthesis is final. userId is nullable here
+// (s-09) and never surfaced in the s-05 wire contract.
 interface RunRecordCreate {
   deviceId: string;
   serviceId: string;
@@ -19,10 +17,6 @@ interface RunRecordCreate {
 
 type RunRecordRow = typeof runRecord.$inferSelect;
 
-// persist a completed diagnose run and read the recent runs for a service row.
-// crud shape mirrors LlmProviderService — explicit @Inject tokens (esbuild drops
-// design:paramtypes, see lessons.md), local unexported row type, randomUUID ids,
-// project safe fields through the shared zod contract before returning.
 @Injectable()
 export class RunRecordService {
   constructor(
@@ -30,10 +24,9 @@ export class RunRecordService {
     @Inject(llmConfig.KEY) private readonly config: LlmConfig
   ) {}
 
-  // insert the completed run and prune older runs for the same service beyond the
-  // retention bound — both in one transaction (compute-then-write invariant,
-  // lessons.md): the keep-set read and the delete must not race a concurrent
-  // insert into a stale view of the table.
+  // insert + prune older runs beyond the retention bound in one transaction
+  // (compute-then-write invariant, lessons.md): the keep-set read and the delete
+  // must not race a concurrent insert.
   create(input: RunRecordCreate): RunRecord {
     const row = this.db.transaction((tx) => {
       const inserted = tx
@@ -47,7 +40,6 @@ export class RunRecordService {
         })
         .returning()
         .get();
-      // keep the newest `historyRetention` rows for this service, delete the rest.
       const keepIds = tx
         .select({ id: runRecord.id })
         .from(runRecord)
@@ -64,9 +56,6 @@ export class RunRecordService {
     return this.toContract(row);
   }
 
-  // recent runs for a service row, newest-first and bounded (drizzle.md: paginate
-  // every list query). scoped by both deviceId and serviceId so a run only surfaces
-  // for the device that owns the service.
   findRecent(deviceId: string, serviceId: string, limit = 20, offset = 0): RunRecord[] {
     const rows = this.db
       .select()
@@ -79,9 +68,7 @@ export class RunRecordService {
     return rows.map((row) => this.toContract(row));
   }
 
-  // project safe fields only (never spread the row, never surface userId), parse
-  // the stored synthesis json, and validate through the shared contract which
-  // normalizes the timestamp_ms date to an iso string.
+  // userId is deliberately not projected — it never crosses the s-05 wire contract.
   private toContract(row: RunRecordRow): RunRecord {
     return runRecordSchema.parse({
       createdAt: row.createdAt,

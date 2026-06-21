@@ -20,10 +20,8 @@ import request from 'supertest';
 
 import { SkillModule } from './skill.module';
 
-// e2e against a live temp db with a faked executor. the global AuthAppGuard is not wired
-// here (only AppModule registers it), so routes are open — guard behavior is covered by
-// auth.guard.spec.ts. SkillModule seeds the five global lifecycle rows on boot, so the
-// run assertions key off the seeded start/restart/up/down skills resolved by name.
+// guard faked here; real auth boundary is covered in auth.guard.spec.ts / auth.boundary.spec.ts
+// SkillModule seeds five lifecycle skills on boot; run tests resolve them by name.
 describe('SkillRunController (e2e)', () => {
   const inputKey = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=';
   const inputDeviceId = '11111111-1111-4111-8111-111111111111';
@@ -81,8 +79,7 @@ describe('SkillRunController (e2e)', () => {
       .useValue(mockExecutor)
       .compile();
     app = moduleRef.createNestApplication();
-    // stand in for the unwired AuthAppGuard: attach the session the guard would so
-    // @CurrentUserId resolves a non-null id for the audit writes (skill create over http).
+    // fake the guard's session so @CurrentUserId resolves for the audit writes.
     app.use((req: { session?: { user: { id: string } } }, _res: unknown, next: () => void) => {
       req.session = { user: { id: userId } };
       next();
@@ -91,7 +88,6 @@ describe('SkillRunController (e2e)', () => {
     await app.init();
     db = moduleRef.get<DatabaseConnection>(DATABASE_CONNECTION);
     db.insert(device).values({ host: '10.0.0.1', id: inputDeviceId, name: 'host-a' }).run();
-    // seed the audit fk target — the fixture serviceService.create writes audit rows.
     db.insert(user).values({ email: 'u1@example.com', id: userId, name: 'u1' }).run();
     const serviceService = moduleRef.get(ServiceService);
     // a standalone container (no compose fields) — up/down must be rejected on it.

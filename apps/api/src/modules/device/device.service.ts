@@ -16,8 +16,7 @@ export class DeviceService {
   ) {}
 
   async create(input: DeviceCreateRequest, userId: string): Promise<Device> {
-    // wrap the bare insert in a transaction so the audit row commits or rolls back
-    // with the device — pass tx to AuditService.record (the txn-handle nuance).
+    // insert + audit row in one transaction; pass tx to record so they commit or roll back together.
     const row = this.db.transaction((tx) => {
       const inserted = tx
         .insert(device)
@@ -51,8 +50,7 @@ export class DeviceService {
   async update(id: string, input: DeviceUpdateRequest, userId: string): Promise<Device> {
     this.requireRow(id);
     const row = this.db.transaction((tx) => {
-      // project explicit columns (never spread the dto); drizzle ignores undefined
-      // so a partial patch only touches the fields the caller sent.
+      // project explicit columns (never spread the dto); drizzle ignores undefined, so a partial patch only touches sent fields.
       const updated = tx
         .update(device)
         .set({ agentContext: input.agentContext, host: input.host, name: input.name })
@@ -89,8 +87,6 @@ export class DeviceService {
     return row;
   }
 
-  // project safe fields only (never spread the row) and validate through the
-  // shared contract, which normalizes the timestamp_ms dates to iso strings.
   private toContract(row: DeviceRow): Device {
     return deviceSchema.parse({
       agentContext: row.agentContext,

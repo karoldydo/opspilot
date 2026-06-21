@@ -21,8 +21,7 @@ export class CredentialService {
   ) {}
 
   async create(input: CredentialCreateRequest, userId: string): Promise<Credential> {
-    // encryption runs before the transaction (it rejects early on a bad input);
-    // only the db write + audit insert are atomic together.
+    // encrypt before the transaction (rejects early on bad input); only the db write + audit insert are atomic.
     const { authTag, ciphertext, iv } = this.crypto.encrypt(input.secret);
     const row = this.db.transaction((tx) => {
       const inserted = tx
@@ -59,9 +58,8 @@ export class CredentialService {
     return this.toContract(this.requireRow(id));
   }
 
-  // service-only accessor: decrypts and returns the raw ssh secret. its return is
-  // NOT a contract type and must never be wired to a controller — decrypted
-  // plaintext does not cross the /api boundary.
+  // service-only accessor — returns the raw decrypted ssh secret, NOT a contract type;
+  // never wire it to a controller (plaintext must not cross the /api boundary).
   async getDecryptedSecret(id: string): Promise<string> {
     const row = this.requireRow(id);
     return this.crypto.decrypt({ authTag: row.authTag, ciphertext: row.ciphertext, iv: row.iv });
@@ -78,9 +76,8 @@ export class CredentialService {
     return rows.map((row) => this.toContract(row));
   }
 
-  // delete a credential scoped to its device (the nested route's :deviceId is the
-  // source of truth). a credential that doesn't belong to the device yields a
-  // 404, never a cross-device delete. enables the web delete+recreate edit flow.
+  // delete scoped to the device (nested route's :deviceId is source of truth); a credential
+  // not on the device 404s, never a cross-device delete (enables the web delete+recreate edit flow).
   async remove(deviceId: string, id: string, userId: string): Promise<void> {
     const row = this.db
       .select()
@@ -114,9 +111,7 @@ export class CredentialService {
     return row;
   }
 
-  // project safe fields only (never spread the row) and validate through the
-  // shared contract, which normalizes the timestamp_ms dates to iso strings and
-  // rejects any secret leakage.
+  // project safe fields; iso-normalize timestamps; never spread
   private toContract(row: CredentialRow): Credential {
     return credentialSchema.parse({
       authType: row.authType,

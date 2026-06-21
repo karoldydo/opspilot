@@ -10,10 +10,7 @@ import { DiagnoseController } from './diagnose.controller';
 import { DiagnoseService } from './diagnose.service';
 import { RunRecordService } from './run-record.service';
 
-// the s-04 diagnose domain: joins the logs-over-ssh half (ServiceModule for the
-// service-row lookup, ExecutorModule for the EXECUTOR token) with the synthesis
-// half (LlmProviderModule for the active-provider config + client factory). the llm
-// config namespace comes from the global ConfigModule, so no explicit import here.
+// diagnose domain wiring; the llm config namespace comes from the global ConfigModule (no import here)
 @Module({
   controllers: [DiagnoseController],
   exports: [RunRecordService],
@@ -22,8 +19,7 @@ import { RunRecordService } from './run-record.service';
 })
 export class DiagnoseModule implements NestModule {
   configure(middlewareConsumer: MiddlewareConsumer): void {
-    // the global body parser is disabled (main.ts: bodyParser false) for better-auth's
-    // raw-body catch-all; domain routes must re-apply json().
+    // global body parser disabled in main.ts (better-auth raw body); re-apply json() here
     middlewareConsumer.apply(json()).forRoutes(DiagnoseController);
   }
 }

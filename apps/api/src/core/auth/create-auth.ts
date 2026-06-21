@@ -11,10 +11,8 @@ export interface CreateAuthOptions {
   url: string;
 }
 
-// single place the better-auth instance is configured. shared by the nest
-// provider (runtime, on the injected connection) and the cli config used to
-// generate the drizzle tables — so table generation can never drift from
-// runtime behaviour.
+// single better-auth config, shared by the nest provider (runtime) and the cli
+// table-generation config — so generated tables never drift from runtime.
 export function createAuth(options: CreateAuthOptions) {
   return betterAuth({
     // basePath '/auth' + the global '/api' prefix => effective '/api/auth',
@@ -23,10 +21,9 @@ export function createAuth(options: CreateAuthOptions) {
     baseURL: options.url,
     database: drizzleAdapter(options.db, { provider: 'sqlite' }),
     emailAndPassword: {
-      // cloudflare access (allowed-emails policy + warp) fronts the entire app
-      // and is the registration gate; open in-app signup is safe only under
-      // that gate. emailAndPassword.disableSignUp: true is the one-line lever
-      // if that assumption ever changes (see change.md deployment assumption).
+      // open signup is safe only because cloudflare access (allowed-emails + warp)
+      // fronts the app as the registration gate; flip disableSignUp: true if that
+      // assumption changes (see change.md deployment assumption).
       enabled: true,
     },
     secret: options.secret,

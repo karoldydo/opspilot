@@ -20,9 +20,7 @@ import request from 'supertest';
 import { AuditModule } from './audit.module';
 import { AuditService } from './audit.service';
 
-// e2e against a live temp db. the global AuthAppGuard is not wired here (only
-// AppModule registers it via APP_GUARD), so the read route is open — the audit
-// rows are seeded straight through AuditService and queried over the http surface.
+// guard faked here; real auth boundary is covered in auth.guard.spec.ts / auth.boundary.spec.ts
 describe('AuditController (e2e)', () => {
   const userId = 'user-audit-ctrl-test';
   const deviceId = 'device-audit-ctrl-test';

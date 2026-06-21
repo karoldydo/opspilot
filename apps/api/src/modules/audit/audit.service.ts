@@ -6,8 +6,7 @@ import { AuditAction, AuditEvent, auditEventSchema, AuditListQuery } from '@opsp
 import { and, desc, eq, gte, lte } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
-// the joined row shape the list query projects (audit_log columns + the linked
-// run's synthesis text, null when the row has no run).
+// the joined row shape the list query projects (audit_log + the linked run's synthesis, null if none).
 interface AuditListRow {
   action: string;
   createdAt: Date;
@@ -30,26 +29,21 @@ interface AuditRecordInput {
   userId: string;
 }
 
-// the drizzle transaction handle a tier-1 caller passes so the audit insert joins
-// the action's own transaction (atomic). derived from the connection's transaction
-// callback param — both the connection and a tx expose insert/select.
+// the tx handle a tier-1 caller passes so the audit insert joins the action's own transaction (atomic).
 type DatabaseTransaction = Parameters<Parameters<DatabaseConnection['transaction']>[0]>[0];
 
-// default timeline page size when the caller omits `limit` — mirrors the inline
-// default on RunRecordService.findRecent (a list page default, not a config tunable).
+// default timeline page size when `limit` is omitted — a list-page default, not a config tunable.
 const DEFAULT_LIST_LIMIT = 50;
 
-// central audit writer + timeline reader. explicit @Inject token (esbuild/vitest
-// drops design:paramtypes, lessons.md). better-sqlite3 is synchronous — no await.
+// central audit writer + timeline reader; explicit @Inject token (lessons.md). better-sqlite3 is synchronous — no await.
 @Injectable()
 export class AuditService {
   private readonly logger = new Logger(AuditService.name);
 
   constructor(@Inject(DATABASE_CONNECTION) private readonly db: DatabaseConnection) {}
 
-  // the merged chronological timeline: audit_log LEFT JOIN run_record so run-linked
-  // rows carry their saved synthesis inline (one query, no client-side union).
-  // newest-first, paginated, optionally narrowed by action and a createdAt window.
+  // merged timeline: audit_log LEFT JOIN run_record so run-linked rows carry their synthesis
+  // inline (one query, no client-side union); newest-first, paginated, narrowable by action + window.
   list(query: AuditListQuery): AuditEvent[] {
     const conditions = [
       ...(query.action ? [eq(auditLog.action, query.action)] : []),
@@ -78,14 +72,11 @@ export class AuditService {
     return rows.map((row) => this.toContract(row));
   }
 
-  // insert one audit row. tier-1 callers pass their own `tx` so the audit insert
-  // commits or rolls back with the action; tier-2 callers omit it (record on
-  // invocation, base connection). passing base `db` instead of `tx` would run the
-  // insert in a separate implicit transaction and break the atomic guarantee.
+  // insert one audit row. tier-1 callers pass `tx` so it commits with the action; tier-2 omit
+  // it (base connection). passing base `db` would run a separate implicit transaction and break atomicity.
   record(input: AuditRecordInput, tx?: DatabaseTransaction): void {
-    // audit_log.userId is NOT NULL and @CurrentUserId() resolves to string | undefined
-    // (it would be undefined only on a misconfigured @Public route). fail fast with a
-    // named error rather than letting a raw not-null constraint surface from the driver.
+    // audit_log.userId is NOT NULL but @CurrentUserId() can be undefined on a misconfigured
+    // @Public route — fail fast with a named error, not a raw not-null constraint from the driver.
     if (!input.userId) {
       throw new Error(`cannot record ${input.action} audit row: missing userId`);
     }
@@ -103,10 +94,8 @@ export class AuditService {
       .run();
   }
 
-  // tier-2 best-effort write: the side-effect op (skill.run / service.scan /
-  // diagnose.run) has already succeeded by the time we record, so a failed audit
-  // insert must not turn a successful op into a 500 — log and swallow. tier-1 callers
-  // keep using record(input, tx) directly so a failed insert still rolls the action back.
+  // tier-2 best-effort: the op already succeeded, so a failed audit insert must not turn it
+  // into a 500 — log and swallow. tier-1 callers use record(input, tx) so failures roll back.
   recordOnInvocation(input: AuditRecordInput): void {
     try {
       this.record(input);
@@ -115,9 +104,6 @@ export class AuditService {
     }
   }
 
-  // project safe fields through the shared contract: parse the metadata/synthesis
-  // json, attach synthesis only for run-linked rows, and let isoTimestamp normalize
-  // the timestamp_ms date to an iso string. never spread the raw row.
   private toContract(row: AuditListRow): AuditEvent {
     return auditEventSchema.parse({
       action: row.action,

@@ -5,16 +5,12 @@ import { SkillParameter } from '@opspilot/shared';
 import { isNull } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
-// a service-bound parameter is read server-side from the resolved service row at run
-// time and never trusted from the client — the lifecycle ops use these exclusively,
-// so their run request carries no inputs.
+// a service-bound parameter is read server-side from the resolved row, never from the client.
 const serviceParameter = (name: string): SkillParameter => ({ name, required: true, source: 'service' });
 
-// the five lifecycle ops, migrated from the hardcoded operation/ switch
-// (operation.service.ts:66-82) onto global skill rows (deviceId = null). container
-// ops template {{containerName}}; compose ops template both {{composePath}} and
-// {{composeProject}} so the project name is not silently re-derived. the PATH prefix
-// is prepended by the renderer at run time (phase 4), not stored in the template.
+// the five lifecycle ops as global skill rows (deviceId null): container ops template
+// {{containerName}}, compose ops template {{composePath}} + {{composeProject}}; the PATH
+// prefix is prepended by the renderer, not stored in the template.
 const LIFECYCLE_SKILLS: Pick<typeof skill.$inferInsert, 'commandTemplate' | 'name' | 'parameters'>[] = [
   {
     commandTemplate: 'docker start {{containerName}}',
@@ -51,10 +47,9 @@ export class SkillSeedService implements OnApplicationBootstrap {
   // resolves to undefined at runtime (lessons.md).
   constructor(@Inject(DATABASE_CONNECTION) private readonly db: DatabaseConnection) {}
 
-  // runs after migrations apply (databasemodule is @global, so its migrationservice
-  // bootstrap hook fires before this feature module's). idempotent: insert-if-absent
-  // by name within the global scope (deviceId null), so a re-boot never duplicates.
-  // read + write in one transaction so a concurrent boot can't double-insert.
+  // runs after migrations (databasemodule @global, its bootstrap hook fires first).
+  // idempotent insert-if-absent by name in global scope; read + write in one
+  // transaction so a concurrent boot can't double-insert.
   onApplicationBootstrap(): void {
     const seeded = this.db.transaction((tx) => {
       const existing = new Set(

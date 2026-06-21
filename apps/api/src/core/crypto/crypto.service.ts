@@ -14,9 +14,8 @@ export class CryptoService {
   private readonly key: Buffer;
 
   constructor(@Inject(cryptoConfig.KEY) private readonly config: CryptoConfig) {
-    // joi validates base64 + 44-char encoded length, but not the decoded byte
-    // length — assert it here so a structurally-valid-but-wrong-size key fails
-    // fast at construction rather than at first encrypt.
+    // joi checks base64 + encoded length but not decoded bytes — assert the
+    // 32-byte key size here so a wrong-size key fails at construction, not first encrypt.
     const key = Buffer.from(this.config.encryptionKey, 'base64');
     if (key.length !== KEY_BYTES) {
       throw new Error(`encryption key must decode to ${KEY_BYTES} bytes, got ${key.length}`);
@@ -26,16 +25,14 @@ export class CryptoService {
 
   decrypt(input: EncryptedPayload): string {
     const decipher = createDecipheriv(ALGORITHM, this.key, Buffer.from(input.iv, 'base64'));
-    // setAuthTag before final() so a tampered ciphertext/tag throws instead of
-    // returning garbage (gcm integrity).
+    // setAuthTag before final() so a tampered ciphertext/tag throws, not returns garbage (gcm integrity).
     decipher.setAuthTag(Buffer.from(input.authTag, 'base64'));
     const plaintext = Buffer.concat([decipher.update(Buffer.from(input.ciphertext, 'base64')), decipher.final()]);
     return plaintext.toString('utf8');
   }
 
   encrypt(plaintext: string): EncryptedPayload {
-    // random per-record iv gives semantic security: same plaintext encrypts to
-    // distinct ciphertext each call.
+    // random per-record iv for semantic security: same plaintext → distinct ciphertext each call.
     const iv = randomBytes(IV_BYTES);
     const cipher = createCipheriv(ALGORITHM, this.key, iv);
     const ciphertext = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);

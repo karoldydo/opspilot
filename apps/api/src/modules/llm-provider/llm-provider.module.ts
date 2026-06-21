@@ -16,8 +16,7 @@ import { LlmProviderService } from './llm-provider.service';
 })
 export class LlmProviderModule implements NestModule {
   configure(middlewareConsumer: MiddlewareConsumer): void {
-    // the global body parser is disabled (main.ts: bodyParser false) so better-auth's
-    // catch-all node handler receives the raw body; domain routes must re-apply json().
+    // global body parser disabled in main.ts (better-auth raw body); re-apply json() here
     middlewareConsumer.apply(json()).forRoutes(LlmProviderController);
   }
 }

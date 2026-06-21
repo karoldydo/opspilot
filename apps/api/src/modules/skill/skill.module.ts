@@ -10,12 +10,8 @@ import { SkillController } from './skill.controller';
 import { SkillSeedService } from './skill.seed';
 import { SkillService } from './skill.service';
 
-// the crud controller/service (phase 3) and the run controller/service (phase 4) land
-// here alongside the boot-time seed (phase 2). databasemodule is @global, so the
-// DATABASE_CONNECTION dep resolves without an explicit import and the seed's bootstrap
-// hook fires after the migration hook. the run path joins the service-row lookup
-// (ServiceModule for ServiceService) with the executor (ExecutorModule for the EXECUTOR
-// token); the skill config namespace comes from the global ConfigModule.
+// databasemodule is @global so DATABASE_CONNECTION needs no import and the seed's
+// bootstrap hook fires after the migration hook; skill config from the global ConfigModule.
 @Module({
   controllers: [SkillController, SkillRunController],
   exports: [SkillService],
@@ -24,8 +20,7 @@ import { SkillService } from './skill.service';
 })
 export class SkillModule implements NestModule {
   configure(middlewareConsumer: MiddlewareConsumer): void {
-    // the global body parser is disabled (main.ts: bodyParser false) so better-auth's
-    // catch-all node handler receives the raw body; domain routes must re-apply json().
+    // global body parser disabled in main.ts (better-auth raw body); re-apply json() here
     middlewareConsumer.apply(json()).forRoutes(SkillController, SkillRunController);
   }
 }

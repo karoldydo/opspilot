@@ -24,15 +24,12 @@ export class LlmProviderService {
   ) {}
 
   async create(input: LlmProviderCreateRequest, userId: string): Promise<LlmProvider> {
-    // reject-on-fail: validate the provider with a live test-call BEFORE persisting,
-    // so a bad key/url/timeout never leaves an unvalidated row behind.
+    // reject-on-fail: live test-call BEFORE persisting, so a bad key/url never leaves a row behind.
     await this.probe.verify(input.baseURL, input.apiKey);
     const { authTag, ciphertext, iv } = this.crypto.encrypt(input.apiKey);
-    // auto-active-first: the very first provider is active; later ones are not (the
-    // user activates manually via the activate endpoint). the count read and the
-    // insert run in one transaction so two concurrent creates cannot both observe
-    // an empty table and both insert active: true (the single-active invariant is
-    // app-enforced — no partial-index to catch a double-active at the db level).
+    // auto-active-first: the first provider is active, later ones are not. count read +
+    // insert in one transaction so two concurrent creates can't both see an empty table
+    // and both write active: true (single-active is app-enforced, no partial-index).
     const row = this.db.transaction((tx) => {
       const active = tx.select().from(llmProvider).all().length === 0;
       const inserted = tx
@@ -77,15 +74,13 @@ export class LlmProviderService {
 
   async update(id: string, input: LlmProviderUpdateRequest, userId: string): Promise<LlmProvider> {
     const row = this.requireRow(id);
-    // reject-on-fail: probe the effective config BEFORE the db mutation. an absent
-    // baseURL/apiKey falls back to the stored row (the patch tests the merged state,
-    // and an absent key tests the decrypted stored secret against the new baseURL).
+    // reject-on-fail: probe the effective config BEFORE the mutation; absent baseURL/apiKey
+    // fall back to the stored row, so the patch tests the merged state.
     const effectiveBaseURL = input.baseURL ?? row.baseURL;
     const effectiveApiKey = input.apiKey ?? (await this.getDecryptedApiKey(id));
     await this.probe.verify(effectiveBaseURL, effectiveApiKey);
-    // project explicit columns (never spread the dto); drizzle ignores undefined,
-    // so a partial patch only touches the fields the caller sent. re-encrypt only
-    // when a new apiKey is supplied — an absent key keeps the stored ciphertext.
+    // project explicit columns (never spread the dto); drizzle ignores undefined, so a
+    // partial patch only touches sent fields. re-encrypt only when a new apiKey is supplied.
     const patch: Partial<LlmProviderRow> = { baseURL: input.baseURL, kind: input.kind, model: input.model };
     if (input.apiKey) {
       const { authTag, ciphertext, iv } = this.crypto.encrypt(input.apiKey);
@@ -113,9 +108,8 @@ export class LlmProviderService {
 
   async activate(id: string, userId: string): Promise<LlmProvider> {
     const existing = this.requireRow(id);
-    // app-enforced single-active invariant: unset all, set one, atomically. no
-    // partial-index means the unset-then-set order never trips a constraint; the
-    // transaction guarantees there is never zero or two active mid-flight.
+    // app-enforced single-active: unset all, set one, atomically — no partial-index, so the
+    // transaction guarantees never zero or two active mid-flight.
     this.db.transaction((tx) => {
       tx.update(llmProvider).set({ active: false }).run();
       tx.update(llmProvider).set({ active: true }).where(eq(llmProvider.id, id)).run();
@@ -151,9 +145,8 @@ export class LlmProviderService {
     });
   }
 
-  // service-only accessor: decrypts and returns the raw provider api key for the
-  // future s-04 client factory. its return is NOT a contract type and must never
-  // be wired to a controller — decrypted plaintext does not cross the /api boundary.
+  // service-only accessor: returns the decrypted raw api key — NOT a contract type, must
+  // never be wired to a controller (plaintext never crosses /api).
   async getDecryptedApiKey(id: string): Promise<string> {
     const row = this.requireRow(id);
     try {
@@ -164,13 +157,9 @@ export class LlmProviderService {
     }
   }
 
-  // service-only accessor: resolve the single active provider's runtime config for
-  // the s-04 diagnose client factory. reads the active row (via the reserved
-  // llm_provider_active_idx), decrypts the key (reuse getDecryptedApiKey), and
-  // returns just the fields the openai-compatible factory needs. like
-  // getDecryptedApiKey, its return is NOT a contract type and must never be wired
-  // to a controller — it carries the decrypted plaintext key. throws when no
-  // provider is active so diagnose fails fast with a legible precondition error.
+  // service-only accessor: resolve the active provider's runtime config for the s-04 client
+  // factory, decrypting the key. like getDecryptedApiKey its return is NOT a contract type and
+  // must never reach a controller; throws when none is active so diagnose fails fast (409).
   async getActiveProviderConfig(): Promise<{ apiKey: string; baseURL: string; kind: string; model: string }> {
     const row = this.db.select().from(llmProvider).where(eq(llmProvider.active, true)).get();
     if (!row) {
@@ -193,9 +182,7 @@ export class LlmProviderService {
     return row;
   }
 
-  // project safe fields only (never spread the row) and validate through the
-  // shared contract, which normalizes the timestamp_ms dates to iso strings and
-  // rejects any secret leakage. hasApiKey is derived from a stored ciphertext.
+  // never spread the row — the contract rejects secret leakage; hasApiKey is derived from ciphertext.
   private toContract(row: LlmProviderRow): LlmProvider {
     return llmProviderSchema.parse({
       active: row.active,

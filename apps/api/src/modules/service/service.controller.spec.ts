@@ -18,11 +18,7 @@ import request from 'supertest';
 
 import { ServiceModule } from './service.module';
 
-// e2e against a live temp db with a faked executor. the global AuthAppGuard is not
-// wired here (only AppModule registers it), so routes are open — a tiny middleware
-// stands in for the guard, attaching the seeded session user so @CurrentUserId
-// resolves for the audit writes. asserts route wiring, the body-vs-path guard, and
-// apiError shaping via the global filter.
+// guard faked here; real auth boundary is covered in auth.guard.spec.ts / auth.boundary.spec.ts
 describe('ServiceController (e2e)', () => {
   const inputKey = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=';
   const inputDeviceId = '11111111-1111-4111-8111-111111111111';
@@ -59,8 +55,7 @@ describe('ServiceController (e2e)', () => {
       .useValue(mockExecutor)
       .compile();
     app = moduleRef.createNestApplication();
-    // stand in for the unwired AuthAppGuard: attach the session the guard would so
-    // @CurrentUserId resolves a non-null id for the audit writes.
+    // fake the guard's session so @CurrentUserId resolves for the audit writes.
     app.use((req: { session?: { user: { id: string } } }, _res: unknown, next: () => void) => {
       req.session = { user: { id: userId } };
       next();

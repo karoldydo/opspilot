@@ -15,11 +15,7 @@ import request from 'supertest';
 
 import { LlmProviderModule } from './llm-provider.module';
 
-// e2e against a live temp db. the global AuthAppGuard is not wired here (only
-// AppModule registers it via APP_GUARD), so routes are open — a tiny middleware
-// stands in for the guard, attaching the seeded session user so @CurrentUserId
-// resolves for the audit writes. these tests assert the routes, the single-active
-// invariant over http, the apiError shaping, and that no secret leaks.
+// guard faked here; real auth boundary is covered in auth.guard.spec.ts / auth.boundary.spec.ts
 describe('LlmProviderController (e2e)', () => {
   // a fixed 32-byte key (0x01 * 32) base64-encoded to 44 chars.
   const inputKey = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=';
@@ -56,8 +52,7 @@ describe('LlmProviderController (e2e)', () => {
       .useValue({ encryptionKey: inputKey })
       .compile();
     app = moduleRef.createNestApplication();
-    // stand in for the unwired AuthAppGuard: attach the session the guard would so
-    // @CurrentUserId resolves a non-null id for the audit writes.
+    // fake the guard's session so @CurrentUserId resolves for the audit writes.
     app.use((req: { session?: { user: { id: string } } }, _res: unknown, next: () => void) => {
       req.session = { user: { id: userId } };
       next();

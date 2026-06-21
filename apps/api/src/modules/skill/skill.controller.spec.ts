@@ -14,12 +14,8 @@ import request from 'supertest';
 
 import { SkillModule } from './skill.module';
 
-// e2e against a live temp db. the global AuthAppGuard is not wired here (only
-// AppModule registers it via APP_GUARD), so routes are open — a tiny middleware
-// stands in for the guard, attaching the seeded session user so @CurrentUserId
-// resolves for the audit writes. SkillModule seeds the five global lifecycle rows
-// on boot, so assertions key off specific created skills rather than the total
-// list length.
+// guard faked here; real auth boundary is covered in auth.guard.spec.ts / auth.boundary.spec.ts
+// SkillModule seeds five lifecycle skills on boot; assertions key off the created skill, not list length.
 describe('SkillController (e2e)', () => {
   const userId = 'user-skill-ctrl-test';
 
@@ -54,8 +50,7 @@ describe('SkillController (e2e)', () => {
       .useValue({ backupRetention: 5, path: dbPath })
       .compile();
     app = moduleRef.createNestApplication();
-    // stand in for the unwired AuthAppGuard: attach the session the guard would so
-    // @CurrentUserId resolves a non-null id for the audit writes.
+    // fake the guard's session so @CurrentUserId resolves for the audit writes.
     app.use((req: { session?: { user: { id: string } } }, _res: unknown, next: () => void) => {
       req.session = { user: { id: userId } };
       next();

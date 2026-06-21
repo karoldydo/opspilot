@@ -7,8 +7,7 @@ import { and, eq, isNull, or, SQL } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
 type SkillRow = typeof skill.$inferSelect;
-// the query runner inside db.transaction(...) — same query api as the connection;
-// the uniqueness read + the write must share it so the check-then-write is atomic.
+// the tx query runner — the uniqueness read + the write share it so check-then-write is atomic.
 type SkillTx = Parameters<Parameters<DatabaseConnection['transaction']>[0]>[0];
 
 @Injectable()
@@ -21,9 +20,8 @@ export class SkillService {
   async create(input: SkillCreateRequest, userId: string): Promise<Skill> {
     // null deviceId = global scope; a uuid scopes the skill to one device.
     const deviceId = input.deviceId ?? null;
-    // uniqueness-per-scope is a read-then-write invariant — the conflict check and
-    // the insert share one transaction so two concurrent creates can't both pass
-    // the check and both insert the same name in the same scope (lessons.md:34-38).
+    // uniqueness-per-scope is read-then-write: conflict check + insert share one transaction
+    // so two concurrent creates can't both pass and insert the same name in scope (lessons.md).
     const row = this.db.transaction((tx) => {
       this.assertNameUniqueInScope(tx, input.name, deviceId);
       const inserted = tx
@@ -33,8 +31,7 @@ export class SkillService {
           deviceId,
           id: randomUUID(),
           name: input.name,
-          // parameters persist as serialized json text (sqlite has no array type);
-          // toContract parses it back into the array on read.
+          // parameters persist as json text (sqlite has no array type); toContract parses it back.
           parameters: JSON.stringify(input.parameters),
           timeoutMs: input.timeoutMs ?? null,
         })
@@ -61,9 +58,8 @@ export class SkillService {
     return rows.map((row) => this.toContract(row));
   }
 
-  // the scope-aware query the run path and the web list consume: a device sees its
-  // own skills plus every global one. the or(isNull, eq) predicate is the runtime
-  // scope filter that did not exist anywhere before s-08.
+  // scope-aware query: a device sees its own skills plus every global one
+  // (or(isNull, eq) is the runtime scope filter).
   async findForDevice(deviceId: string): Promise<Skill[]> {
     const rows = this.db
       .select()
@@ -80,18 +76,16 @@ export class SkillService {
   async update(id: string, input: SkillUpdateRequest, userId: string): Promise<Skill> {
     const row = this.db.transaction((tx) => {
       const existing = this.requireRow(id, tx);
-      // merge the patch onto the stored row (drizzle ignores undefined, but the
-      // parity/uniqueness invariant spans both commandTemplate and parameters, so
-      // a partial patch carrying only one must be checked against the merged shape).
+      // merge the patch onto the stored row: the parity/uniqueness invariant spans both
+      // commandTemplate and parameters, so a partial patch is checked against the merged shape.
       const name = input.name ?? existing.name;
       const deviceId = input.deviceId !== undefined ? input.deviceId : existing.deviceId;
       const commandTemplate = input.commandTemplate ?? existing.commandTemplate;
       const parameters = input.parameters ?? (JSON.parse(existing.parameters) as SkillCreateRequest['parameters']);
       const timeoutMs = input.timeoutMs !== undefined ? input.timeoutMs : existing.timeoutMs;
-      // re-validate the merged result against the create shape so the {{placeholder}}
-      // ↔ parameter parity (and name-uniqueness within the params) still holds after
-      // a partial patch — skill-create-request.schema.ts is the single source of the
-      // parity rule. a violation throws a zoderror the global filter shapes into 400.
+      // re-validate the merged result against the create shape so the {{placeholder}} ↔ parameter
+      // parity still holds after a partial patch (the schema is the single source of that rule); a
+      // violation throws ZodError → 400.
       skillCreateRequestSchema.parse({ commandTemplate, deviceId, name, parameters, timeoutMs });
       // name-uniqueness within the (possibly changed) scope, excluding this row.
       this.assertNameUniqueInScope(tx, name, deviceId, id);
@@ -123,9 +117,7 @@ export class SkillService {
     });
   }
 
-  // conflict if another row already holds this name in the same scope (global vs a
-  // given device). the scope predicate is isNull(deviceId) for global, eq otherwise;
-  // excludeId lets update skip the row it is editing.
+  // conflict if another row holds this name in the same scope; excludeId lets update skip itself.
   private assertNameUniqueInScope(tx: SkillTx, name: string, deviceId: null | string, excludeId?: string): void {
     const scopePredicate: SQL = deviceId === null ? isNull(skill.deviceId) : eq(skill.deviceId, deviceId);
     const clash = tx
@@ -140,8 +132,7 @@ export class SkillService {
     }
   }
 
-  // read the row or fail with an entity-naming 404 (nestjs.md error rule). accepts an
-  // optional tx so the update transaction reads through the same runner as its write.
+  // read the row or 404 (nestjs.md); optional tx so update reads through the same runner as its write.
   private requireRow(id: string, tx: DatabaseConnection | SkillTx = this.db): SkillRow {
     const row = tx.select().from(skill).where(eq(skill.id, id)).get();
     if (!row) {
@@ -150,9 +141,6 @@ export class SkillService {
     return row;
   }
 
-  // project safe fields only (never spread the row) and validate through the shared
-  // contract, which normalizes the timestamp_ms dates to iso strings. parameters are
-  // stored as json text and parsed back into the typed array here.
   private toContract(row: SkillRow): Skill {
     return skillSchema.parse({
       commandTemplate: row.commandTemplate,

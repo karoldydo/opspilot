@@ -10,14 +10,11 @@ import { CredentialDecryptError, SshAuthError, SshCommandTimeoutError, SshConnec
 import { ExecResult, IExecutor } from './executor.interface';
 import { SSH_CLIENT_FACTORY, SshClientFactory } from './ssh-client.factory';
 
-// node-ssh-backed executor. each execute resolves the device's credential,
-// connects with auth + connect timeout, runs the command under a per-device mutex
-// with a hand-rolled command timeout, and always disposes. generic ssh only — no
-// docker knowledge lives here (that is ServiceService's half of the taxonomy).
+// node-ssh-backed executor: generic ssh only, no docker knowledge here (that is
+// ServiceService's half of the taxonomy).
 @Injectable()
 export class SshExecutor implements IExecutor {
-  // one mutex per device serializes that device's ssh work; different devices run
-  // in parallel (node-ssh.md per-device concurrency).
+  // one mutex per device serializes its ssh work; different devices run in parallel (node-ssh.md).
   private readonly mutexes = new Map<string, Mutex>();
 
   constructor(
@@ -31,9 +28,7 @@ export class SshExecutor implements IExecutor {
     return this.mutexFor(deviceId).runExclusive(() => this.run(deviceId, command, timeoutMs));
   }
 
-  // resolve credential → connect → race the command against the timeout → dispose.
   private async run(deviceId: string, command: string, timeoutMs?: number): Promise<ExecResult> {
-    // findOne throws a 404 if the device is gone; it also carries the host.
     const device = await this.deviceService.findOne(deviceId);
     const credential = await this.resolveCredential(deviceId);
     const secret = await this.decryptSecret(deviceId, credential);
@@ -55,8 +50,8 @@ export class SshExecutor implements IExecutor {
         throw this.mapConnectError(device.host, error);
       }
 
-      // per-call override falls back to the configured default, so existing callers
-      // (scan/fetchLogs) keep the 30s ceiling while a long skill run passes SKILL_TIMEOUT_MS.
+      // per-call override falls back to the configured default: scan/fetchLogs keep the 30s
+      // ceiling while a long skill run passes SKILL_TIMEOUT_MS.
       const commandTimeoutMs = timeoutMs ?? this.config.commandTimeoutMs;
       const timeout = new Promise<never>((_, reject) => {
         timer = setTimeout(() => reject(new SshCommandTimeoutError(commandTimeoutMs)), commandTimeoutMs);
@@ -64,13 +59,12 @@ export class SshExecutor implements IExecutor {
       const result = await Promise.race([ssh.execCommand(command), timeout]);
       return { code: result.code, stderr: result.stderr, stdout: result.stdout };
     } finally {
-      // clear the timer so a fast command never leaks a pending timeout, and
-      // dispose unconditionally — the "no run hangs" nfr is born here.
+      // clear the timer (no leaked pending timeout) and dispose unconditionally — the "no run hangs" nfr.
       if (timer !== undefined) {
         clearTimeout(timer);
       }
-      // swallow dispose errors: when connect() threw, dispose runs on an unconnected client and
-      // must not mask the original mapped connect error.
+      // swallow dispose errors: on a failed connect, dispose runs on an unconnected client
+      // and must not mask the original connect error.
       try {
         ssh.dispose();
       } catch {
@@ -79,8 +73,8 @@ export class SshExecutor implements IExecutor {
     }
   }
 
-  // pick the device's credential; with no stored credential there is nothing to
-  // authenticate with, so the connect cannot proceed (surfaced as a connect error).
+  // pick the device's credential; with none stored there is nothing to authenticate
+  // with, so connect cannot proceed (surfaced as a connect error).
   private async resolveCredential(deviceId: string): Promise<Credential> {
     const credentials = await this.credentialService.list(deviceId);
     const credential = credentials[0];
@@ -90,8 +84,8 @@ export class SshExecutor implements IExecutor {
     return credential;
   }
 
-  // wrap the raw node:crypto "unable to authenticate data" failure in a domain
-  // error so a key/ciphertext mismatch is legible (F1 deferred obligation).
+  // wrap the raw node:crypto "unable to authenticate data" failure in a domain error
+  // so a key/ciphertext mismatch is legible (F1 deferred obligation).
   private async decryptSecret(deviceId: string, credential: Credential): Promise<string> {
     try {
       return await this.credentialService.getDecryptedSecret(credential.id);
@@ -100,8 +94,8 @@ export class SshExecutor implements IExecutor {
     }
   }
 
-  // distinguish a device rejecting our credentials from an unreachable host by
-  // inspecting the ssh2 rejection (auth failures name authentication).
+  // distinguish auth rejection from an unreachable host by inspecting the ssh2
+  // rejection (auth failures name authentication).
   private mapConnectError(host: string, error: unknown): SshAuthError | SshConnectError {
     const message = error instanceof Error ? error.message : String(error);
     const level = (error as { level?: string })?.level;
@@ -112,10 +106,9 @@ export class SshExecutor implements IExecutor {
   }
 
   private mutexFor(deviceId: string): Mutex {
-    // get-or-create is race-free: node's single-threaded loop never interleaves another call
-    // between this get and set (no await in between), so two concurrent executes on one device
-    // share the same mutex. the map grows one entry per device id ever seen — unbounded but tiny
-    // at homelab scale; add eviction only if device churn ever becomes real.
+    // get-or-create is race-free: no await between get and set, so node's loop never
+    // interleaves — concurrent executes on one device share the mutex. map grows one
+    // entry per device id, unbounded but tiny at homelab scale.
     let mutex = this.mutexes.get(deviceId);
     if (!mutex) {
       mutex = new Mutex();
