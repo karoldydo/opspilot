@@ -39,6 +39,8 @@ export const auditLog = sqliteTable(
     index('audit_log_created_idx').on(table.createdAt),
     // by-user lookup.
     index('audit_log_user_idx').on(table.userId),
+    // covers the overview skill-runs-24h aggregate where(userId, action, createdAt).
+    index('audit_log_user_action_created_idx').on(table.userId, table.action, table.createdAt),
   ]
 );
 

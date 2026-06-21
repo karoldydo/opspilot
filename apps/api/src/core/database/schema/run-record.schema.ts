@@ -39,6 +39,8 @@ export const runRecord = sqliteTable(
     index('run_record_service_created_idx').on(table.serviceId, table.createdAt),
     // reserved s-09 — by-user lookup.
     index('run_record_user_idx').on(table.userId),
+    // covers the overview avg-diagnose aggregate where(userId, createdAt).
+    index('run_record_user_created_idx').on(table.userId, table.createdAt),
   ]
 );
 

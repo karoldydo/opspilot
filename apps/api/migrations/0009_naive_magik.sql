@@ -1,0 +1,2 @@
+CREATE INDEX `audit_log_user_action_created_idx` ON `audit_log` (`user_id`,`action`,`created_at`);--> statement-breakpoint
+CREATE INDEX `run_record_user_created_idx` ON `run_record` (`user_id`,`created_at`);

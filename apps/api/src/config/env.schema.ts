@@ -13,6 +13,8 @@ export interface EnvConfig {
   LLM_GENERATE_TIMEOUT_MS: number;
   LLM_TEST_TIMEOUT_MS: number;
   NODE_ENV: 'development' | 'production' | 'test';
+  OVERVIEW_AVG_DIAGNOSE_WINDOW_MS: number;
+  OVERVIEW_SKILL_RUNS_WINDOW_MS: number;
   PORT: number;
   SESSION_EXPIRES_IN: number;
   SESSION_UPDATE_AGE: number;
@@ -40,6 +42,16 @@ export const envSchema = Joi.object<EnvConfig>({
   LLM_GENERATE_TIMEOUT_MS: Joi.number().integer().min(1000).default(12000),
   LLM_TEST_TIMEOUT_MS: Joi.number().integer().min(1000).default(5000),
   NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+  // averaging window for the overview avg-diagnose tile (default 7 days).
+  OVERVIEW_AVG_DIAGNOSE_WINDOW_MS: Joi.number()
+    .integer()
+    .min(60000)
+    .default(7 * 24 * 60 * 60 * 1000),
+  // trailing window for the overview skill-runs tile (default 24 hours).
+  OVERVIEW_SKILL_RUNS_WINDOW_MS: Joi.number()
+    .integer()
+    .min(60000)
+    .default(24 * 60 * 60 * 1000),
   PORT: Joi.number().port().default(3000),
   // session lifetimes in seconds — better-auth defaults (7 days / 1 day).
   SESSION_EXPIRES_IN: Joi.number().integer().min(60).default(604800),

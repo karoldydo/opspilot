@@ -7,6 +7,7 @@ import { databaseConfig } from './database.config';
 import { deviceConfig } from './device.config';
 import { envSchema } from './env.schema';
 import { llmConfig } from './llm.config';
+import { overviewConfig } from './overview.config';
 import { skillConfig } from './skill.config';
 import { sshConfig } from './ssh.config';
 
@@ -14,7 +15,7 @@ import { sshConfig } from './ssh.config';
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
-      load: [authConfig, cryptoConfig, databaseConfig, deviceConfig, llmConfig, skillConfig, sshConfig],
+      load: [authConfig, cryptoConfig, databaseConfig, deviceConfig, llmConfig, overviewConfig, skillConfig, sshConfig],
       validationOptions: { abortEarly: false, allowUnknown: true },
       validationSchema: envSchema,
     }),

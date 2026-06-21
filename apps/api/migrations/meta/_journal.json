@@ -63,6 +63,13 @@
       "tag": "0008_cooing_chamber",
       "version": "6",
       "when": 1782072985357
+    },
+    {
+      "breakpoints": true,
+      "idx": 9,
+      "tag": "0009_naive_magik",
+      "version": "6",
+      "when": 1782077089777
     }
   ],
   "version": "7"
