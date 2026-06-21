@@ -248,10 +248,10 @@ None — additive test + documentation only; no schema, API, or runtime behavior
 
 #### Automated
 
-- [x] 2.1 Formatting clean: `npm run format:check`
-- [x] 2.2 Full api suite still green: `npx nx test api`
+- [x] 2.1 Formatting clean: `npm run format:check` — 44faf50
+- [x] 2.2 Full api suite still green: `npx nx test api` — 44faf50
 
 #### Manual
 
-- [x] 2.3 §6.4 reads as a complete recipe with correct file references (no "TBD")
-- [x] 2.4 §7 author-trust exclusion present; §6.6 Phase 3 note present; §3 Phase 3 Status `complete`
+- [x] 2.3 §6.4 reads as a complete recipe with correct file references (no "TBD") — 44faf50
+- [x] 2.4 §7 author-trust exclusion present; §6.6 Phase 3 note present; §3 Phase 3 Status `complete` — 44faf50
