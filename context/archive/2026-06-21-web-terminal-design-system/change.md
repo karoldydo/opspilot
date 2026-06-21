@@ -1,10 +1,10 @@
 ---
 change_id: web-terminal-design-system
 title: Re-skin apps/web to the terminal design system from mockups and DESIGN.md
-status: impl_reviewed
+status: archived
 created: 2026-06-21
 updated: 2026-06-21
-archived_at: null
+archived_at: 2026-06-21T21:31:12Z
 ---
 
 ## Notes
