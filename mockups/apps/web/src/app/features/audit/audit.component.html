@@ -1,0 +1,98 @@
+<main class="mx-auto flex min-h-svh max-w-4xl flex-col gap-6 p-8">
+  <header class="flex flex-col gap-1">
+    <h1 class="text-foreground text-2xl font-semibold">Audit log</h1>
+    <p class="text-muted-foreground text-sm">Every operational action, newest first. Diagnose runs expand to detail.</p>
+  </header>
+
+  @if (store.error(); as error) {
+    <p class="text-destructive text-sm" role="alert">{{ error }}</p>
+  }
+
+  @if (store.isEmpty()) {
+    <hlm-empty>
+      <hlm-empty-header>
+        <h2 hlmEmptyTitle>No activity yet</h2>
+        <p hlmEmptyDescription>Operational actions you take will show up here.</p>
+      </hlm-empty-header>
+    </hlm-empty>
+  } @else {
+    <div hlmTableContainer>
+      <table hlmTable>
+        <thead hlmTHead>
+          <tr hlmTr>
+            <th hlmTh>Time</th>
+            <th hlmTh>Action</th>
+            <th hlmTh>Target</th>
+            <th class="text-right" hlmTh>Detail</th>
+          </tr>
+        </thead>
+        <tbody hlmTBody>
+          @for (event of store.events(); track event.id) {
+            <tr hlmTr>
+              <td hlmTd>{{ event.createdAt | date: 'short' }}</td>
+              <td class="font-medium" hlmTd>{{ event.action }}</td>
+              <td class="text-muted-foreground" hlmTd>
+                @if (event.targetType) {
+                  {{ event.targetType }}
+                  @if (event.targetId) {
+                    <span class="text-muted-foreground/70"> · {{ event.targetId }}</span>
+                  }
+                } @else {
+                  —
+                }
+              </td>
+              <td class="text-right" hlmTd>
+                @if (event.synthesis) {
+                  <button type="button" (click)="store.select(event.id)" hlmBtn size="sm" variant="ghost">
+                    {{ store.selectedId() === event.id ? 'Hide' : 'View' }}
+                  </button>
+                }
+              </td>
+            </tr>
+
+            @if (event.synthesis; as synthesis) {
+              @if (store.selectedId() === event.id) {
+                <tr hlmTr>
+                  <td class="p-2" colspan="4" hlmTd>
+                    <section class="gap-3 p-4" hlmCard>
+                      <div class="flex-row items-center gap-2 p-0" hlmCardHeader>
+                        <span [class]="badgeClass(synthesis.status)" hlmBadge>{{ synthesis.status }}</span>
+                        <p class="text-sm" hlmCardTitle>{{ synthesis.summary }}</p>
+                      </div>
+                      <div class="grid gap-3 p-0 sm:grid-cols-2" hlmCardContent>
+                        <div class="flex flex-col gap-1">
+                          <h4 class="text-foreground text-xs font-semibold tracking-wide uppercase">Problems</h4>
+                          @if (synthesis.problems.length) {
+                            <ul class="text-muted-foreground list-disc space-y-0.5 ps-4 text-sm">
+                              @for (problem of synthesis.problems; track $index) {
+                                <li>{{ problem }}</li>
+                              }
+                            </ul>
+                          } @else {
+                            <p class="text-muted-foreground text-sm">None detected.</p>
+                          }
+                        </div>
+                        <div class="flex flex-col gap-1">
+                          <h4 class="text-foreground text-xs font-semibold tracking-wide uppercase">Suggestions</h4>
+                          @if (synthesis.suggestions.length) {
+                            <ul class="text-muted-foreground list-disc space-y-0.5 ps-4 text-sm">
+                              @for (suggestion of synthesis.suggestions; track $index) {
+                                <li>{{ suggestion }}</li>
+                              }
+                            </ul>
+                          } @else {
+                            <p class="text-muted-foreground text-sm">None.</p>
+                          }
+                        </div>
+                      </div>
+                    </section>
+                  </td>
+                </tr>
+              }
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</main>

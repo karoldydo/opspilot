@@ -1,0 +1,98 @@
+<hlm-dialog-header>
+  <h2 hlmDialogTitle>{{ isEdit ? 'Edit device' : 'Add device' }}</h2>
+  <p hlmDialogDescription>
+    {{ isEdit ? 'Update the device and, optionally, replace its SSH credentials.' : 'Enter the device address and its
+    SSH credentials.' }}
+  </p>
+</hlm-dialog-header>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="flex flex-col gap-4 py-2">
+    <div class="flex flex-col gap-2">
+      <label for="name" hlmLabel>Name</label>
+      <input id="name" type="text" formControlName="name" hlmInput placeholder="web-01" />
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.name.getError('zod') }}</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="host" hlmLabel>Host</label>
+      <input id="host" type="text" formControlName="host" hlmInput placeholder="192.168.1.10" />
+      @if (form.controls.host.touched && form.controls.host.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.host.getError('zod') }}</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="username" hlmLabel>Username</label>
+      <input id="username" type="text" autocomplete="off" formControlName="username" hlmInput placeholder="root" />
+      @if (form.controls.username.touched && form.controls.username.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.username.getError('zod') }}</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="authType" hlmLabel>Auth type</label>
+      <hlm-select [itemToString]="authTypeLabel" formControlName="authType">
+        <hlm-select-trigger class="w-full" buttonId="authType">
+          <hlm-select-value placeholder="Select auth type" />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          <hlm-select-group>
+            <hlm-select-item value="password">Password</hlm-select-item>
+            <hlm-select-item value="key">SSH key</hlm-select-item>
+          </hlm-select-group>
+        </hlm-select-content>
+      </hlm-select>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="secret" hlmLabel>{{ secretIsKey() ? 'Private key' : 'Password' }}</label>
+      @if (secretIsKey()) {
+      <textarea
+        id="secret"
+        autocomplete="off"
+        formControlName="secret"
+        hlmInput
+        placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"
+        rows="6"
+      ></textarea>
+      } @else {
+      <input id="secret" type="password" autocomplete="off" formControlName="secret" hlmInput />
+      } @if (form.controls.secret.touched && form.controls.secret.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.secret.getError('zod') }}</p>
+      } @if (isEdit) {
+      <p class="text-muted-foreground text-sm">Leave blank to keep the current credentials.</p>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="agentContext" hlmLabel>Agent context</label>
+      <textarea
+        id="agentContext"
+        formControlName="agentContext"
+        hlmInput
+        placeholder="e.g. config lives under /volume2; sudo needs a password"
+        rows="6"
+      ></textarea>
+      <p class="text-muted-foreground text-sm">
+        host-level conventions the diagnostic agent should respect (paths, privileged access, availability hours).
+      </p>
+      @if (form.controls.agentContext.touched && form.controls.agentContext.invalid) {
+      <p class="text-destructive text-sm">{{ form.controls.agentContext.getError('zod') }}</p>
+      }
+    </div>
+
+    @if (errorMessage()) {
+    <p class="text-destructive text-sm" role="alert">{{ errorMessage() }}</p>
+    }
+  </div>
+
+  <hlm-dialog-footer>
+    <button type="button" (click)="cancel()" hlmBtn variant="outline">Cancel</button>
+    <button type="submit" [disabled]="submitting()" hlmBtn>
+      {{ submitting() ? 'Saving…' : isEdit ? 'Save changes' : 'Add device' }}
+    </button>
+  </hlm-dialog-footer>
+</form>

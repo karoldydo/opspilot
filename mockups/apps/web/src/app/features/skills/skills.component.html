@@ -1,0 +1,82 @@
+<main class="mx-auto flex min-h-svh max-w-4xl flex-col gap-6 p-8">
+  <header class="flex items-center justify-between gap-4">
+    <div class="flex flex-col gap-1">
+      <h1 class="text-foreground text-2xl font-semibold">Skills</h1>
+      <p class="text-muted-foreground text-sm">
+        Parameterized commands you can run on a service — global or scoped to one device.
+      </p>
+    </div>
+    <button type="button" (click)="openCreate()" hlmBtn>Add skill</button>
+  </header>
+
+  @if (store.error(); as error) {
+    <p class="text-destructive text-sm" role="alert">{{ error }}</p>
+  }
+
+  @if (store.isEmpty()) {
+    <hlm-empty>
+      <hlm-empty-header>
+        <h2 hlmEmptyTitle>No skills yet</h2>
+        <p hlmEmptyDescription>Add your first skill to run parameterized commands on your services.</p>
+      </hlm-empty-header>
+      <hlm-empty-content>
+        <button type="button" (click)="openCreate()" hlmBtn variant="outline">Add skill</button>
+      </hlm-empty-content>
+    </hlm-empty>
+  } @else {
+    <div hlmTableContainer>
+      <table hlmTable>
+        <thead hlmTHead>
+          <tr hlmTr>
+            <th hlmTh>Name</th>
+            <th hlmTh>Scope</th>
+            <th hlmTh>Parameters</th>
+            <th hlmTh>Updated</th>
+            <th class="text-right" hlmTh>Actions</th>
+          </tr>
+        </thead>
+        <tbody hlmTBody>
+          @for (skill of store.skills(); track skill.id) {
+            <tr hlmTr>
+              <td class="font-medium" hlmTd>{{ skill.name }}</td>
+              <td hlmTd>
+                @if (skill.deviceId === null) {
+                  <span hlmBadge variant="outline">Global</span>
+                } @else {
+                  <span hlmBadge>{{ scopeLabel(skill) }}</span>
+                }
+              </td>
+              <td hlmTd>{{ skill.parameters.length }}</td>
+              <td hlmTd>{{ skill.updatedAt | date: 'short' }}</td>
+              <td class="flex justify-end gap-2" hlmTd>
+                <button type="button" (click)="openEdit(skill)" hlmBtn size="sm" variant="outline">Edit</button>
+                <button
+                  type="button"
+                  (click)="requestDelete(skill, deleteDialog)"
+                  hlmBtn
+                  size="sm"
+                  variant="destructive"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</main>
+
+<hlm-alert-dialog #deleteDialog="hlmAlertDialog">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Delete skill?</h2>
+      <p hlmAlertDialogDescription>This permanently removes {{ skillToDelete()?.name }}. This cannot be undone.</p>
+    </hlm-alert-dialog-header>
+    <hlm-alert-dialog-footer>
+      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>Cancel</button>
+      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>Delete</button>
+    </hlm-alert-dialog-footer>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>

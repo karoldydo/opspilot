@@ -1,0 +1,137 @@
+<section class="flex flex-col gap-3">
+  <div class="flex items-center justify-between gap-4">
+    <h3 class="text-foreground text-sm font-semibold">Services</h3>
+    <button type="button" (click)="openScan()" hlmBtn size="sm" variant="outline">Scan</button>
+  </div>
+
+  @if (store.error()) {
+    <p class="text-destructive text-sm" role="alert">{{ store.error() }}</p>
+  }
+
+  @if (store.isEmpty()) {
+    <p class="text-muted-foreground text-sm">No managed services yet. Scan the host to add some.</p>
+  } @else {
+    <div hlmTableContainer>
+      <table hlmTable>
+        <thead hlmTHead>
+          <tr hlmTr>
+            <th hlmTh>Name</th>
+            <th hlmTh>Container</th>
+            <th class="text-right" hlmTh>Actions</th>
+          </tr>
+        </thead>
+        <tbody hlmTBody>
+          @for (service of store.services(); track service.id) {
+            @let diag = diagnosis.entry(service.id);
+            @let view = diag.result ?? diag.partial;
+            <tr hlmTr>
+              <td class="font-medium" hlmTd>{{ service.name }}</td>
+              <td hlmTd>{{ service.containerName }}</td>
+              <td class="flex justify-end gap-2" hlmTd>
+                <button
+                  type="button"
+                  [disabled]="diag.loading"
+                  (click)="diagnose(service)"
+                  hlmBtn
+                  size="sm"
+                  variant="outline"
+                >
+                  {{ diag.loading ? 'Diagnosing…' : 'Diagnose' }}
+                </button>
+                <app-service-skills [deviceId]="deviceId()" [service]="service" />
+                <button type="button" (click)="openRename(service)" hlmBtn size="sm" variant="outline">Edit</button>
+                <button
+                  type="button"
+                  (click)="requestDelete(service, deleteDialog)"
+                  hlmBtn
+                  size="sm"
+                  variant="destructive"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+
+            @if (diag.error || view || diag.loading || diag.runs.length) {
+              <tr hlmTr>
+                <td class="space-y-3 p-2" colspan="3" hlmTd>
+                  @if (diag.error) {
+                    <p class="text-destructive text-sm" role="alert">{{ diag.error }}</p>
+                  } @else if (view || diag.loading) {
+                    <section class="gap-3 p-4" hlmCard>
+                      <div class="flex-row items-center gap-2 p-0" hlmCardHeader>
+                        @if (view?.status; as status) {
+                          <span [class]="badgeClass(status)" hlmBadge>{{ status }}</span>
+                        }
+                        <p class="text-sm" hlmCardTitle>{{ view?.summary || 'Diagnosing…' }}</p>
+                      </div>
+                      <div class="grid gap-3 p-0 sm:grid-cols-2" hlmCardContent>
+                        <div class="flex flex-col gap-1">
+                          <h4 class="text-foreground text-xs font-semibold tracking-wide uppercase">Problems</h4>
+                          @if (view?.problems; as problems) {
+                            @if (problems.length) {
+                              <ul class="text-muted-foreground list-disc space-y-0.5 ps-4 text-sm">
+                                @for (problem of problems; track $index) {
+                                  <li>{{ problem }}</li>
+                                }
+                              </ul>
+                            } @else {
+                              <p class="text-muted-foreground text-sm">None detected.</p>
+                            }
+                          }
+                        </div>
+                        <div class="flex flex-col gap-1">
+                          <h4 class="text-foreground text-xs font-semibold tracking-wide uppercase">Suggestions</h4>
+                          @if (view?.suggestions; as suggestions) {
+                            @if (suggestions.length) {
+                              <ul class="text-muted-foreground list-disc space-y-0.5 ps-4 text-sm">
+                                @for (suggestion of suggestions; track $index) {
+                                  <li>{{ suggestion }}</li>
+                                }
+                              </ul>
+                            } @else {
+                              <p class="text-muted-foreground text-sm">None.</p>
+                            }
+                          }
+                        </div>
+                      </div>
+                    </section>
+                  }
+
+                  @if (diag.runs.length) {
+                    <div class="flex flex-col gap-1">
+                      <h4 class="text-foreground text-xs font-semibold tracking-wide uppercase">Recent runs</h4>
+                      <div class="flex flex-wrap gap-2">
+                        @for (run of diag.runs; track run.id) {
+                          <button type="button" (click)="replay(service, run)" hlmBtn size="sm" variant="ghost">
+                            {{ run.createdAt | date: 'short' }} · {{ run.synthesis.status }}
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+<hlm-alert-dialog #deleteDialog="hlmAlertDialog">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>Delete service?</h2>
+      <p hlmAlertDialogDescription>
+        This stops managing {{ serviceToDelete()?.name }} in OpsPilot. The container itself is not touched. This cannot
+        be undone.
+      </p>
+    </hlm-alert-dialog-header>
+    <hlm-alert-dialog-footer>
+      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>Cancel</button>
+      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>Delete</button>
+    </hlm-alert-dialog-footer>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>

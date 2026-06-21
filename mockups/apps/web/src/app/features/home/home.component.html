@@ -1,0 +1,20 @@
+<main class="mx-auto flex min-h-svh max-w-2xl flex-col gap-6 p-8">
+  <header class="flex items-center justify-between gap-4">
+    <div class="flex flex-col gap-1">
+      <h1 class="text-foreground text-2xl font-semibold">OpsPilot</h1>
+      @if (user(); as currentUser) {
+        <p class="text-muted-foreground text-sm">Signed in as {{ currentUser.email }}</p>
+      }
+    </div>
+    <button type="button" (click)="signOut()" hlmBtn variant="outline">Sign out</button>
+  </header>
+
+  <p class="text-muted-foreground">You're in. Operational features land here in later milestones.</p>
+
+  <nav class="flex flex-col gap-2">
+    <a class="text-foreground underline underline-offset-4" routerLink="/devices">Manage devices</a>
+    <a class="text-foreground underline underline-offset-4" routerLink="/llm-providers">Configure LLM providers</a>
+    <a class="text-foreground underline underline-offset-4" routerLink="/skills">Manage skills</a>
+    <a class="text-foreground underline underline-offset-4" routerLink="/audit">View audit log</a>
+  </nav>
+</main>
