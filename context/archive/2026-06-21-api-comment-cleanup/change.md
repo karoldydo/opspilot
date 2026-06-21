@@ -1,10 +1,10 @@
 ---
 change_id: api-comment-cleanup
 title: Clean up and trim comments in apps/api
-status: implemented
+status: archived
 created: 2026-06-21
 updated: 2026-06-21
-archived_at: null
+archived_at: 2026-06-21T15:45:49Z
 ---
 
 ## Notes
