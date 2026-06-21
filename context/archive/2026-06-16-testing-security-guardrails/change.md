@@ -1,10 +1,10 @@
 ---
 change_id: testing-security-guardrails
 title: Test rollout Phase 3 — security guardrails (secrets, skill confinement, auth boundary)
-status: implemented
+status: archived
 created: 2026-06-16
 updated: 2026-06-21
-archived_at: null
+archived_at: 2026-06-21T14:29:33Z
 ---
 
 ## Notes
