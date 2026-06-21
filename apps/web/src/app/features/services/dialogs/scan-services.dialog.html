@@ -35,9 +35,10 @@
               (checkedChange)="toggle(container, $event)"
             />
           </td>
-          <td class="font-semibold" hlmTd>{{ container.containerName }}</td>
-          <td class="text-op-mute" hlmTd>{{ container.image }}</td>
+          <td class="font-semibold whitespace-nowrap" hlmTd>{{ container.containerName }}</td>
+          <td class="text-op-mute whitespace-nowrap" hlmTd>{{ container.image }}</td>
           <td
+            class="whitespace-nowrap"
             [class.text-op-danger-text]="container.status !== 'running'"
             [class.text-op-success-text]="container.status === 'running'"
             hlmTd

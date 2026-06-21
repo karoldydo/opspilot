@@ -112,7 +112,13 @@ export class DeviceServicesComponent {
       deviceName: this.deviceName(),
       store: this.store,
     };
-    this.dialog.open(ScanServicesDialog, { context });
+    // size the dialog to its content (the scan table) instead of the default fixed
+    // sm:max-w-lg: w-fit grows to the table's natural width, capped at the viewport,
+    // and overflow-x-auto scrolls the table inside the dialog when it exceeds that cap.
+    this.dialog.open(ScanServicesDialog, {
+      contentClass: 'w-fit max-w-[calc(100vw-2rem)] overflow-x-auto sm:max-w-[calc(100vw-2rem)]',
+      context,
+    });
   }
 
   // renders a saved run statically in the row's card — no re-stream (frame d5).
