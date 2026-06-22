@@ -1,10 +1,10 @@
 ---
 change_id: diagnose-run-step-narration
 title: Stream real-time agent run-step narration into the diagnose terminal
-status: impl_reviewed
+status: archived
 created: 2026-06-21
 updated: 2026-06-22
-archived_at: null
+archived_at: 2026-06-22T14:34:34Z
 ---
 
 ## Notes
