@@ -38,31 +38,39 @@
           </div>
           <div class="flex flex-none flex-wrap justify-end gap-1.5">
             <button
-              class="border-op-hairline-strong bg-op-cream text-op-ink hover:bg-op-surface-card focus-visible:ring-op-ink active:bg-op-surface-soft cursor-pointer rounded-[4px] border px-[11px] py-1 text-xs font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+              class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[11px] py-1 text-xs font-medium whitespace-nowrap"
               type="button"
               [disabled]="diag.loading"
               (click)="diagnose(service)"
+              appClickable
+              variant="primary"
             >
               {{ diag.loading ? 'diagnosing…' : 'diagnose' }}
             </button>
             <a
-              class="border-op-hairline text-op-body bg-op-cream hover:border-op-hairline-strong hover:bg-op-surface-card focus-visible:ring-op-ink active:bg-op-surface-soft cursor-pointer rounded-[4px] border px-[10px] py-1 text-xs whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none"
+              class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs whitespace-nowrap"
               [queryParams]="{ device: deviceName(), service: service.name }"
               [routerLink]="['/devices', deviceId(), 'services', service.id, 'diagnose']"
+              appClickable
+              variant="secondary"
               >open →</a
             >
             <app-service-skills [deviceId]="deviceId()" [service]="service" />
             <button
-              class="border-op-hairline text-op-body bg-op-cream hover:border-op-hairline-strong hover:bg-op-surface-card focus-visible:ring-op-ink active:bg-op-surface-soft cursor-pointer rounded-[4px] border px-[10px] py-1 text-xs transition-colors focus-visible:ring-1 focus-visible:outline-none"
+              class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs"
               type="button"
               (click)="openRename(service)"
+              appClickable
+              variant="secondary"
             >
               edit
             </button>
             <button
-              class="border-op-danger text-op-danger-text bg-op-cream hover:bg-op-surface-card focus-visible:ring-op-danger active:bg-op-surface-soft cursor-pointer rounded-[4px] border px-[10px] py-1 text-xs transition-colors focus-visible:ring-1 focus-visible:outline-none"
+              class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs"
               type="button"
               (click)="requestDelete(service, deleteDialog)"
+              appClickable
+              variant="danger"
             >
               delete
             </button>
@@ -140,6 +148,8 @@
                       class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-[11.5px]"
                       type="button"
                       (click)="replay(service, run)"
+                      appClickable
+                      variant="secondary"
                     >
                       <span class="font-bold {{ dotClass(run.synthesis.status) }}">●</span>
                       {{ run.createdAt | date: 'short' }} · {{ run.synthesis.status }}

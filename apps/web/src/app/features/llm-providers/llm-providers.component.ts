@@ -6,6 +6,7 @@ import {
   LlmProviderFormDialog,
   type LlmProviderFormDialogContext,
 } from '@app/features/llm-providers/dialogs/llm-provider-form.dialog';
+import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type LlmProvider } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
@@ -14,7 +15,7 @@ import { HlmDialogService } from '@spartan-ng/helm/dialog';
 // llm-provider config view (activate / edit / delete). store + client provided here (not providedIn: 'root', per angular.md); the form dialog gets the store via context since it renders in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, ...HlmAlertDialogImports],
+  imports: [DatePipe, ...HlmAlertDialogImports, ClickableDirective],
   providers: [LlmProvidersClient, LlmProvidersStore],
   selector: 'app-llm-providers',
   templateUrl: './llm-providers.component.html',

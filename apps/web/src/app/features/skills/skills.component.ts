@@ -3,6 +3,7 @@ import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { SkillsClient } from '@app/features/skills/data/skills.client';
 import { SkillsStore } from '@app/features/skills/data/skills.store';
 import { SkillFormDialog, type SkillFormDialogContext } from '@app/features/skills/dialogs/skill-form.dialog';
+import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type Device, type Skill } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
@@ -11,7 +12,7 @@ import { HlmDialogService } from '@spartan-ng/helm/dialog';
 // skill catalog view (global + per-device). store/client + DevicesClient (for the scope select) provided here (not providedIn: 'root', per angular.md); the form dialog gets the store + device list via context since it renders in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...HlmAlertDialogImports],
+  imports: [...HlmAlertDialogImports, ClickableDirective],
   providers: [SkillsClient, SkillsStore, DevicesClient],
   selector: 'app-skills',
   templateUrl: './skills.component.html',

@@ -22,6 +22,8 @@
         class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
         type="button"
         (click)="openCreate()"
+        appClickable
+        variant="primary"
       >
         + add provider
       </button>
@@ -58,6 +60,8 @@
               class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
               type="button"
               (click)="activate(provider)"
+              appClickable
+              variant="primary"
             >
               activate
             </button>
@@ -66,6 +70,8 @@
             class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs"
             type="button"
             (click)="openEdit(provider)"
+            appClickable
+            variant="secondary"
           >
             edit
           </button>
@@ -73,6 +79,8 @@
             class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs"
             type="button"
             (click)="requestDelete(provider, deleteDialog)"
+            appClickable
+            variant="danger"
           >
             delete
           </button>

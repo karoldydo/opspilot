@@ -24,6 +24,8 @@
         class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
         type="button"
         (click)="openCreate()"
+        appClickable
+        variant="primary"
       >
         + add skill
       </button>
@@ -60,6 +62,8 @@
               class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
               type="button"
               (click)="openEdit(skill)"
+              appClickable
+              variant="secondary"
             >
               edit
             </button>
@@ -67,6 +71,8 @@
               class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
               type="button"
               (click)="requestDelete(skill, deleteDialog)"
+              appClickable
+              variant="danger"
             >
               delete
             </button>

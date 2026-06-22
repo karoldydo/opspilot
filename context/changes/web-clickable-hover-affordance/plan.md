@@ -437,27 +437,27 @@ to interactive rows.
 
 #### Automated
 
-- [x] 1.1 Directive unit tests pass: `npx nx test web -- src/app/shared/directives/clickable.directive.spec.ts`
-- [x] 1.2 Linting passes: `npm run lint`
-- [x] 1.3 Type checking / build passes: `npm run build:web`
+- [x] 1.1 Directive unit tests pass: `npx nx test web -- src/app/shared/directives/clickable.directive.spec.ts` — d08a75b
+- [x] 1.2 Linting passes: `npm run lint` — d08a75b
+- [x] 1.3 Type checking / build passes: `npm run build:web` — d08a75b
 
 #### Manual
 
-- [x] 1.4 `clickableClasses()` output for each variant matches the recorded recipe in `research.md`
+- [x] 1.4 `clickableClasses()` output for each variant matches the recorded recipe in `research.md` — d08a75b
 
 ### Phase 2: CRUD List Buttons
 
 #### Automated
 
-- [ ] 2.1 Component tests pass: `npx nx test web`
-- [ ] 2.2 Linting passes: `npm run lint`
-- [ ] 2.3 Build passes: `npm run build:web`
+- [x] 2.1 Component tests pass: `npx nx test web`
+- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.3 Build passes: `npm run build:web`
 
 #### Manual
 
-- [ ] 2.4 Hover/focus-visible/active visible on skills, llm-providers, devices, and replay buttons
-- [ ] 2.5 Disabled primary buttons show `not-allowed` cursor + reduced opacity, no hover
-- [ ] 2.6 No layout shift versus the previous static styling
+- [x] 2.4 Hover/focus-visible/active visible on skills, llm-providers, devices, and replay buttons
+- [x] 2.5 Disabled primary buttons show `not-allowed` cursor + reduced opacity, no hover
+- [x] 2.6 No layout shift versus the previous static styling
 
 ### Phase 3: Navigation, Auth & Diagnosis (link + button variants)
 

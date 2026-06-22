@@ -14,6 +14,7 @@ import {
   ScanServicesDialog,
   type ScanServicesDialogContext,
 } from '@app/features/services/dialogs/scan-services.dialog';
+import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type DiagnosisSynthesis, type RunRecord, type Service } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
@@ -36,7 +37,7 @@ const DOT_CLASS: Record<DiagnosisSynthesis['status'], string> = {
 // managed-services section for one device row (scan + curated table with rename/delete). each instance provides its own ServicesClient + ServicesStore (not providedIn: 'root', per angular.md) so rows stay isolated; the dialogs get the store via context since they render in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, RouterLink, ...HlmAlertDialogImports, ServiceSkillsComponent],
+  imports: [DatePipe, RouterLink, ...HlmAlertDialogImports, ServiceSkillsComponent, ClickableDirective],
   providers: [ServicesClient, ServicesStore, DiagnosisClient, DiagnosisStore],
   selector: 'app-device-services',
   templateUrl: './device-services.component.html',

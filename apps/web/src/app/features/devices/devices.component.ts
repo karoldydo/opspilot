@@ -4,6 +4,7 @@ import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { DevicesStore } from '@app/features/devices/data/devices.store';
 import { DeviceFormDialog, type DeviceFormDialogContext } from '@app/features/devices/dialogs/device-form.dialog';
 import { DeviceServicesComponent } from '@app/features/services/components/device-services.component';
+import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type Device } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
@@ -12,7 +13,7 @@ import { HlmDialogService } from '@spartan-ng/helm/dialog';
 // device inventory view. store + client provided here (not providedIn: 'root', per angular.md); the form dialog gets the store via context since it renders in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, ...HlmAlertDialogImports, DeviceServicesComponent],
+  imports: [DatePipe, ...HlmAlertDialogImports, DeviceServicesComponent, ClickableDirective],
   providers: [DevicesClient, DevicesStore],
   selector: 'app-devices',
   templateUrl: './devices.component.html',
