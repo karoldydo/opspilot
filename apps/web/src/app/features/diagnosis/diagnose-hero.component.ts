@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DiagnosisClient } from '@app/features/diagnosis/data/diagnosis.client';
 import { DiagnosisStore } from '@app/features/diagnosis/data/diagnosis.store';
+import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type DiagnosisSynthesis, type RunRecord, type RunStep } from '@opspilot/shared';
 
 // status → synthesis-badge fill (cream text on the on-cream status ramp, mockup statusBadge()).
@@ -39,7 +40,7 @@ const STEP_CLASS: Record<RunStep['kind'], { colorClass: string; prefix: string }
 // 'root', per angular.md) so the screen owns the stream lifecycle.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, RouterLink],
+  imports: [DatePipe, DecimalPipe, RouterLink, ClickableDirective],
   providers: [DiagnosisClient, DiagnosisStore],
   selector: 'app-diagnose-hero',
   templateUrl: './diagnose-hero.component.html',

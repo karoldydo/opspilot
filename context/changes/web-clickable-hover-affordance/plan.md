@@ -449,29 +449,29 @@ to interactive rows.
 
 #### Automated
 
-- [x] 2.1 Component tests pass: `npx nx test web`
-- [x] 2.2 Linting passes: `npm run lint`
-- [x] 2.3 Build passes: `npm run build:web`
+- [x] 2.1 Component tests pass: `npx nx test web` — 795ebcc
+- [x] 2.2 Linting passes: `npm run lint` — 795ebcc
+- [x] 2.3 Build passes: `npm run build:web` — 795ebcc
 
 #### Manual
 
-- [x] 2.4 Hover/focus-visible/active visible on skills, llm-providers, devices, and replay buttons
-- [x] 2.5 Disabled primary buttons show `not-allowed` cursor + reduced opacity, no hover
-- [x] 2.6 No layout shift versus the previous static styling
+- [x] 2.4 Hover/focus-visible/active visible on skills, llm-providers, devices, and replay buttons — 795ebcc
+- [x] 2.5 Disabled primary buttons show `not-allowed` cursor + reduced opacity, no hover — 795ebcc
+- [x] 2.6 No layout shift versus the previous static styling — 795ebcc
 
 ### Phase 3: Navigation, Auth & Diagnosis (link + button variants)
 
 #### Automated
 
-- [ ] 3.1 Component tests pass: `npx nx test web`
-- [ ] 3.2 Linting passes: `npm run lint`
-- [ ] 3.3 Build passes: `npm run build:web`
+- [x] 3.1 Component tests pass: `npx nx test web`
+- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.3 Build passes: `npm run build:web`
 
 #### Manual
 
-- [ ] 3.4 Sidebar nav, sign-out, overview links/CTAs/row, diagnosis controls, and auth submit/links show consistent affordance
-- [ ] 3.5 `link` variant reads as a link (not a card-fill block) and active nav state is unaffected
-- [ ] 3.6 Auth submit disabled state behaves correctly
+- [x] 3.4 Sidebar nav, sign-out, overview links/CTAs/row, diagnosis controls, and auth submit/links show consistent affordance
+- [x] 3.5 `link` variant reads as a link (not a card-fill block) and active nav state is unaffected
+- [x] 3.6 Auth submit disabled state behaves correctly
 
 ### Phase 4: Audit Pseudo-Button → Real `<button>`
 

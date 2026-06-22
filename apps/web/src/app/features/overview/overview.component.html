@@ -9,7 +9,11 @@
   @if (store.isEmpty()) {
     <div class="border-op-hairline border px-[18px] py-12 text-center">
       <p class="text-op-ash text-[12.5px]">no hosts yet. add a device to start managing your fleet.</p>
-      <a class="text-op-ink mt-3 inline-block text-[12.5px] underline underline-offset-4" routerLink="/devices"
+      <a
+        class="text-op-ink mt-3 inline-block text-[12.5px] underline underline-offset-4"
+        appClickable
+        routerLink="/devices"
+        variant="link"
         >+ add device</a
       >
     </div>
@@ -54,7 +58,9 @@
         </div>
         <a
           class="bg-op-ink text-op-cream flex-none rounded-[4px] px-[18px] py-[9px] text-[13px] font-medium whitespace-nowrap"
+          appClickable
           routerLink="/devices"
+          variant="link"
           >diagnose →</a
         >
       </div>
@@ -66,8 +72,10 @@
         <div class="border-op-mute mb-1 border-b pb-2 text-[13px] font-bold">fleet</div>
         @for (row of store.fleet(); track row.deviceId) {
           <a
-            class="border-op-hairline flex cursor-pointer items-center gap-3 border-b px-0.5 py-[13px]"
+            class="border-op-hairline flex items-center gap-3 border-b px-0.5 py-[13px]"
+            appClickable
             routerLink="/devices"
+            variant="secondary"
           >
             <span class="h-2 w-2 flex-none rounded-full" [class]="dotClass(row.status)"></span>
             <div class="min-w-0 flex-1">

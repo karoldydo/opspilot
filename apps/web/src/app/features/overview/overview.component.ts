@@ -7,6 +7,7 @@ import { DiagnosisClient } from '@app/features/diagnosis/data/diagnosis.client';
 import { OverviewClient } from '@app/features/overview/data/overview.client';
 import { type FleetRow, OverviewStore, type RecentRow } from '@app/features/overview/data/overview.store';
 import { ServicesClient } from '@app/features/services/data/services.client';
+import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 
 // fleet health-dot colour by rolled-up service status.
 const DOT_CLASS: Record<FleetRow['status'], string> = {
@@ -30,7 +31,7 @@ const RESULT_CLASS: Record<RecentRow['resultKind'], string> = {
 // (not providedIn: 'root', per angular.md).
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, RouterLink, ClickableDirective],
   providers: [OverviewStore, OverviewClient, AuditClient, DevicesClient, DiagnosisClient, ServicesClient],
   selector: 'app-overview',
   templateUrl: './overview.component.html',

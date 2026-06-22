@@ -1,5 +1,11 @@
 <main class="max-w-[1040px] px-11 pt-10 pb-16">
-  <a class="text-op-mute mb-4 inline-block text-[12px] underline underline-offset-4" routerLink="/devices">‹ devices</a>
+  <a
+    class="text-op-mute mb-4 inline-block text-[12px] underline underline-offset-4"
+    appClickable
+    routerLink="/devices"
+    variant="link"
+    >‹ devices</a
+  >
 
   <!-- header -->
   <div class="flex flex-wrap items-start justify-between gap-3">
@@ -17,6 +23,8 @@
       type="button"
       [disabled]="entry().loading"
       (click)="rerun()"
+      appClickable
+      variant="primary"
     >
       {{ entry().loading ? 'diagnosing…' : '↻ re-run' }}
     </button>
@@ -137,6 +145,8 @@
             class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-[11.5px]"
             type="button"
             (click)="replay(run)"
+            appClickable
+            variant="secondary"
           >
             <span class="font-bold {{ dotClass(run.synthesis.status) }}">●</span>
             {{ run.createdAt | date: 'short' }} · {{ run.synthesis.status }}

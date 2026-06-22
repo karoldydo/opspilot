@@ -23,7 +23,9 @@
           [class.text-op-ink]="rla.isActive"
           [routerLink]="item.path"
           [routerLinkActiveOptions]="item.options"
+          appClickable
           routerLinkActive
+          variant="link"
         >
           <span class="text-op-ink w-[18px]">{{ rla.isActive ? '▸' : '' }}</span>
           <span>{{ item.label }}</span>
@@ -47,6 +49,8 @@
         class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-3 py-[5px] text-[12.5px] font-medium"
         type="button"
         (click)="signOut()"
+        appClickable
+        variant="secondary"
       >
         sign out
       </button>
