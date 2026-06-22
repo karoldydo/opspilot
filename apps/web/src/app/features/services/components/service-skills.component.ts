@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { SkillRunClient } from '@app/features/services/data/skill-run.client';
 import { SkillRunStore } from '@app/features/services/data/skill-run.store';
 import { RunSkillDialog, type RunSkillDialogContext } from '@app/features/services/dialogs/run-skill.dialog';
@@ -42,9 +42,10 @@ export class ServiceSkillsComponent {
     );
   });
 
-  constructor() {
-    void this.load();
-  }
+  // load runs after inputs bind — the constructor is too early for a required input (reading it throws ng0950). mirrors device-services.component's loadEffect.
+  private readonly loadEffect = effect(() => {
+    void this.load(this.deviceId());
+  });
 
   // opens the uniform run dialog for one skill; the store keys the pending/result by
   // serviceId so the row's result line tracks it, and the dialog stays open on error.
@@ -59,11 +60,13 @@ export class ServiceSkillsComponent {
     this.dialog.open(RunSkillDialog, { context });
   }
 
-  private async load(): Promise<void> {
+  private async load(deviceId: string): Promise<void> {
     try {
-      this.skills.set(await this.skillsClient.listForDevice(this.deviceId()));
-    } catch {
+      this.skills.set(await this.skillsClient.listForDevice(deviceId));
+    } catch (error) {
       // a skill fetch failure must not break the row — it just shows no run controls.
+      // log it though: an empty catch here once hid a constructor-timing bug for months.
+      console.error('failed to load skills for device', deviceId, error);
     }
   }
 

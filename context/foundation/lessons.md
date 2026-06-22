@@ -43,3 +43,10 @@
 - **Problem**: `{{json .}}` marshals the whole container struct, which makes the docker CLI enable layer-size computation (`SizeRw`/`SizeRootFs`) — identical to passing `-s`. On slow storage (Synology NAS) the daemon walks every container's layers for ~27 s, brushing the 30 s SSH command timeout, so scan times out intermittently. Isolated empirically: `docker ps -s` with a trivial format = 27 s; every single field (`{{.Names}}`, `{{.Status}}`, `{{.Labels}}`, …) = 0.02 s; an explicit-field JSON without `.Size` = 0.02 s.
 - **Rule**: Never use `docker ps --format '{{json .}}'` or `-s` for listing unless size is actually needed — build the result from explicit fields (`{{.Names}}`, `{{.Image}}`, `{{.State}}`, `{{.Status}}`, `{{.Labels}}`), because whole-struct json (and `-s`) forces the expensive per-container layer-size walk.
 - **Applies to**: plan, implement, impl-review
+
+## Never read a required input in the constructor — load from a named `effect()`
+
+- **Context**: Angular components (`apps/web`) that load data depending on an `input.required()` value — an init-time fetch that needs the required input (e.g. `deviceId`).
+- **Problem**: Reading a required input in the constructor throws `NG0950` (inputs aren't bound yet), and an empty `catch` around `load()` swallows it silently — no fetch, no data, clean console. In `ServiceSkillsComponent` this hid the missing per-service skill buttons on `/devices` for months with no trace; contrast `DeviceServicesComponent`, which loads from an `effect()` and works.
+- **Rule**: Never read `input.required()` (or trigger an input-dependent load) from the constructor — do it from a named `effect()` field that reads the input after binding (mirror `DeviceServicesComponent`). A `catch` around a fetch must not silently swallow programming errors — log/surface them.
+- **Applies to**: all
