@@ -130,8 +130,9 @@ export class DiagnoseService {
             .filter((stream) => stream.length > 0)
             .join('\n');
 
-          // honest received-counts off the assembled logs (one decimal KB).
-          const lineCount = logs.split('\n').length;
+          // honest received-counts off the assembled logs (one decimal KB). guard the
+          // empty case — ''.split('\n') has length 1, so report 0 for no output.
+          const lineCount = logs.length > 0 ? logs.split('\n').length : 0;
           const kb = (Buffer.byteLength(logs) / 1024).toFixed(1);
           subscriber.next({
             data: { step: { kind: 'ok', text: `received ${lineCount} lines (${kb} KB)` }, type: 'step' },
