@@ -491,12 +491,12 @@ to interactive rows.
 
 #### Automated
 
-- [x] 5.1 Component tests pass: `npx nx test web`
-- [x] 5.2 Linting passes: `npm run lint`
-- [x] 5.3 Build passes: `npm run build:web`
+- [x] 5.1 Component tests pass: `npx nx test web` — a87bf2a
+- [x] 5.2 Linting passes: `npm run lint` — a87bf2a
+- [x] 5.3 Build passes: `npm run build:web` — a87bf2a
 
 #### Manual
 
-- [x] 5.4 Every dialog footer + alert-dialog button shows op-* hover/focus/active, with hlmBtn sizing and radius intact
-- [x] 5.5 op-* hover visibly wins over the previous CVA hover (twMerge dedup confirmed in the browser)
-- [x] 5.6 Destructive confirm buttons use the danger affordance
+- [x] 5.4 Every dialog footer + alert-dialog button shows op-* hover/focus/active, with hlmBtn sizing and radius intact — a87bf2a
+- [x] 5.5 op-* hover visibly wins over the previous CVA hover (twMerge dedup confirmed in the browser) — a87bf2a
+- [x] 5.6 Destructive confirm buttons use the danger affordance — a87bf2a
