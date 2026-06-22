@@ -309,28 +309,28 @@ None — web-only behavior fix, no schema or contract changes.
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npx nx lint web`
-- [x] 1.2 Type checking / build passes: `npx nx build web`
-- [x] 1.3 Web unit tests pass: `npx nx test web`
+- [x] 1.1 Linting passes: `npx nx lint web` — d6db51e
+- [x] 1.2 Type checking / build passes: `npx nx build web` — d6db51e
+- [x] 1.3 Web unit tests pass: `npx nx test web` — d6db51e
 
 #### Manual
 
-- [x] 1.4 Every service row renders skill buttons (start/stop/restart/up/down)
-- [x] 1.5 `GET /api/skills?deviceId=` fires once per row and returns 200
-- [x] 1.6 Clicking a skill button opens the run-skill dialog
-- [x] 1.7 Console free of NG0950 / uncaught errors
+- [x] 1.4 Every service row renders skill buttons (start/stop/restart/up/down) — d6db51e
+- [x] 1.5 `GET /api/skills?deviceId=` fires once per row and returns 200 — d6db51e
+- [x] 1.6 Clicking a skill button opens the run-skill dialog — d6db51e
+- [x] 1.7 Console free of NG0950 / uncaught errors — d6db51e
 
 ### Phase 2: Component regression test
 
 #### Automated
 
-- [ ] 2.1 New spec passes: `npx nx test web`
-- [ ] 2.2 Linting passes: `npx nx lint web`
+- [x] 2.1 New spec passes: `npx nx test web`
+- [x] 2.2 Linting passes: `npx nx lint web`
 
 #### Manual
 
-- [ ] 2.3 Spec fails against the pre-fix (constructor) code — genuine guard
-- [ ] 2.4 Test asserts fetch happens after input binding
+- [x] 2.3 Spec fails against the pre-fix (constructor) code — genuine guard
+- [x] 2.4 Test asserts fetch happens after input binding
 
 ### Phase 3: Button affordance (conditional on mockup review)
 
