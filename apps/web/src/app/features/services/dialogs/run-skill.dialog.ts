@@ -7,6 +7,7 @@ import {
   type ValidatorFn,
 } from '@angular/forms';
 import { type SkillRunStore } from '@app/features/services/data/skill-run.store';
+import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { type Skill, type SkillParameter, skillParameterValueSchema } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
@@ -60,6 +61,11 @@ export class RunSkillDialog {
   protected readonly inputParameters = this.context.skill.parameters.filter(
     (parameter) => parameter.source === 'input'
   );
+
+  // op-* affordance for the footer buttons; merged over hlmBtn's cva through classes()/twmerge so op-* hover wins.
+  protected readonly solidAffordance = clickableClasses('solid');
+
+  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly serviceName = this.context.serviceName;
 

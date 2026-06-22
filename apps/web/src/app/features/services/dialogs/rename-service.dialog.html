@@ -21,7 +21,9 @@
   </div>
 
   <hlm-dialog-footer>
-    <button type="button" (click)="cancel()" hlmBtn variant="outline">cancel</button>
-    <button type="submit" [disabled]="submitting()" hlmBtn>{{ submitting() ? 'saving…' : 'save' }}</button>
+    <button type="button" [class]="secondaryAffordance" (click)="cancel()" hlmBtn variant="outline">cancel</button>
+    <button type="submit" [class]="solidAffordance" [disabled]="submitting()" hlmBtn>
+      {{ submitting() ? 'saving…' : 'save' }}
+    </button>
   </hlm-dialog-footer>
 </form>

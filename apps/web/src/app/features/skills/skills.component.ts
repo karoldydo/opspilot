@@ -3,6 +3,7 @@ import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { SkillsClient } from '@app/features/skills/data/skills.client';
 import { SkillsStore } from '@app/features/skills/data/skills.store';
 import { SkillFormDialog, type SkillFormDialogContext } from '@app/features/skills/dialogs/skill-form.dialog';
+import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type Device, type Skill } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
@@ -23,8 +24,13 @@ export class SkillsComponent {
 
   protected readonly store = inject(SkillsStore);
 
+  // op-* affordance for the alert-dialog confirm/cancel buttons; merged over hlmBtn's cva through classes()/twmerge.
+  protected readonly dangerSolidAffordance = clickableClasses('danger-solid');
+
   // devices drive the scope select in the form and the scope label in the table.
   protected readonly devices = signal<Device[]>([]);
+
+  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly skillToDelete = signal<null | Skill>(null);
 

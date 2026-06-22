@@ -6,6 +6,7 @@ import {
   LlmProviderFormDialog,
   type LlmProviderFormDialogContext,
 } from '@app/features/llm-providers/dialogs/llm-provider-form.dialog';
+import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type LlmProvider } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
@@ -24,6 +25,11 @@ export class LlmProvidersComponent {
   private readonly dialog = inject(HlmDialogService);
 
   protected readonly store = inject(LlmProvidersStore);
+
+  // op-* affordance for the alert-dialog confirm/cancel buttons; merged over hlmBtn's cva through classes()/twmerge.
+  protected readonly dangerSolidAffordance = clickableClasses('danger-solid');
+
+  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly providerToDelete = signal<LlmProvider | null>(null);
 

@@ -4,6 +4,7 @@ import {
   type LlmProviderActionResult,
   type LlmProvidersStore,
 } from '@app/features/llm-providers/data/llm-providers.store';
+import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { type LlmProvider, llmProviderCreateRequestSchema, type LlmProviderUpdateRequest } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
@@ -55,6 +56,11 @@ export class LlmProviderFormDialog {
   });
 
   protected readonly isEdit = this.context.mode === 'edit';
+
+  // op-* affordance for the footer buttons; merged over hlmBtn's cva through classes()/twmerge so op-* hover wins.
+  protected readonly solidAffordance = clickableClasses('solid');
+
+  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly submitting = signal(false);
 

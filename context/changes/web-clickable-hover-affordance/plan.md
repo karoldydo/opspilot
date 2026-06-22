@@ -477,26 +477,26 @@ to interactive rows.
 
 #### Automated
 
-- [x] 4.1 Component tests pass: `npx nx test web`
-- [x] 4.2 Linting passes: `npm run lint`
-- [x] 4.3 Build passes: `npm run build:web`
+- [x] 4.1 Component tests pass: `npx nx test web` — f2d2ac2
+- [x] 4.2 Linting passes: `npm run lint` — f2d2ac2
+- [x] 4.3 Build passes: `npm run build:web` — f2d2ac2
 
 #### Manual
 
-- [x] 4.4 Synthesis rows are clickable, keyboard-focusable, and activate via Enter/Space with visible focus-visible ring
-- [x] 4.5 Non-synthesis rows are not focusable and show no affordance
-- [x] 4.6 Row layout is visually identical to before the swap
+- [x] 4.4 Synthesis rows are clickable, keyboard-focusable, and activate via Enter/Space with visible focus-visible ring — f2d2ac2
+- [x] 4.5 Non-synthesis rows are not focusable and show no affordance — f2d2ac2
+- [x] 4.6 Row layout is visually identical to before the swap — f2d2ac2
 
 ### Phase 5: Dialog Button Migration (hlmBtn + alert-dialog)
 
 #### Automated
 
-- [ ] 5.1 Component tests pass: `npx nx test web`
-- [ ] 5.2 Linting passes: `npm run lint`
-- [ ] 5.3 Build passes: `npm run build:web`
+- [x] 5.1 Component tests pass: `npx nx test web`
+- [x] 5.2 Linting passes: `npm run lint`
+- [x] 5.3 Build passes: `npm run build:web`
 
 #### Manual
 
-- [ ] 5.4 Every dialog footer + alert-dialog button shows op-* hover/focus/active, with hlmBtn sizing and radius intact
-- [ ] 5.5 op-* hover visibly wins over the previous CVA hover (twMerge dedup confirmed in the browser)
-- [ ] 5.6 Destructive confirm buttons use the danger affordance
+- [x] 5.4 Every dialog footer + alert-dialog button shows op-* hover/focus/active, with hlmBtn sizing and radius intact
+- [x] 5.5 op-* hover visibly wins over the previous CVA hover (twMerge dedup confirmed in the browser)
+- [x] 5.6 Destructive confirm buttons use the danger affordance

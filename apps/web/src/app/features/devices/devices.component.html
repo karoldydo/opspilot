@@ -79,8 +79,8 @@
       </p>
     </hlm-alert-dialog-header>
     <hlm-alert-dialog-footer>
-      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>cancel</button>
-      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>delete</button>
+      <button [class]="secondaryAffordance" (click)="deleteDialog.close()" hlmAlertDialogCancel>cancel</button>
+      <button [class]="dangerSolidAffordance" (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>delete</button>
     </hlm-alert-dialog-footer>
   </hlm-alert-dialog-content>
 </hlm-alert-dialog>

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { type ServicesStore } from '@app/features/services/data/services.store';
+import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { type Service, serviceUpdateRequestSchema } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
@@ -49,6 +50,11 @@ export class RenameServiceDialog {
   protected readonly form = this.formBuilder.nonNullable.group({
     name: [this.context.service.name, [schemaValidator(serviceUpdateRequestSchema.shape.name)]],
   });
+
+  // op-* affordance for the footer buttons; merged over hlmBtn's cva through classes()/twmerge so op-* hover wins.
+  protected readonly solidAffordance = clickableClasses('solid');
+
+  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly submitting = signal(false);
 

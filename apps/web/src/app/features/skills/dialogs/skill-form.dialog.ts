@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, type FormControl, type FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { type SkillActionResult, type SkillsStore } from '@app/features/skills/data/skills.store';
+import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import {
   type Device,
@@ -72,6 +73,11 @@ export class SkillFormDialog {
   });
 
   protected readonly isEdit = this.context.mode === 'edit';
+
+  // op-* affordance for the footer buttons; merged over hlmBtn's cva through classes()/twmerge so op-* hover wins.
+  protected readonly solidAffordance = clickableClasses('solid');
+
+  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly submitting = signal(false);
 

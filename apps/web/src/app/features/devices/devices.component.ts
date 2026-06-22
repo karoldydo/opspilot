@@ -4,6 +4,7 @@ import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { DevicesStore } from '@app/features/devices/data/devices.store';
 import { DeviceFormDialog, type DeviceFormDialogContext } from '@app/features/devices/dialogs/device-form.dialog';
 import { DeviceServicesComponent } from '@app/features/services/components/device-services.component';
+import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type Device } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
@@ -22,6 +23,11 @@ export class DevicesComponent {
   private readonly dialog = inject(HlmDialogService);
 
   protected readonly store = inject(DevicesStore);
+
+  // op-* affordance for the alert-dialog confirm/cancel buttons; merged over hlmBtn's cva through classes()/twmerge.
+  protected readonly dangerSolidAffordance = clickableClasses('danger-solid');
+
+  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly deviceToDelete = signal<Device | null>(null);
 
