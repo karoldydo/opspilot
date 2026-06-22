@@ -463,29 +463,29 @@ to interactive rows.
 
 #### Automated
 
-- [x] 3.1 Component tests pass: `npx nx test web`
-- [x] 3.2 Linting passes: `npm run lint`
-- [x] 3.3 Build passes: `npm run build:web`
+- [x] 3.1 Component tests pass: `npx nx test web` — 22e5624
+- [x] 3.2 Linting passes: `npm run lint` — 22e5624
+- [x] 3.3 Build passes: `npm run build:web` — 22e5624
 
 #### Manual
 
-- [x] 3.4 Sidebar nav, sign-out, overview links/CTAs/row, diagnosis controls, and auth submit/links show consistent affordance
-- [x] 3.5 `link` variant reads as a link (not a card-fill block) and active nav state is unaffected
-- [x] 3.6 Auth submit disabled state behaves correctly
+- [x] 3.4 Sidebar nav, sign-out, overview links/CTAs/row, diagnosis controls, and auth submit/links show consistent affordance — 22e5624
+- [x] 3.5 `link` variant reads as a link (not a card-fill block) and active nav state is unaffected — 22e5624
+- [x] 3.6 Auth submit disabled state behaves correctly — 22e5624
 
 ### Phase 4: Audit Pseudo-Button → Real `<button>`
 
 #### Automated
 
-- [ ] 4.1 Component tests pass: `npx nx test web`
-- [ ] 4.2 Linting passes: `npm run lint`
-- [ ] 4.3 Build passes: `npm run build:web`
+- [x] 4.1 Component tests pass: `npx nx test web`
+- [x] 4.2 Linting passes: `npm run lint`
+- [x] 4.3 Build passes: `npm run build:web`
 
 #### Manual
 
-- [ ] 4.4 Synthesis rows are clickable, keyboard-focusable, and activate via Enter/Space with visible focus-visible ring
-- [ ] 4.5 Non-synthesis rows are not focusable and show no affordance
-- [ ] 4.6 Row layout is visually identical to before the swap
+- [x] 4.4 Synthesis rows are clickable, keyboard-focusable, and activate via Enter/Space with visible focus-visible ring
+- [x] 4.5 Non-synthesis rows are not focusable and show no affordance
+- [x] 4.6 Row layout is visually identical to before the swap
 
 ### Phase 5: Dialog Button Migration (hlmBtn + alert-dialog)
 

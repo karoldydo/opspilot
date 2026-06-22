@@ -23,15 +23,8 @@
         <span class="w-[70px] flex-none text-right">detail</span>
       </div>
       @for (event of store.events(); track event.id) {
-        <div
-          class="border-op-hairline flex items-center gap-4 border-b px-[18px] py-[13px]"
-          [attr.role]="event.synthesis ? 'button' : null"
-          [attr.tabindex]="event.synthesis ? 0 : null"
-          [class.cursor-pointer]="event.synthesis"
-          (click)="event.synthesis && store.select(event.id)"
-          (keydown.enter)="event.synthesis && store.select(event.id)"
-          (keydown.space)="event.synthesis && store.select(event.id)"
-        >
+        <!-- shared row body; rendered inside a native button for interactive (synthesis) rows, a plain div otherwise. -->
+        <ng-template #rowBody>
           <span class="text-op-ash w-[150px] flex-none text-xs">{{ event.createdAt | date: 'short' }}</span>
           <span class="w-[170px] flex-none text-[13px] font-semibold">{{ event.action }}</span>
           <span class="text-op-mute flex-1 text-[12.5px]">
@@ -49,7 +42,24 @@
               <span class="text-op-mute">{{ store.selectedId() === event.id ? 'hide' : 'view' }}</span>
             }
           </span>
-        </div>
+        </ng-template>
+
+        @if (event.synthesis) {
+          <!-- native button: keyboard activation (enter/space) and focusability are intrinsic, so no manual role/tabindex/keydown. -->
+          <button
+            class="border-op-hairline flex w-full appearance-none items-center gap-4 border-b px-[18px] py-[13px] text-left"
+            type="button"
+            (click)="store.select(event.id)"
+            appClickable
+            variant="secondary"
+          >
+            <ng-container [ngTemplateOutlet]="rowBody" />
+          </button>
+        } @else {
+          <div class="border-op-hairline flex items-center gap-4 border-b px-[18px] py-[13px]">
+            <ng-container [ngTemplateOutlet]="rowBody" />
+          </div>
+        }
 
         @if (event.synthesis; as synthesis) {
           @if (store.selectedId() === event.id) {

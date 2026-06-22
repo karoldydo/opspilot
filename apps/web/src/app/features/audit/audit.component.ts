@@ -1,7 +1,8 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AuditClient } from '@app/features/audit/data/audit.client';
 import { AuditStore } from '@app/features/audit/data/audit.store';
+import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type DiagnosisSynthesis } from '@opspilot/shared';
 
 // status → terminal status-chip classes: status-fill background with cream text, mirroring device-services.component.
@@ -14,7 +15,7 @@ const BADGE_CLASS: Record<DiagnosisSynthesis['status'], string> = {
 // merged audit timeline (/audit), newest-first from audit_log; a run-linked row expands to its saved synthesis card (the synthesis arrives inline via the server LEFT JOIN). store + client provided here (not providedIn: 'root', per angular.md).
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe],
+  imports: [DatePipe, NgTemplateOutlet, ClickableDirective],
   providers: [AuditClient, AuditStore],
   selector: 'app-audit',
   templateUrl: './audit.component.html',
