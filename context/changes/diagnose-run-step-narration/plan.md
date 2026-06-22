@@ -440,13 +440,13 @@ in Joi, so existing `.env` files keep working without it).
 
 #### Automated
 
-- [x] 3.1 Type checking passes: `npx nx typecheck web`
-- [x] 3.2 Lint passes: `npx nx lint web`
-- [x] 3.3 Web unit tests pass: `npx nx test web`
-- [x] 3.4 Store test: `step` appends (no teardown), `progress` sets, `delta` clears progress, `stream()` resets both
+- [x] 3.1 Type checking passes: `npx nx typecheck web` — 0dd507d
+- [x] 3.2 Lint passes: `npx nx lint web` — 0dd507d
+- [x] 3.3 Web unit tests pass: `npx nx test web` — 0dd507d
+- [x] 3.4 Store test: `step` appends (no teardown), `progress` sets, `delta` clears progress, `stream()` resets both — 0dd507d
 
 #### Manual
 
-- [x] 3.5 Live run: step burst with prefixes/colors → advancing "analyzing… Xs" → synthesis → done line; caret animates
-- [x] 3.6 Replayed run shows settled synthesis only (no steps/progress)
-- [x] 3.7 No layout regression in terminal panel or synthesis card
+- [x] 3.5 Live run: step burst with prefixes/colors → advancing "analyzing… Xs" → synthesis → done line; caret animates — 0dd507d
+- [x] 3.6 Replayed run shows settled synthesis only (no steps/progress) — 0dd507d
+- [x] 3.7 No layout regression in terminal panel or synthesis card — 0dd507d
