@@ -35,14 +35,44 @@
       <span class="text-op-ash ml-2 text-[11.5px]">agent run · {{ entry().loading ? 'live' : 'idle' }}</span>
     </div>
 
+    <!-- idle placeholder before any run this session -->
+    @if (!view() && !entry().loading && !entry().error) {
+      <div class="text-op-ash flex items-center justify-center py-12 text-[12.5px]">
+        [ ··· press re-run to diagnose ··· ]
+      </div>
+    }
+
+    <!-- honest opening milestones (ephemeral, live-only) -->
+    @for (step of leadSteps(); track $index) {
+      @let line = stepClass(step.kind);
+      <div class="animate-op-in flex gap-[10px]">
+        <span class="w-3 flex-none font-bold {{ line.colorClass }}">{{ line.prefix }}</span>
+        <span class="{{ line.colorClass }}">{{ step.text }}</span>
+      </div>
+    }
+
+    <!-- inference heartbeat: single in-place analyzing… Xs line -->
+    @if (entry().progress; as progress) {
+      <div class="flex gap-[10px]">
+        <span class="text-op-ash w-3 flex-none font-bold">·</span>
+        <span class="text-op-ash">analyzing… {{ progress.elapsedMs / 1000 | number: '1.0-0' }}s</span>
+      </div>
+    }
+
+    <!-- synthesis summary fills in after the analyzing window -->
     @if (view(); as v) {
       <div class="animate-op-in flex gap-[10px]">
         <span class="text-op-terminal-blue w-3 flex-none font-bold">$</span>
         <span class="text-op-cream">{{ v.summary || 'synthesizing…' }}</span>
       </div>
-    } @else if (!entry().loading && !entry().error) {
-      <div class="text-op-ash flex items-center justify-center py-12 text-[12.5px]">
-        [ ··· press re-run to diagnose ··· ]
+    }
+
+    <!-- closing result line, after the synthesis content it summarizes -->
+    @if (doneStep(); as step) {
+      @let line = stepClass(step.kind);
+      <div class="animate-op-in flex gap-[10px]">
+        <span class="w-3 flex-none font-bold {{ line.colorClass }}">{{ line.prefix }}</span>
+        <span class="{{ line.colorClass }}">{{ step.text }}</span>
       </div>
     }
 

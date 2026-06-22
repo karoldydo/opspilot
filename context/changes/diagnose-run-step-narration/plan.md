@@ -425,28 +425,28 @@ in Joi, so existing `.env` files keep working without it).
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npx nx typecheck api`
-- [x] 2.2 Lint passes: `npx nx lint api`
-- [x] 2.3 API unit tests pass: `npx nx test api`
-- [x] 2.4 Env validation accepts missing `LLM_NARRATION_TICK_MS` (default) and rejects out-of-range
-- [x] 2.5 Fake-timer progress test: progress frames during delayed inference, stop after first `delta`
+- [x] 2.1 Type checking passes: `npx nx typecheck api` — 7bef417
+- [x] 2.2 Lint passes: `npx nx lint api` — 7bef417
+- [x] 2.3 API unit tests pass: `npx nx test api` — 7bef417
+- [x] 2.4 Env validation accepts missing `LLM_NARRATION_TICK_MS` (default) and rejects out-of-range — 7bef417
+- [x] 2.5 Fake-timer progress test: progress frames during delayed inference, stop after first `delta` — 7bef417
 
 #### Manual
 
-- [ ] 2.6 Real slow provider: step burst → progress cadence → delta → done step + done frame; persistence unchanged
-- [ ] 2.7 Forced `logs-timeout` yields cmd/connecting/fetching steps + single `error` (no orphan progress)
+- [x] 2.6 Real slow provider: step burst → progress cadence → delta → done step + done frame; persistence unchanged — 7bef417
+- [x] 2.7 Forced `logs-timeout` yields cmd/connecting/fetching steps + single `error` (no orphan progress) — 7bef417
 
 ### Phase 3: Web — render steps + progress
 
 #### Automated
 
-- [ ] 3.1 Type checking passes: `npx nx typecheck web`
-- [ ] 3.2 Lint passes: `npx nx lint web`
-- [ ] 3.3 Web unit tests pass: `npx nx test web`
-- [ ] 3.4 Store test: `step` appends (no teardown), `progress` sets, `delta` clears progress, `stream()` resets both
+- [x] 3.1 Type checking passes: `npx nx typecheck web`
+- [x] 3.2 Lint passes: `npx nx lint web`
+- [x] 3.3 Web unit tests pass: `npx nx test web`
+- [x] 3.4 Store test: `step` appends (no teardown), `progress` sets, `delta` clears progress, `stream()` resets both
 
 #### Manual
 
-- [ ] 3.5 Live run: step burst with prefixes/colors → advancing "analyzing… Xs" → synthesis → done line; caret animates
-- [ ] 3.6 Replayed run shows settled synthesis only (no steps/progress)
-- [ ] 3.7 No layout regression in terminal panel or synthesis card
+- [x] 3.5 Live run: step burst with prefixes/colors → advancing "analyzing… Xs" → synthesis → done line; caret animates
+- [x] 3.6 Replayed run shows settled synthesis only (no steps/progress)
+- [x] 3.7 No layout regression in terminal panel or synthesis card

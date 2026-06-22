@@ -51,7 +51,15 @@ describe('DiagnosisStore', () => {
     const { client } = makeClient();
     const store = setup(client);
 
-    expect(store.entry(serviceA)).toEqual({ error: null, loading: false, partial: null, result: null, runs: [] });
+    expect(store.entry(serviceA)).toEqual({
+      error: null,
+      loading: false,
+      partial: null,
+      progress: null,
+      result: null,
+      runs: [],
+      steps: [],
+    });
   });
 
   it('flips loading on when a stream opens', () => {
@@ -74,6 +82,62 @@ describe('DiagnosisStore', () => {
 
     expect(store.entry(serviceA).partial).toEqual({ status: 'degraded', summary: 'looking…' });
     expect(store.entry(serviceA).result).toBeNull();
+  });
+
+  it('appends each step frame to the steps slice without tearing the stream down', () => {
+    const m = makeClient();
+    const store = setup(m.client);
+
+    store.stream(deviceId, serviceA);
+    m.emit(serviceA, { step: { kind: 'cmd', text: '$ opspilot diagnose pg@nas' }, type: 'step' });
+    m.emit(serviceA, { step: { kind: 'sys', text: 'connecting to nas via ssh' }, type: 'step' });
+
+    expect(store.entry(serviceA).steps).toEqual([
+      { kind: 'cmd', text: '$ opspilot diagnose pg@nas' },
+      { kind: 'sys', text: 'connecting to nas via ssh' },
+    ]);
+    // step frames are non-terminal — the stream stays open.
+    expect(m.closeFor(serviceA)).not.toHaveBeenCalled();
+    expect(store.entry(serviceA).loading).toBe(true);
+  });
+
+  it('sets the progress heartbeat and a later progress frame replaces it', () => {
+    const m = makeClient();
+    const store = setup(m.client);
+
+    store.stream(deviceId, serviceA);
+    m.emit(serviceA, { elapsedMs: 2000, phase: 'analyzing', type: 'progress' });
+    expect(store.entry(serviceA).progress).toEqual({ elapsedMs: 2000 });
+
+    m.emit(serviceA, { elapsedMs: 4000, phase: 'analyzing', type: 'progress' });
+    expect(store.entry(serviceA).progress).toEqual({ elapsedMs: 4000 });
+    expect(m.closeFor(serviceA)).not.toHaveBeenCalled();
+  });
+
+  it('clears the progress heartbeat once a delta frame arrives', () => {
+    const m = makeClient();
+    const store = setup(m.client);
+
+    store.stream(deviceId, serviceA);
+    m.emit(serviceA, { elapsedMs: 2000, phase: 'analyzing', type: 'progress' });
+    m.emit(serviceA, { partial: { summary: 'looking…' }, type: 'delta' });
+
+    expect(store.entry(serviceA).progress).toBeNull();
+    expect(store.entry(serviceA).partial).toEqual({ summary: 'looking…' });
+  });
+
+  it('resets steps and progress when a fresh stream opens', () => {
+    const m = makeClient();
+    const store = setup(m.client);
+
+    store.stream(deviceId, serviceA);
+    m.emit(serviceA, { step: { kind: 'cmd', text: '$ run' }, type: 'step' });
+    m.emit(serviceA, { elapsedMs: 2000, phase: 'analyzing', type: 'progress' });
+
+    store.stream(deviceId, serviceA);
+
+    expect(store.entry(serviceA).steps).toEqual([]);
+    expect(store.entry(serviceA).progress).toBeNull();
   });
 
   it('on done sets the result, clears the partial, prepends the run, and closes the source', () => {

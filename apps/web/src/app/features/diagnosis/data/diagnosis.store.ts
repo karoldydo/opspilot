@@ -1,19 +1,23 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
 import { DiagnosisClient } from '@app/features/diagnosis/data/diagnosis.client';
 import { patchState, signalState } from '@ngrx/signals';
-import { type DiagnosisSynthesis, type RunNarrationEvent, type RunRecord } from '@opspilot/shared';
+import { type DiagnosisSynthesis, type RunNarrationEvent, type RunRecord, type RunStep } from '@opspilot/shared';
 
 // per-service diagnosis slice rendered by one row's result panel. `partial` holds the
 // progressively-filled synthesis while a stream is open (null before it starts and once
 // it completes); `result` is the final or replayed synthesis; `runs` is the recent saved
 // runs that drive the click-to-replay list. null result + null partial means "not
-// diagnosed yet this session".
+// diagnosed yet this session". `steps` accumulates the honest execution milestones and
+// `progress` carries the latest inference-elapsed heartbeat — both ephemeral, live-only
+// (reset on each stream, absent on replay).
 export interface DiagnosisEntry {
   error: null | string;
   loading: boolean;
   partial: null | Partial<DiagnosisSynthesis>;
+  progress: { elapsedMs: number } | null;
   result: DiagnosisSynthesis | null;
   runs: RunRecord[];
+  steps: RunStep[];
 }
 
 interface DiagnosisState {
@@ -22,7 +26,15 @@ interface DiagnosisState {
   entries: Record<string, DiagnosisEntry>;
 }
 
-const emptyEntry: DiagnosisEntry = { error: null, loading: false, partial: null, result: null, runs: [] };
+const emptyEntry: DiagnosisEntry = {
+  error: null,
+  loading: false,
+  partial: null,
+  progress: null,
+  result: null,
+  runs: [],
+  steps: [],
+};
 
 // signal-based, per-service diagnosis state, provided at the device-services component
 // (not providedIn: 'root', per angular.md) so each device row owns its lifecycle.
@@ -69,7 +81,9 @@ export class DiagnosisStore {
       error: null,
       loading: false,
       partial: null,
+      progress: null,
       result: run.synthesis,
+      steps: [],
     });
   }
 
@@ -78,7 +92,15 @@ export class DiagnosisStore {
   // row untouched. a terminal frame (done/error) closes the source from handleEvent.
   stream(deviceId: string, serviceId: string): void {
     this.teardown(serviceId);
-    this.patchEntry(serviceId, { ...this.entry(serviceId), error: null, loading: true, partial: null, result: null });
+    this.patchEntry(serviceId, {
+      ...this.entry(serviceId),
+      error: null,
+      loading: true,
+      partial: null,
+      progress: null,
+      result: null,
+      steps: [],
+    });
     const close = this.client.stream(deviceId, serviceId, {
       event: (event) => this.handleEvent(serviceId, event),
       transportError: () => this.handleTransportError(serviceId),
@@ -93,13 +115,24 @@ export class DiagnosisStore {
     this.teardowns.clear();
   }
 
-  // patches one row's slice on each domain frame. delta merges into the partial; done
-  // sets the final result, clears the partial, prepends the saved run, and closes the
-  // stream so EventSource does not reconnect; error surfaces the code's message.
+  // patches one row's slice on each domain frame. step appends an ephemeral milestone;
+  // progress replaces the single inference heartbeat; delta merges into the partial and
+  // clears progress (content is now alive); done sets the final result, clears the
+  // partial, prepends the saved run, and closes the stream so EventSource does not
+  // reconnect; error surfaces the code's message. step/progress are non-terminal — they
+  // return early and never tear the stream down.
   private handleEvent(serviceId: string, event: RunNarrationEvent): void {
     const entry = this.entry(serviceId);
+    if (event.type === 'step') {
+      this.patchEntry(serviceId, { ...entry, steps: [...entry.steps, event.step] });
+      return;
+    }
+    if (event.type === 'progress') {
+      this.patchEntry(serviceId, { ...entry, progress: { elapsedMs: event.elapsedMs } });
+      return;
+    }
     if (event.type === 'delta') {
-      this.patchEntry(serviceId, { ...entry, partial: { ...entry.partial, ...event.partial } });
+      this.patchEntry(serviceId, { ...entry, partial: { ...entry.partial, ...event.partial }, progress: null });
       return;
     }
     if (event.type === 'done') {
@@ -108,11 +141,12 @@ export class DiagnosisStore {
         error: null,
         loading: false,
         partial: null,
+        progress: null,
         result: event.run.synthesis,
         runs: [event.run, ...entry.runs],
       });
     } else {
-      this.patchEntry(serviceId, { ...entry, error: event.message, loading: false, partial: null });
+      this.patchEntry(serviceId, { ...entry, error: event.message, loading: false, partial: null, progress: null });
     }
     this.teardown(serviceId);
   }
@@ -126,7 +160,13 @@ export class DiagnosisStore {
     if (!entry.loading) {
       return;
     }
-    this.patchEntry(serviceId, { ...entry, error: 'could not diagnose service', loading: false, partial: null });
+    this.patchEntry(serviceId, {
+      ...entry,
+      error: 'could not diagnose service',
+      loading: false,
+      partial: null,
+      progress: null,
+    });
     this.teardown(serviceId);
   }
 
