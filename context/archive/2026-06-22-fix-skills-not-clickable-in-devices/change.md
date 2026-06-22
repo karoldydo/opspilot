@@ -1,10 +1,10 @@
 ---
 change_id: fix-skills-not-clickable-in-devices
 title: Fix custom skills not clickable per service on /devices (regression)
-status: implemented
+status: archived
 created: 2026-06-22
 updated: 2026-06-22
-archived_at: null
+archived_at: 2026-06-22T15:37:40Z
 ---
 
 ## Notes
