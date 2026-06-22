@@ -1,7 +1,7 @@
 ---
 change_id: web-clickable-hover-affordance
 title: Apply consistent clickable affordance across all interactive elements in apps/web
-status: implemented
+status: impl_reviewed
 created: 2026-06-22
 updated: 2026-06-22
 archived_at: null
