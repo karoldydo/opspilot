@@ -2,7 +2,7 @@
   <div class="flex flex-wrap justify-end gap-1.5">
     @for (skill of visibleSkills(); track skill.id) {
       <button
-        class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs whitespace-nowrap"
+        class="border-op-hairline text-op-body bg-op-cream hover:border-op-hairline-strong hover:bg-op-surface-card focus-visible:ring-op-ink active:bg-op-surface-soft cursor-pointer rounded-[4px] border px-[10px] py-1 text-xs whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
         type="button"
         [disabled]="entry().pending !== null"
         (click)="openRun(skill)"

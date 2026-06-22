@@ -324,23 +324,23 @@ None — web-only behavior fix, no schema or contract changes.
 
 #### Automated
 
-- [x] 2.1 New spec passes: `npx nx test web`
-- [x] 2.2 Linting passes: `npx nx lint web`
+- [x] 2.1 New spec passes: `npx nx test web` — 6fb2a75
+- [x] 2.2 Linting passes: `npx nx lint web` — 6fb2a75
 
 #### Manual
 
-- [x] 2.3 Spec fails against the pre-fix (constructor) code — genuine guard
-- [x] 2.4 Test asserts fetch happens after input binding
+- [x] 2.3 Spec fails against the pre-fix (constructor) code — genuine guard — 6fb2a75
+- [x] 2.4 Test asserts fetch happens after input binding — 6fb2a75
 
 ### Phase 3: Button affordance (conditional on mockup review)
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `npx nx lint web`
-- [ ] 3.2 Build passes: `npx nx build web`
-- [ ] 3.3 Formatting clean: `npm run format:check`
+- [x] 3.1 Linting passes: `npx nx lint web`
+- [x] 3.2 Build passes: `npx nx build web`
+- [x] 3.3 Formatting clean: `npm run format:check`
 
 #### Manual
 
-- [ ] 3.4 Skill buttons visibly signal interactivity per the mockup
-- [ ] 3.5 Skill button stays visually consistent with edit / open → siblings
+- [x] 3.4 Skill buttons visibly signal interactivity per the mockup
+- [x] 3.5 Skill button stays visually consistent with edit / open → siblings
