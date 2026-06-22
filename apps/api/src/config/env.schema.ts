@@ -11,6 +11,7 @@ export interface EnvConfig {
   LLM_DIAGNOSE_LOGS_TAIL: number;
   LLM_DIAGNOSE_LOGS_TIMEOUT_MS: number;
   LLM_GENERATE_TIMEOUT_MS: number;
+  LLM_NARRATION_TICK_MS: number;
   LLM_TEST_TIMEOUT_MS: number;
   NODE_ENV: 'development' | 'production' | 'test';
   OVERVIEW_AVG_DIAGNOSE_WINDOW_MS: number;
@@ -40,6 +41,8 @@ export const envSchema = Joi.object<EnvConfig>({
   LLM_DIAGNOSE_LOGS_TIMEOUT_MS: Joi.number().integer().min(1000).default(5000),
   // synthesis generation bound (generateText AbortSignal.timeout); keeps the run < 15s.
   LLM_GENERATE_TIMEOUT_MS: Joi.number().integer().min(1000).default(12000),
+  // progress heartbeat cadence filling the inference dead-air; one in-place "analyzing… Xs" tick.
+  LLM_NARRATION_TICK_MS: Joi.number().integer().min(500).default(2000),
   LLM_TEST_TIMEOUT_MS: Joi.number().integer().min(1000).default(5000),
   NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
   // averaging window for the overview avg-diagnose tile (default 7 days).

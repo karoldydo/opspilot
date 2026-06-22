@@ -66,3 +66,35 @@ describe('envSchema — SSH timeouts', () => {
     expect(actual.value.SSH_COMMAND_TIMEOUT_MS).toBe(30000);
   });
 });
+
+describe('envSchema — LLM_NARRATION_TICK_MS', () => {
+  // the required env (incl. a valid key) so validation reaches the narration tunable.
+  const baseEnv = {
+    BETTER_AUTH_SECRET: 'a'.repeat(32),
+    BETTER_AUTH_URL: 'http://localhost:3000',
+    ENCRYPTION_KEY: 'lhGl9GfCflVu1P9xxdKvdhcwQGYO/Yf/zxBN1jUfizk=',
+    TRUSTED_ORIGINS: 'http://localhost:4200',
+  };
+  const options = { abortEarly: false, allowUnknown: true };
+
+  it('defaults to 2000 when omitted (existing .env files keep working)', () => {
+    const actual = envSchema.validate(baseEnv, options);
+
+    expect(actual.error).toBeUndefined();
+    expect(actual.value.LLM_NARRATION_TICK_MS).toBe(2000);
+  });
+
+  it('rejects a below-minimum LLM_NARRATION_TICK_MS (fails fast at boot)', () => {
+    const actual = envSchema.validate({ ...baseEnv, LLM_NARRATION_TICK_MS: '100' }, options);
+
+    expect(actual.error).toBeDefined();
+    expect(actual.error?.message).toContain('LLM_NARRATION_TICK_MS');
+  });
+
+  it('rejects a non-numeric LLM_NARRATION_TICK_MS', () => {
+    const actual = envSchema.validate({ ...baseEnv, LLM_NARRATION_TICK_MS: 'abc' }, options);
+
+    expect(actual.error).toBeDefined();
+    expect(actual.error?.message).toContain('LLM_NARRATION_TICK_MS');
+  });
+});

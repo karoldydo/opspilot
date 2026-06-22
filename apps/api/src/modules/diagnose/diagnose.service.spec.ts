@@ -6,7 +6,7 @@ import { LlmProviderClientFactory } from '@api/modules/llm-provider/llm-provider
 import { LlmProviderService } from '@api/modules/llm-provider/llm-provider.service';
 import { ServiceService } from '@api/modules/service/service.service';
 import { MessageEvent } from '@nestjs/common';
-import { Device, DiagnosisSynthesis, RunRecord, Service } from '@opspilot/shared';
+import { Device, DiagnosisSynthesis, RunRecord, RunStep, Service } from '@opspilot/shared';
 import { NoObjectGeneratedError, streamObject } from 'ai';
 import { Observable } from 'rxjs';
 
@@ -66,6 +66,9 @@ describe('DiagnoseService', () => {
     historyRetention: 20,
     logsTailLines: 200,
     logsTimeoutMs: 5000,
+    // non-trivial tick so a fast mocked stream resolves before any progress frame fires;
+    // the dedicated fake-timer test below drives the heartbeat deterministically.
+    narrationTickMs: 2000,
     testTimeoutMs: 5000,
   };
 
@@ -140,6 +143,19 @@ describe('DiagnoseService', () => {
     });
   }
 
+  // the ordered frame `type`s, minus the timer-driven `progress` heartbeat (its count is
+  // non-deterministic under real timers) — so step/delta/done/error ordering asserts cleanly.
+  function frameTypes(events: MessageEvent[]): string[] {
+    return events.map((e) => (e.data as { type: string }).type).filter((type) => type !== 'progress');
+  }
+
+  // the honest `step` payloads in emission order, for asserting the opening burst.
+  function stepFrames(events: MessageEvent[]): RunStep[] {
+    return events
+      .filter((e) => (e.data as { type: string }).type === 'step')
+      .map((e) => (e.data as { step: RunStep }).step);
+  }
+
   beforeEach(() => {
     mockExecutor.execute.mockReset();
     mockServiceService.findOne.mockReset();
@@ -172,10 +188,38 @@ describe('DiagnoseService', () => {
 
     const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
-    // two delta frames carrying the progressive partials, then a single done frame.
-    expect(events.map((e) => (e.data as { type: string }).type)).toEqual(['delta', 'delta', 'done']);
-    expect((events[0].data as { partial: unknown }).partial).toEqual({ summary: 'service is' });
-    expect((events[2].data as { run: RunRecord }).run).toEqual(savedRun);
+    // the honest opening step burst, then two delta partials, then the closing result
+    // step + the done frame (progress heartbeat filtered — timer-driven, non-deterministic).
+    expect(frameTypes(events)).toEqual([
+      'step',
+      'step',
+      'step',
+      'step',
+      'step',
+      'step',
+      'delta',
+      'delta',
+      'step',
+      'done',
+    ]);
+    // the steps are real signals: the typed command, the resolved host, the configured
+    // tail, the assembled line/byte counts, the resolved model · provider, then the close.
+    const steps = stepFrames(events);
+    expect(steps.slice(0, 6)).toEqual([
+      { kind: 'cmd', text: '$ opspilot diagnose web-proxy@NAS' },
+      { kind: 'sys', text: 'connecting to 192.168.1.10 via ssh' },
+      { kind: 'sys', text: 'fetching last 200 log lines' },
+      { kind: 'ok', text: 'received 2 lines (0.0 KB)' },
+      { kind: 'sys', text: 'analyzing with gpt-4o · openai-compatible' },
+      { kind: 'sys', text: 'synthesizing assessment' },
+    ]);
+    expect(steps[6].kind).toBe('result');
+    expect(steps[6].text).toMatch(/^done in \d+\.\d+s — status: degraded$/);
+    // the first delta partial and the done run land after the burst.
+    const deltas = events.filter((e) => (e.data as { type: string }).type === 'delta');
+    expect((deltas[0].data as { partial: unknown }).partial).toEqual({ summary: 'service is' });
+    const done = events.find((e) => (e.data as { type: string }).type === 'done');
+    expect((done?.data as { run: RunRecord }).run).toEqual(savedRun);
     // persisted with the accumulated final synthesis + the authenticated user + the
     // measured synthesis duration (s-05), before the done frame.
     expect(mockRunRecordService.create).toHaveBeenCalledWith({
@@ -223,14 +267,17 @@ describe('DiagnoseService', () => {
 
     const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
-    expect(events.map((e) => (e.data as { type: string }).type)).toEqual(['delta', 'error']);
-    expect(events[1].data).toEqual({
+    // the opening burst happened (logs were fetched + analysis started), then one delta,
+    // then the mapped error — no closing result step, nothing persisted.
+    expect(frameTypes(events)).toEqual(['step', 'step', 'step', 'step', 'step', 'step', 'delta', 'error']);
+    const errorFrame = events.find((e) => (e.data as { type: string }).type === 'error');
+    expect(errorFrame?.data).toEqual({
       code: 'synthesis-failed',
       message: 'active provider did not return schema-conformant output',
       type: 'error',
     });
     // the raw provider .text must never leak into the error frame.
-    expect(JSON.stringify(events[1].data)).not.toContain('raw');
+    expect(JSON.stringify(errorFrame?.data)).not.toContain('raw');
     expect(mockRunRecordService.create).not.toHaveBeenCalled();
   });
 
@@ -242,8 +289,11 @@ describe('DiagnoseService', () => {
 
     const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
-    expect(events).toHaveLength(1);
-    expect(events[0].data).toEqual({
+    // the opening burst fired (the run reached synthesis), then a single trailing error
+    // frame — no delta (nothing streamed) and no closing result step.
+    expect(frameTypes(events)).toEqual(['step', 'step', 'step', 'step', 'step', 'step', 'error']);
+    const errorFrame = events.find((e) => (e.data as { type: string }).type === 'error');
+    expect(errorFrame?.data).toEqual({
       code: 'timeout',
       message: 'active llm provider did not return a diagnosis in time',
       type: 'error',
@@ -260,8 +310,16 @@ describe('DiagnoseService', () => {
     try {
       const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
-      expect(events).toHaveLength(1);
-      expect(events[0].data).toEqual({
+      // the cmd/connecting/fetching steps genuinely happened before the fetch timed out,
+      // so they precede the single trailing error frame — no received/analyzing steps.
+      expect(frameTypes(events)).toEqual(['step', 'step', 'step', 'error']);
+      expect(stepFrames(events)).toEqual([
+        { kind: 'cmd', text: '$ opspilot diagnose web-proxy@NAS' },
+        { kind: 'sys', text: 'connecting to 192.168.1.10 via ssh' },
+        { kind: 'sys', text: 'fetching last 200 log lines' },
+      ]);
+      const errorFrame = events.find((e) => (e.data as { type: string }).type === 'error');
+      expect(errorFrame?.data).toEqual({
         code: 'logs-timeout',
         message: `fetching logs for ${inputContainerName} timed out after 10ms`,
         type: 'error',
@@ -298,8 +356,10 @@ describe('DiagnoseService', () => {
 
       const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
-      expect(events).toHaveLength(1);
-      expect(events[0].data).toEqual({
+      // the opening burst fired before the sdk-wrapped abort surfaced as the lone error.
+      expect(frameTypes(events)).toEqual(['step', 'step', 'step', 'step', 'step', 'step', 'error']);
+      const errorFrame = events.find((e) => (e.data as { type: string }).type === 'error');
+      expect(errorFrame?.data).toEqual({
         code: 'timeout',
         message: 'active llm provider did not return a diagnosis in time',
         type: 'error',
@@ -313,8 +373,11 @@ describe('DiagnoseService', () => {
 
     const events = await collect(await buildService().narrate(inputDeviceId, inputServiceId, userId));
 
-    expect(events).toHaveLength(1);
-    expect(events[0].data as { code: string; type: string }).toMatchObject({
+    // the cmd/connecting/fetching steps fired before the non-zero exit threw; the bad
+    // docker result short-circuits before the received step, leaving one error frame.
+    expect(frameTypes(events)).toEqual(['step', 'step', 'step', 'error']);
+    const errorFrame = events.find((e) => (e.data as { type: string }).type === 'error');
+    expect(errorFrame?.data as { code: string; type: string }).toMatchObject({
       code: 'upstream-unavailable',
       type: 'error',
     });
@@ -376,6 +439,60 @@ describe('DiagnoseService', () => {
 
       expect(events).toContainEqual({ data: '', type: 'ping' });
       expect(mockRunRecordService.create).not.toHaveBeenCalled();
+      subscription.unsubscribe();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('fires progress frames during a delayed inference and stops them after the first delta', async () => {
+    vi.useFakeTimers();
+    try {
+      mockExecutor.execute.mockResolvedValue(execResult({ stderr: 'some logs' }));
+      // hold the first partial behind a gate so the inference window stays open: the
+      // progress heartbeat is the only thing that can tick until the gate is released.
+      let releaseFirst: () => void = () => undefined;
+      const firstGate = new Promise<void>((resolve) => {
+        releaseFirst = resolve;
+      });
+      mockedStreamObject.mockReturnValue({
+        object: Promise.resolve(validSynthesis),
+        partialObjectStream: (async function* () {
+          await firstGate;
+          yield { summary: 'service is' } as Partial<DiagnosisSynthesis>;
+        })(),
+      } as unknown as ReturnType<typeof streamObject>);
+
+      const events: MessageEvent[] = [];
+      const observable = await buildService().narrate(inputDeviceId, inputServiceId, userId);
+      const subscription = observable.subscribe((event) => events.push(event));
+
+      // flush the synchronous opening steps + the analyzing/synthesizing burst so the
+      // for-await parks on the gate with the progress interval armed; no tick at t=0.
+      await vi.advanceTimersByTimeAsync(0);
+      const progressOf = (collected: MessageEvent[]) =>
+        collected.filter((e) => (e.data as { type: string }).type === 'progress');
+      expect(progressOf(events)).toHaveLength(0);
+
+      // cross several 2000ms tick boundaries during the inference gap.
+      await vi.advanceTimersByTimeAsync(6_000);
+      const during = progressOf(events);
+      expect(during.length).toBeGreaterThanOrEqual(3);
+      expect(during[0].data).toMatchObject({ phase: 'analyzing', type: 'progress' });
+      expect((during[0].data as { elapsedMs: number }).elapsedMs).toBeGreaterThan(0);
+
+      // release the first partial — ttft. progress must stop now (cleared before delta).
+      releaseFirst();
+      await vi.advanceTimersByTimeAsync(0);
+      const afterDelta = progressOf(events).length;
+
+      // advancing further yields no new progress frames once content is alive.
+      await vi.advanceTimersByTimeAsync(6_000);
+      expect(progressOf(events)).toHaveLength(afterDelta);
+
+      // the delta landed and the run completed normally with a done frame.
+      expect(frameTypes(events)).toContain('delta');
+      expect(frameTypes(events)).toContain('done');
       subscription.unsubscribe();
     } finally {
       vi.useRealTimers();

@@ -65,6 +65,9 @@ describe('DiagnoseService (real streamObject via MockLanguageModelV3)', () => {
     historyRetention: 20,
     logsTailLines: 200,
     logsTimeoutMs: 5000,
+    // far longer than the tiny generateTimeoutMs so no progress frame fires before the
+    // real abort — the heartbeat cadence is covered deterministically in the unit spec.
+    narrationTickMs: 2000,
     testTimeoutMs: 5000,
   };
 
@@ -159,9 +162,15 @@ describe('DiagnoseService (real streamObject via MockLanguageModelV3)', () => {
     const events = await collect(await buildService(model).narrate(inputDeviceId, inputServiceId, userId));
     const elapsed = Date.now() - start;
 
-    // a single error frame, mapped to timeout — no delta, no done.
-    expect(events).toHaveLength(1);
-    expect(events[0].data).toEqual({
+    // the opening step burst fired (the run reached synthesis), then the real abort
+    // surfaced as the lone error — no delta, no done, no progress (abort beat the tick).
+    const types = events.map((e) => (e.data as { type: string }).type);
+    expect(types).not.toContain('delta');
+    expect(types).not.toContain('done');
+    expect(types).not.toContain('progress');
+    const errorFrames = events.filter((e) => (e.data as { type: string }).type === 'error');
+    expect(errorFrames).toHaveLength(1);
+    expect(errorFrames[0].data).toEqual({
       code: 'timeout',
       message: 'active llm provider did not return a diagnosis in time',
       type: 'error',

@@ -7,6 +7,8 @@ export const llmConfig = registerAs('llm', () => ({
   logsTailLines: Number(process.env.LLM_DIAGNOSE_LOGS_TAIL),
   // per-command bound on the logs fetch — distinct from SSH_COMMAND_TIMEOUT_MS and testTimeoutMs.
   logsTimeoutMs: Number(process.env.LLM_DIAGNOSE_LOGS_TIMEOUT_MS),
+  // cadence of the progress heartbeat that fills the inference dead-air window.
+  narrationTickMs: Number(process.env.LLM_NARRATION_TICK_MS),
   testTimeoutMs: Number(process.env.LLM_TEST_TIMEOUT_MS),
 }));
 

@@ -155,8 +155,27 @@ describe('DiagnoseController (e2e)', () => {
 
     const res = await request(server()).get(streamUrl()).buffer(true).expect(200);
 
-    const frames = parseSseData(res.text);
-    expect(frames.map((f) => f.type)).toEqual(['delta', 'delta', 'done']);
+    // progress frames are timer-driven; filter them so the step/delta/done ordering
+    // asserts deterministically through the @Sse pass-through.
+    const frames = parseSseData(res.text).filter((f) => f.type !== 'progress');
+    expect(frames.map((f) => f.type)).toEqual([
+      'step',
+      'step',
+      'step',
+      'step',
+      'step',
+      'step',
+      'delta',
+      'delta',
+      'step',
+      'done',
+    ]);
+    // the opening step burst carries real signals end-to-end: the typed command (the
+    // seeded device name), the resolved host, and the resolved model · provider.
+    const stepTexts = frames.filter((f) => f.type === 'step').map((f) => (f.step as { text: string }).text);
+    expect(stepTexts[0]).toBe(`$ opspilot diagnose ${inputContainerName}@host-a`);
+    expect(stepTexts[1]).toBe('connecting to 10.0.0.1 via ssh');
+    expect(stepTexts[4]).toBe('analyzing with gpt-4o · openai-compatible');
     const done = frames.at(-1) as { run: { createdAt: string; id: string; synthesis: DiagnosisSynthesis } };
     expect(done.run.id).toEqual(expect.any(String));
     expect(done.run.synthesis).toEqual(validSynthesis);
@@ -200,9 +219,11 @@ describe('DiagnoseController (e2e)', () => {
 
     const res = await request(server()).get(streamUrl()).buffer(true).expect(200);
 
-    const frames = parseSseData(res.text);
-    expect(frames.map((f) => f.type)).toEqual(['delta', 'error']);
-    expect(frames[1]).toEqual({
+    const frames = parseSseData(res.text).filter((f) => f.type !== 'progress');
+    // the opening burst happened, then one delta, then the mapped error — no result step.
+    expect(frames.map((f) => f.type)).toEqual(['step', 'step', 'step', 'step', 'step', 'step', 'delta', 'error']);
+    const errorFrame = frames.find((f) => f.type === 'error');
+    expect(errorFrame).toEqual({
       code: 'synthesis-failed',
       message: 'active provider did not return schema-conformant output',
       type: 'error',

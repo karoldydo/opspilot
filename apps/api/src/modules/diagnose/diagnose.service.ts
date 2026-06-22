@@ -47,24 +47,53 @@ export class DiagnoseService {
     // the decrypted key — never logged/returned.
     const providerConfig = await this.llmProviderService.getActiveProviderConfig();
     const model = this.clientFactory.create(providerConfig);
-    return this.buildNarration(model, deviceId, serviceId, service.containerName, device.agentContext, userId);
+    return this.buildNarration(model, {
+      agentContext: device.agentContext,
+      containerName: service.containerName,
+      deviceHost: device.host,
+      deviceId,
+      deviceName: device.name,
+      providerKind: providerConfig.kind,
+      providerModel: providerConfig.model,
+      serviceId,
+      userId,
+    });
   }
 
   recentRuns(deviceId: string, serviceId: string, limit?: number, offset?: number) {
     return this.runRecordService.findRecent(deviceId, serviceId, limit, offset);
   }
 
-  // cold sse observable for one run: fetch logs → stream `delta` partials → persist →
-  // `done`. a `ping` keep-alive runs alongside; any mid-stream rejection becomes one
-  // `error` frame; teardown aborts the generation and stops the heartbeat.
+  // cold sse observable for one run: emit the honest opening `step` milestones → fetch
+  // logs → stream `delta` partials (with a `progress` heartbeat filling the inference
+  // dead-air) → persist → `done`. a `ping` keep-alive runs alongside; any mid-stream
+  // rejection becomes one `error` frame; teardown aborts the generation and stops the
+  // timers. `step`/`progress` are ephemeral — emitted live, never persisted.
   private buildNarration(
     model: ReturnType<LlmProviderClientFactory['create']>,
-    deviceId: string,
-    serviceId: string,
-    containerName: string,
-    agentContext: null | string,
-    userId: string
+    input: {
+      agentContext: null | string;
+      containerName: string;
+      deviceHost: string;
+      deviceId: string;
+      deviceName: string;
+      providerKind: string;
+      providerModel: string;
+      serviceId: string;
+      userId: string;
+    }
   ): Observable<MessageEvent> {
+    const {
+      agentContext,
+      containerName,
+      deviceHost,
+      deviceId,
+      deviceName,
+      providerKind,
+      providerModel,
+      serviceId,
+      userId,
+    } = input;
     return new Observable<MessageEvent>((subscriber) => {
       // teardown: client disconnect aborts generation; the aborted-check before each emit
       // keeps a late resolution off a torn-down stream.
@@ -72,9 +101,24 @@ export class DiagnoseService {
       // named `ping` event so EventSource.onmessage ignores it (named events skip the
       // default handler); nest's MessageEvent has no `: ping` comment escape hatch.
       const heartbeat = setInterval(() => subscriber.next({ data: '', type: 'ping' }), HEARTBEAT_INTERVAL_MS);
+      // the progress heartbeat (distinct from `ping`): armed before synthesis, cleared at
+      // ttft and on every exit path. declared in subscriber scope so teardown stops it too.
+      let progress: NodeJS.Timeout | undefined;
 
       const run = async (): Promise<void> => {
         try {
+          // honest opening milestones — the command the operator would have typed, then
+          // the connect + fetch steps, all before the (sub-second) ssh round-trip.
+          subscriber.next({
+            data: { step: { kind: 'cmd', text: `$ opspilot diagnose ${containerName}@${deviceName}` }, type: 'step' },
+          });
+          subscriber.next({
+            data: { step: { kind: 'sys', text: `connecting to ${deviceHost} via ssh` }, type: 'step' },
+          });
+          subscriber.next({
+            data: { step: { kind: 'sys', text: `fetching last ${this.config.logsTailLines} log lines` }, type: 'step' },
+          });
+
           const result = await this.fetchLogs(deviceId, containerName);
           if (result.code !== 0) {
             throw this.mapLogsError(deviceId, containerName, result.code, result.stderr);
@@ -86,14 +130,36 @@ export class DiagnoseService {
             .filter((stream) => stream.length > 0)
             .join('\n');
 
+          // honest received-counts off the assembled logs (one decimal KB).
+          const lineCount = logs.split('\n').length;
+          const kb = (Buffer.byteLength(logs) / 1024).toFixed(1);
+          subscriber.next({
+            data: { step: { kind: 'ok', text: `received ${lineCount} lines (${kb} KB)` }, type: 'step' },
+          });
+
           // streaming synthesis: partials fill the fixed schema, `object` resolves to the
           // validated final (or rejects NoObjectGeneratedError); bound by the generate
           // timeout + teardown controller. pass `system` only when the trimmed persona is
           // non-empty, so null / '' / whitespace-only all behave identically.
           const system = agentContext?.trim();
+          // analyzing/synthesizing milestones name the real resolved model · provider.
+          subscriber.next({
+            data: { step: { kind: 'sys', text: `analyzing with ${providerModel} · ${providerKind}` }, type: 'step' },
+          });
+          subscriber.next({ data: { step: { kind: 'sys', text: 'synthesizing assessment' }, type: 'step' } });
+
           // measure wall-clock around the synthesis so the avg-diagnose tile (s-05) has
           // real data: start before the stream opens, stop once `object` resolves.
           const startedAt = Date.now();
+          // progress heartbeat fills the inference dead-air: a periodically-updating
+          // elapsed-time frame the fe renders as one in-place "analyzing… Xs" line. gated
+          // on the teardown signal so a late tick never emits on a torn-down stream.
+          progress = setInterval(() => {
+            if (controller.signal.aborted) {
+              return;
+            }
+            subscriber.next({ data: { elapsedMs: Date.now() - startedAt, phase: 'analyzing', type: 'progress' } });
+          }, this.config.narrationTickMs);
           const { object, partialObjectStream } = streamObject({
             abortSignal: AbortSignal.any([AbortSignal.timeout(this.config.generateTimeoutMs), controller.signal]),
             model,
@@ -105,6 +171,12 @@ export class DiagnoseService {
           for await (const partial of partialObjectStream) {
             if (controller.signal.aborted) {
               return;
+            }
+            // first partial = ttft: synthesis content is now alive, so the progress line
+            // has done its job — stop it before the first `delta`.
+            if (progress !== undefined) {
+              clearInterval(progress);
+              progress = undefined;
             }
             subscriber.next({ data: { partial, type: 'delta' } });
           }
@@ -125,6 +197,16 @@ export class DiagnoseService {
             targetType: 'service',
             userId,
           });
+          // honest closing milestone before the done frame: real wall-clock + final status.
+          subscriber.next({
+            data: {
+              step: {
+                kind: 'result',
+                text: `done in ${(durationMs / 1000).toFixed(1)}s — status: ${synthesis.status}`,
+              },
+              type: 'step',
+            },
+          });
           subscriber.next({ data: { run: saved, type: 'done' } });
           subscriber.complete();
         } catch (error) {
@@ -136,8 +218,11 @@ export class DiagnoseService {
           subscriber.next({ data: { code, message, type: 'error' } });
           subscriber.complete();
         } finally {
-          // single teardown for the keep-alive across success, error, and the abort early-returns.
+          // single teardown for both timers across success, error, and the abort early-returns.
           clearInterval(heartbeat);
+          if (progress !== undefined) {
+            clearInterval(progress);
+          }
         }
       };
 
@@ -146,6 +231,9 @@ export class DiagnoseService {
       return () => {
         controller.abort();
         clearInterval(heartbeat);
+        if (progress !== undefined) {
+          clearInterval(progress);
+        }
       };
     });
   }

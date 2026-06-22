@@ -412,24 +412,24 @@ in Joi, so existing `.env` files keep working without it).
 
 #### Automated
 
-- [x] 1.1 Type checking passes across projects
-- [x] 1.2 Lint passes: `npx nx lint shared`
-- [x] 1.3 Shared unit tests pass: `npx nx test shared`
-- [x] 1.4 Parse test accepts valid `step`/`progress` frames and rejects unknown `kind` / negative `elapsedMs`
+- [x] 1.1 Type checking passes across projects — 154df8c
+- [x] 1.2 Lint passes: `npx nx lint shared` — 154df8c
+- [x] 1.3 Shared unit tests pass: `npx nx test shared` — 154df8c
+- [x] 1.4 Parse test accepts valid `step`/`progress` frames and rejects unknown `kind` / negative `elapsedMs` — 154df8c
 
 #### Manual
 
-- [x] 1.5 `RunNarrationEvent` widens with `step`/`progress`; `RunStep` importable from `@opspilot/shared`
+- [x] 1.5 `RunNarrationEvent` widens with `step`/`progress`; `RunStep` importable from `@opspilot/shared` — 154df8c
 
 ### Phase 2: API — honest step emission + progress heartbeat
 
 #### Automated
 
-- [ ] 2.1 Type checking passes: `npx nx typecheck api`
-- [ ] 2.2 Lint passes: `npx nx lint api`
-- [ ] 2.3 API unit tests pass: `npx nx test api`
-- [ ] 2.4 Env validation accepts missing `LLM_NARRATION_TICK_MS` (default) and rejects out-of-range
-- [ ] 2.5 Fake-timer progress test: progress frames during delayed inference, stop after first `delta`
+- [x] 2.1 Type checking passes: `npx nx typecheck api`
+- [x] 2.2 Lint passes: `npx nx lint api`
+- [x] 2.3 API unit tests pass: `npx nx test api`
+- [x] 2.4 Env validation accepts missing `LLM_NARRATION_TICK_MS` (default) and rejects out-of-range
+- [x] 2.5 Fake-timer progress test: progress frames during delayed inference, stop after first `delta`
 
 #### Manual
 
