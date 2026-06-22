@@ -336,11 +336,11 @@ None — web-only behavior fix, no schema or contract changes.
 
 #### Automated
 
-- [x] 3.1 Linting passes: `npx nx lint web`
-- [x] 3.2 Build passes: `npx nx build web`
-- [x] 3.3 Formatting clean: `npm run format:check`
+- [x] 3.1 Linting passes: `npx nx lint web` — 672c921
+- [x] 3.2 Build passes: `npx nx build web` — 672c921
+- [x] 3.3 Formatting clean: `npm run format:check` — 672c921
 
 #### Manual
 
-- [x] 3.4 Skill buttons visibly signal interactivity per the mockup
-- [x] 3.5 Skill button stays visually consistent with edit / open → siblings
+- [x] 3.4 Skill buttons visibly signal interactivity per the mockup — 672c921
+- [x] 3.5 Skill button stays visually consistent with edit / open → siblings — 672c921
