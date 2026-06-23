@@ -1,8 +1,13 @@
 # host artifact - NOT a repo/runtime file. upload to the synology nas at
 # /volume1/docker/opspilot/compose.yaml. staged here per deploy-plan.md phase 3.
-# no sibling .env needed: this stack does not run its own cloudflared - a shared
-# host-mode cloudflare-tunnel (its own TUNNEL_TOKEN) already fronts the nas and
-# routes opspilot.<domain> -> http://localhost:8080 via a cloudflare public hostname.
+# the stack does not run its own cloudflared - a shared host-mode cloudflare-tunnel
+# (its own TUNNEL_TOKEN) already fronts the nas and routes opspilot.<domain> ->
+# http://localhost:8080 via a cloudflare public hostname.
+#
+# a sibling .env IS required: the api validates BETTER_AUTH_SECRET, BETTER_AUTH_URL,
+# ENCRYPTION_KEY and TRUSTED_ORIGINS at boot (apps/api/src/config/env.schema.ts) and
+# fails fast if any is missing. create /volume1/docker/opspilot/.env (chmod 600);
+# deploy.sh leaves the remote .env intact on redeploys.
 #
 # first run on the host:
 #   cd /volume1/docker/opspilot
@@ -18,6 +23,10 @@ services:
     # nothing else on the lan should hit 8080 directly.
     ports:
       - '127.0.0.1:8080:8080'
+    # api secrets validated at boot by joi (better-auth + encryption key + origins).
+    # kept out of the repo; lives in the host-side .env (chmod 600, never committed).
+    env_file:
+      - .env
     # pin the sqlite path to the bind-mounted /data volume, independent of NODE_ENV.
     # without this the app falls back to ./data in the writable container layer and
     # loses the db on every container recreation (watchtower/redeploy).
@@ -32,7 +41,8 @@ services:
       - NET_ADMIN
     healthcheck:
       # busybox wget is present in nginx:alpine; no curl needed.
-      test: ['CMD-SHELL', 'wget -q --spider http://127.0.0.1:8080/api/ || exit 1']
+      # /api/ has no route (404); /api/health returns 200 {status:ok,db:up}.
+      test: ['CMD-SHELL', 'wget -q --spider http://127.0.0.1:8080/api/health || exit 1']
       interval: 30s
       timeout: 5s
       retries: 3

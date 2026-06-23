@@ -179,12 +179,12 @@
 
     <!-- DEVICES -->
     <sc-if value="{{ rDevices }}" hint-placeholder-val="{{ false }}">
-    <div data-screen-label="devices" style="max-width:1040px; padding:40px 44px 64px;">
+    <div data-screen-label="devices" style="max-width:1080px; padding:40px 44px 64px;">
       <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:6px;">
         <h1 style="margin:0; font-size:24px; font-weight:700; letter-spacing:-0.4px;">devices</h1>
         <button type="button" onClick="{{ onAddDevice }}" style="background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:9px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap;">+ add device</button>
       </div>
-      <p style="margin:0 0 26px; font-size:13.5px; color:#646262;">shared inventory of every device and its SSH credentials.</p>
+      <p style="margin:0 0 22px; font-size:13.5px; color:#646262;">every service across the fleet — filter by host or status, search the lot.</p>
 
       <sc-if value="{{ devEmpty }}" hint-placeholder-val="{{ false }}">
         <div style="border:1px solid rgba(15,0,0,0.12); padding:40px 20px; text-align:center;">
@@ -194,64 +194,68 @@
         </div>
       </sc-if>
 
-      <sc-for list="{{ devices }}" as="dev" hint-placeholder-count="3">
-        <div style="border:1px solid rgba(15,0,0,0.12); margin-bottom:18px;">
-          <div style="display:flex; align-items:center; gap:16px; padding:15px 18px; border-bottom:1px solid rgba(15,0,0,0.12);">
-            <div style="flex:1; min-width:0;">
-              <div style="display:flex; align-items:center; gap:9px;">
-                <span style="width:9px; height:9px; border-radius:9999px; flex:none; background:{{ dev.statusColor }};"></span>
-                <span style="font-size:15px; font-weight:700;">{{ dev.name }}</span>
-              </div>
-              <div style="font-size:11.5px; color:#646262; margin-top:3px; padding-left:18px;">{{ dev.host }}</div>
-            </div>
-            <div style="font-size:11px; color:#9a9898; text-align:right; line-height:1.6; flex:none;">
-              <div>created {{ dev.created }}</div>
-              <div>updated {{ dev.updated }}</div>
-            </div>
-            <div style="display:flex; gap:7px; flex:none;">
-              <button type="button" onClick="{{ dev.onEdit }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:5px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">edit</button>
-              <button type="button" onClick="{{ dev.onDelete }}" style="border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:5px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">delete</button>
-            </div>
-          </div>
+      <sc-if value="{{ devHasData }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
+        <sc-for list="{{ tblSvc.hosts }}" as="h" hint-placeholder-count="4">
+          <button type="button" onClick="{{ h.onClick }}" style="display:flex; align-items:center; gap:8px; border:1px solid {{ h.border }}; background:{{ h.bg }}; color:{{ h.fg }}; border-radius:5px; padding:6px 12px; font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer;">
+            <sc-if value="{{ h.hasDot }}" hint-placeholder-val="{{ true }}"><span style="width:8px; height:8px; border-radius:9999px; background:{{ h.dot }};"></span></sc-if>
+            <span>{{ h.name }}</span>
+            <span style="font-size:11px; font-weight:500; color:{{ h.countFg }};">{{ h.count }}</span>
+          </button>
+        </sc-for>
+      </div>
 
-          <div style="padding:14px 18px 16px; background:#f8f7f7;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
-              <div style="display:flex; align-items:baseline; gap:8px;">
-                <span style="font-size:13px; font-weight:700;">services</span>
-                <span style="font-size:11px; color:#9a9898;">{{ dev.svcCountLabel }}</span>
-              </div>
-              <button type="button" onClick="{{ dev.onScan }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:4px 14px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">scan</button>
-            </div>
-
-            <sc-if value="{{ dev.isEmpty }}" hint-placeholder-val="{{ false }}">
-              <p style="font-size:12.5px; color:#9a9898; margin:6px 0;">no managed services yet. scan the host to add some.</p>
-            </sc-if>
-
-            <sc-if value="{{ dev.hasServices }}" hint-placeholder-val="{{ true }}">
-              <div style="display:flex; gap:12px; padding:7px 2px; border-bottom:1px solid #646262; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262;">
-                <span style="width:14px; flex:none;"></span>
-                <span style="width:150px; flex:none;">name</span>
-                <span style="flex:1;">container</span>
-                <span style="width:92px; flex:none;">status</span>
-                <span style="flex:none;">actions</span>
-              </div>
-              <sc-for list="{{ dev.services }}" as="svc" hint-placeholder-count="4">
-                <div onClick="{{ svc.onOpenService }}" style="display:flex; gap:12px; align-items:center; padding:12px 2px; border-bottom:1px solid rgba(15,0,0,0.12); cursor:pointer;" style-hover="background:rgba(15,0,0,0.035);">
-                  <span style="width:14px; flex:none; display:flex; justify-content:center;"><span style="width:8px; height:8px; border-radius:9999px; background:{{ svc.statusColor }};"></span></span>
-                  <span style="width:150px; flex:none; font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ svc.name }}</span>
-                  <span style="flex:1; min-width:0; font-size:12.5px; color:#424245; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ svc.containerName }}</span>
-                  <span style="width:92px; flex:none; font-size:11.5px; color:{{ svc.statusColor }};">{{ svc.statusLabel }}</span>
-                  <span style="flex:none; display:flex; gap:7px; align-items:center;">
-                    <button type="button" onClick="{{ svc.onEdit }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:4px 12px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">edit</button>
-                    <button type="button" onClick="{{ svc.onDelete }}" style="border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:4px 12px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">delete</button>
-                    <span style="color:#c9c6c6; font-size:15px; padding:0 2px;">›</span>
-                  </span>
-                </div>
-              </sc-for>
-            </sc-if>
-          </div>
+      <sc-if value="{{ tblSvc.hasActiveHost }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; border:1px solid rgba(15,0,0,0.12); border-bottom:none; background:#f8f7f7; font-size:12px;">
+          <span style="color:#646262;">managing <span style="color:#201d1d; font-weight:700;">{{ tblSvc.activeName }}</span> · {{ tblSvc.activeHost }}</span>
+          <span style="display:flex; gap:7px;">
+            <button type="button" onClick="{{ tblSvc.onScanActive }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:4px 12px; font-family:inherit; font-size:11.5px; font-weight:500; cursor:pointer;">scan</button>
+            <button type="button" onClick="{{ tblSvc.onEditActive }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:4px 12px; font-family:inherit; font-size:11.5px; font-weight:500; cursor:pointer;">edit host</button>
+            <button type="button" onClick="{{ tblSvc.onDeleteActive }}" style="border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:4px 12px; font-family:inherit; font-size:11.5px; font-weight:500; cursor:pointer;">delete host</button>
+          </span>
         </div>
-      </sc-for>
+      </sc-if>
+
+      <div style="display:flex; gap:9px; align-items:center; padding:12px 14px; border:1px solid rgba(15,0,0,0.12); border-bottom:none; background:#fdfcfc;">
+        <div style="position:relative; flex:1; min-width:0;"><span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:13px; color:#9a9898; pointer-events:none;">/</span><input value="{{ tblSvc.q }}" onInput="{{ tblSvc.onQ }}" placeholder="search every service, container or host…" style="width:100%; height:36px; border:1px solid rgba(15,0,0,0.14); background:#f8f7f7; border-radius:4px; padding:8px 12px 8px 25px; font-family:inherit; font-size:13px; color:#201d1d;"></div>
+        <select value="{{ tblSvc.status }}" onChange="{{ tblSvc.onStatus }}" style="height:36px; border:1px solid rgba(15,0,0,0.14); background:#f8f7f7; border-radius:4px; padding:0 11px; font-family:inherit; font-size:12.5px; color:#201d1d;"><option value="all">all status</option><option value="healthy">healthy</option><option value="degraded">degraded</option><option value="down">down</option></select>
+      </div>
+
+      <div style="border:1px solid rgba(15,0,0,0.12);">
+        <div style="display:flex; gap:14px; padding:8px 18px; background:#f8f7f7; border-bottom:1px solid #646262; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262;">
+          <span onClick="{{ tblSvc.onSortStatus }}" style="width:14px; flex:none; cursor:pointer;">·<span style="color:#201d1d;">{{ tblSvc.cStatus }}</span></span>
+          <span onClick="{{ tblSvc.onSortName }}" style="width:150px; flex:none; cursor:pointer; user-select:none;">service <span style="color:#201d1d;">{{ tblSvc.cName }}</span></span>
+          <span onClick="{{ tblSvc.onSortDevice }}" style="width:130px; flex:none; cursor:pointer; user-select:none;">device <span style="color:#201d1d;">{{ tblSvc.cDevice }}</span></span>
+          <span onClick="{{ tblSvc.onSortContainer }}" style="flex:1; cursor:pointer; user-select:none;">container <span style="color:#201d1d;">{{ tblSvc.cContainer }}</span></span>
+          <span style="width:130px; flex:none;">compose</span>
+          <span style="width:96px; flex:none; text-align:right;">actions</span>
+        </div>
+        <sc-if value="{{ tblSvc.empty }}" hint-placeholder-val="{{ false }}"><div style="padding:34px 18px; text-align:center; font-size:12.5px; color:#9a9898;">no services match these filters.</div></sc-if>
+        <sc-for list="{{ tblSvc.rows }}" as="r" hint-placeholder-count="10">
+          <div onClick="{{ r.onOpen }}" style="display:flex; gap:14px; align-items:center; padding:7px 18px; border-bottom:1px solid rgba(15,0,0,0.08); cursor:pointer;" style-hover="background:rgba(15,0,0,0.025);">
+            <span style="width:14px; flex:none; display:flex; justify-content:center;"><span style="width:8px; height:8px; border-radius:9999px; background:{{ r.dot }};"></span></span>
+            <span style="width:150px; flex:none; font-size:12.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ r.name }}</span>
+            <span style="width:130px; flex:none; font-size:11.5px; color:#424245; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ r.device }}</span>
+            <span style="flex:1; min-width:0; font-size:11.5px; color:#646262; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ r.container }}</span>
+            <span style="width:130px; flex:none; font-size:11px; color:#9a9898; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ r.compose }}</span>
+            <span style="width:96px; flex:none; display:flex; gap:6px; justify-content:flex-end;">
+              <button type="button" onClick="{{ r.onEdit }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:3px 10px; font-family:inherit; font-size:11px; font-weight:500; cursor:pointer;">edit</button>
+              <button type="button" onClick="{{ r.onDelete }}" style="border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:3px 10px; font-family:inherit; font-size:11px; font-weight:500; cursor:pointer;">del</button>
+            </span>
+          </div>
+        </sc-for>
+        <div style="padding:11px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <span style="font-size:11.5px; color:#9a9898;">{{ tblSvc.count }}</span>
+          <sc-if value="{{ tblSvc.showPager }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; gap:5px; align-items:center;">
+              <button type="button" onClick="{{ tblSvc.onPrev }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:{{ tblSvc.prevFg }}; border-radius:4px; padding:5px 10px; font-family:inherit; font-size:11.5px; cursor:{{ tblSvc.prevCur }};">‹ prev</button>
+              <sc-for list="{{ tblSvc.pages }}" as="p" hint-placeholder-count="0"><button type="button" onClick="{{ p.onClick }}" style="border:1px solid rgba(15,0,0,0.16); background:{{ p.bg }}; color:{{ p.fg }}; border-radius:4px; min-width:28px; padding:5px 7px; font-family:inherit; font-size:11.5px; font-weight:600; cursor:pointer;">{{ p.n }}</button></sc-for>
+              <button type="button" onClick="{{ tblSvc.onNext }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:{{ tblSvc.nextFg }}; border-radius:4px; padding:5px 10px; font-family:inherit; font-size:11.5px; cursor:{{ tblSvc.nextCur }};">next ›</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+      </sc-if>
     </div>
     </sc-if>
 
@@ -396,7 +400,7 @@
         <h1 style="margin:0; font-size:24px; font-weight:700; letter-spacing:-0.4px;">skills</h1>
         <button type="button" onClick="{{ onAddSkill }}" style="background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:9px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap;">+ add skill</button>
       </div>
-      <p style="margin:0 0 26px; font-size:13.5px; color:#646262;">parameterized commands the agent may run — global or scoped to one host.</p>
+      <p style="margin:0 0 22px; font-size:13.5px; color:#646262;">parameterized commands the agent may run — global or scoped to one host.</p>
 
       <sc-if value="{{ skillsEmpty }}" hint-placeholder-val="{{ false }}">
         <div style="border:1px solid rgba(15,0,0,0.12); padding:48px 18px; text-align:center;">
@@ -406,26 +410,41 @@
       </sc-if>
 
       <sc-if value="{{ skillsHasData }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; gap:9px; align-items:center; padding:12px 14px; border:1px solid rgba(15,0,0,0.12); border-bottom:none; background:#fdfcfc;">
+        <div style="position:relative; flex:1; min-width:0;"><span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:13px; color:#9a9898; pointer-events:none;">/</span><input value="{{ tblSkills.q }}" onInput="{{ tblSkills.onQ }}" placeholder="search name or command…" style="width:100%; height:36px; border:1px solid rgba(15,0,0,0.14); background:#f8f7f7; border-radius:4px; padding:8px 12px 8px 25px; font-family:inherit; font-size:13px; color:#201d1d;"></div>
+        <select value="{{ tblSkills.scope }}" onChange="{{ tblSkills.onScope }}" style="height:36px; border:1px solid rgba(15,0,0,0.14); background:#f8f7f7; border-radius:4px; padding:0 11px; font-family:inherit; font-size:12.5px; color:#201d1d;"><option value="all">all scopes</option><option value="global">global</option><option value="host">host-scoped</option></select>
+      </div>
       <div style="border:1px solid rgba(15,0,0,0.12);">
-        <div style="display:flex; gap:16px; padding:11px 18px; border-bottom:1px solid #646262; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262;">
-          <span style="width:130px; flex:none;">name</span>
-          <span style="width:120px; flex:none;">scope</span>
+        <div style="display:flex; gap:16px; padding:8px 18px; background:#f8f7f7; border-bottom:1px solid #646262; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262;">
+          <span onClick="{{ tblSkills.onSortName }}" style="width:140px; flex:none; cursor:pointer; user-select:none;">name <span style="color:#201d1d;">{{ tblSkills.cName }}</span></span>
+          <span onClick="{{ tblSkills.onSortScope }}" style="width:120px; flex:none; cursor:pointer; user-select:none;">scope <span style="color:#201d1d;">{{ tblSkills.cScope }}</span></span>
           <span style="flex:1;">command</span>
-          <span style="width:74px; flex:none;">params</span>
-          <span style="flex:none;">actions</span>
+          <span onClick="{{ tblSkills.onSortParams }}" style="width:64px; flex:none; cursor:pointer; user-select:none; text-align:right;">params <span style="color:#201d1d;">{{ tblSkills.cParams }}</span></span>
+          <span style="width:112px; flex:none; text-align:right;">actions</span>
         </div>
-        <sc-for list="{{ skills }}" as="sk" hint-placeholder-count="7">
-          <div style="display:flex; gap:16px; align-items:center; padding:13px 18px; border-bottom:1px solid rgba(15,0,0,0.12);">
-            <span style="width:130px; flex:none; font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ sk.name }}</span>
-            <div style="width:120px; flex:none;"><span style="font-size:11.5px; border:1px solid {{ sk.scopeBorder }}; color:{{ sk.scopeFg }}; border-radius:4px; padding:2px 8px;">{{ sk.scope }}</span></div>
-            <span style="flex:1; font-size:12.5px; color:#424245; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ sk.cmd }}</span>
-            <span style="width:74px; flex:none; font-size:12px; color:#646262;">{{ sk.params }}</span>
-            <span style="flex:none; display:flex; gap:8px;">
-              <button type="button" onClick="{{ sk.onEdit }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:5px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">edit</button>
-              <button type="button" onClick="{{ sk.onDelete }}" style="border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:5px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">delete</button>
+        <sc-if value="{{ tblSkills.empty }}" hint-placeholder-val="{{ false }}"><div style="padding:30px 18px; text-align:center; font-size:12.5px; color:#9a9898;">no skills match.</div></sc-if>
+        <sc-for list="{{ tblSkills.rows }}" as="sk" hint-placeholder-count="7">
+          <div style="display:flex; gap:16px; align-items:center; padding:8px 18px; border-bottom:1px solid rgba(15,0,0,0.08);" style-hover="background:rgba(15,0,0,0.025);">
+            <span style="width:140px; flex:none; font-size:12.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ sk.name }}</span>
+            <div style="width:120px; flex:none;"><span style="font-size:11px; border:1px solid {{ sk.scopeBorder }}; color:{{ sk.scopeFg }}; border-radius:4px; padding:2px 8px; white-space:nowrap;">{{ sk.scope }}</span></div>
+            <span style="flex:1; font-size:11.5px; color:#646262; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ sk.cmd }}</span>
+            <span style="width:64px; flex:none; text-align:right; font-size:11.5px; color:#646262;">{{ sk.params }}</span>
+            <span style="width:112px; flex:none; display:flex; gap:6px; justify-content:flex-end;">
+              <button type="button" onClick="{{ sk.onEdit }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:3px 11px; font-family:inherit; font-size:11px; font-weight:500; cursor:pointer;">edit</button>
+              <button type="button" onClick="{{ sk.onDelete }}" style="border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:3px 11px; font-family:inherit; font-size:11px; font-weight:500; cursor:pointer;">del</button>
             </span>
           </div>
         </sc-for>
+        <div style="padding:11px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <span style="font-size:11.5px; color:#9a9898;">{{ tblSkills.count }}</span>
+          <sc-if value="{{ tblSkills.showPager }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; gap:5px; align-items:center;">
+              <button type="button" onClick="{{ tblSkills.onPrev }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:{{ tblSkills.prevFg }}; border-radius:4px; padding:5px 10px; font-family:inherit; font-size:11.5px; cursor:{{ tblSkills.prevCur }};">‹ prev</button>
+              <sc-for list="{{ tblSkills.pages }}" as="p" hint-placeholder-count="0"><button type="button" onClick="{{ p.onClick }}" style="border:1px solid rgba(15,0,0,0.16); background:{{ p.bg }}; color:{{ p.fg }}; border-radius:4px; min-width:28px; padding:5px 7px; font-family:inherit; font-size:11.5px; font-weight:600; cursor:pointer;">{{ p.n }}</button></sc-for>
+              <button type="button" onClick="{{ tblSkills.onNext }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:{{ tblSkills.nextFg }}; border-radius:4px; padding:5px 10px; font-family:inherit; font-size:11.5px; cursor:{{ tblSkills.nextCur }};">next ›</button>
+            </div>
+          </sc-if>
+        </div>
       </div>
       </sc-if>
     </div>
@@ -438,7 +457,7 @@
         <h1 style="margin:0; font-size:24px; font-weight:700; letter-spacing:-0.4px;">llm providers</h1>
         <button type="button" onClick="{{ onAddProvider }}" style="background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:9px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap;">+ add provider</button>
       </div>
-      <p style="margin:0 0 26px; font-size:13.5px; color:#646262;">your own endpoints and keys — exactly one is active.</p>
+      <p style="margin:0 0 22px; font-size:13.5px; color:#646262;">your own endpoints and keys — exactly one is active.</p>
 
       <sc-if value="{{ providersEmpty }}" hint-placeholder-val="{{ false }}">
         <div style="border:1px solid rgba(15,0,0,0.12); padding:48px 18px; text-align:center;">
@@ -447,24 +466,45 @@
         </div>
       </sc-if>
 
-      <sc-for list="{{ providers }}" as="pr" hint-placeholder-count="3">
-        <div style="border:1px solid {{ pr.border }}; padding:18px 20px; margin-bottom:12px; display:flex; align-items:center; gap:18px;">
-          <span style="width:9px; height:9px; border-radius:9999px; flex:none; background:{{ pr.dot }};"></span>
-          <div style="flex:1; min-width:0;">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span style="font-size:14.5px; font-weight:700;">{{ pr.base }}</span>
-              <span style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:{{ pr.statusFg }};">{{ pr.statusLabel }}</span>
-            </div>
-            <div style="font-size:12px; color:#646262; margin-top:3px;">{{ pr.model }} · {{ pr.kind }}</div>
-          </div>
-          <span style="font-size:11.5px; color:#9a9898; flex:none;">updated {{ pr.updated }}</span>
-          <div style="display:flex; gap:7px; flex:none;">
-            <sc-if value="{{ pr.canActivate }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ pr.onActivate }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:5px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">activate</button></sc-if>
-            <button type="button" onClick="{{ pr.onEdit }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:#424245; border-radius:4px; padding:5px 10px; font-family:inherit; font-size:12px; cursor:pointer;">edit</button>
-            <button type="button" onClick="{{ pr.onDelete }}" style="border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:5px 10px; font-family:inherit; font-size:12px; cursor:pointer;">delete</button>
-          </div>
+      <sc-if value="{{ providersHasData }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; gap:9px; align-items:center; padding:12px 14px; border:1px solid rgba(15,0,0,0.12); border-bottom:none; background:#fdfcfc;">
+        <div style="position:relative; flex:1; min-width:0;"><span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:13px; color:#9a9898; pointer-events:none;">/</span><input value="{{ tblProv.q }}" onInput="{{ tblProv.onQ }}" placeholder="search endpoint or model…" style="width:100%; height:36px; border:1px solid rgba(15,0,0,0.14); background:#f8f7f7; border-radius:4px; padding:8px 12px 8px 25px; font-family:inherit; font-size:13px; color:#201d1d;"></div>
+        <select value="{{ tblProv.status }}" onChange="{{ tblProv.onStatus }}" style="height:36px; border:1px solid rgba(15,0,0,0.14); background:#f8f7f7; border-radius:4px; padding:0 11px; font-family:inherit; font-size:12.5px; color:#201d1d;"><option value="all">all</option><option value="active">active</option><option value="inactive">inactive</option></select>
+      </div>
+      <div style="border:1px solid rgba(15,0,0,0.12);">
+        <div style="display:flex; gap:14px; padding:8px 18px; background:#f8f7f7; border-bottom:1px solid #646262; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262;">
+          <span style="width:90px; flex:none;">status</span>
+          <span onClick="{{ tblProv.onSortBase }}" style="flex:1; cursor:pointer; user-select:none;">endpoint <span style="color:#201d1d;">{{ tblProv.cBase }}</span></span>
+          <span onClick="{{ tblProv.onSortModel }}" style="width:160px; flex:none; cursor:pointer; user-select:none;">model <span style="color:#201d1d;">{{ tblProv.cModel }}</span></span>
+          <span onClick="{{ tblProv.onSortUpdated }}" style="width:120px; flex:none; cursor:pointer; user-select:none;">updated <span style="color:#201d1d;">{{ tblProv.cUpdated }}</span></span>
+          <span style="width:170px; flex:none; text-align:right;">actions</span>
         </div>
-      </sc-for>
+        <sc-if value="{{ tblProv.empty }}" hint-placeholder-val="{{ false }}"><div style="padding:30px 18px; text-align:center; font-size:12.5px; color:#9a9898;">no providers match.</div></sc-if>
+        <sc-for list="{{ tblProv.rows }}" as="pr" hint-placeholder-count="3">
+          <div style="display:flex; gap:14px; align-items:center; padding:9px 18px; border-bottom:1px solid rgba(15,0,0,0.08);" style-hover="background:rgba(15,0,0,0.025);">
+            <span style="width:90px; flex:none; display:flex; align-items:center; gap:7px;"><span style="width:8px; height:8px; border-radius:9999px; background:{{ pr.dot }};"></span><span style="font-size:11px; color:{{ pr.statusFg }};">{{ pr.statusLabel }}</span></span>
+            <span style="flex:1; min-width:0; font-size:12.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ pr.base }}</span>
+            <span style="width:160px; flex:none; font-size:11.5px; color:#646262; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ pr.model }}</span>
+            <span style="width:120px; flex:none; font-size:11px; color:#9a9898;">{{ pr.updated }}</span>
+            <span style="width:170px; flex:none; display:flex; gap:6px; justify-content:flex-end;">
+              <sc-if value="{{ pr.canActivate }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ pr.onActivate }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:3px 11px; font-family:inherit; font-size:11px; font-weight:500; cursor:pointer;">activate</button></sc-if>
+              <button type="button" onClick="{{ pr.onEdit }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:#424245; border-radius:4px; padding:3px 10px; font-family:inherit; font-size:11px; cursor:pointer;">edit</button>
+              <button type="button" onClick="{{ pr.onDelete }}" style="border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:3px 10px; font-family:inherit; font-size:11px; cursor:pointer;">del</button>
+            </span>
+          </div>
+        </sc-for>
+        <div style="padding:11px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <span style="font-size:11.5px; color:#9a9898;">{{ tblProv.count }}</span>
+          <sc-if value="{{ tblProv.showPager }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; gap:5px; align-items:center;">
+              <button type="button" onClick="{{ tblProv.onPrev }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:{{ tblProv.prevFg }}; border-radius:4px; padding:5px 10px; font-family:inherit; font-size:11.5px; cursor:{{ tblProv.prevCur }};">‹ prev</button>
+              <sc-for list="{{ tblProv.pages }}" as="p" hint-placeholder-count="0"><button type="button" onClick="{{ p.onClick }}" style="border:1px solid rgba(15,0,0,0.16); background:{{ p.bg }}; color:{{ p.fg }}; border-radius:4px; min-width:28px; padding:5px 7px; font-family:inherit; font-size:11.5px; font-weight:600; cursor:pointer;">{{ p.n }}</button></sc-for>
+              <button type="button" onClick="{{ tblProv.onNext }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:{{ tblProv.nextFg }}; border-radius:4px; padding:5px 10px; font-family:inherit; font-size:11.5px; cursor:{{ tblProv.nextCur }};">next ›</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+      </sc-if>
     </div>
     </sc-if>
 
@@ -472,7 +512,7 @@
     <sc-if value="{{ rAudit }}" hint-placeholder-val="{{ false }}">
     <div data-screen-label="audit" style="max-width:1040px; padding:40px 44px 64px;">
       <h1 style="margin:0; font-size:24px; font-weight:700; letter-spacing:-0.4px;">audit log</h1>
-      <p style="margin:6px 0 26px; font-size:13.5px; color:#646262;">every operational action and agent run, newest first. diagnose runs expand to their full synthesis.</p>
+      <p style="margin:6px 0 22px; font-size:13.5px; color:#646262;">every operational action and agent run. diagnose runs expand to their full synthesis.</p>
 
       <sc-if value="{{ auditEmpty }}" hint-placeholder-val="{{ false }}">
         <div style="border:1px solid rgba(15,0,0,0.12); padding:48px 18px; text-align:center;">
@@ -481,47 +521,64 @@
       </sc-if>
 
       <sc-if value="{{ auditHasData }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; gap:9px; align-items:center; padding:12px 14px; border:1px solid rgba(15,0,0,0.12); border-bottom:none; background:#fdfcfc;">
+        <div style="position:relative; flex:1; min-width:0;"><span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:13px; color:#9a9898; pointer-events:none;">/</span><input value="{{ tblAudit.q }}" onInput="{{ tblAudit.onQ }}" placeholder="search action or target…" style="width:100%; height:36px; border:1px solid rgba(15,0,0,0.14); background:#f8f7f7; border-radius:4px; padding:8px 12px 8px 25px; font-family:inherit; font-size:13px; color:#201d1d;"></div>
+        <select value="{{ tblAudit.action }}" onChange="{{ tblAudit.onAction }}" style="height:36px; border:1px solid rgba(15,0,0,0.14); background:#f8f7f7; border-radius:4px; padding:0 11px; font-family:inherit; font-size:12.5px; color:#201d1d;"><sc-for list="{{ tblAudit.actionOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.value }}">{{ o.label }}</option></sc-for></select>
+      </div>
       <div style="border:1px solid rgba(15,0,0,0.12);">
-        <div style="display:flex; gap:16px; padding:11px 18px; border-bottom:1px solid #646262; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262;">
-          <span style="width:150px; flex:none;">time</span>
-          <span style="width:170px; flex:none;">action</span>
+        <div style="display:flex; gap:14px; padding:8px 18px; background:#f8f7f7; border-bottom:1px solid #646262; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262;">
+          <span onClick="{{ tblAudit.onSortTime }}" style="width:150px; flex:none; cursor:pointer; user-select:none;">time <span style="color:#201d1d;">{{ tblAudit.cTime }}</span></span>
+          <span onClick="{{ tblAudit.onSortAction }}" style="width:160px; flex:none; cursor:pointer; user-select:none;">action <span style="color:#201d1d;">{{ tblAudit.cAction }}</span></span>
           <span style="flex:1;">target</span>
-          <span style="width:70px; flex:none; text-align:right;">detail</span>
+          <span style="width:96px; flex:none;">result</span>
+          <span style="width:50px; flex:none; text-align:right;">detail</span>
         </div>
-        <sc-for list="{{ audit }}" as="ev" hint-placeholder-count="7">
+        <sc-if value="{{ tblAudit.empty }}" hint-placeholder-val="{{ false }}"><div style="padding:30px 18px; text-align:center; font-size:12.5px; color:#9a9898;">no events match.</div></sc-if>
+        <sc-for list="{{ tblAudit.rows }}" as="ev" hint-placeholder-count="8">
           <div>
-            <div onClick="{{ ev.onToggle }}" style="display:flex; gap:16px; align-items:center; padding:13px 18px; border-bottom:1px solid rgba(15,0,0,0.12); cursor:{{ ev.cursor }};">
-              <span style="width:150px; flex:none; font-size:12px; color:#9a9898;">{{ ev.time }}</span>
-              <span style="width:170px; flex:none; font-size:13px; font-weight:600;">{{ ev.action }}</span>
-              <span style="flex:1; font-size:12.5px; color:#646262;">{{ ev.target }}</span>
-              <span style="width:70px; flex:none; text-align:right; font-size:12px; color:#646262;">{{ ev.detail }}</span>
+            <div onClick="{{ ev.onToggle }}" style="display:flex; gap:14px; align-items:center; padding:8px 18px; border-bottom:1px solid rgba(15,0,0,0.08); cursor:{{ ev.cursor }};" style-hover="background:rgba(15,0,0,0.02);">
+              <span style="width:150px; flex:none; font-size:11.5px; color:#9a9898;">{{ ev.time }}</span>
+              <span style="width:160px; flex:none; font-size:12.5px; font-weight:600;">{{ ev.action }}</span>
+              <span style="flex:1; min-width:0; font-size:11.5px; color:#646262; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ ev.target }}</span>
+              <span style="width:96px; flex:none; font-size:11px; font-weight:600; color:{{ ev.rfg }};">{{ ev.result }}</span>
+              <span style="width:50px; flex:none; text-align:right; font-size:11px; color:#646262;">{{ ev.detail }}</span>
             </div>
             <sc-if value="{{ ev.open }}" hint-placeholder-val="{{ false }}">
-              <div style="padding:18px 22px; background:#f8f7f7; border-bottom:1px solid rgba(15,0,0,0.12); animation:opFade 0.2s ease both;">
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+              <div style="padding:16px 22px; background:#f8f7f7; border-bottom:1px solid rgba(15,0,0,0.12); animation:opFade 0.2s ease both;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
                   <span style="font-size:10.5px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:2px 9px; border-radius:4px; color:#fdfcfc; background:{{ ev.badgeBg }};">{{ ev.status }}</span>
-                  <span style="font-size:14px; color:#201d1d;">{{ ev.summary }}</span>
+                  <span style="font-size:13.5px; color:#201d1d;">{{ ev.summary }}</span>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
                   <div>
-                    <div style="font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#a8700a; margin-bottom:6px;">problems</div>
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#a8700a; margin-bottom:6px;">problems</div>
                     <sc-for list="{{ ev.problems }}" as="p" hint-placeholder-count="2">
-                      <div style="display:flex; gap:8px; padding:4px 0; font-size:12.5px; color:#424245;"><span style="color:#ff3b30; flex:none; font-weight:700;">[x]</span><span>{{ p }}</span></div>
+                      <div style="display:flex; gap:8px; padding:4px 0; font-size:12px; color:#424245;"><span style="color:#ff3b30; flex:none; font-weight:700;">[x]</span><span>{{ p }}</span></div>
                     </sc-for>
-                    <sc-if value="{{ ev.noProblems }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px; color:#9a9898;">none detected.</div></sc-if>
+                    <sc-if value="{{ ev.noProblems }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#9a9898;">none detected.</div></sc-if>
                   </div>
                   <div>
-                    <div style="font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#1f8a4e; margin-bottom:6px;">suggestions</div>
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#1f8a4e; margin-bottom:6px;">suggestions</div>
                     <sc-for list="{{ ev.suggestions }}" as="s" hint-placeholder-count="2">
-                      <div style="display:flex; gap:8px; padding:4px 0; font-size:12.5px; color:#424245;"><span style="color:#1f8a4e; flex:none; font-weight:700;">[+]</span><span>{{ s }}</span></div>
+                      <div style="display:flex; gap:8px; padding:4px 0; font-size:12px; color:#424245;"><span style="color:#1f8a4e; flex:none; font-weight:700;">[+]</span><span>{{ s }}</span></div>
                     </sc-for>
-                    <sc-if value="{{ ev.noSuggestions }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px; color:#9a9898;">none.</div></sc-if>
+                    <sc-if value="{{ ev.noSuggestions }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:#9a9898;">none.</div></sc-if>
                   </div>
                 </div>
               </div>
             </sc-if>
           </div>
         </sc-for>
+        <div style="padding:11px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <span style="font-size:11.5px; color:#9a9898;">{{ tblAudit.count }}</span>
+          <sc-if value="{{ tblAudit.showPager }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; gap:5px; align-items:center;">
+              <button type="button" onClick="{{ tblAudit.onPrev }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:{{ tblAudit.prevFg }}; border-radius:4px; padding:5px 10px; font-family:inherit; font-size:11.5px; cursor:{{ tblAudit.prevCur }};">‹ prev</button>
+              <sc-for list="{{ tblAudit.pages }}" as="p" hint-placeholder-count="0"><button type="button" onClick="{{ p.onClick }}" style="border:1px solid rgba(15,0,0,0.16); background:{{ p.bg }}; color:{{ p.fg }}; border-radius:4px; min-width:28px; padding:5px 7px; font-family:inherit; font-size:11.5px; font-weight:600; cursor:pointer;">{{ p.n }}</button></sc-for>
+              <button type="button" onClick="{{ tblAudit.onNext }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:{{ tblAudit.nextFg }}; border-radius:4px; padding:5px 10px; font-family:inherit; font-size:11.5px; cursor:{{ tblAudit.nextCur }};">next ›</button>
+            </div>
+          </sc-if>
+        </div>
       </div>
       </sc-if>
     </div>
@@ -778,6 +835,12 @@ class Component extends DCLogic {
       svcDeleted: {},
       svcExtra: {},
       svcNameOverride: {},
+      tbl: {
+        services: { q:'', device:'all', status:'all', sort:{ key:'status', dir:'asc' }, page:1 },
+        skills:   { q:'', scope:'all', sort:{ key:'name', dir:'asc' }, page:1 },
+        providers:{ q:'', status:'all', sort:{ key:'updated', dir:'desc' }, page:1 },
+        audit:    { q:'', action:'all', sort:{ key:'time', dir:'desc' }, page:1 },
+      },
     };
     // run-step prefix glyph + line color (run-step.schema kinds; fe owns styling)
     this.PRE = { cmd:'$', sys:'\u00b7', ok:'+', warn:'!', result:'=' };
@@ -1061,6 +1124,25 @@ class Component extends DCLogic {
   // ===================== AUDIT =====================
   toggleAudit(id){ this.setState(s => ({ auditOpen: s.auditOpen === id ? null : id })); }
 
+  // ===================== TABLE ENGINE (client search / sort / filter / pagination) =====================
+  statusRank(s){ return ({ down:0, degraded:1, healthy:2, unknown:3 })[s] ?? 3; }
+  effectiveServices(){ const out=[]; for(const d of this.effectiveDevices()) for(const s of d.services) out.push({ ...s, deviceId:d.id, deviceName:d.name, host:d.host }); return out; }
+  sortRows(rows, sort, getters){ const g=getters[sort.key]||(r=>r[sort.key]); const dir=sort.dir==='desc'?-1:1; return [...rows].sort((a,b)=>{ const x=g(a), y=g(b); if(x<y) return -1*dir; if(x>y) return 1*dir; return 0; }); }
+  paginate(rows, page, size){ const total=rows.length; const pages=Math.max(1, Math.ceil(total/size)); const p=Math.min(Math.max(1,page), pages); const start=(p-1)*size; const slice=rows.slice(start, start+size); const pageNums=[]; for(let i=1;i<=pages;i++) pageNums.push(i); return { slice, total, pages, page:p, start, end:Math.min(start+size,total), pageNums }; }
+  caret(sort, key){ return sort.key===key ? (sort.dir==='asc'?'\u25b2':'\u25bc') : ''; }
+  pager(id, pg){ return {
+    count:'showing '+(pg.total===0?0:pg.start+1)+'\u2013'+pg.end+' of '+pg.total,
+    showPager: pg.pages>1,
+    pages: pg.pageNums.map(n => ({ n:String(n), bg:n===pg.page?'#201d1d':'#fdfcfc', fg:n===pg.page?'#fdfcfc':'#424245', onClick:()=>this.setPage(id,n) })),
+    prevFg: pg.page<=1?'#c9c6c6':'#424245', prevCur: pg.page<=1?'default':'pointer', onPrev:()=>this.setPage(id, pg.page-1),
+    nextFg: pg.page>=pg.pages?'#c9c6c6':'#424245', nextCur: pg.page>=pg.pages?'default':'pointer', onNext:()=>this.setPage(id, pg.page+1),
+  }; }
+  setTbl(id, patch){ this.setState(s => ({ tbl:{ ...s.tbl, [id]:{ ...s.tbl[id], ...patch } } })); }
+  setPage(id, p){ this.setTbl(id, { page:p }); }
+  setQ(id, e){ this.setTbl(id, { q: e&&e.target?e.target.value:'', page:1 }); }
+  setSel(id, key, e){ this.setTbl(id, { [key]: e&&e.target?e.target.value:'', page:1 }); }
+  toggleSort(id, key){ this.setState(s => { const cur=s.tbl[id].sort; const dir = cur.key===key && cur.dir==='asc' ? 'desc' : 'asc'; return { tbl:{ ...s.tbl, [id]:{ ...s.tbl[id], sort:{ key, dir }, page:1 } } }; }); }
+
   // ===================== RENDER =====================
   renderVals(){
     const av = this.props.authView || 'app';
@@ -1106,27 +1188,35 @@ class Component extends DCLogic {
     });
     const ovEmpty = !pop || eff.length === 0;
 
-    // ---------- DEVICES + SERVICES ----------
-    const devices = eff.map(dev => {
-      const services = dev.services.map(svc => {
-        const st = svc.outcome || 'healthy';
-        return {
-          name:svc.name, containerName:svc.containerName,
-          statusColor:this.dotText(st), statusLabel:st,
-          onOpenService:() => this.openService(dev, svc),
-          onEdit:(e) => { if(e&&e.stopPropagation) e.stopPropagation(); this.openRename(svc); },
-          onDelete:(e) => { if(e&&e.stopPropagation) e.stopPropagation(); this.deleteServiceConfirm(svc); },
-        };
-      });
-      const dStatus = dev.services.length ? this.worstStatus(dev.services) : 'unknown';
-      return {
-        name:dev.name, host:dev.host, created:this.fmtShort(dev.createdAt), updated:this.fmtShort(dev.updatedAt),
-        statusColor:this.fleetDot(dStatus),
-        svcCountLabel: services.length+' managed', isEmpty: services.length===0, hasServices: services.length>0, services,
-        onEdit:() => this.openModal('device','edit',{ name:dev.name, host:dev.host, ctx:dev.agentContext, user:'root', authType:'key' }),
-        onDelete:() => this.deleteDeviceConfirm(dev), onScan:() => this.openScan(dev),
-      };
-    });
+    // ---------- DEVICES \u00b7 UNIFIED FLEET TABLE ----------
+    const sCfg = this.state.tbl.services;
+    const allSvc = this.effectiveServices();
+    const hosts = [{ id:'all', name:'all hosts', count:allSvc.length, dot:null, isAll:true }].concat(
+      eff.map(d => ({ id:d.id, name:d.name, count:d.services.length, dot:this.fleetDot(d.services.length?this.worstStatus(d.services):'unknown'), isAll:false }))
+    ).map(h => ({ name:h.name, count: h.isAll ? String(h.count)+' services' : String(h.count), hasDot:!h.isAll, dot:h.dot,
+      bg: sCfg.device===h.id?'#201d1d':'#fdfcfc', fg: sCfg.device===h.id?'#fdfcfc':'#201d1d', border: sCfg.device===h.id?'#201d1d':'rgba(15,0,0,0.16)', countFg: sCfg.device===h.id?'rgba(253,252,252,0.55)':'#9a9898',
+      onClick:()=>this.setTbl('services', { device:h.id, page:1 }) }));
+    const activeDev = eff.find(d=>d.id===sCfg.device) || null;
+    let svcRows = allSvc.map(s => ({ _s:s, name:s.name, container:s.containerName, deviceId:s.deviceId, device:s.deviceName, outcome:s.outcome||'unknown', compose: s.composeProject?('compose \u00b7 '+s.composeProject):(s.composePath?'compose':'standalone') }));
+    if(sCfg.device!=='all') svcRows=svcRows.filter(r=>r.deviceId===sCfg.device);
+    if(sCfg.status!=='all') svcRows=svcRows.filter(r=>r.outcome===sCfg.status);
+    if(sCfg.q){ const q=sCfg.q.toLowerCase(); svcRows=svcRows.filter(r=>(r.name+' '+r.container+' '+r.device).toLowerCase().includes(q)); }
+    svcRows=this.sortRows(svcRows, sCfg.sort, { status:r=>this.statusRank(r.outcome), name:r=>r.name, device:r=>r.device, container:r=>r.container });
+    const svcPg=this.paginate(svcRows, sCfg.page, 10);
+    const dtServices = Object.assign({
+      q:sCfg.q, status:sCfg.status, device:sCfg.device, empty:svcPg.total===0, hosts,
+      hasActiveHost: !!activeDev, activeName: activeDev?activeDev.name:'', activeHost: activeDev?activeDev.host:'',
+      onScanActive: activeDev?(()=>this.openScan(activeDev)):(()=>{}),
+      onEditActive: activeDev?(()=>this.openModal('device','edit',{ name:activeDev.name, host:activeDev.host, ctx:activeDev.agentContext, user:'root', authType:'key' })):(()=>{}),
+      onDeleteActive: activeDev?(()=>this.deleteDeviceConfirm(activeDev)):(()=>{}),
+      cStatus:this.caret(sCfg.sort,'status'), cName:this.caret(sCfg.sort,'name'), cDevice:this.caret(sCfg.sort,'device'), cContainer:this.caret(sCfg.sort,'container'),
+      onQ:(e)=>this.setQ('services',e), onStatus:(e)=>this.setSel('services','status',e),
+      onSortStatus:()=>this.toggleSort('services','status'), onSortName:()=>this.toggleSort('services','name'), onSortDevice:()=>this.toggleSort('services','device'), onSortContainer:()=>this.toggleSort('services','container'),
+      rows: svcPg.slice.map(r => { const s=r._s; return { name:r.name, container:r.container, device:r.device, compose:r.compose, label:r.outcome, dot:this.fleetDot(r.outcome), fg:this.dotText(r.outcome),
+        onOpen:()=>this.openService({ id:r.deviceId }, s),
+        onEdit:(e)=>{ if(e&&e.stopPropagation) e.stopPropagation(); this.openRename(s); },
+        onDelete:(e)=>{ if(e&&e.stopPropagation) e.stopPropagation(); this.deleteServiceConfirm(s); } }; }),
+    }, this.pager('services', svcPg));
     const devEmpty = !pop || eff.length === 0;
 
     // ---------- DIAGNOSE HERO ----------
@@ -1175,41 +1265,66 @@ class Component extends DCLogic {
       hero.hasRuns = hero.runs.length>0;
     }
 
-    // ---------- SKILLS ----------
+    // ---------- SKILLS \u00b7 DATATABLE ----------
     const devNameById = {}; for(const d of this.deviceData) devNameById[d.id]=d.name;
-    const skills = this.skillsData.map(s => {
-      const g = s.deviceId === null;
-      return { name:s.name, scope: g ? 'global' : (devNameById[s.deviceId]||s.deviceId), cmd:s.commandTemplate, params:String(s.parameters.length),
-        scopeBorder: g ? 'rgba(15,0,0,0.18)' : '#201d1d', scopeFg: g ? '#646262' : '#201d1d',
-        onEdit:() => this.openModal('skill','edit',{ name:s.name, cmd:s.commandTemplate, scope: g?'':(devNameById[s.deviceId]||''), timeout: s.timeoutMs||'', paramRows:s.parameters.map(p=>({ ...p })) }),
-        onDelete:() => this.deleteSkillConfirm(s) };
-    });
+    const skCfg = this.state.tbl.skills;
+    let skRows = this.skillsData.map(s => { const g=s.deviceId===null; return { _s:s, isGlobal:g, name:s.name, cmd:s.commandTemplate, scope: g?'global':(devNameById[s.deviceId]||s.deviceId), params:s.parameters.length }; });
+    if(skCfg.scope!=='all') skRows=skRows.filter(r => skCfg.scope==='global' ? r.isGlobal : !r.isGlobal);
+    if(skCfg.q){ const q=skCfg.q.toLowerCase(); skRows=skRows.filter(r=>(r.name+' '+r.cmd+' '+r.scope).toLowerCase().includes(q)); }
+    skRows=this.sortRows(skRows, skCfg.sort, { name:r=>r.name, scope:r=>r.scope, params:r=>r.params });
+    const skPg=this.paginate(skRows, skCfg.page, 10);
+    const dtSkills = Object.assign({
+      q:skCfg.q, scope:skCfg.scope, empty:skPg.total===0,
+      cName:this.caret(skCfg.sort,'name'), cScope:this.caret(skCfg.sort,'scope'), cParams:this.caret(skCfg.sort,'params'),
+      onQ:(e)=>this.setQ('skills',e), onScope:(e)=>this.setSel('skills','scope',e),
+      onSortName:()=>this.toggleSort('skills','name'), onSortScope:()=>this.toggleSort('skills','scope'), onSortParams:()=>this.toggleSort('skills','params'),
+      rows: skPg.slice.map(r => { const s=r._s; const g=r.isGlobal; return { name:r.name, cmd:r.cmd, scope:r.scope, params:String(r.params), scopeFg:g?'#646262':'#201d1d', scopeBorder:g?'rgba(15,0,0,0.18)':'#201d1d',
+        onEdit:()=>this.openModal('skill','edit',{ name:s.name, cmd:s.commandTemplate, scope:g?'':(devNameById[s.deviceId]||''), timeout:s.timeoutMs||'', paramRows:s.parameters.map(p=>({ ...p })) }),
+        onDelete:()=>this.deleteSkillConfirm(s) }; }),
+    }, this.pager('skills', skPg));
     const skillsEmpty = !pop || this.skillsData.length === 0;
 
-    // ---------- PROVIDERS ----------
-    const providers = this.providersData.map(p => {
-      const active = this.state.providerActive === p.id;
-      return { base:p.baseURL, model:p.model, kind:p.kind, updated:this.fmtShort(p.updatedAt),
-        dot: active?'#30d158':'#9a9898', border: active?'#646262':'rgba(15,0,0,0.12)',
-        statusLabel: active?'active':'inactive', statusFg: active?'#1f8a4e':'#9a9898', canActivate: !active,
-        onActivate:() => this.activateProvider(p), onEdit:() => this.openModal('provider','edit',{ base:p.baseURL, model:p.model }), onDelete:() => this.deleteProviderConfirm(p) };
-    });
+    // ---------- PROVIDERS \u00b7 DATATABLE ----------
+    const pvCfg = this.state.tbl.providers;
+    let pvRows = this.providersData.map(p => { const active=this.state.providerActive===p.id; return { _p:p, base:p.baseURL, model:p.model, kind:p.kind, updatedAt:p.updatedAt, updated:this.fmtShort(p.updatedAt), active }; });
+    if(pvCfg.status!=='all') pvRows=pvRows.filter(r => pvCfg.status==='active' ? r.active : !r.active);
+    if(pvCfg.q){ const q=pvCfg.q.toLowerCase(); pvRows=pvRows.filter(r=>(r.base+' '+r.model).toLowerCase().includes(q)); }
+    pvRows=this.sortRows(pvRows, pvCfg.sort, { base:r=>r.base, model:r=>r.model, updated:r=>r.updatedAt, status:r=>r.active?0:1 });
+    const pvPg=this.paginate(pvRows, pvCfg.page, 10);
+    const dtProviders = Object.assign({
+      q:pvCfg.q, status:pvCfg.status, empty:pvPg.total===0,
+      cBase:this.caret(pvCfg.sort,'base'), cModel:this.caret(pvCfg.sort,'model'), cUpdated:this.caret(pvCfg.sort,'updated'),
+      onQ:(e)=>this.setQ('providers',e), onStatus:(e)=>this.setSel('providers','status',e),
+      onSortBase:()=>this.toggleSort('providers','base'), onSortModel:()=>this.toggleSort('providers','model'), onSortUpdated:()=>this.toggleSort('providers','updated'),
+      rows: pvPg.slice.map(r => { const p=r._p; return { base:r.base, model:r.model, kind:r.kind, updated:r.updated, dot:r.active?'#30d158':'#c9c6c6', statusLabel:r.active?'active':'inactive', statusFg:r.active?'#1f8a4e':'#9a9898', canActivate:!r.active,
+        onActivate:()=>this.activateProvider(p), onEdit:()=>this.openModal('provider','edit',{ base:p.baseURL, model:p.model }), onDelete:()=>this.deleteProviderConfirm(p) }; }),
+    }, this.pager('providers', pvPg));
     const providersEmpty = !pop || this.providersData.length === 0;
 
-    // ---------- AUDIT ----------
-    const audit = this.auditData.map(ev => {
-      const has = !!ev.synth;
-      const sy = has ? this.synthByKey(ev.synth) : null;
-      const open = this.state.auditOpen === ev.id;
-      let target='—';
-      if(ev.targetType){ target = ev.targetType + (ev.targetId ? ' · '+ev.targetId : ''); }
-      return { time:this.fmtShort(ev.createdAt), action:ev.action, target,
-        detail: has ? (open?'hide':'view') : '', cursor: has?'pointer':'default', open,
+    // ---------- AUDIT \u00b7 DATATABLE ----------
+    const auCfg = this.state.tbl.audit;
+    const auActions = ['all'].concat([...new Set(this.auditData.map(a=>a.action))]);
+    let auRows = this.auditData.map(ev => { const has=!!ev.synth; const sy=has?this.synthByKey(ev.synth):null; let target='\u2014'; if(ev.targetType){ target=ev.targetType+(ev.targetId?' \u00b7 '+ev.targetId:''); }
+      let result='', rfg='#646262';
+      if(ev.action==='skill.run'){ result=ev.outcome||''; rfg = ev.outcome==='succeeded'?'#1f8a4e':(ev.outcome?'#c01a12':'#646262'); }
+      else if(sy){ result=sy.status; rfg = sy.status==='healthy'?'#1f8a4e':(sy.status==='degraded'?'#a8700a':'#c01a12'); }
+      return { _ev:ev, id:ev.id, ts:new Date(ev.createdAt).getTime(), time:this.fmtShort(ev.createdAt), action:ev.action, target, has, sy, result, rfg }; });
+    if(auCfg.action!=='all') auRows=auRows.filter(r=>r.action===auCfg.action);
+    if(auCfg.q){ const q=auCfg.q.toLowerCase(); auRows=auRows.filter(r=>(r.action+' '+r.target+' '+r.result).toLowerCase().includes(q)); }
+    auRows=this.sortRows(auRows, auCfg.sort, { time:r=>r.ts, action:r=>r.action });
+    const auPg=this.paginate(auRows, auCfg.page, 10);
+    const dtAudit = Object.assign({
+      q:auCfg.q, action:auCfg.action, empty:auPg.total===0, actionOpts:auActions.map(a=>({ value:a, label:a==='all'?'all actions':a })),
+      cTime:this.caret(auCfg.sort,'time'), cAction:this.caret(auCfg.sort,'action'),
+      onQ:(e)=>this.setQ('audit',e), onAction:(e)=>this.setSel('audit','action',e),
+      onSortTime:()=>this.toggleSort('audit','time'), onSortAction:()=>this.toggleSort('audit','action'),
+      rows: auPg.slice.map(r => { const ev=r._ev; const sy=r.sy; const open=this.state.auditOpen===ev.id; return { time:r.time, action:r.action, target:r.target, result:r.result, rfg:r.rfg,
+        hasDetail:r.has, detail:r.has?(open?'hide':'view'):'', cursor:r.has?'pointer':'default', open,
         badgeBg: sy?this.statusBadgeBg(sy.status):'#9a9898', status: sy?(sy.status||'').toUpperCase():'',
         summary: sy?sy.summary:'', problems: sy?sy.problems:[], suggestions: sy?sy.suggestions:[],
         noProblems: sy?sy.problems.length===0:true, noSuggestions: sy?sy.suggestions.length===0:true,
-        onToggle:() => { if(has) this.toggleAudit(ev.id); } };
-    });
+        onToggle:()=>{ if(r.has) this.toggleAudit(ev.id); } }; }),
+    }, this.pager('audit', auPg));
     const auditEmpty = !pop || this.auditData.length === 0;
 
     // ---------- MODAL ----------
@@ -1240,7 +1355,7 @@ class Component extends DCLogic {
       fleet, recent,
 
       // devices
-      devEmpty, devices, onAddDevice:() => this.openModal('device','create'),
+      devEmpty, devHasData: !devEmpty, tblSvc:dtServices, onAddDevice:() => this.openModal('device','create'),
 
       // diagnose hero
       hServiceName: hero.serviceName||'', hDeviceName: hero.deviceName||'', hLiveLabel: hero.liveLabel||'idle', hRerunLabel: hero.rerunLabel||'↻ re-run',
@@ -1259,13 +1374,13 @@ class Component extends DCLogic {
       onRerun:() => { const tt=this.state.diagTarget; if(tt) this.stream(tt.deviceId, tt.serviceId); },
 
       // skills
-      skillsEmpty, skillsHasData: !skillsEmpty, skills, onAddSkill:() => this.openModal('skill','create'),
+      skillsEmpty, skillsHasData: !skillsEmpty, tblSkills:dtSkills, onAddSkill:() => this.openModal('skill','create'),
 
       // providers
-      providersEmpty, providers, onAddProvider:() => this.openModal('provider','create'),
+      providersEmpty, providersHasData: !providersEmpty, tblProv:dtProviders, onAddProvider:() => this.openModal('provider','create'),
 
       // audit
-      auditEmpty, auditHasData: !auditEmpty, audit,
+      auditEmpty, auditHasData: !auditEmpty, tblAudit:dtAudit,
 
       // modal
       modalOpen: !!modal, modalDevice: !!modal&&modal.type==='device', modalProvider: !!modal&&modal.type==='provider', modalSkill: !!modal&&modal.type==='skill',
