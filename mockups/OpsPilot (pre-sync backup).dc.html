@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{ font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; background:#fdfcfc; color:#201d1d; -webkit-font-smoothing:antialiased; }
+  ::selection{ background:#201d1d; color:#fdfcfc; }
+  @keyframes opBlink{ 0%,49%{opacity:1} 50%,100%{opacity:0} }
+  @keyframes opIn{ from{opacity:0; transform:translateY(3px)} to{opacity:1; transform:none} }
+  @keyframes opFade{ from{opacity:0} to{opacity:1} }
+  .opscroll::-webkit-scrollbar{ width:8px; height:8px; }
+  .opscroll::-webkit-scrollbar-thumb{ background:rgba(15,0,0,0.16); border-radius:4px; }
+</style>
+</helmet>
+
+<div style="display:flex; min-height:100vh; background:#fdfcfc; color:#201d1d; font-size:14px; line-height:1.5;">
+
+  <!-- ===== SIDEBAR ===== -->
+  <sc-if value="{{ showShell }}" hint-placeholder-val="{{ true }}">
+  <aside style="width:236px; flex:none; border-right:1px solid rgba(15,0,0,0.12); display:flex; flex-direction:column; position:sticky; top:0; height:100vh; background:#fdfcfc;">
+    <div style="padding:20px 18px 16px; border-bottom:1px solid rgba(15,0,0,0.12);">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-weight:800; font-size:16px; letter-spacing:-0.5px;">opspilot</span>
+        <span style="display:inline-block; width:8px; height:15px; background:#201d1d; animation:opBlink 1.1s step-end infinite;"></span>
+      </div>
+      <div style="margin-top:5px; font-size:12px; color:#646262;">homelab control</div>
+    </div>
+
+    <nav style="padding:14px 10px; display:flex; flex-direction:column; gap:2px; flex:1;">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+        <button type="button" onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; width:100%; text-align:left; border:none; cursor:pointer; padding:8px 10px; border-radius:4px; font-family:inherit; font-size:13.5px; font-weight:{{ item.weight }}; color:{{ item.fg }}; background:{{ item.bg }};">
+          <span style="width:18px; color:{{ item.mk }};">{{ item.marker }}</span>
+          <span>{{ item.label }}</span>
+          <span style="margin-left:auto; font-size:11px; color:#9a9898;">{{ item.tag }}</span>
+        </button>
+      </sc-for>
+    </nav>
+
+    <div style="padding:14px 16px; border-top:1px solid rgba(15,0,0,0.12); display:flex; flex-direction:column; gap:10px;">
+      <div style="display:flex; align-items:center; gap:9px;">
+        <span style="width:26px; height:26px; flex:none; border-radius:9999px; background:#201d1d; color:#fdfcfc; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">op</span>
+        <div style="min-width:0;">
+          <div style="font-size:12.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ user }}</div>
+          <div style="font-size:11px; color:#646262;">self-hosted</div>
+        </div>
+      </div>
+      <button type="button" onClick="{{ onSignOut }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:5px 12px; font-family:inherit; font-size:12.5px; font-weight:500; cursor:pointer;">sign out</button>
+    </div>
+  </aside>
+  </sc-if>
+
+  <!-- ===== MAIN ===== -->
+  <main class="opscroll" style="flex:1; min-width:0; max-height:100vh; overflow-y:auto;">
+
+    <!-- AUTH: LOGIN -->
+    <sc-if value="{{ rLogin }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="login" style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:#fdfcfc;">
+      <div style="width:100%; max-width:380px;">
+        <div style="display:flex; align-items:center; gap:8px; justify-content:center; margin-bottom:28px;">
+          <span style="font-weight:800; font-size:22px; letter-spacing:-0.6px;">opspilot</span>
+          <span style="display:inline-block; width:10px; height:20px; background:#201d1d; animation:opBlink 1.1s step-end infinite;"></span>
+        </div>
+        <div style="border:1px solid rgba(15,0,0,0.12); padding:28px 26px;">
+          <h1 style="margin:0 0 4px; font-size:17px; font-weight:700;">sign in</h1>
+          <p style="margin:0 0 22px; font-size:13px; color:#646262;">authenticate to reach the operational layer.</p>
+          <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">email</label>
+          <input value="ops@homelab.local" style="width:100%; height:40px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:14px; color:#201d1d; margin-bottom:16px;">
+          <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">password</label>
+          <input type="password" value="superlongpassword" style="width:100%; height:40px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:14px; color:#201d1d; margin-bottom:22px;">
+          <button type="button" onClick="{{ onSignIn }}" style="width:100%; height:38px; background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer;">sign in →</button>
+          <p style="margin:18px 0 0; font-size:12.5px; color:#646262; text-align:center;">no account? <span onClick="{{ onGotoRegister }}" style="color:#201d1d; text-decoration:underline; cursor:pointer;">create one</span></p>
+        </div>
+        <p style="margin:18px 0 0; font-size:11.5px; color:#9a9898; text-align:center;">[+] sessions are local · credentials encrypted at rest</p>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- AUTH: REGISTER -->
+    <sc-if value="{{ rRegister }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="register" style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:#fdfcfc;">
+      <div style="width:100%; max-width:380px;">
+        <div style="display:flex; align-items:center; gap:8px; justify-content:center; margin-bottom:28px;">
+          <span style="font-weight:800; font-size:22px; letter-spacing:-0.6px;">opspilot</span>
+          <span style="display:inline-block; width:10px; height:20px; background:#201d1d; animation:opBlink 1.1s step-end infinite;"></span>
+        </div>
+        <div style="border:1px solid rgba(15,0,0,0.12); padding:28px 26px;">
+          <h1 style="margin:0 0 4px; font-size:17px; font-weight:700;">create account</h1>
+          <p style="margin:0 0 22px; font-size:13px; color:#646262;">a flat trusted-user model — accountability via the audit log.</p>
+          <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">email</label>
+          <input value="" placeholder="you@homelab.local" style="width:100%; height:40px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:14px; color:#201d1d; margin-bottom:16px;">
+          <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">password</label>
+          <input type="password" value="" placeholder="min 12 characters" style="width:100%; height:40px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:14px; color:#201d1d; margin-bottom:22px;">
+          <button type="button" onClick="{{ onSignIn }}" style="width:100%; height:38px; background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer;">create account →</button>
+          <p style="margin:18px 0 0; font-size:12.5px; color:#646262; text-align:center;">already registered? <span onClick="{{ onGotoLogin }}" style="color:#201d1d; text-decoration:underline; cursor:pointer;">sign in</span></p>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- DASHBOARD -->
+    <sc-if value="{{ rDashboard }}" hint-placeholder-val="{{ true }}">
+    <div data-screen-label="dashboard" style="max-width:1040px; padding:40px 44px 64px;">
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:6px;">
+        <h1 style="margin:0; font-size:24px; font-weight:700; letter-spacing:-0.4px;">overview</h1>
+        <span style="font-size:12px; color:#646262;">{{ clock }}</span>
+      </div>
+      <p style="margin:0 0 28px; font-size:13.5px; color:#646262;">fleet status across every managed host. one service needs attention.</p>
+
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:32px;">
+        <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="4">
+          <div style="border:1px solid rgba(15,0,0,0.12); padding:16px 16px 14px;">
+            <div style="font-size:11.5px; color:#646262; text-transform:lowercase;">{{ t.label }}</div>
+            <div style="font-size:28px; font-weight:700; letter-spacing:-1px; margin:6px 0 4px; color:{{ t.color }};">{{ t.value }}</div>
+            <div style="font-size:11.5px; color:#646262;">{{ t.sub }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="border:1px solid rgba(15,0,0,0.12); border-left:3px solid #ff9f0a; padding:18px 20px; margin-bottom:32px; display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:240px;">
+          <div style="display:flex; align-items:center; gap:9px; margin-bottom:6px; flex-wrap:wrap;">
+            <span style="font-size:12px; font-weight:700; color:#a8700a;">[!] needs attention</span>
+            <span style="font-size:12px; color:#9a9898;">· postgres @ synology-nas</span>
+          </div>
+          <div style="font-size:14px; color:#201d1d;">/volume1 is full — the write-ahead log can't flush and connections are being refused.</div>
+        </div>
+        <button type="button" onClick="{{ onDiagnose }}" style="background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:9px 18px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; flex:none; white-space:nowrap;">diagnose →</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:32px;">
+        <div>
+          <div style="font-size:13px; font-weight:700; padding-bottom:8px; border-bottom:1px solid #646262; margin-bottom:4px;">fleet</div>
+          <sc-for list="{{ fleet }}" as="f" hint-placeholder-count="3">
+            <div onClick="{{ onGotoDevices }}" style="display:flex; align-items:center; gap:12px; padding:13px 2px; border-bottom:1px solid rgba(15,0,0,0.12); cursor:pointer;">
+              <span style="width:8px; height:8px; border-radius:9999px; flex:none; background:{{ f.dot }};"></span>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13.5px; font-weight:600;">{{ f.name }}</div>
+                <div style="font-size:11.5px; color:#646262;">{{ f.model }} · {{ f.host }}</div>
+              </div>
+              <div style="font-size:12px; color:#646262; text-align:right;">{{ f.summary }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div>
+          <div style="font-size:13px; font-weight:700; padding-bottom:8px; border-bottom:1px solid #646262; margin-bottom:4px;">recent runs</div>
+          <sc-for list="{{ recent }}" as="r" hint-placeholder-count="4">
+            <div style="display:flex; align-items:baseline; gap:10px; padding:11px 2px; border-bottom:1px solid rgba(15,0,0,0.12);">
+              <span style="font-size:11.5px; color:#9a9898; flex:none; width:52px;">{{ r.time }}</span>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px;"><span style="font-weight:600;">{{ r.detail }}</span> <span style="color:#646262;">{{ r.target }}</span></div>
+              </div>
+              <span style="font-size:11.5px; font-weight:600; flex:none; color:{{ r.rcolor }};">{{ r.result }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- DEVICES -->
+    <sc-if value="{{ rDevices }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="devices" style="max-width:1040px; padding:40px 44px 64px;">
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:6px;">
+        <h1 style="margin:0; font-size:24px; font-weight:700; letter-spacing:-0.4px;">devices</h1>
+        <button type="button" onClick="{{ onAddDevice }}" style="background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:9px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap;">+ add device</button>
+      </div>
+      <p style="margin:0 0 26px; font-size:13.5px; color:#646262;">shared inventory of every device and its SSH credentials.</p>
+
+      <sc-for list="{{ devices }}" as="dev" hint-placeholder-count="3">
+        <div style="border:1px solid rgba(15,0,0,0.12); margin-bottom:18px;">
+          <div style="display:flex; align-items:center; gap:16px; padding:15px 18px; border-bottom:1px solid rgba(15,0,0,0.12);">
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:15px; font-weight:700;">{{ dev.name }}</div>
+              <div style="font-size:11.5px; color:#646262; margin-top:2px;">{{ dev.host }} · {{ dev.model }}</div>
+            </div>
+            <div style="font-size:11px; color:#9a9898; text-align:right; line-height:1.6; flex:none;">
+              <div>created {{ dev.created }}</div>
+              <div>updated {{ dev.updated }}</div>
+            </div>
+            <div style="display:flex; gap:7px; flex:none;">
+              <button type="button" onClick="{{ dev.onEdit }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:5px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">edit</button>
+              <button type="button" onClick="{{ dev.onDelete }}" style="border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:5px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">delete</button>
+            </div>
+          </div>
+
+          <div style="padding:14px 18px 16px; background:#f8f7f7;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
+              <div style="display:flex; align-items:baseline; gap:8px;">
+                <span style="font-size:13px; font-weight:700;">services</span>
+                <span style="font-size:11px; color:#9a9898;">{{ dev.svcCountLabel }}</span>
+              </div>
+              <button type="button" onClick="{{ dev.onScan }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:4px 14px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">scan</button>
+            </div>
+            <div style="font-size:11.5px; color:#646262; margin-bottom:12px;"><span style="color:#9a9898;">[~] context</span> {{ dev.ctx }}</div>
+
+            <sc-if value="{{ dev.isEmpty }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:12.5px; color:#9a9898; margin:6px 0;">No managed services yet. Scan the host to add some.</p>
+            </sc-if>
+
+            <sc-if value="{{ dev.hasServices }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex; gap:12px; padding:7px 2px; border-bottom:1px solid #646262; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262;">
+                <span style="width:130px; flex:none;">name</span>
+                <span style="flex:1;">container</span>
+                <span style="flex:none;">actions</span>
+              </div>
+              <sc-for list="{{ dev.services }}" as="svc" hint-placeholder-count="4">
+                <div style="border-bottom:1px solid rgba(15,0,0,0.12);">
+                  <div style="display:flex; gap:12px; align-items:center; padding:11px 2px; flex-wrap:wrap;">
+                    <span style="width:130px; flex:none; font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ svc.name }}</span>
+                    <div style="flex:1; min-width:130px;">
+                      <span style="font-size:12.5px; color:#424245;">{{ svc.containerName }}</span>
+                      <span style="font-size:11px; color:#9a9898;"> · {{ svc.image }}</span>
+                    </div>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; flex:none; max-width:520px;">
+                      <button type="button" onClick="{{ svc.onDiagnose }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:4px 11px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap;">{{ svc.diagLabel }}</button>
+                      <sc-for list="{{ svc.skills }}" as="sk" hint-placeholder-count="3">
+                        <button type="button" onClick="{{ sk.onClick }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:#424245; border-radius:4px; padding:4px 10px; font-family:inherit; font-size:12px; cursor:pointer; white-space:nowrap;">{{ sk.name }}</button>
+                      </sc-for>
+                      <button type="button" onClick="{{ svc.onRename }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:#424245; border-radius:4px; padding:4px 10px; font-family:inherit; font-size:12px; cursor:pointer;">edit</button>
+                      <button type="button" onClick="{{ svc.onDelete }}" style="border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:4px 10px; font-family:inherit; font-size:12px; cursor:pointer;">delete</button>
+                    </div>
+                    <sc-if value="{{ svc.hasResult }}" hint-placeholder-val="{{ false }}">
+                      <div style="width:100%; text-align:right; font-size:11.5px; font-weight:600; color:{{ svc.resultColor }};">{{ svc.resultMsg }}</div>
+                    </sc-if>
+                  </div>
+
+                  <sc-if value="{{ svc.diagOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:2px 2px 16px;">
+                      <sc-if value="{{ svc.diagTerminal }}" hint-placeholder-val="{{ false }}">
+                        <div style="background:#201d1d; border-radius:4px; padding:14px 16px; font-size:12px; line-height:1.65; margin-bottom:12px;">
+                          <sc-for list="{{ svc.diagLines }}" as="ln" hint-placeholder-count="0">
+                            <div style="display:flex; gap:9px; animation:opIn 0.25s ease both;"><span style="color:{{ ln.col }}; width:10px; flex:none; font-weight:700;">{{ ln.pre }}</span><span style="color:{{ ln.col }}; font-weight:{{ ln.wt }};">{{ ln.t }}</span></div>
+                          </sc-for>
+                          <sc-if value="{{ svc.diagRunning }}" hint-placeholder-val="{{ false }}"><div style="display:flex; gap:9px;"><span style="width:10px; flex:none;"></span><span style="display:inline-block; width:7px; height:13px; background:#fdfcfc; animation:opBlink 1s step-end infinite;"></span></div></sc-if>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ svc.diagShow }}" hint-placeholder-val="{{ false }}">
+                        <div style="border:1px solid rgba(15,0,0,0.12); background:#fdfcfc; border-radius:4px; padding:16px 18px; animation:opFade 0.3s ease both;">
+                          <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+                            <span style="font-size:10.5px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:2px 9px; border-radius:4px; color:#fdfcfc; background:{{ svc.diagDot }};">{{ svc.diagStatus }}</span>
+                            <span style="font-size:13.5px; color:#201d1d;">{{ svc.diagSummary }}</span>
+                          </div>
+                          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                            <div>
+                              <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#a8700a; margin-bottom:6px;">problems</div>
+                              <sc-for list="{{ svc.diagProblems }}" as="p" hint-placeholder-count="0"><div style="display:flex; gap:8px; padding:4px 0; font-size:12.5px; color:#424245;"><span style="color:#ff3b30; flex:none; font-weight:700;">[x]</span><span>{{ p }}</span></div></sc-for>
+                              <sc-if value="{{ svc.diagNoProblems }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px; color:#9a9898;">None detected.</div></sc-if>
+                            </div>
+                            <div>
+                              <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#1f8a4e; margin-bottom:6px;">suggestions</div>
+                              <sc-for list="{{ svc.diagSuggestions }}" as="s" hint-placeholder-count="0"><div style="display:flex; gap:8px; padding:4px 0; font-size:12.5px; color:#424245;"><span style="color:#1f8a4e; flex:none; font-weight:700;">[+]</span><span>{{ s }}</span></div></sc-for>
+                              <sc-if value="{{ svc.diagNoSuggestions }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px; color:#9a9898;">None.</div></sc-if>
+                            </div>
+                          </div>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ svc.hasRuns }}" hint-placeholder-val="{{ false }}">
+                        <div style="margin-top:12px;">
+                          <div style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262; margin-bottom:6px;">recent runs</div>
+                          <div style="display:flex; flex-wrap:wrap; gap:7px;">
+                            <sc-for list="{{ svc.runs }}" as="run" hint-placeholder-count="0">
+                              <button type="button" onClick="{{ run.onClick }}" style="border:1px solid rgba(15,0,0,0.16); background:#fdfcfc; color:#424245; border-radius:4px; padding:4px 10px; font-family:inherit; font-size:11.5px; cursor:pointer;"><span style="color:{{ run.dot }}; font-weight:700;">●</span> {{ run.label }}</button>
+                            </sc-for>
+                          </div>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <!-- DIAGNOSIS (hero) -->
+    <sc-if value="{{ rDiagnosis }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="diagnosis" style="max-width:1040px; padding:40px 44px 64px;">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:6px;">
+        <div>
+          <h1 style="margin:0; font-size:24px; font-weight:700; letter-spacing:-0.4px;">diagnose</h1>
+          <p style="margin:5px 0 0; font-size:13.5px; color:#646262;">agent run on <span style="color:#201d1d; font-weight:600;">{{ diagTarget }}</span> · 200 log lines · claude-opus-4.5</p>
+        </div>
+        <button type="button" onClick="{{ onRerun }}" style="background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:9px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; flex:none;">↻ re-run</button>
+      </div>
+
+      <div style="display:flex; gap:0; border-bottom:1px solid #646262; margin:20px 0 24px;">
+        <sc-for list="{{ variantTabs }}" as="vt" hint-placeholder-count="3">
+          <button type="button" onClick="{{ vt.onClick }}" style="background:transparent; border:none; border-bottom:2px solid {{ vt.bb }}; color:{{ vt.fg }}; font-family:inherit; font-size:13px; font-weight:{{ vt.weight }}; padding:9px 16px; margin-bottom:-1px; cursor:pointer;">{{ vt.label }}</button>
+        </sc-for>
+      </div>
+
+      <!-- VARIANT 0: TERMINAL -->
+      <sc-if value="{{ dv0 }}" hint-placeholder-val="{{ true }}">
+        <div style="background:#201d1d; border-radius:4px; padding:18px 20px; font-size:13px; line-height:1.7; min-height:300px;">
+          <div style="display:flex; align-items:center; gap:7px; margin-bottom:12px; padding-bottom:11px; border-bottom:1px solid #302c2c;">
+            <span style="width:11px; height:11px; border-radius:9999px; background:#ff3b30;"></span>
+            <span style="width:11px; height:11px; border-radius:9999px; background:#ff9f0a;"></span>
+            <span style="width:11px; height:11px; border-radius:9999px; background:#30d158;"></span>
+            <span style="margin-left:8px; font-size:11.5px; color:#9a9898;">agent run · live</span>
+          </div>
+          <sc-for list="{{ diagLines }}" as="ln" hint-placeholder-count="0">
+            <div style="display:flex; gap:10px; animation:opIn 0.25s ease both;">
+              <span style="color:{{ ln.col }}; width:12px; flex:none; font-weight:700;">{{ ln.pre }}</span>
+              <span style="color:{{ ln.col }}; font-weight:{{ ln.wt }};">{{ ln.t }}</span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ diagRunning }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; gap:10px;"><span style="width:12px; flex:none;"></span><span style="display:inline-block; width:8px; height:15px; background:#fdfcfc; animation:opBlink 1s step-end infinite;"></span></div>
+          </sc-if>
+        </div>
+        <sc-if value="{{ showSynth }}" hint-placeholder-val="{{ false }}">
+          <div style="animation:opFade 0.4s ease both; margin-top:24px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+              <span style="font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:3px 10px; border-radius:4px; color:#fdfcfc; background:{{ synthDot }};">{{ synthStatus }}</span>
+              <span style="font-size:14.5px; color:#201d1d;">{{ synthSummary }}</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px;">
+              <div>
+                <div style="font-size:12px; font-weight:700; color:#a8700a; margin-bottom:8px;">problems</div>
+                <sc-for list="{{ problems }}" as="p" hint-placeholder-count="3">
+                  <div style="display:flex; gap:9px; padding:6px 0; font-size:13px; color:#424245; border-bottom:1px solid rgba(15,0,0,0.08);"><span style="color:#ff3b30; flex:none; font-weight:700;">[x]</span><span>{{ p }}</span></div>
+                </sc-for>
+              </div>
+              <div>
+                <div style="font-size:12px; font-weight:700; color:#1f8a4e; margin-bottom:8px;">suggestions</div>
+                <sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="3">
+                  <div style="display:flex; gap:9px; padding:6px 0; font-size:13px; color:#424245; border-bottom:1px solid rgba(15,0,0,0.08);"><span style="color:#1f8a4e; flex:none; font-weight:700;">[+]</span><span>{{ s }}</span></div>
+                </sc-for>
+                <button type="button" onClick="{{ onApply }}" style="margin-top:14px; background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:8px 16px; font-family:inherit; font-size:12.5px; font-weight:500; cursor:pointer;">restart postgres →</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <!-- VARIANT 1: SPLIT -->
+      <sc-if value="{{ dv1 }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+          <div style="background:#201d1d; border-radius:4px; padding:18px 20px; font-size:12.5px; line-height:1.7; min-height:340px;">
+            <div style="font-size:11.5px; color:#9a9898; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #302c2c;">› narration</div>
+            <sc-for list="{{ diagLines }}" as="ln" hint-placeholder-count="0">
+              <div style="display:flex; gap:9px; animation:opIn 0.25s ease both;">
+                <span style="color:{{ ln.col }}; width:11px; flex:none; font-weight:700;">{{ ln.pre }}</span>
+                <span style="color:{{ ln.col }}; font-weight:{{ ln.wt }};">{{ ln.t }}</span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ diagRunning }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; gap:9px;"><span style="width:11px; flex:none;"></span><span style="display:inline-block; width:7px; height:14px; background:#fdfcfc; animation:opBlink 1s step-end infinite;"></span></div>
+            </sc-if>
+          </div>
+          <div style="border:1px solid rgba(15,0,0,0.12); border-radius:4px; padding:20px; min-height:340px;">
+            <sc-if value="{{ showSynth }}" hint-placeholder-val="{{ false }}">
+              <div style="animation:opFade 0.4s ease both;">
+                <span style="font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:3px 10px; border-radius:4px; color:#fdfcfc; background:{{ synthDot }};">{{ synthStatus }}</span>
+                <p style="margin:14px 0 20px; font-size:14px; line-height:1.55; color:#201d1d;">{{ synthSummary }}</p>
+                <div style="font-size:12px; font-weight:700; color:#a8700a; margin-bottom:8px;">problems</div>
+                <sc-for list="{{ problems }}" as="p" hint-placeholder-count="3">
+                  <div style="display:flex; gap:9px; padding:6px 0; font-size:12.5px; color:#424245;"><span style="color:#ff3b30; flex:none; font-weight:700;">[x]</span><span>{{ p }}</span></div>
+                </sc-for>
+                <div style="font-size:12px; font-weight:700; color:#1f8a4e; margin:16px 0 8px;">suggestions</div>
+                <sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="3">
+                  <div style="display:flex; gap:9px; padding:6px 0; font-size:12.5px; color:#424245;"><span style="color:#1f8a4e; flex:none; font-weight:700;">[+]</span><span>{{ s }}</span></div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ diagRunning }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex; align-items:center; justify-content:center; height:100%; min-height:280px; color:#9a9898; font-size:12.5px;">[ ··· awaiting synthesis ]</div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- VARIANT 2: REPORT -->
+      <sc-if value="{{ dv2 }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="border:1px solid rgba(15,0,0,0.12); border-left:3px solid {{ synthDot }}; padding:22px 24px; margin-bottom:20px; display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+            <div style="text-align:center; flex:none;">
+              <div style="font-size:30px; font-weight:800; letter-spacing:-1px; color:{{ synthDot }};">{{ synthStatusShort }}</div>
+              <div style="font-size:10.5px; color:#9a9898; text-transform:uppercase; letter-spacing:1px;">status</div>
+            </div>
+            <div style="width:1px; height:46px; background:rgba(15,0,0,0.12); flex:none;"></div>
+            <div style="flex:1; min-width:240px; font-size:15px; line-height:1.5; color:#201d1d;">{{ synthSummary }}</div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+            <div style="border:1px solid rgba(15,0,0,0.12); padding:18px 20px;">
+              <div style="font-size:12px; font-weight:700; color:#a8700a; margin-bottom:10px;">[!] problems · {{ problemCount }}</div>
+              <sc-for list="{{ problems }}" as="p" hint-placeholder-count="3">
+                <div style="display:flex; gap:9px; padding:7px 0; font-size:13px; color:#424245; border-bottom:1px solid rgba(15,0,0,0.08);"><span style="color:#ff3b30; flex:none; font-weight:700;">[x]</span><span>{{ p }}</span></div>
+              </sc-for>
+            </div>
+            <div style="border:1px solid rgba(15,0,0,0.12); padding:18px 20px;">
+              <div style="font-size:12px; font-weight:700; color:#1f8a4e; margin-bottom:10px;">[+] suggestions · {{ suggestionCount }}</div>
+              <sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="3">
+                <div style="display:flex; gap:9px; padding:7px 0; font-size:13px; color:#424245; border-bottom:1px solid rgba(15,0,0,0.08);"><span style="color:#1f8a4e; flex:none; font-weight:700;">[+]</span><span>{{ s }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+          <details style="border:1px solid rgba(15,0,0,0.12);">
+            <summary style="padding:13px 18px; font-size:12.5px; font-weight:600; cursor:pointer; color:#646262; list-style:none;">▸ run transcript · {{ lineCount }} steps</summary>
+            <div style="background:#201d1d; padding:16px 20px; font-size:12px; line-height:1.65;">
+              <sc-for list="{{ allLines }}" as="ln" hint-placeholder-count="0">
+                <div style="display:flex; gap:9px;"><span style="color:{{ ln.col }}; width:11px; flex:none; font-weight:700;">{{ ln.pre }}</span><span style="color:{{ ln.col }}; font-weight:{{ ln.wt }};">{{ ln.t }}</span></div>
+              </sc-for>
+            </div>
+          </details>
+        </div>
+      </sc-if>
+    </div>
+    </sc-if>
+
+    <!-- SKILLS -->
+    <sc-if value="{{ rSkills }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="skills" style="max-width:1040px; padding:40px 44px 64px;">
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:6px;">
+        <h1 style="margin:0; font-size:24px; font-weight:700; letter-spacing:-0.4px;">skills</h1>
+        <button type="button" onClick="{{ onAddSkill }}" style="background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:9px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap;">+ add skill</button>
+      </div>
+      <p style="margin:0 0 26px; font-size:13.5px; color:#646262;">parameterized commands the agent may run — global or scoped to one host. the agent only ever runs these; no free-form prompts.</p>
+
+      <div style="border:1px solid rgba(15,0,0,0.12);">
+        <div style="display:flex; gap:16px; padding:11px 18px; border-bottom:1px solid #646262; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262;">
+          <span style="width:130px; flex:none;">name</span>
+          <span style="width:120px; flex:none;">scope</span>
+          <span style="flex:1;">command</span>
+          <span style="width:74px; flex:none;">params</span>
+          <span style="width:32px; flex:none;"></span>
+        </div>
+        <sc-for list="{{ skills }}" as="sk" hint-placeholder-count="8">
+          <div onClick="{{ sk.onEdit }}" style="display:flex; gap:16px; align-items:center; padding:13px 18px; border-bottom:1px solid rgba(15,0,0,0.12); cursor:pointer;">
+            <div style="width:130px; flex:none; display:flex; align-items:center; gap:7px;">
+              <span style="font-size:13.5px; font-weight:600;">{{ sk.name }}</span>
+              <sc-if value="{{ sk.builtin }}" hint-placeholder-val="{{ false }}"><span style="font-size:9.5px; color:#fdfcfc; background:#201d1d; border-radius:4px; padding:1px 5px;">core</span></sc-if>
+            </div>
+            <div style="width:120px; flex:none;"><span style="font-size:11.5px; border:1px solid {{ sk.scopeBorder }}; color:{{ sk.scopeFg }}; border-radius:4px; padding:2px 8px;">{{ sk.scope }}</span></div>
+            <span style="flex:1; font-size:12.5px; color:#424245; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ sk.cmd }}</span>
+            <span style="width:74px; flex:none; font-size:12px; color:#646262;">{{ sk.params }}</span>
+            <span style="width:32px; flex:none; text-align:right; font-size:12px; color:#9a9898;">edit</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- LLM PROVIDERS -->
+    <sc-if value="{{ rProviders }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="providers" style="max-width:1040px; padding:40px 44px 64px;">
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:6px;">
+        <h1 style="margin:0; font-size:24px; font-weight:700; letter-spacing:-0.4px;">llm providers</h1>
+        <button type="button" onClick="{{ onAddProvider }}" style="background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:9px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap;">+ add provider</button>
+      </div>
+      <p style="margin:0 0 26px; font-size:13.5px; color:#646262;">your own endpoints and keys — exactly one is active. swap providers (including a local one) without a redeploy.</p>
+
+      <sc-for list="{{ providers }}" as="pr" hint-placeholder-count="3">
+        <div style="border:1px solid {{ pr.border }}; padding:18px 20px; margin-bottom:12px; display:flex; align-items:center; gap:18px;">
+          <span style="width:9px; height:9px; border-radius:9999px; flex:none; background:{{ pr.dot }};"></span>
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:14.5px; font-weight:700;">{{ pr.name }}</span>
+              <span style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:{{ pr.statusFg }};">{{ pr.statusLabel }}</span>
+            </div>
+            <div style="font-size:12px; color:#646262; margin-top:3px;">{{ pr.base }} · {{ pr.model }}</div>
+          </div>
+          <span style="font-size:11.5px; color:#9a9898; flex:none;">updated {{ pr.updated }}</span>
+          <div style="display:flex; gap:7px; flex:none;">
+            <sc-if value="{{ pr.canActivate }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ pr.onActivate }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:5px 13px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">activate</button></sc-if>
+            <button type="button" onClick="{{ pr.onEdit }}" style="border:1px solid rgba(15,0,0,0.12); background:#fdfcfc; color:#646262; border-radius:4px; padding:5px 12px; font-family:inherit; font-size:12px; cursor:pointer;">edit</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <!-- AUDIT -->
+    <sc-if value="{{ rAudit }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="audit" style="max-width:1040px; padding:40px 44px 64px;">
+      <h1 style="margin:0; font-size:24px; font-weight:700; letter-spacing:-0.4px;">audit log</h1>
+      <p style="margin:5px 0 26px; font-size:13.5px; color:#646262;">every operational action and agent run, newest first. diagnose runs expand to their full synthesis.</p>
+
+      <div style="border:1px solid rgba(15,0,0,0.12);">
+        <div style="display:flex; gap:16px; padding:11px 18px; border-bottom:1px solid #646262; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262;">
+          <span style="width:62px; flex:none;">time</span>
+          <span style="width:150px; flex:none;">action</span>
+          <span style="flex:1;">target</span>
+          <span style="width:90px; flex:none; text-align:right;">result</span>
+        </div>
+        <sc-for list="{{ audit }}" as="ev" hint-placeholder-count="7">
+          <div>
+            <div onClick="{{ ev.onToggle }}" style="display:flex; gap:16px; align-items:center; padding:13px 18px; border-bottom:1px solid rgba(15,0,0,0.12); cursor:{{ ev.cursor }};">
+              <span style="width:62px; flex:none; font-size:12px; color:#9a9898;">{{ ev.time }}</span>
+              <div style="width:150px; flex:none;">
+                <div style="font-size:13px; font-weight:600;">{{ ev.detail }}</div>
+                <div style="font-size:10.5px; color:#9a9898;">{{ ev.action }}</div>
+              </div>
+              <span style="flex:1; font-size:12.5px; color:#646262;">{{ ev.target }}</span>
+              <span style="width:90px; flex:none; text-align:right; font-size:12px; font-weight:600; color:{{ ev.rcolor }};">{{ ev.result }}</span>
+            </div>
+            <sc-if value="{{ ev.open }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:18px 22px; background:#f8f7f7; border-bottom:1px solid rgba(15,0,0,0.12); animation:opFade 0.25s ease both;">
+                <div style="font-size:14px; color:#201d1d; margin-bottom:16px;">{{ ev.summary }}</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+                  <div>
+                    <div style="font-size:11.5px; font-weight:700; color:#a8700a; margin-bottom:6px;">problems</div>
+                    <sc-for list="{{ ev.problems }}" as="p" hint-placeholder-count="2">
+                      <div style="display:flex; gap:8px; padding:4px 0; font-size:12.5px; color:#424245;"><span style="color:#ff3b30; flex:none; font-weight:700;">[x]</span><span>{{ p }}</span></div>
+                    </sc-for>
+                    <sc-if value="{{ ev.noProblems }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px; color:#9a9898;">none detected.</div></sc-if>
+                  </div>
+                  <div>
+                    <div style="font-size:11.5px; font-weight:700; color:#1f8a4e; margin-bottom:6px;">suggestions</div>
+                    <sc-for list="{{ ev.suggestions }}" as="s" hint-placeholder-count="2">
+                      <div style="display:flex; gap:8px; padding:4px 0; font-size:12.5px; color:#424245;"><span style="color:#1f8a4e; flex:none; font-weight:700;">[+]</span><span>{{ s }}</span></div>
+                    </sc-for>
+                    <sc-if value="{{ ev.noSuggestions }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px; color:#9a9898;">none.</div></sc-if>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+  </main>
+
+  <!-- ===== MODAL (device / provider / skill forms) ===== -->
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+  <div class="opscroll" onClick="{{ onCloseModal }}" style="position:fixed; inset:0; background:rgba(15,0,0,0.34); display:flex; align-items:flex-start; justify-content:center; padding:48px 24px; z-index:60; overflow-y:auto;">
+    <div onClick="{{ onModalCardClick }}" style="width:100%; max-width:486px; background:#fdfcfc; border:1px solid rgba(15,0,0,0.2); box-shadow:0 16px 48px rgba(15,0,0,0.22); animation:opIn 0.18s ease both;">
+
+      <div style="padding:22px 24px 4px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <h2 style="margin:0; font-size:16px; font-weight:700;">{{ modalTitle }}</h2>
+          <button type="button" onClick="{{ onCloseModal }}" style="border:none; background:transparent; color:#9a9898; font-family:inherit; font-size:19px; line-height:1; cursor:pointer; padding:0;">×</button>
+        </div>
+        <p style="margin:6px 0 0; font-size:12.5px; color:#646262; line-height:1.5;">{{ modalDesc }}</p>
+      </div>
+
+      <div style="padding:18px 24px 4px;">
+
+        <sc-if value="{{ modalDevice }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">name</label>
+            <input defaultValue="{{ mfName }}" placeholder="web-01" style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">host</label>
+            <input defaultValue="{{ mfHost }}" placeholder="192.168.1.10" style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;">
+          </div>
+          <div style="display:flex; gap:12px; margin-bottom:14px;">
+            <div style="flex:1; min-width:0;">
+              <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">username</label>
+              <input defaultValue="{{ mfUser }}" placeholder="root" style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;">
+            </div>
+            <div style="flex:1; min-width:0;">
+              <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">auth type</label>
+              <select style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 10px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;"><option>SSH key</option><option>Password</option></select>
+            </div>
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">credentials</label>
+            <textarea rows="4" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----" style="width:100%; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:10px 12px; font-family:inherit; font-size:13px; color:#201d1d; box-sizing:border-box; resize:vertical; line-height:1.5;"></textarea>
+            <sc-if value="{{ modalEdit }}" hint-placeholder-val="{{ false }}"><p style="font-size:11.5px; color:#646262; margin:6px 0 0;">leave blank to keep the current credentials.</p></sc-if>
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">agent context</label>
+            <textarea rows="4" defaultValue="{{ mfCtx }}" placeholder="e.g. config under /volume1; sudo needs a password; backups 02:00–04:00" style="width:100%; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:10px 12px; font-family:inherit; font-size:13px; color:#201d1d; box-sizing:border-box; resize:vertical; line-height:1.5;"></textarea>
+            <p style="font-size:11.5px; color:#646262; margin:6px 0 0; line-height:1.5;">host conventions the agent should respect — paths, privileged access, availability hours.</p>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ modalProvider }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">kind</label>
+            <select style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 10px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;"><option>OpenAI-compatible</option></select>
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">base URL</label>
+            <input defaultValue="{{ mfBase }}" placeholder="https://api.openai.com/v1" style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">model</label>
+            <input defaultValue="{{ mfModel }}" placeholder="gpt-4o-mini" style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">API key</label>
+            <input type="password" placeholder="sk-••••••••••••••••" style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;">
+            <sc-if value="{{ modalEdit }}" hint-placeholder-val="{{ false }}"><p style="font-size:11.5px; color:#646262; margin:6px 0 0;">leave blank to keep the current API key.</p></sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ modalSkill }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">name</label>
+            <input defaultValue="{{ mfName }}" placeholder="restart" style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">command template</label>
+            <textarea rows="2" defaultValue="{{ mfCmd }}" placeholder="docker restart {containerName}" style="width:100%; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:10px 12px; font-family:inherit; font-size:13px; color:#201d1d; box-sizing:border-box; resize:vertical; line-height:1.5;"></textarea>
+          </div>
+          <div style="display:flex; gap:12px; margin-bottom:14px;">
+            <div style="flex:1; min-width:0;">
+              <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">scope</label>
+              <select defaultValue="{{ mfScope }}" style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 10px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;">
+                <option value="global">Global</option>
+                <option value="synology-nas">synology-nas</option>
+                <option value="rpi-living">rpi-living</option>
+                <option value="minipc-01">minipc-01</option>
+              </select>
+            </div>
+            <div style="width:132px; flex:none;">
+              <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">timeout (ms)</label>
+              <input defaultValue="{{ mfTimeout }}" placeholder="default" style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;">
+            </div>
+          </div>
+          <div style="margin-bottom:8px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <span style="font-size:12px; color:#424245;">parameters</span>
+              <button type="button" onClick="{{ onAddParam }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:4px 11px; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;">+ add</button>
+            </div>
+            <sc-for list="{{ params }}" as="p" hint-placeholder-count="1">
+              <div style="border:1px solid rgba(15,0,0,0.12); border-radius:4px; padding:10px; margin-bottom:8px; display:flex; gap:8px; align-items:center;">
+                <input defaultValue="{{ p.name }}" placeholder="containerName" style="flex:1; min-width:0; height:32px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:6px 10px; font-family:inherit; font-size:13px; color:#201d1d; box-sizing:border-box;">
+                <div style="display:flex; border:1px solid rgba(15,0,0,0.12); border-radius:4px; overflow:hidden; flex:none;">
+                  <button type="button" onClick="{{ p.onInput }}" style="border:none; padding:6px 9px; font-family:inherit; font-size:11.5px; cursor:pointer; color:{{ p.inputFg }}; background:{{ p.inputBg }};">input</button>
+                  <button type="button" onClick="{{ p.onService }}" style="border:none; border-left:1px solid rgba(15,0,0,0.12); padding:6px 9px; font-family:inherit; font-size:11.5px; cursor:pointer; color:{{ p.serviceFg }}; background:{{ p.serviceBg }};">service</button>
+                </div>
+                <button type="button" onClick="{{ p.onReq }}" title="required" style="width:30px; height:30px; flex:none; border:1px solid rgba(15,0,0,0.18); border-radius:4px; background:{{ p.reqBg }}; color:#fdfcfc; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center;">{{ p.reqMark }}</button>
+                <button type="button" onClick="{{ p.onRemove }}" style="border:none; background:transparent; color:#9a9898; font-family:inherit; font-size:16px; line-height:1; cursor:pointer; flex:none; padding:0 2px;">×</button>
+              </div>
+            </sc-for>
+            <p style="font-size:11.5px; color:#646262; margin:4px 0 0; line-height:1.5;"><span style="font-weight:600; color:#424245;">service</span> binds to containerName / composePath; <span style="font-weight:600; color:#424245;">input</span> is supplied when the skill runs.</p>
+          </div>
+        </sc-if>
+
+      </div>
+
+      <div style="padding:8px 24px 22px; display:flex; gap:10px; align-items:center; justify-content:flex-end;">
+        <sc-if value="{{ modalEdit }}" hint-placeholder-val="{{ false }}">
+          <button type="button" onClick="{{ onDeleteModal }}" style="margin-right:auto; border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:8px 14px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer;">delete</button>
+        </sc-if>
+        <button type="button" onClick="{{ onCloseModal }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:8px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer;">cancel</button>
+        <button type="button" onClick="{{ onSaveModal }}" style="background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:8px 18px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap;">{{ modalSubmit }}</button>
+      </div>
+
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== SCAN DIALOG ===== -->
+  <sc-if value="{{ scanOpen }}" hint-placeholder-val="{{ false }}">
+  <div class="opscroll" onClick="{{ onCloseScan }}" style="position:fixed; inset:0; background:rgba(15,0,0,0.34); display:flex; align-items:flex-start; justify-content:center; padding:48px 24px; z-index:62; overflow-y:auto;">
+    <div onClick="{{ onModalCardClick }}" style="width:100%; max-width:580px; background:#fdfcfc; border:1px solid rgba(15,0,0,0.2); box-shadow:0 16px 48px rgba(15,0,0,0.22); animation:opIn 0.18s ease both;">
+      <div style="padding:22px 24px 4px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <h2 style="margin:0; font-size:16px; font-weight:700;">scan {{ scanDevice }}</h2>
+          <button type="button" onClick="{{ onCloseScan }}" style="border:none; background:transparent; color:#9a9898; font-family:inherit; font-size:19px; line-height:1; cursor:pointer; padding:0;">×</button>
+        </div>
+        <p style="margin:6px 0 0; font-size:12.5px; color:#646262; line-height:1.5;">Select the containers to manage as services. Live status is read fresh from the host.</p>
+      </div>
+      <div style="padding:16px 24px 4px;">
+        <sc-if value="{{ scanScanning }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; align-items:center; gap:10px; padding:22px 4px; font-size:13px; color:#646262;"><span style="display:inline-block; width:8px; height:14px; background:#646262; animation:opBlink 0.9s step-end infinite;"></span> Scanning…</div>
+        </sc-if>
+        <sc-if value="{{ scanReady }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; gap:10px; padding:7px 2px; border-bottom:1px solid #646262; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#646262;">
+            <span style="width:26px; flex:none;"></span>
+            <span style="flex:1;">container</span>
+            <span style="width:150px; flex:none;">image</span>
+            <span style="width:72px; flex:none;">status</span>
+          </div>
+          <sc-for list="{{ scanContainers }}" as="c" hint-placeholder-count="5">
+            <div onClick="{{ c.onToggle }}" style="display:flex; gap:10px; align-items:center; padding:9px 2px; border-bottom:1px solid rgba(15,0,0,0.1); cursor:pointer;">
+              <span style="width:26px; flex:none; display:flex; justify-content:center;"><span style="width:16px; height:16px; border:1px solid #646262; border-radius:3px; background:{{ c.boxBg }}; color:#fdfcfc; font-size:11px; display:flex; align-items:center; justify-content:center;">{{ c.check }}</span></span>
+              <span style="flex:1; font-size:13px; font-weight:600; display:flex; align-items:center; gap:7px;">{{ c.containerName }} <sc-if value="{{ c.managed }}" hint-placeholder-val="{{ false }}"><span style="font-size:9.5px; font-weight:500; color:#9a9898; border:1px solid rgba(15,0,0,0.16); border-radius:4px; padding:0 5px;">managed</span></sc-if></span>
+              <span style="width:150px; flex:none; font-size:11.5px; color:#646262; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ c.image }}</span>
+              <span style="width:72px; flex:none; font-size:11.5px; color:{{ c.statusFg }};">{{ c.status }}</span>
+            </div>
+          </sc-for>
+        </sc-if>
+      </div>
+      <div style="padding:14px 24px 22px; display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" onClick="{{ onCloseScan }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:8px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer;">cancel</button>
+        <button type="button" onClick="{{ onScanAdd }}" style="background:{{ scanAddBg }}; color:#fdfcfc; border:none; border-radius:4px; padding:8px 18px; font-family:inherit; font-size:13px; font-weight:500; cursor:{{ scanAddCursor }}; white-space:nowrap;">{{ scanAddLabel }}</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== RUN SKILL DIALOG ===== -->
+  <sc-if value="{{ runOpen }}" hint-placeholder-val="{{ false }}">
+  <div class="opscroll" onClick="{{ onCloseRun }}" style="position:fixed; inset:0; background:rgba(15,0,0,0.34); display:flex; align-items:flex-start; justify-content:center; padding:48px 24px; z-index:62; overflow-y:auto;">
+    <div onClick="{{ onModalCardClick }}" style="width:100%; max-width:486px; background:#fdfcfc; border:1px solid rgba(15,0,0,0.2); box-shadow:0 16px 48px rgba(15,0,0,0.22); animation:opIn 0.18s ease both;">
+      <div style="padding:22px 24px 4px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <h2 style="margin:0; font-size:16px; font-weight:700;">run {{ runSkill }}</h2>
+          <button type="button" onClick="{{ onCloseRun }}" style="border:none; background:transparent; color:#9a9898; font-family:inherit; font-size:19px; line-height:1; cursor:pointer; padding:0;">×</button>
+        </div>
+        <p style="margin:6px 0 0; font-size:12.5px; color:#646262; line-height:1.5;">Run <code style="background:#f1eeee; padding:1px 5px; border-radius:3px;">{{ runSkill }}</code> on {{ runService }}. This executes the command below on the host.</p>
+      </div>
+      <div style="padding:16px 24px 4px;">
+        <pre style="background:#201d1d; color:#cfcccc; overflow-x:auto; border-radius:4px; padding:12px 14px; font-size:12px; margin:0 0 16px; font-family:inherit;">{{ runCmd }}</pre>
+        <sc-for list="{{ runParams }}" as="p" hint-placeholder-count="0">
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">{{ p.label }}</label>
+            <input placeholder="{{ p.placeholder }}" style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;">
+          </div>
+        </sc-for>
+        <sc-if value="{{ runNoParams }}" hint-placeholder-val="{{ false }}"><p style="font-size:12px; color:#9a9898; margin:0 0 8px;">No inputs required — the container is resolved from the service row.</p></sc-if>
+      </div>
+      <div style="padding:14px 24px 22px; display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" onClick="{{ onCloseRun }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:8px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer;">cancel</button>
+        <button type="button" onClick="{{ onRunSubmit }}" style="background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:8px 18px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap;">{{ runSubmitLabel }}</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== RENAME DIALOG ===== -->
+  <sc-if value="{{ renameOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ onCloseRename }}" style="position:fixed; inset:0; background:rgba(15,0,0,0.34); display:flex; align-items:flex-start; justify-content:center; padding:48px 24px; z-index:62; overflow-y:auto;">
+    <div onClick="{{ onModalCardClick }}" style="width:100%; max-width:430px; background:#fdfcfc; border:1px solid rgba(15,0,0,0.2); box-shadow:0 16px 48px rgba(15,0,0,0.22); animation:opIn 0.18s ease both;">
+      <div style="padding:22px 24px 4px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <h2 style="margin:0; font-size:16px; font-weight:700;">rename service</h2>
+          <button type="button" onClick="{{ onCloseRename }}" style="border:none; background:transparent; color:#9a9898; font-family:inherit; font-size:19px; line-height:1; cursor:pointer; padding:0;">×</button>
+        </div>
+        <p style="margin:6px 0 0; font-size:12.5px; color:#646262; line-height:1.5;">Change the display name for {{ renameContainer }}. The container identity stays the same.</p>
+      </div>
+      <div style="padding:18px 24px 4px;">
+        <label style="display:block; font-size:12px; color:#424245; margin-bottom:6px;">name</label>
+        <input value="{{ renameValue }}" onInput="{{ onRenameInput }}" placeholder="web-01" style="width:100%; height:38px; border:1px solid rgba(15,0,0,0.12); background:#f8f7f7; border-radius:4px; padding:8px 12px; font-family:inherit; font-size:13.5px; color:#201d1d; box-sizing:border-box;">
+      </div>
+      <div style="padding:16px 24px 22px; display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" onClick="{{ onCloseRename }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:8px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer;">cancel</button>
+        <button type="button" onClick="{{ onRenameSubmit }}" style="background:#201d1d; color:#fdfcfc; border:none; border-radius:4px; padding:8px 18px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer;">save</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== CONFIRM ===== -->
+  <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ onConfirmNo }}" style="position:fixed; inset:0; background:rgba(15,0,0,0.34); display:flex; align-items:center; justify-content:center; padding:24px; z-index:70;">
+    <div onClick="{{ onModalCardClick }}" style="width:100%; max-width:392px; background:#fdfcfc; border:1px solid rgba(15,0,0,0.2); box-shadow:0 16px 48px rgba(15,0,0,0.22); animation:opIn 0.16s ease both; padding:22px 24px;">
+      <h2 style="margin:0 0 8px; font-size:15px; font-weight:700;">{{ confirmTitle }}</h2>
+      <p style="margin:0 0 20px; font-size:12.5px; color:#646262; line-height:1.6;">{{ confirmBody }}</p>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" onClick="{{ onConfirmNo }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:8px 16px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer;">cancel</button>
+        <button type="button" onClick="{{ onConfirmYes }}" style="background:{{ confirmBg }}; color:#fdfcfc; border:none; border-radius:4px; padding:8px 18px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap;">{{ confirmLabel }}</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== TOAST ===== -->
+  <sc-if value="{{ toastOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:80; background:#201d1d; color:#fdfcfc; border-radius:4px; padding:11px 18px; font-size:13px; display:flex; align-items:center; gap:10px; box-shadow:0 10px 30px rgba(15,0,0,0.28); animation:opIn 0.2s ease both;">
+    <span style="font-weight:700; color:{{ toastMarkFg }};">{{ toastMark }}</span>
+    <span>{{ toastMsg }}</span>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180,&quot;height&quot;:820}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.state = {
+      route: 'dashboard',
+      diagVariant: 0,
+      auditOpen: null,
+      modal: null,
+      modalParams: [],
+      confirm: null,
+      toast: null,
+      activeProvider: 'OpenCode Zen',
+      diag: {},
+      svcExtra: {},
+      svcNameOverride: {},
+      svcDeleted: {},
+      deviceDeleted: {},
+      skillResult: {},
+      scan: null,
+      runDlg: null,
+      renameDlg: null,
+    };
+    this.PRE = { cmd:'$', sys:'\u00b7', ok:'+', warn:'!', result:'=' };
+    this.COL = { cmd:'#fdfcfc', sys:'#9a9898', ok:'#30d158', warn:'#ff9f0a', result:'#4ea1ff' };
+    this.heroId = 's-pg';
+  }
+
+  // ===================== DATA =====================
+  deviceData = [
+    { id:'d1', name:'synology-nas', host:'192.168.1.10', model:'Synology DS923+', os:'DSM 7.2', created:'May 2', updated:'2h ago',
+      ctx:'config under /volume1/docker · sudo needs a password · backups 02:00\u201304:00',
+      services:[
+        { id:'s-pg', name:'postgres', containerName:'postgres', image:'postgres:16', composePath:'/volume1/docker/db/compose.yml', outcome:'degraded',
+          synth:{ summary:'postgres is refusing connections \u2014 /volume1 is full and the write-ahead log can\u2019t flush, so every write is failing.',
+            problems:['disk usage at 98% on /volume1 \u2014 27.4 GB free of 1.8 TB','FATAL: could not write to file "pg_wal/0000000100000A3": No space left on device','11 connection attempts refused in the last 5 minutes'],
+            suggestions:['prune stale backups in /volume1/backups (last 6 nights = 142 GB)','restart postgres once \u2265 5 GB is reclaimed','move pg_wal to the SSD volume /volume2 to isolate write pressure'] },
+          runs:[
+            { id:'pg-r1', when:'13:42', status:'degraded', synth:{ summary:'postgres is refusing connections \u2014 /volume1 is full and the WAL can\u2019t flush.', problems:['disk usage at 98% on /volume1','No space left on device on pg_wal','11 connections refused in 5 min'], suggestions:['prune /volume1/backups (142 GB)','restart once \u2265 5 GB free','move pg_wal to /volume2'] } },
+            { id:'pg-r2', when:'06:10', status:'healthy', synth:{ summary:'postgres was healthy \u2014 connections nominal, no errors across 200 lines.', problems:[], suggestions:[] } },
+          ] },
+        { id:'s-plex', name:'plex', containerName:'plex', image:'plexinc/pms-docker', composePath:null, outcome:'healthy', runs:[] },
+        { id:'s-jelly', name:'jellyfin', containerName:'jellyfin', image:'jellyfin/jellyfin', composePath:null, outcome:'healthy',
+          runs:[ { id:'jf-r1', when:'09:50', status:'healthy', synth:{ summary:'jellyfin is healthy \u2014 transcoding nominal, no errors across 200 lines.', problems:[], suggestions:[] } } ] },
+        { id:'s-nc', name:'nextcloud', containerName:'nextcloud-aio', image:'nextcloud:29-aio', composePath:'/volume1/docker/nextcloud/compose.yml', outcome:'healthy', runs:[] },
+        { id:'s-pp', name:'photoprism', containerName:'photoprism', image:'photoprism/photoprism', composePath:'/volume1/docker/photoprism/compose.yml', outcome:'healthy', runs:[] },
+      ] },
+    { id:'d2', name:'rpi-living', host:'192.168.1.21', model:'Raspberry Pi 4 (8GB)', os:'Raspberry Pi OS', created:'Apr 18', updated:'6d ago',
+      ctx:'low-power host · avoid heavy image pulls during the day',
+      services:[
+        { id:'s-pi', name:'pihole', containerName:'pihole', image:'pihole/pihole', composePath:'/home/ops/pihole/compose.yml', outcome:'healthy', runs:[] },
+        { id:'s-ha', name:'homeassistant', containerName:'homeassistant', image:'ghcr.io/home-assistant', composePath:'/home/ops/ha/compose.yml', outcome:'healthy',
+          runs:[ { id:'ha-r1', when:'13:39', status:'healthy', synth:{ summary:'home assistant restarted cleanly and is responding on :8123.', problems:[], suggestions:[] } } ] },
+        { id:'s-mq', name:'mosquitto', containerName:'mosquitto', image:'eclipse-mosquitto', composePath:null, outcome:'healthy', runs:[] },
+      ] },
+    { id:'d3', name:'minipc-01', host:'192.168.1.30', model:'Beelink SER5', os:'Debian 12', created:'Jun 1', updated:'20m ago',
+      ctx:'reverse proxy + metrics stack · compose under /opt/stacks',
+      services:[
+        { id:'s-gt', name:'gitea', containerName:'gitea', image:'gitea/gitea', composePath:'/opt/stacks/gitea/compose.yml', outcome:'healthy', runs:[] },
+        { id:'s-tr', name:'traefik', containerName:'traefik', image:'traefik:v3', composePath:'/opt/stacks/proxy/compose.yml', outcome:'healthy', runs:[] },
+        { id:'s-gf', name:'grafana', containerName:'grafana', image:'grafana/grafana', composePath:'/opt/stacks/metrics/compose.yml', outcome:'healthy', runs:[] },
+        { id:'s-pr', name:'prometheus', containerName:'prometheus', image:'prom/prometheus', composePath:'/opt/stacks/metrics/compose.yml', outcome:'down',
+          synth:{ summary:'prometheus is down \u2014 the process exited and isn\u2019t being restarted.',
+            problems:['container state: exited (1) 3h ago','no restart policy set \u2014 it won\u2019t come back on its own','/metrics has been unreachable since 10:58'],
+            suggestions:['start the container, or run the up skill on its compose stack','add restart: unless-stopped to the prometheus service','review the scrape config edited just before the exit'] },
+          runs:[ { id:'pr-r1', when:'11:02', status:'down', synth:{ summary:'prometheus exited (1) and has no restart policy.', problems:['exited (1) 3h ago','no restart policy'], suggestions:['start the container','add restart: unless-stopped'] } } ] },
+      ] },
+  ];
+
+  scanPool = {
+    d1:[ { containerName:'watchtower', image:'containrrr/watchtower', status:'running' }, { containerName:'redis', image:'redis:7', status:'running' }, { containerName:'uptime-kuma', image:'louislam/uptime-kuma', status:'running' } ],
+    d2:[ { containerName:'zigbee2mqtt', image:'koenkk/zigbee2mqtt', status:'running' }, { containerName:'node-red', image:'nodered/node-red', status:'exited' } ],
+    d3:[ { containerName:'loki', image:'grafana/loki', status:'running' }, { containerName:'cadvisor', image:'gcr.io/cadvisor/cadvisor', status:'running' } ],
+  };
+
+  skillCatalog = [
+    { id:'sk-restart', name:'restart', deviceId:null, cmd:'docker restart {containerName}', params:[{ name:'containerName', source:'service', required:true }] },
+    { id:'sk-start', name:'start', deviceId:null, cmd:'docker start {containerName}', params:[{ name:'containerName', source:'service', required:true }] },
+    { id:'sk-stop', name:'stop', deviceId:null, cmd:'docker stop {containerName}', params:[{ name:'containerName', source:'service', required:true }] },
+    { id:'sk-tail', name:'tail', deviceId:null, cmd:'docker logs --tail {lines} {containerName}', params:[{ name:'lines', source:'input', required:true },{ name:'containerName', source:'service', required:true }] },
+    { id:'sk-up', name:'up', deviceId:null, cmd:'docker compose -f {composePath} up -d', params:[{ name:'composePath', source:'service', required:true }] },
+    { id:'sk-down', name:'down', deviceId:null, cmd:'docker compose -f {composePath} down', params:[{ name:'composePath', source:'service', required:true }] },
+    { id:'sk-prune', name:'prune-images', deviceId:'d1', cmd:'docker image prune -af --filter "until={hours}h"', params:[{ name:'hours', source:'input', required:true }] },
+  ];
+
+  skillsData = [
+    { name:'diagnoseLogs', scope:'global', cmd:'agent \u2192 fetch logs · synthesize status/problems/suggestions/summary', params:'container', builtin:true },
+    { name:'restart', scope:'global', cmd:'docker restart {containerName}', params:'container' },
+    { name:'start', scope:'global', cmd:'docker start {containerName}', params:'container' },
+    { name:'stop', scope:'global', cmd:'docker stop {containerName}', params:'container' },
+    { name:'up', scope:'global', cmd:'docker compose -f {composePath} up -d', params:'composePath' },
+    { name:'down', scope:'global', cmd:'docker compose -f {composePath} down', params:'composePath' },
+    { name:'tail', scope:'global', cmd:'docker logs --tail {lines} {containerName}', params:'lines, container' },
+    { name:'prune-images', scope:'synology-nas', cmd:'docker image prune -af --filter "until={hours}h"', params:'hours' },
+  ];
+
+  providersData = [
+    { name:'OpenCode Zen', base:'https://zen.opencode.ai/v1', model:'claude-opus-4.5', updated:'2026-06-14' },
+    { name:'Local Ollama', base:'http://192.168.1.30:11434/v1', model:'qwen2.5-coder:14b', updated:'2026-05-30' },
+    { name:'OpenRouter', base:'https://openrouter.ai/api/v1', model:'anthropic/claude-3.7-sonnet', updated:'2026-04-21' },
+  ];
+
+  auditData = [
+    { time:'13:42:08', action:'skill.run', detail:'diagnoseLogs', target:'postgres@synology-nas', result:'degraded', kind:'degraded', synth:'bad' },
+    { time:'13:39:51', action:'skill.run', detail:'restart', target:'homeassistant@rpi-living', result:'succeeded', kind:'ok' },
+    { time:'12:18:30', action:'service.scan', detail:'scanServices', target:'synology-nas', result:'5 found', kind:'neutral' },
+    { time:'11:02:17', action:'skill.run', detail:'stop', target:'prometheus@minipc-01', result:'succeeded', kind:'ok' },
+    { time:'09:50:44', action:'skill.run', detail:'diagnoseLogs', target:'jellyfin@synology-nas', result:'healthy', kind:'good', synth:'good' },
+    { time:'08:31:02', action:'device.create', detail:'added device', target:'minipc-01', result:'ok', kind:'neutral' },
+    { time:'08:14:55', action:'auth.login', detail:'session started', target:'ops@homelab.local', result:'ok', kind:'neutral' },
+  ];
+
+  // ===================== HELPERS =====================
+  statusBadge(s){ return ({ degraded:'#ff9f0a', down:'#ff3b30', healthy:'#1f8a4e' })[s] || '#9a9898'; }
+  resultColor(kind){ return ({ ok:'#1f8a4e', good:'#1f8a4e', degraded:'#a8700a', bad:'#c01a12', neutral:'#646262' })[kind] || '#646262'; }
+  mkLine(l){ return { t:l.t, pre:this.PRE[l.k], col:this.COL[l.k], wt:(l.k==='cmd'||l.k==='result')?'700':'400' }; }
+
+  effectiveDevices(){
+    const delD = this.state.deviceDeleted, delS = this.state.svcDeleted, extra = this.state.svcExtra, nameOv = this.state.svcNameOverride;
+    return this.deviceData.filter(d => !delD[d.id]).map(d => {
+      const all = [...d.services, ...(extra[d.id] || [])].filter(s => !delS[s.id]).map(s => ({ ...s, name: nameOv[s.id] || s.name }));
+      return { ...d, services: all };
+    });
+  }
+  svcIndex(){
+    const map = {};
+    for (const dev of this.effectiveDevices()) for (const svc of dev.services) map[svc.id] = { dev, svc };
+    return map;
+  }
+  satisfiable(p, svc){
+    if (p.source !== 'service' || !p.required) return true;
+    if (p.name === 'composePath') return !!svc.composePath;
+    if (p.name === 'composeProject') return !!svc.composeProject;
+    return true;
+  }
+  visibleSkills(dev, svc){
+    return this.skillCatalog.filter(sk => (sk.deviceId === null || sk.deviceId === dev.id) && sk.params.every(p => this.satisfiable(p, svc)));
+  }
+  buildNarration(dev, svc){
+    const o = svc.outcome;
+    const status = o === 'degraded' ? 'DEGRADED' : (o === 'down' ? 'DOWN' : 'HEALTHY');
+    const dur = o === 'degraded' ? '11.3' : (o === 'down' ? '7.9' : '9.4');
+    const mid = o === 'degraded'
+      ? { k:'warn', t:'pattern detected: ENOSPC \u2014 write-ahead log flush failing' }
+      : (o === 'down'
+        ? { k:'warn', t:'container state: exited (1) \u2014 no restart policy set' }
+        : { k:'ok', t:'no error patterns across 200 log lines' });
+    return [
+      { k:'cmd', t:'opspilot diagnose ' + svc.containerName + '@' + dev.name },
+      { k:'sys', t:'connecting to ' + dev.host + ':22 via ssh' },
+      { k:'ok', t:'authenticated as ops (ed25519 key)' },
+      { k:'sys', t:'resolving container ' + svc.containerName },
+      { k:'sys', t:'fetching last 200 log lines' },
+      { k:'ok', t:'received 200 lines (18.4 KB)' },
+      { k:'sys', t:'loading device context' },
+      { k:'sys', t:'analyzing with claude-opus-4.5 · OpenCode Zen' },
+      mid,
+      { k:'sys', t:'synthesizing assessment' },
+      { k:'result', t:'done in ' + dur + 's \u2014 status: ' + status },
+    ];
+  }
+  synthFor(svc){
+    if (svc.synth) return { status: svc.outcome, summary: svc.synth.summary, problems: svc.synth.problems, suggestions: svc.synth.suggestions };
+    return { status:'healthy', summary: svc.containerName + ' is healthy \u2014 no error patterns across 200 log lines.', problems:[], suggestions:[] };
+  }
+  diagView(dev, svc){
+    const d = this.state.diag[svc.id] || { phase:'idle', narr:0 };
+    const narration = this.buildNarration(dev, svc);
+    const all = narration.map(l => this.mkLine(l));
+    const running = d.phase === 'running';
+    const done = d.phase === 'done';
+    const replay = d.phase === 'replay';
+    const lines = running ? all.slice(0, d.narr || 0) : (done ? all : []);
+    let synth;
+    if (replay){ const run = (svc.runs || []).find(r => r.id === d.runId); synth = run ? { status:run.status, summary:run.synth.summary, problems:run.synth.problems, suggestions:run.synth.suggestions } : this.synthFor(svc); }
+    else synth = this.synthFor(svc);
+    const show = done || replay;
+    const runs = (svc.runs || []).map(r => ({ id:r.id, label: r.when + ' · ' + r.status, dot:this.statusBadge(r.status), onClick:() => this.replayRun(svc.id, r.id) }));
+    return {
+      open: d.phase !== 'idle' || (svc.runs || []).length > 0,
+      diagTerminal: running || done,
+      running, show,
+      lines, allLines: all, lineCount: narration.length,
+      status: (synth.status || '').toUpperCase(),
+      dot: this.statusBadge(synth.status),
+      summary: synth.summary, problems: synth.problems, suggestions: synth.suggestions,
+      noProblems: (synth.problems || []).length === 0, noSuggestions: (synth.suggestions || []).length === 0,
+      problemCount: (synth.problems || []).length, suggestionCount: (synth.suggestions || []).length,
+      runs, hasRuns: runs.length > 0,
+    };
+  }
+
+  // ===================== NAV =====================
+  go(route){ this.setState({ route }); }
+  setVariant(i){ this.setState({ diagVariant:i }); }
+  toggleAudit(i){ this.setState(s => ({ auditOpen: s.auditOpen === i ? null : i })); }
+
+  // ===================== DIAGNOSE (keyed, timestamp-driven) =====================
+  setDiag(svcId, patch){ this.setState(s => ({ diag: { ...s.diag, [svcId]: { ...(s.diag[svcId] || {}), ...patch } } })); }
+  replayRun(svcId, runId){ this.setDiag(svcId, { phase:'replay', runId }); }
+  runDiagnose(svcId){
+    const K = this.constructor;
+    K._timers = K._timers || {};
+    if (K._timers[svcId]){ clearTimeout(K._timers[svcId]); K._timers[svcId] = null; }
+    const idx = this.svcIndex()[svcId];
+    if (!idx) return;
+    const total = this.buildNarration(idx.dev, idx.svc).length;
+    const start = Date.now();
+    this.setDiag(svcId, { phase:'running', narr:0, runId:null });
+    const live = () => (this.__host && this.__host.logic ? this.__host.logic.state : this.state);
+    const tick = () => {
+      const n = Math.min(total, Math.floor((Date.now() - start) / 300) + 1);
+      const cur = (live().diag[svcId] || {}).narr;
+      if (n !== cur) this.setDiag(svcId, { narr:n });
+      if (n >= total){ K._timers[svcId] = null; setTimeout(() => this.setDiag(svcId, { phase:'done' }), 450); }
+      else K._timers[svcId] = setTimeout(tick, 300);
+    };
+    K._timers[svcId] = setTimeout(tick, 300);
+  }
+  openDiagnosis(){ this.setState({ route:'diagnosis' }); this.runDiagnose(this.heroId); }
+
+  // ===================== TOAST =====================
+  toast(msg, kind){
+    const K = this.constructor;
+    if (K._toastT) clearTimeout(K._toastT);
+    this.setState({ toast:{ msg, kind: kind || 'ok' } });
+    K._toastT = setTimeout(() => this.setState({ toast:null }), 2600);
+  }
+
+  // ===================== CONFIRM =====================
+  askConfirm(cfg){ this.setState({ confirm:cfg }); }
+  closeConfirm(){ this.setState({ confirm:null }); }
+  runConfirm(){ const c = this.state.confirm; if (!c) return; this.setState({ confirm:null }); if (c.onConfirm) c.onConfirm(); }
+
+  // ===================== DEVICE / SERVICE CRUD =====================
+  deleteDeviceConfirm(dev){
+    this.askConfirm({ title:'Delete device?', tone:'danger', confirm:'delete',
+      body:'This permanently removes ' + dev.name + ' and its stored SSH credentials. This cannot be undone.',
+      onConfirm:() => { this.setState(s => ({ deviceDeleted:{ ...s.deviceDeleted, [dev.id]:true } })); this.toast('device deleted', 'danger'); } });
+  }
+  deleteServiceConfirm(svc){
+    this.askConfirm({ title:'Delete service?', tone:'danger', confirm:'delete',
+      body:'This stops managing ' + svc.name + ' in OpsPilot. The container itself is not touched. This cannot be undone.',
+      onConfirm:() => { this.setState(s => ({ svcDeleted:{ ...s.svcDeleted, [svc.id]:true } })); this.toast('service deleted', 'danger'); } });
+  }
+
+  // ----- scan dialog -----
+  openScan(dev){
+    this.setState({ scan:{ deviceId:dev.id, deviceName:dev.name, phase:'scanning', containers:[], submitting:false } });
+    const K = this.constructor;
+    if (K._scanT) clearTimeout(K._scanT);
+    K._scanT = setTimeout(() => {
+      this.setState(s => (s.scan && s.scan.deviceId === dev.id) ? ({ scan:{ ...s.scan, phase:'ready', containers:this.scanContainersFor(dev) } }) : {});
+    }, 1200);
+  }
+  scanContainersFor(dev){
+    const eff = this.svcIndex();
+    const managed = (this.effectiveDevices().find(d => d.id === dev.id) || { services:[] }).services.map(s => ({
+      containerName: s.containerName, image: s.image, status: s.outcome === 'down' ? 'exited' : 'running', managed:true, checked:false,
+    }));
+    const fresh = (this.scanPool[dev.id] || []).map(c => ({ ...c, managed:false, checked:false }));
+    return [...managed, ...fresh];
+  }
+  toggleScanRow(containerName){
+    this.setState(s => s.scan ? ({ scan:{ ...s.scan, containers: s.scan.containers.map(c => c.containerName === containerName ? { ...c, checked: !c.checked } : c) } }) : {});
+  }
+  closeScan(){ this.setState({ scan:null }); }
+  scanAdd(){
+    const scan = this.state.scan;
+    if (!scan) return;
+    const picked = scan.containers.filter(c => c.checked && !c.managed);
+    if (picked.length === 0) return;
+    const newSvc = picked.map((c, i) => ({ id:'x-' + scan.deviceId + '-' + c.containerName, name:c.containerName, containerName:c.containerName, image:c.image, composePath:null, outcome:'healthy', runs:[] }));
+    this.setState(s => ({ svcExtra:{ ...s.svcExtra, [scan.deviceId]: [...(s.svcExtra[scan.deviceId] || []), ...newSvc] }, scan:null }));
+    this.toast('added ' + picked.length + (picked.length === 1 ? ' service' : ' services'));
+  }
+
+  // ----- run skill dialog -----
+  openRun(dev, svc, skill){
+    const params = skill.params.filter(p => p.source === 'input').map(p => ({ name:p.name, required:p.required }));
+    this.setState({ runDlg:{ svcId:svc.id, skillId:skill.id, skillName:skill.name, serviceName:svc.name, cmd:skill.cmd, params, submitting:false } });
+  }
+  closeRun(){ this.setState({ runDlg:null }); }
+  runSubmit(){
+    const r = this.state.runDlg;
+    if (!r) return;
+    this.setState(s => ({ skillResult:{ ...s.skillResult, [r.svcId]:{ status:'succeeded', message: r.skillName + ' · exit 0 · 0.4s' } }, runDlg:null }));
+    this.toast('ran ' + r.skillName + ' on ' + r.serviceName);
+  }
+
+  // ----- rename dialog -----
+  openRename(svc){ this.setState({ renameDlg:{ svcId:svc.id, containerName:svc.containerName, value:svc.name } }); }
+  closeRename(){ this.setState({ renameDlg:null }); }
+  renameInput(e){ const v = e && e.target ? e.target.value : ''; this.setState(s => s.renameDlg ? ({ renameDlg:{ ...s.renameDlg, value:v } }) : {}); }
+  renameSubmit(){
+    const r = this.state.renameDlg;
+    if (!r) return;
+    const v = (r.value || '').trim() || r.containerName;
+    this.setState(s => ({ svcNameOverride:{ ...s.svcNameOverride, [r.svcId]:v }, renameDlg:null }));
+    this.toast('renamed service');
+  }
+
+  // ===================== MODAL FORMS (device / provider / skill) =====================
+  openModal(type, mode, data){
+    mode = mode || 'create';
+    data = data || {};
+    let form = {}, title = '', desc = '';
+    if (type === 'device'){
+      title = mode === 'edit' ? 'edit device' : 'add device';
+      desc = mode === 'edit' ? 'update the host and, optionally, replace its SSH credentials.' : 'enter the host address and its SSH credentials. they are encrypted at rest.';
+      form = { name:data.name || '', host:data.host || '', user:data.user || 'ops', ctx:data.ctx || '' };
+    } else if (type === 'provider'){
+      title = mode === 'edit' ? 'edit provider' : 'add provider';
+      desc = mode === 'edit' ? 'update the endpoint; leave the API key blank to keep the current one.' : 'enter the endpoint, model and API key. validated with a live test-call before it is saved.';
+      form = { base:data.base || '', model:data.model || '' };
+    } else {
+      title = mode === 'edit' ? 'edit skill' : 'add skill';
+      desc = 'a fixed command template with typed {placeholders} \u2014 every placeholder needs a matching parameter.';
+      form = { name:data.name || '', cmd:data.cmd || '', scope:data.scope || 'global', timeout:data.timeout || '' };
+    }
+    const submit = mode === 'edit' ? 'save changes' : ('add ' + type);
+    let params = [];
+    if (type === 'skill'){
+      params = mode === 'edit' ? (data.paramRows || [{ name:'containerName', source:'service', required:true }]) : [{ name:'', source:'input', required:false }];
+    }
+    this.setState({ modal:{ type, mode, form, title, desc, submit }, modalParams:params });
+  }
+  closeModal(){ this.setState({ modal:null, modalParams:[] }); }
+  addParam(){ this.setState(s => ({ modalParams:[...s.modalParams, { name:'', source:'input', required:false }] })); }
+  removeParam(i){ this.setState(s => ({ modalParams: s.modalParams.filter((_, idx) => idx !== i) })); }
+  setParamSource(i, src){ this.setState(s => ({ modalParams: s.modalParams.map((p, idx) => idx === i ? { ...p, source:src } : p) })); }
+  toggleParamReq(i){ this.setState(s => ({ modalParams: s.modalParams.map((p, idx) => idx === i ? { ...p, required:!p.required } : p) })); }
+
+  // ===================== PROVIDERS =====================
+  activateProvider(name){ this.setState({ activeProvider:name }); this.toast(name + ' is now the active provider'); }
+
+  // ===================== RENDER =====================
+  renderVals(){
+    const r = this.state.route;
+    const eff = this.effectiveDevices();
+
+    // nav
+    const navDefs = [
+      { key:'dashboard', label:'overview', tag:'' },
+      { key:'devices', label:'devices', tag:String(eff.length) },
+      { key:'diagnosis', label:'diagnose', tag:'' },
+      { key:'skills', label:'skills', tag:String(this.skillsData.length) },
+      { key:'providers', label:'providers', tag:String(this.providersData.length) },
+      { key:'audit', label:'audit', tag:'' },
+    ];
+    const navItems = navDefs.map(n => {
+      const active = r === n.key;
+      return { label:n.label, tag:n.tag, marker: active ? '\u25b8' : ' ', mk: active ? '#201d1d' : 'transparent',
+        fg: active ? '#201d1d' : '#646262', bg: active ? '#f1eeee' : 'transparent', weight: active ? '700' : '500',
+        onClick: n.key === 'diagnosis' ? () => this.openDiagnosis() : () => this.go(n.key) };
+    });
+
+    // dashboard
+    const tiles = [
+      { label:'devices', value:String(eff.length), sub: eff.length + ' online', color:'#201d1d' },
+      { label:'services', value:'12', sub:'10 running · 1 degraded · 1 down', color:'#201d1d' },
+      { label:'skill runs · 24h', value:'23', sub:'96% success', color:'#201d1d' },
+      { label:'avg diagnose', value:'11.4s', sub:'target < 15s', color:'#1f8a4e' },
+    ];
+    const fleet = eff.map(d => {
+      const bad = d.services.some(s => s.outcome === 'degraded');
+      const down = d.services.some(s => s.outcome === 'down');
+      const running = d.services.filter(s => s.outcome !== 'down').length;
+      return { name:d.name, model:d.model, host:d.host, dot: bad ? '#ff9f0a' : (down ? '#ff3b30' : '#30d158'), summary: d.services.length + ' services · ' + running + ' up' };
+    });
+    const recent = this.auditData.slice(0,4).map(a => ({ time:a.time.slice(0,5), detail:a.detail, target:a.target, result:a.result, rcolor:this.resultColor(a.kind) }));
+
+    // devices
+    const devices = eff.map(dev => {
+      const services = dev.services.map(svc => {
+        const dv = this.diagView(dev, svc);
+        const skills = this.visibleSkills(dev, svc).map(sk => ({ name:sk.name, onClick:() => this.openRun(dev, svc, sk) }));
+        const res = this.state.skillResult[svc.id];
+        return {
+          name:svc.name, containerName:svc.containerName, image:svc.image,
+          diagLabel: dv.running ? 'diagnosing…' : 'diagnose',
+          onDiagnose:() => this.runDiagnose(svc.id),
+          onRename:() => this.openRename(svc),
+          onDelete:() => this.deleteServiceConfirm(svc),
+          skills,
+          hasResult: !!res, resultMsg: res ? res.message : '', resultColor: res && res.status === 'failed' ? '#c01a12' : '#1f8a4e',
+          diagOpen: dv.open, diagTerminal: dv.diagTerminal, diagRunning: dv.running, diagShow: dv.show,
+          diagLines: dv.lines, diagStatus: dv.status, diagDot: dv.dot, diagSummary: dv.summary,
+          diagProblems: dv.problems, diagSuggestions: dv.suggestions, diagNoProblems: dv.noProblems, diagNoSuggestions: dv.noSuggestions,
+          runs: dv.runs, hasRuns: dv.hasRuns,
+        };
+      });
+      return {
+        name:dev.name, host:dev.host, model:dev.model, created:dev.created, updated:dev.updated, ctx:dev.ctx,
+        svcCountLabel: services.length + ' managed',
+        isEmpty: services.length === 0, hasServices: services.length > 0,
+        services,
+        onEdit:() => this.openModal('device','edit',{ name:dev.name, host:dev.host, ctx:dev.ctx, user:'ops' }),
+        onDelete:() => this.deleteDeviceConfirm(dev),
+        onScan:() => this.openScan(dev),
+      };
+    });
+
+    // diagnosis hero
+    const heroIdx = this.svcIndex()[this.heroId];
+    const hv = heroIdx ? this.diagView(heroIdx.dev, heroIdx.svc) : { lines:[], allLines:[], running:false, show:false, status:'', dot:'#9a9898', summary:'', problems:[], suggestions:[], problemCount:0, suggestionCount:0, lineCount:0 };
+    const variantTabs = ['01 · terminal','02 · split','03 · report'].map((label,i) => ({ label, onClick:() => this.setVariant(i),
+      fg: i === this.state.diagVariant ? '#201d1d' : '#646262', bb: i === this.state.diagVariant ? '#201d1d' : 'transparent', weight: i === this.state.diagVariant ? '700' : '500' }));
+
+    // skills page
+    const skills = this.skillsData.map(s => {
+      const g = s.scope === 'global';
+      return { name:s.name, scope:s.scope, cmd:s.cmd, params:s.params, builtin:!!s.builtin,
+        scopeBorder: g ? 'rgba(15,0,0,0.18)' : '#201d1d', scopeFg: g ? '#646262' : '#201d1d',
+        onEdit:() => this.openModal('skill','edit',{ name:s.name, cmd:s.cmd, scope:s.scope, paramRows: s.params.split(',').map(x => ({ name:x.trim(), source:'service', required:true })) }) };
+    });
+
+    // providers
+    const providers = this.providersData.map(p => {
+      const active = this.state.activeProvider === p.name;
+      return { name:p.name, base:p.base, model:p.model, updated:p.updated,
+        dot: active ? '#30d158' : '#9a9898', border: active ? '#646262' : 'rgba(15,0,0,0.12)',
+        statusLabel: active ? 'active' : 'inactive', statusFg: active ? '#1f8a4e' : '#9a9898', canActivate: !active,
+        onActivate:() => this.activateProvider(p.name), onEdit:() => this.openModal('provider','edit',{ base:p.base, model:p.model }) };
+    });
+
+    // audit
+    const audit = this.auditData.map((a,i) => {
+      const open = this.state.auditOpen === i;
+      const isPg = a.synth === 'bad';
+      const data = a.synth === 'good' ? { summary:'jellyfin is healthy \u2014 transcoding nominal, no errors across 200 lines.', problems:[], suggestions:[] }
+        : (isPg ? this.synthFor(this.deviceData[0].services[0]) : null);
+      return { time:a.time, action:a.action, detail:a.detail, target:a.target, result:a.result, rcolor:this.resultColor(a.kind),
+        cursor: a.synth ? 'pointer' : 'default', open,
+        summary: data ? data.summary : '', problems: data ? data.problems : [], suggestions: data ? data.suggestions : [],
+        noProblems: data ? data.problems.length === 0 : true, noSuggestions: data ? data.suggestions.length === 0 : true,
+        onToggle:() => { if (a.synth) this.toggleAudit(i); } };
+    });
+
+    // modal
+    const modal = this.state.modal;
+    const mf = modal ? modal.form : {};
+    const params = (this.state.modalParams || []).map((p, i) => ({
+      name:p.name,
+      inputFg: p.source === 'input' ? '#fdfcfc' : '#646262', inputBg: p.source === 'input' ? '#201d1d' : '#fdfcfc',
+      serviceFg: p.source === 'service' ? '#fdfcfc' : '#646262', serviceBg: p.source === 'service' ? '#201d1d' : '#fdfcfc',
+      reqBg: p.required ? '#201d1d' : '#fdfcfc', reqMark: p.required ? '\u2713' : '',
+      onInput:() => this.setParamSource(i, 'input'), onService:() => this.setParamSource(i, 'service'), onReq:() => this.toggleParamReq(i), onRemove:() => this.removeParam(i),
+    }));
+
+    // scan
+    const scan = this.state.scan;
+    const scanHasSel = !!scan && scan.phase === 'ready' && scan.containers.some(c => c.checked && !c.managed);
+    const scanContainers = scan && scan.phase === 'ready' ? scan.containers.map(c => ({
+      containerName:c.containerName, image:c.image, status:c.status, managed:c.managed,
+      check: c.checked ? '\u2713' : '', boxBg: c.checked ? '#201d1d' : '#fdfcfc',
+      statusFg: c.status === 'exited' ? '#c01a12' : '#1f8a4e', onToggle:() => this.toggleScanRow(c.containerName),
+    })) : [];
+
+    // run
+    const run = this.state.runDlg;
+    const runParams = run ? run.params.map(p => ({ label: p.required ? p.name : (p.name + ' (optional)'), placeholder:p.name })) : [];
+
+    // rename
+    const rn = this.state.renameDlg;
+
+    return {
+      showShell: r !== 'login' && r !== 'register',
+      rLogin: r === 'login', rRegister: r === 'register', rDashboard: r === 'dashboard',
+      rDevices: r === 'devices', rDiagnosis: r === 'diagnosis', rSkills: r === 'skills', rProviders: r === 'providers', rAudit: r === 'audit',
+      user:'ops@homelab.local', clock:'mon 19 jun · 13:42', navItems,
+      onSignIn:() => this.go('dashboard'), onSignOut:() => this.go('login'),
+      onGotoRegister:() => this.go('register'), onGotoLogin:() => this.go('login'),
+      onGotoDevices:() => this.go('devices'), onDiagnose:() => this.openDiagnosis(),
+      tiles, fleet, recent, devices,
+      onAddDevice:() => this.openModal('device','create'),
+
+      // diagnosis hero
+      diagTarget:'postgres@synology-nas',
+      diagLines: hv.lines, allLines: hv.allLines, diagRunning: hv.running, showSynth: hv.show,
+      synthStatus: hv.status, synthStatusShort: hv.status, synthDot: hv.dot, synthSummary: hv.summary,
+      problems: hv.problems, suggestions: hv.suggestions, problemCount: hv.problemCount, suggestionCount: hv.suggestionCount, lineCount: hv.lineCount,
+      variantTabs, dv0: this.state.diagVariant === 0, dv1: this.state.diagVariant === 1, dv2: this.state.diagVariant === 2,
+      onRerun:() => this.runDiagnose(this.heroId),
+      onApply:() => this.askConfirm({ title:'Run restart on postgres?', tone:'neutral', confirm:'restart',
+        body:'Run restart on postgres. This executes `docker restart postgres` on synology-nas and is recorded in the audit log.',
+        onConfirm:() => this.toast('ran restart on postgres') }),
+
+      skills, providers, audit,
+      onAddSkill:() => this.openModal('skill','create'), onAddProvider:() => this.openModal('provider','create'),
+
+      // modal
+      modalOpen: !!modal, modalDevice: !!modal && modal.type === 'device', modalProvider: !!modal && modal.type === 'provider', modalSkill: !!modal && modal.type === 'skill',
+      modalEdit: !!modal && modal.mode === 'edit', modalTitle: modal ? modal.title : '', modalDesc: modal ? modal.desc : '', modalSubmit: modal ? modal.submit : '',
+      mfName: mf.name || '', mfHost: mf.host || '', mfUser: mf.user || '', mfCtx: mf.ctx || '', mfBase: mf.base || '', mfModel: mf.model || '', mfCmd: mf.cmd || '', mfScope: mf.scope || 'global', mfTimeout: mf.timeout || '',
+      params, onAddParam:() => this.addParam(), onCloseModal:() => this.closeModal(), onModalCardClick:(e) => { if (e && e.stopPropagation) e.stopPropagation(); },
+      onSaveModal:() => { const t = modal ? modal.type : 'item'; const ed = modal && modal.mode === 'edit'; this.closeModal(); this.toast(t + (ed ? ' updated' : ' added')); },
+      onDeleteModal:() => { const t = modal ? modal.type : 'item'; this.closeModal(); this.toast(t + ' deleted', 'danger'); },
+
+      // scan
+      scanOpen: !!scan, scanDevice: scan ? scan.deviceName : '', scanScanning: !!scan && scan.phase === 'scanning', scanReady: !!scan && scan.phase === 'ready',
+      scanContainers, scanAddLabel: scan && scan.submitting ? 'adding…' : 'add selected',
+      scanAddBg: scanHasSel ? '#201d1d' : '#c9c6c6', scanAddCursor: scanHasSel ? 'pointer' : 'default',
+      onCloseScan:() => this.closeScan(), onScanAdd:() => this.scanAdd(),
+
+      // run skill
+      runOpen: !!run, runSkill: run ? run.skillName : '', runService: run ? run.serviceName : '', runCmd: run ? run.cmd : '',
+      runParams, runNoParams: !!run && run.params.length === 0, runSubmitLabel: run && run.submitting ? 'running…' : 'run',
+      onCloseRun:() => this.closeRun(), onRunSubmit:() => this.runSubmit(),
+
+      // rename
+      renameOpen: !!rn, renameContainer: rn ? rn.containerName : '', renameValue: rn ? rn.value : '',
+      onRenameInput:(e) => this.renameInput(e), onCloseRename:() => this.closeRename(), onRenameSubmit:() => this.renameSubmit(),
+
+      // confirm + toast
+      confirmOpen: !!this.state.confirm, confirmTitle: this.state.confirm ? this.state.confirm.title : '', confirmBody: this.state.confirm ? this.state.confirm.body : '',
+      confirmLabel: this.state.confirm ? this.state.confirm.confirm : '', confirmBg: this.state.confirm && this.state.confirm.tone === 'danger' ? '#c01a12' : '#201d1d',
+      onConfirmYes:() => this.runConfirm(), onConfirmNo:() => this.closeConfirm(),
+      toastOpen: !!this.state.toast, toastMsg: this.state.toast ? this.state.toast.msg : '',
+      toastMark: this.state.toast && this.state.toast.kind === 'danger' ? '[x]' : '[+]', toastMarkFg: this.state.toast && this.state.toast.kind === 'danger' ? '#ff6b61' : '#30d158',
+    };
+  }
+}
+</script>
+</body>
+</html>

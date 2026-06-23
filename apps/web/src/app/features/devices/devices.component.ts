@@ -3,25 +3,14 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { DevicesStore } from '@app/features/devices/data/devices.store';
 import { DeviceFormDialog, type DeviceFormDialogContext } from '@app/features/devices/dialogs/device-form.dialog';
-import {
-  DeviceServicesComponent,
-  type DeviceStatus,
-} from '@app/features/services/components/device-services.component';
+import { DeviceServicesComponent } from '@app/features/services/components/device-services.component';
 import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
+import { dotClass, type ServiceStatus } from '@app/shared/status';
 import { type Device } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
-
-// status → status-dot text color for the device-level dot; unknown (no services / no runs)
-// falls back to grey. mirrors the per-service DOT_CLASS/UNKNOWN_DOT maps in device-services.
-const DEVICE_DOT_CLASS: Record<DeviceStatus, string> = {
-  degraded: 'text-op-warning',
-  down: 'text-op-danger',
-  healthy: 'text-op-success-text',
-  unknown: 'text-op-mute',
-};
 
 // device inventory view. store + client provided here (not providedIn: 'root', per angular.md); the form dialog gets the store via context since it renders in a cdk overlay outside this injector.
 @Component({
@@ -46,7 +35,7 @@ export class DevicesComponent {
   // per-device aggregate status, keyed by device id, fed by each child's (statusChange) emit.
   // the DiagnosisStore is scoped to each device-services row, so the worst-of-services status
   // can only reach the parent through this surfaced output.
-  private readonly deviceStatuses = signal<Record<string, DeviceStatus>>({});
+  private readonly deviceStatuses = signal<Record<string, ServiceStatus>>({});
 
   constructor() {
     void this.store.load();
@@ -54,11 +43,11 @@ export class DevicesComponent {
 
   // status → device-dot color; an unseen/absent device id renders grey (unknown).
   deviceDotClass(deviceId: string): string {
-    return DEVICE_DOT_CLASS[this.deviceStatuses()[deviceId] ?? 'unknown'];
+    return dotClass(this.deviceStatuses()[deviceId] ?? 'unknown');
   }
 
   // records a child's surfaced aggregate so the device-name dot can read it.
-  setDeviceStatus(deviceId: string, status: DeviceStatus): void {
+  setDeviceStatus(deviceId: string, status: ServiceStatus): void {
     this.deviceStatuses.update((statuses) => ({ ...statuses, [deviceId]: status }));
   }
 

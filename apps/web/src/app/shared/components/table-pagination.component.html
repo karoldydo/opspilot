@@ -1,0 +1,54 @@
+<div class="flex items-center justify-between gap-3">
+  <span class="text-op-mute text-xs">{{ rangeLabel() }}</span>
+
+  <nav class="mx-0 w-auto justify-end" aria-label="table pagination" hlmPagination>
+    <ul hlmPaginationContent>
+      <li hlmPaginationItem>
+        <button
+          type="button"
+          aria-label="go to previous page"
+          [disabled]="page() === 1"
+          (click)="go(page() - 1)"
+          hlmBtn
+          size="sm"
+          variant="ghost"
+        >
+          ‹ prev
+        </button>
+      </li>
+
+      @for (token of tokens(); track $index) {
+        <li hlmPaginationItem>
+          @if (token === 'ellipsis') {
+            <hlm-pagination-ellipsis />
+          } @else {
+            <button
+              type="button"
+              [attr.aria-current]="token === page() ? 'page' : null"
+              [variant]="token === page() ? 'outline' : 'ghost'"
+              (click)="go(token)"
+              hlmBtn
+              size="icon"
+            >
+              {{ token }}
+            </button>
+          }
+        </li>
+      }
+
+      <li hlmPaginationItem>
+        <button
+          type="button"
+          aria-label="go to next page"
+          [disabled]="page() === pageCount()"
+          (click)="go(page() + 1)"
+          hlmBtn
+          size="sm"
+          variant="ghost"
+        >
+          next ›
+        </button>
+      </li>
+    </ul>
+  </nav>
+</div>

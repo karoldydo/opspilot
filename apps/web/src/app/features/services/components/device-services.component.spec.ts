@@ -4,16 +4,17 @@ import { DiagnosisClient } from '@app/features/diagnosis/data/diagnosis.client';
 import { DiagnosisStore } from '@app/features/diagnosis/data/diagnosis.store';
 import { ServicesClient } from '@app/features/services/data/services.client';
 import { ServicesStore } from '@app/features/services/data/services.store';
+import { type ServiceStatus } from '@app/shared/status';
 import { type RunRecord, type Service } from '@opspilot/shared';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 
-import { DeviceServicesComponent, type DeviceStatus } from './device-services.component';
+import { DeviceServicesComponent } from './device-services.component';
 
 const deviceId = '00000000-0000-0000-0000-000000000001';
 
-async function emittedStatus(mocks: ReturnType<typeof makeMocks>): Promise<DeviceStatus> {
+async function emittedStatus(mocks: ReturnType<typeof makeMocks>): Promise<ServiceStatus> {
   const fixture = setup(mocks);
-  const emitted: DeviceStatus[] = [];
+  const emitted: ServiceStatus[] = [];
   fixture.componentInstance.statusChange.subscribe((status) => emitted.push(status));
 
   fixture.componentRef.setInput('deviceId', deviceId);

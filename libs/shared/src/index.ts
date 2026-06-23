@@ -26,6 +26,7 @@ export * from './lib/schemas/run-step.schema';
 export * from './lib/schemas/scan-result.schema';
 export * from './lib/schemas/service-create-request.schema';
 export * from './lib/schemas/service-update-request.schema';
+export * from './lib/schemas/service-with-status.schema';
 export * from './lib/schemas/service.schema';
 export * from './lib/schemas/skill-command-template.schema';
 export * from './lib/schemas/skill-create-request.schema';
