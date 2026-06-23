@@ -420,29 +420,29 @@ links, imports, query-param "device"/"service" wiring that fed the hero).
 
 #### Automated
 
-- [x] 1.1 Typecheck passes (api + web)
-- [x] 1.2 API tests pass
-- [x] 1.3 Lint passes (api + web)
+- [x] 1.1 Typecheck passes (api + web) — a3ceb3c
+- [x] 1.2 API tests pass — a3ceb3c
+- [x] 1.3 Lint passes (api + web) — a3ceb3c
 
 #### Manual
 
-- [x] 1.4 Single-service GET returns service for valid pair, 404s for absent/cross-device id
+- [x] 1.4 Single-service GET returns service for valid pair, 404s for absent/cross-device id — a3ceb3c
 
 ### Phase 2: ServiceDetailComponent + route
 
 #### Automated
 
-- [ ] 2.1 Typecheck passes (web)
-- [ ] 2.2 Web tests pass
-- [ ] 2.3 Lint passes (web)
-- [ ] 2.4 Build passes (web)
+- [x] 2.1 Typecheck passes (web)
+- [x] 2.2 Web tests pass
+- [x] 2.3 Lint passes (web)
+- [x] 2.4 Build passes (web)
 
 #### Manual
 
-- [ ] 2.5 Deep-link resolves service, seeds latest run without auto-stream, shows unknown for no-runs
-- [ ] 2.6 Re-run streams to result; problems/suggestions render; skills run; replay renders statically
-- [ ] 2.7 Edit renames; Delete confirms and returns to /devices
-- [ ] 2.8 Not-found / loading / error states render sensibly
+- [x] 2.5 Deep-link resolves service, seeds latest run without auto-stream, shows unknown for no-runs
+- [x] 2.6 Re-run streams to result; problems/suggestions render; skills run; replay renders statically
+- [x] 2.7 Edit renames; Delete confirms and returns to /devices
+- [x] 2.8 Not-found / loading / error states render sensibly
 
 ### Phase 3: Slim the services list
 

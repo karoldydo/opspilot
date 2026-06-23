@@ -24,6 +24,15 @@ export const appRoutes: Route[] = [
         path: 'devices',
       },
       {
+        // service detail: the full operational surface for one service, nested under /devices so
+        // the "devices" nav item stays active (exact: false).
+        loadComponent: () =>
+          import('./features/services/service-detail.component').then(
+            ({ ServiceDetailComponent }) => ServiceDetailComponent
+          ),
+        path: 'devices/:deviceId/services/:serviceId',
+      },
+      {
         // diagnose-hero: drill-in from a service row, parameterised by device + service.
         loadComponent: () =>
           import('./features/diagnosis/diagnose-hero.component').then(
