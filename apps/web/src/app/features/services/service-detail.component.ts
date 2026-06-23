@@ -4,6 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, injec
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DevicesClient } from '@app/features/devices/data/devices.client';
+import { SynthesisCardComponent } from '@app/features/diagnosis/components/synthesis-card.component';
 import { DiagnosisClient } from '@app/features/diagnosis/data/diagnosis.client';
 import { DiagnosisStore } from '@app/features/diagnosis/data/diagnosis.store';
 import { ServiceSkillsComponent } from '@app/features/services/components/service-skills.component';
@@ -15,29 +16,11 @@ import {
 } from '@app/features/services/dialogs/rename-service.dialog';
 import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
-import { type Device, type DiagnosisSynthesis, type RunRecord, type RunStep, type Service } from '@opspilot/shared';
+import { badgeClass, dotClass, statusFromSynthesis } from '@app/shared/status';
+import { type Device, type RunRecord, type RunStep, type Service } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
-
-// status → synthesis-badge fill (cream text on the on-cream status ramp, mockup statusBadge()).
-const BADGE_CLASS: Record<DiagnosisSynthesis['status'], string> = {
-  degraded: 'bg-op-warning text-op-cream',
-  down: 'bg-op-danger text-op-cream',
-  healthy: 'bg-op-success-text text-op-cream',
-};
-
-// unknown is client-only (not in the wire enum) — a neutral grey badge for a service with
-// no runs, so it never reads as green. kept off the BADGE_CLASS map, which is keyed on the
-// three real statuses only.
-const UNKNOWN_BADGE = 'bg-op-surface-card text-op-mute';
-
-// status → recent-run dot text color (the ● glyph in a replay chip).
-const DOT_CLASS: Record<DiagnosisSynthesis['status'], string> = {
-  degraded: 'text-op-warning',
-  down: 'text-op-danger',
-  healthy: 'text-op-success-text',
-};
 
 // step kind → terminal prefix glyph + line color (mockup palette).
 const STEP_CLASS: Record<RunStep['kind'], { colorClass: string; prefix: string }> = {
@@ -56,7 +39,15 @@ const STEP_CLASS: Record<RunStep['kind'], { colorClass: string; prefix: string }
 // context since they render in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, RouterLink, ClickableDirective, ServiceSkillsComponent, ...HlmAlertDialogImports],
+  imports: [
+    DatePipe,
+    DecimalPipe,
+    RouterLink,
+    ClickableDirective,
+    ServiceSkillsComponent,
+    SynthesisCardComponent,
+    ...HlmAlertDialogImports,
+  ],
   providers: [ServicesClient, ServicesStore, DiagnosisClient, DiagnosisStore, DevicesClient],
   selector: 'app-service-detail',
   templateUrl: './service-detail.component.html',
@@ -116,6 +107,13 @@ export class ServiceDetailComponent {
   // true when the rendered view is the passive latest run (no fresh/replayed result this session)
   // — drives the "last run · {date}" label.
   protected readonly isLatest = computed(() => !this.entry().result && !this.entry().partial && !!this.latestRun());
+
+  // the identity-header status: the current view's synthesis status mapped to the client status
+  // concept ('unknown' when there's no run yet) so the header badge never reads as green for
+  // a no-runs service. delegates the color map to the shared status util.
+  protected readonly headerStatus = computed(() => statusFromSynthesis(this.view()?.status));
+
+  protected readonly headerBadgeClass = computed(() => badgeClass(this.headerStatus()));
 
   // opening narration burst — every step but a trailing `result` done-line.
   protected readonly leadSteps = computed(() => {
@@ -179,10 +177,8 @@ export class ServiceDetailComponent {
     }
   });
 
-  // status → synthesis-badge fill; null (unknown) falls back to the neutral grey badge.
-  badgeClass(status: DiagnosisSynthesis['status'] | null): string {
-    return status ? BADGE_CLASS[status] : UNKNOWN_BADGE;
-  }
+  // status → recent-run dot text color (replay chip ● glyph), from the shared status util.
+  protected readonly dotClass = dotClass;
 
   async confirmDelete(dialog: { close: () => void }): Promise<void> {
     const service = this.service();
@@ -198,11 +194,6 @@ export class ServiceDetailComponent {
     }
     toast('[-] service deleted');
     void this.router.navigate(['/devices']);
-  }
-
-  // status → recent-run dot text color.
-  dotClass(status: DiagnosisSynthesis['status']): string {
-    return DOT_CLASS[status];
   }
 
   // opens the rename dialog and re-resolves the service on success so the header reflects the

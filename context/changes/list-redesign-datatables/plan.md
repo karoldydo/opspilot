@@ -472,28 +472,28 @@ No data migration. The new endpoint is additive; the device-scoped service route
 
 #### Automated
 
-- [x] 2.1 Service data-layer tests pass
-- [x] 2.2 Aggregate controller tests pass
-- [x] 2.3 Type checking passes: `npx nx typecheck api`
-- [x] 2.4 Lint passes: `npx nx lint api`
-- [x] 2.5 API builds: `npx nx build api`
+- [x] 2.1 Service data-layer tests pass — 198dc91
+- [x] 2.2 Aggregate controller tests pass — 198dc91
+- [x] 2.3 Type checking passes: `npx nx typecheck api` — 198dc91
+- [x] 2.4 Lint passes: `npx nx lint api` — 198dc91
+- [x] 2.5 API builds: `npx nx build api` — 198dc91
 
 #### Manual
 
-- [x] 2.6 `GET /api/services` returns correct latest status; no-runs ⇒ null
-- [x] 2.7 Cross-user isolation verified
+- [x] 2.6 `GET /api/services` returns correct latest status; no-runs ⇒ null — 198dc91
+- [x] 2.7 Cross-user isolation verified — 198dc91
 
 ### Phase 3: Extract app-synthesis-card (adopt in service-detail)
 
 #### Automated
 
-- [ ] 3.1 Type checking passes: `npx nx typecheck web`
-- [ ] 3.2 Lint passes: `npx nx lint web`
-- [ ] 3.3 Web unit tests pass
+- [x] 3.1 Type checking passes: `npx nx typecheck web`
+- [x] 3.2 Lint passes: `npx nx lint web`
+- [x] 3.3 Web unit tests pass
 
 #### Manual
 
-- [ ] 3.4 Service-detail diagnose surface renders identically (no regression)
+- [x] 3.4 Service-detail diagnose surface renders identically (no regression)
 
 ### Phase 4: /devices fleet "all services" table
 

@@ -18,9 +18,9 @@
           <h1 class="text-[24px] font-bold tracking-[-0.4px]">{{ svc.name }}</h1>
           <span
             class="rounded-[4px] px-[10px] py-[3px] text-[11px] font-bold tracking-[0.5px] uppercase {{
-              badgeClass(view()?.status ?? null)
+              headerBadgeClass()
             }}"
-            >{{ view()?.status ?? 'unknown' }}</span
+            >{{ headerStatus() }}</span
           >
         </div>
         <p class="text-op-mute mt-1.5 text-[13.5px]">
@@ -146,43 +146,7 @@
               last run · {{ run.createdAt | date: 'short' }}
             </div>
           }
-          <div class="mb-4 flex flex-wrap items-center gap-3">
-            @if (v.status; as status) {
-              <span
-                class="rounded-[4px] px-[10px] py-[3px] text-[11px] font-bold tracking-[0.5px] uppercase {{
-                  badgeClass(status)
-                }}"
-                >{{ status }}</span
-              >
-            }
-            <span class="text-op-ink text-[14.5px]">{{ v.summary || 'diagnosing…' }}</span>
-          </div>
-          <div class="grid gap-7 sm:grid-cols-2">
-            <div>
-              <div class="text-op-warning-text mb-2 text-[12px] font-bold">problems</div>
-              @if (v.problems; as problems) {
-                @for (problem of problems; track $index) {
-                  <div class="border-op-hairline text-op-body flex gap-[9px] border-b py-1.5 text-[13px]">
-                    <span class="text-op-danger flex-none font-bold">[x]</span><span>{{ problem }}</span>
-                  </div>
-                } @empty {
-                  <div class="text-op-ash text-[13px]">none detected.</div>
-                }
-              }
-            </div>
-            <div>
-              <div class="text-op-success-text mb-2 text-[12px] font-bold">suggestions</div>
-              @if (v.suggestions; as suggestions) {
-                @for (suggestion of suggestions; track $index) {
-                  <div class="border-op-hairline text-op-body flex gap-[9px] border-b py-1.5 text-[13px]">
-                    <span class="text-op-success-text flex-none font-bold">[+]</span><span>{{ suggestion }}</span>
-                  </div>
-                } @empty {
-                  <div class="text-op-ash text-[13px]">none.</div>
-                }
-              }
-            </div>
-          </div>
+          <app-synthesis-card [synthesis]="v" />
         </div>
       }
     </section>
