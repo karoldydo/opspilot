@@ -1,22 +1,37 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { LlmProvidersClient } from '@app/features/llm-providers/data/llm-providers.client';
 import { LlmProvidersStore } from '@app/features/llm-providers/data/llm-providers.store';
 import {
   LlmProviderFormDialog,
   type LlmProviderFormDialogContext,
 } from '@app/features/llm-providers/dialogs/llm-provider-form.dialog';
+import { clientTable } from '@app/shared/client-table';
+import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
 import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type LlmProvider } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmTableImports } from '@spartan-ng/helm/table';
 
-// llm-provider config view (activate / edit / delete). store + client provided here (not providedIn: 'root', per angular.md); the form dialog gets the store via context since it renders in a cdk overlay outside this injector.
+// llm-provider config view (activate / edit / delete) as a datatable. store + client provided here
+// (not providedIn: 'root', per angular.md); the form dialog gets the store via context since it
+// renders in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, ...HlmAlertDialogImports, ClickableDirective],
+  imports: [
+    ...HlmAlertDialogImports,
+    ...HlmTableImports,
+    ...HlmSelectImports,
+    ClickableDirective,
+    DatePipe,
+    HlmInput,
+    TablePaginationComponent,
+  ],
   providers: [LlmProvidersClient, LlmProvidersStore],
   selector: 'app-llm-providers',
   templateUrl: './llm-providers.component.html',
@@ -32,6 +47,25 @@ export class LlmProvidersComponent {
   protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly providerToDelete = signal<LlmProvider | null>(null);
+
+  // the shared datatable: most-recently-updated first by default, free-text search across
+  // endpoint/model, an active/inactive column filter, client pagination.
+  protected readonly table = clientTable<LlmProvider>({
+    filters: {
+      status: (row, value) => (value === 'active' ? row.active : !row.active),
+    },
+    initialSort: { dir: 'desc', key: 'updated' },
+    searchText: (row) => `${row.baseURL} ${row.model}`,
+    sorters: {
+      endpoint: (row) => row.baseURL.toLowerCase(),
+      model: (row) => row.model.toLowerCase(),
+      updated: (row) => row.updatedAt,
+    },
+    source: this.store.providers,
+  });
+
+  // the active status filter value, mirrored back onto the toolbar select.
+  protected readonly statusFilter = computed(() => this.table.filterValues()['status'] ?? 'all');
 
   constructor() {
     void this.store.load();
@@ -62,6 +96,15 @@ export class LlmProvidersComponent {
   requestDelete(provider: LlmProvider, dialog: { open: () => void }): void {
     this.providerToDelete.set(provider);
     dialog.open();
+  }
+
+  // a header's sort caret: ▲/▼ for the active column, blank otherwise.
+  sortIcon(key: string): string {
+    const sort = this.table.sort();
+    if (!sort || sort.key !== key) {
+      return '';
+    }
+    return sort.dir === 'asc' ? '▲' : '▼';
   }
 
   private openForm(mode: 'create' | 'edit', provider: LlmProvider | null): void {
