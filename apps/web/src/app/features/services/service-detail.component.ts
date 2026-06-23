@@ -140,10 +140,19 @@ export class ServiceDetailComponent {
     return 'standalone container';
   });
 
+  // the serviceId whose stream this reused component instance last drove — closed when the
+  // route switches services so the previous service's EventSource does not leak.
+  private streamedServiceId: null | string = null;
+
   // resolve the service once the route ids bind — never in the constructor (ng0950).
   private readonly serviceEffect = effect(() => {
     const deviceId = this.deviceId();
     const serviceId = this.serviceId();
+    // angular reuses this instance across :serviceId changes; close the prior service's stream.
+    if (this.streamedServiceId && this.streamedServiceId !== serviceId) {
+      this.diagnosis.closeStream(this.streamedServiceId);
+    }
+    this.streamedServiceId = serviceId;
     if (deviceId && serviceId) {
       void this.resolveService(deviceId, serviceId);
     }

@@ -108,6 +108,13 @@ export class DiagnosisStore {
     this.teardowns.set(serviceId, close);
   }
 
+  // closes any open stream for one service without touching its panel state — used when a
+  // long-lived host (the service-detail page) switches serviceId without being destroyed, so
+  // the previous service's EventSource does not leak (sse.md: never leak a stream).
+  closeStream(serviceId: string): void {
+    this.teardown(serviceId);
+  }
+
   private closeAll(): void {
     for (const close of this.teardowns.values()) {
       close();
