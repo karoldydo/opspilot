@@ -5,7 +5,7 @@ import { AuditStore } from '@app/features/audit/data/audit.store';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type DiagnosisSynthesis } from '@opspilot/shared';
 
-// status → terminal status-chip classes: status-fill background with cream text, mirroring device-services.component.
+// status → terminal status-chip classes: status-fill background with cream text, mirroring the fleet table.
 const BADGE_CLASS: Record<DiagnosisSynthesis['status'], string> = {
   degraded: 'bg-op-warning text-op-cream',
   down: 'bg-op-danger text-op-cream',

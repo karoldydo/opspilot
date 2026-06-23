@@ -26,9 +26,9 @@ function errorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-// per-device signal state with mutate-then-refetch, provided at the device-services
-// component (not providedIn: 'root', per angular.md) so each row owns its store and the
-// deviceId passed to every method is the source of truth. zoneless — async client
+// per-device signal state with mutate-then-refetch, provided at the consuming
+// component (not providedIn: 'root', per angular.md) so the deviceId passed to every
+// method is the source of truth. zoneless — async client
 // callbacks don't trigger cd, so state rides a signalState container.
 @Injectable()
 export class ServicesStore {

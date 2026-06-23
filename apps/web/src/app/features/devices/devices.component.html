@@ -11,9 +11,14 @@
       + add device
     </button>
   </header>
-  <p class="text-op-mute mb-7 text-[13.5px]">shared inventory of every device and its SSH credentials.</p>
+  <p class="text-op-mute mb-7 text-[13.5px]">
+    every service across the fleet — filter by host or status, search the lot.
+  </p>
 
   @if (store.error(); as error) {
+    <p class="text-op-danger-text mb-4 text-sm" role="alert">{{ error }}</p>
+  }
+  @if (fleetError(); as error) {
     <p class="text-op-danger-text mb-4 text-sm" role="alert">{{ error }}</p>
   }
 
@@ -32,54 +37,201 @@
       </button>
     </div>
   } @else {
-    @for (device of store.devices(); track device.id) {
-      <div class="border-op-hairline mb-[18px] border">
-        <div class="border-op-hairline flex items-center gap-4 border-b px-[18px] py-[15px]">
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] {{ deviceDotClass(device.id) }}">●</span>
-              <span class="text-[15px] font-bold">{{ device.name }}</span>
-            </div>
-            <div class="text-op-mute mt-0.5 text-[11.5px]">{{ device.host }}</div>
-          </div>
-          <div class="text-op-ash flex-none text-right text-[11px] leading-relaxed">
-            <div>created {{ device.createdAt | date: 'short' }}</div>
-            <div>updated {{ device.updatedAt | date: 'short' }}</div>
-          </div>
-          <div class="flex flex-none gap-[7px]">
-            <button
-              class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
-              type="button"
-              (click)="openEdit(device)"
-              appClickable
-              variant="secondary"
-            >
-              edit
-            </button>
-            <button
-              class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
-              type="button"
-              (click)="requestDelete(device, deleteDialog)"
-              appClickable
-              variant="danger"
-            >
-              delete
-            </button>
-          </div>
-        </div>
-        <div class="bg-op-surface-soft px-[18px] py-[14px]">
-          <app-device-services
-            [deviceId]="device.id"
-            [deviceName]="device.name"
-            (statusChange)="setDeviceStatus(device.id, $event)"
-          />
-        </div>
+    <!-- host filter strip: all-hosts chip + one chip per device (worst-status dot + count) -->
+    <div class="mb-3.5 flex flex-wrap gap-2">
+      <button type="button" [class]="chipClass('all')" (click)="selectHost('all')">
+        <span>all hosts</span>
+        <span class="text-[11px] font-medium opacity-60">{{ fleetCount() }} services</span>
+      </button>
+      @for (chip of hostChips(); track chip.device.id) {
+        <button type="button" [class]="chipClass(chip.device.id)" (click)="selectHost(chip.device.id)">
+          <span class="text-[8px] {{ dotClass(chip.status) }}">●</span>
+          <span>{{ chip.device.name }}</span>
+          <span class="text-[11px] font-medium opacity-60">{{ chip.count }}</span>
+        </button>
+      }
+    </div>
+
+    <!-- active-host action bar: only when a specific host is selected -->
+    @if (selectedDevice(); as device) {
+      <div
+        class="border-op-hairline bg-op-surface-soft flex items-center justify-between gap-3 border border-b-0 px-[14px] py-2.5 text-xs"
+      >
+        <span class="text-op-mute"
+          >managing <span class="text-op-ink font-bold">{{ device.name }}</span> · {{ device.host }}</span
+        >
+        <span class="flex gap-[7px]">
+          <button
+            class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-3 py-1 text-[11.5px] font-medium"
+            type="button"
+            (click)="openScan(device)"
+            appClickable
+            variant="secondary"
+          >
+            scan
+          </button>
+          <button
+            class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-3 py-1 text-[11.5px] font-medium"
+            type="button"
+            (click)="openEdit(device)"
+            appClickable
+            variant="secondary"
+          >
+            edit host
+          </button>
+          <button
+            class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-3 py-1 text-[11.5px] font-medium"
+            type="button"
+            (click)="requestDeleteDevice(device, deviceDeleteDialog)"
+            appClickable
+            variant="danger"
+          >
+            delete host
+          </button>
+        </span>
       </div>
     }
+
+    <!-- toolbar: free-text search + status filter -->
+    <div class="border-op-hairline bg-op-cream flex items-center gap-[9px] border border-b-0 px-[14px] py-3">
+      <input
+        class="bg-op-surface-soft h-9 flex-1"
+        type="search"
+        #search
+        [value]="table.query()"
+        (input)="table.setQuery(search.value)"
+        hlmInput
+        placeholder="search every service, container or host…"
+      />
+      <hlm-select class="flex-none" [value]="statusFilter()" (valueChange)="table.setFilter('status', $event ?? 'all')">
+        <hlm-select-trigger class="bg-op-surface-soft h-9 w-[140px]">
+          <hlm-select-value placeholder="all status" />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          <hlm-select-group>
+            <hlm-select-item value="all">all status</hlm-select-item>
+            <hlm-select-item value="healthy">healthy</hlm-select-item>
+            <hlm-select-item value="degraded">degraded</hlm-select-item>
+            <hlm-select-item value="down">down</hlm-select-item>
+            <hlm-select-item value="unknown">unknown</hlm-select-item>
+          </hlm-select-group>
+        </hlm-select-content>
+      </hlm-select>
+    </div>
+
+    <!-- the fleet table -->
+    <div class="border-op-hairline border">
+      <table hlmTable>
+        <thead hlmTHead>
+          <tr class="bg-op-surface-soft" hlmTr>
+            <th class="w-8 cursor-pointer" hlmTh>
+              <button
+                class="text-op-mute flex w-full cursor-pointer items-center justify-center text-[10px] font-bold tracking-[0.5px] uppercase"
+                type="button"
+                (click)="table.toggleSort('status')"
+              >
+                <span class="sr-only">sort by status</span><span aria-hidden="true">·{{ sortIcon('status') }}</span>
+              </button>
+            </th>
+            <th class="w-[180px] cursor-pointer" hlmTh>
+              <button
+                class="text-op-mute flex w-full cursor-pointer items-center gap-1 text-[10px] font-bold tracking-[0.5px] uppercase"
+                type="button"
+                (click)="table.toggleSort('service')"
+              >
+                service {{ sortIcon('service') }}
+              </button>
+            </th>
+            <th class="w-[150px] cursor-pointer" hlmTh>
+              <button
+                class="text-op-mute flex w-full cursor-pointer items-center gap-1 text-[10px] font-bold tracking-[0.5px] uppercase"
+                type="button"
+                (click)="table.toggleSort('device')"
+              >
+                device {{ sortIcon('device') }}
+              </button>
+            </th>
+            <th class="cursor-pointer" hlmTh>
+              <button
+                class="text-op-mute flex w-full cursor-pointer items-center gap-1 text-[10px] font-bold tracking-[0.5px] uppercase"
+                type="button"
+                (click)="table.toggleSort('container')"
+              >
+                container {{ sortIcon('container') }}
+              </button>
+            </th>
+            <th class="text-op-mute w-[150px] text-[10px] font-bold tracking-[0.5px] uppercase" hlmTh>compose</th>
+            <th class="text-op-mute w-[120px] text-right text-[10px] font-bold tracking-[0.5px] uppercase" hlmTh>
+              actions
+            </th>
+          </tr>
+        </thead>
+        <tbody hlmTBody>
+          @for (row of table.pageRows(); track row.id) {
+            <tr
+              role="link"
+              [attr.aria-label]="'open ' + row.name"
+              (click)="toService(row)"
+              (keydown.enter)="toService(row)"
+              (keydown.space)="$event.preventDefault(); toService(row)"
+              appClickable
+              hlmTr
+              tabindex="0"
+              variant="primary"
+            >
+              <td hlmTd>
+                <span class="text-[10px] {{ dotClass(statusFromSynthesis(row.status)) }}">●</span>
+              </td>
+              <td class="text-[12.5px] font-semibold" hlmTd>{{ row.name }}</td>
+              <td class="text-op-body text-[11.5px]" hlmTd>{{ row.deviceName }}</td>
+              <td class="text-op-mute truncate text-[11.5px]" hlmTd>{{ row.containerName }}</td>
+              <td class="text-op-ash text-[11px]" hlmTd>{{ composeLabel(row) }}</td>
+              <td hlmTd>
+                <div class="flex justify-end gap-1.5">
+                  <button
+                    class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-0.5 text-[11px]"
+                    type="button"
+                    (click)="$event.stopPropagation(); openRename(row)"
+                    appClickable
+                    variant="secondary"
+                  >
+                    edit
+                  </button>
+                  <button
+                    class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[10px] py-0.5 text-[11px]"
+                    type="button"
+                    (click)="$event.stopPropagation(); requestDeleteService(row, serviceDeleteDialog)"
+                    appClickable
+                    variant="danger"
+                  >
+                    del
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr hlmTr>
+              <td class="text-op-ash py-9 text-center text-[12.5px]" colspan="6" hlmTd>
+                no services match these filters.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="border-op-hairline border-t px-[18px] py-2.5">
+        <app-table-pagination
+          [page]="table.page()"
+          [pageCount]="table.pageCount()"
+          [rangeLabel]="table.rangeLabel()"
+          (pageChange)="table.setPage($event)"
+        />
+      </div>
+    </div>
   }
 </main>
 
-<hlm-alert-dialog #deleteDialog="hlmAlertDialog">
+<hlm-alert-dialog #deviceDeleteDialog="hlmAlertDialog">
   <hlm-alert-dialog-content *hlmAlertDialogPortal>
     <hlm-alert-dialog-header>
       <h2 hlmAlertDialogTitle>delete device?</h2>
@@ -88,8 +240,28 @@
       </p>
     </hlm-alert-dialog-header>
     <hlm-alert-dialog-footer>
-      <button [class]="secondaryAffordance" (click)="deleteDialog.close()" hlmAlertDialogCancel>cancel</button>
-      <button [class]="dangerSolidAffordance" (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>delete</button>
+      <button [class]="secondaryAffordance" (click)="deviceDeleteDialog.close()" hlmAlertDialogCancel>cancel</button>
+      <button [class]="dangerSolidAffordance" (click)="confirmDeleteDevice(deviceDeleteDialog)" hlmAlertDialogAction>
+        delete
+      </button>
+    </hlm-alert-dialog-footer>
+  </hlm-alert-dialog-content>
+</hlm-alert-dialog>
+
+<hlm-alert-dialog #serviceDeleteDialog="hlmAlertDialog">
+  <hlm-alert-dialog-content *hlmAlertDialogPortal>
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>delete service?</h2>
+      <p hlmAlertDialogDescription>
+        this stops managing {{ serviceToDelete()?.name }} in opspilot. the container itself is not touched. this cannot
+        be undone.
+      </p>
+    </hlm-alert-dialog-header>
+    <hlm-alert-dialog-footer>
+      <button [class]="secondaryAffordance" (click)="serviceDeleteDialog.close()" hlmAlertDialogCancel>cancel</button>
+      <button [class]="dangerSolidAffordance" (click)="confirmDeleteService(serviceDeleteDialog)" hlmAlertDialogAction>
+        delete
+      </button>
     </hlm-alert-dialog-footer>
   </hlm-alert-dialog-content>
 </hlm-alert-dialog>

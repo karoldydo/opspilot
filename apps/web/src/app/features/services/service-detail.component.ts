@@ -167,7 +167,7 @@ export class ServiceDetailComponent {
   // serviceIds whose replay history has been fetched — one load per service.
   private readonly loadedRuns = new Set<string>();
 
-  // load the replay history once the route ids resolve (guarded, mirrors device-services).
+  // load the replay history once the route ids resolve (guarded, effect-driven load).
   private readonly runsEffect = effect(() => {
     const deviceId = this.deviceId();
     const serviceId = this.serviceId();

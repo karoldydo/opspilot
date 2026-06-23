@@ -12,9 +12,10 @@ const surfaceBase =
 
 // shared fragment for dark solid controls (hlmbtn default fill = op-ink bg + cream text):
 // a light-surface hover would wash the cream text out, so dark buttons stay in the dark range —
-// lift to charcoal on hover, deepen to ink on active — keeping the cream text legible. ring per variant.
+// deepen to ink-deep on hover/active (darker, never lighter) so the cream text gains contrast
+// rather than washing out. ring per variant.
 const solidBase =
-  'cursor-pointer transition-colors hover:bg-op-charcoal active:bg-op-ink-deep focus-visible:ring-1 focus-visible:outline-none';
+  'cursor-pointer transition-colors hover:bg-op-ink-deep active:bg-op-ink-deep focus-visible:ring-1 focus-visible:outline-none';
 
 // disable-able controls grey out and refuse the pointer when :disabled — the
 // disabled: tailwind variant is css-driven, so native buttons need no js to react.

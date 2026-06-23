@@ -5,6 +5,7 @@
     <ul hlmPaginationContent>
       <li hlmPaginationItem>
         <button
+          class="cursor-pointer disabled:cursor-default"
           type="button"
           aria-label="go to previous page"
           [disabled]="page() === 1"
@@ -23,9 +24,10 @@
             <hlm-pagination-ellipsis />
           } @else {
             <button
+              class="cursor-pointer"
               type="button"
               [attr.aria-current]="token === page() ? 'page' : null"
-              [variant]="token === page() ? 'outline' : 'ghost'"
+              [variant]="token === page() ? 'default' : 'ghost'"
               (click)="go(token)"
               hlmBtn
               size="icon"
@@ -38,6 +40,7 @@
 
       <li hlmPaginationItem>
         <button
+          class="cursor-pointer disabled:cursor-default"
           type="button"
           aria-label="go to next page"
           [disabled]="page() === pageCount()"

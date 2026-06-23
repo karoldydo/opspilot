@@ -77,7 +77,7 @@ describe('ClickableDirective', () => {
   it('keeps dark solid buttons in the dark range (no light surface hover) with a cream ring', async () => {
     const button = await render('solid');
 
-    expect(button.classList.contains('hover:bg-op-charcoal')).toBe(true);
+    expect(button.classList.contains('hover:bg-op-ink-deep')).toBe(true);
     expect(button.classList.contains('active:bg-op-ink-deep')).toBe(true);
     expect(button.classList.contains('focus-visible:ring-op-cream')).toBe(true);
     // a light card-fill hover would wash out the cream text — it must not be applied.
@@ -89,7 +89,7 @@ describe('ClickableDirective', () => {
   it('keeps dark destructive confirm buttons dark with a danger ring', async () => {
     const button = await render('danger-solid');
 
-    expect(button.classList.contains('hover:bg-op-charcoal')).toBe(true);
+    expect(button.classList.contains('hover:bg-op-ink-deep')).toBe(true);
     expect(button.classList.contains('focus-visible:ring-op-danger')).toBe(true);
     expect(button.classList.contains('hover:bg-op-surface-card')).toBe(false);
     expect(button.classList.contains('focus-visible:ring-op-cream')).toBe(false);

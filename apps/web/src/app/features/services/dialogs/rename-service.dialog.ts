@@ -11,7 +11,7 @@ import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle 
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 
-// context the device-services component passes in. the store rides the context
+// context the devices fleet view passes in. the store rides the context
 // (not DI) because the dialog renders in a cdk overlay outside the component
 // injector that provides ServicesStore.
 export interface RenameServiceDialogContext {

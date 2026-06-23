@@ -487,29 +487,29 @@ No data migration. The new endpoint is additive; the device-scoped service route
 
 #### Automated
 
-- [x] 3.1 Type checking passes: `npx nx typecheck web`
-- [x] 3.2 Lint passes: `npx nx lint web`
-- [x] 3.3 Web unit tests pass
+- [x] 3.1 Type checking passes: `npx nx typecheck web` — 73a46a9
+- [x] 3.2 Lint passes: `npx nx lint web` — 73a46a9
+- [x] 3.3 Web unit tests pass — 73a46a9
 
 #### Manual
 
-- [x] 3.4 Service-detail diagnose surface renders identically (no regression)
+- [x] 3.4 Service-detail diagnose surface renders identically (no regression) — 73a46a9
 
 ### Phase 4: /devices fleet "all services" table
 
 #### Automated
 
-- [ ] 4.1 Type checking passes: `npx nx typecheck web`
-- [ ] 4.2 Lint passes: `npx nx lint web`
-- [ ] 4.3 Web unit tests pass
-- [ ] 4.4 No dangling `device-services` references
+- [x] 4.1 Type checking passes: `npx nx typecheck web`
+- [x] 4.2 Lint passes: `npx nx lint web`
+- [x] 4.3 Web unit tests pass
+- [x] 4.4 No dangling `device-services` references
 
 #### Manual
 
-- [ ] 4.5 Fleet table + host strip + per-host actions + header add-device work
-- [ ] 4.6 Status-first sort; unknown rows grey
-- [ ] 4.7 Row click/keyboard → service-detail; Edit/Delete don't navigate; Devices nav active
-- [ ] 4.8 Search/filter/sort reset to page 1; range label accurate; no cards/sub-lists remain
+- [x] 4.5 Fleet table + host strip + per-host actions + header add-device work
+- [x] 4.6 Status-first sort; unknown rows grey
+- [x] 4.7 Row click/keyboard → service-detail; Edit/Delete don't navigate; Devices nav active
+- [x] 4.8 Search/filter/sort reset to page 1; range label accurate; no cards/sub-lists remain
 
 ### Phase 5: /skills datatable
 

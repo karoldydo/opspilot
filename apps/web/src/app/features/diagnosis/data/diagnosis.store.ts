@@ -36,8 +36,8 @@ const emptyEntry: DiagnosisEntry = {
   steps: [],
 };
 
-// signal-based, per-service diagnosis state, provided at the device-services component
-// (not providedIn: 'root', per angular.md) so each device row owns its lifecycle.
+// signal-based, per-service diagnosis state, provided at the consuming component
+// (not providedIn: 'root', per angular.md) so each service surface owns its lifecycle.
 // zoneless — EventSource callbacks don't trigger cd, so state rides a signalState
 // container mutated through patchState (sse.md).
 @Injectable()
@@ -50,7 +50,7 @@ export class DiagnosisStore {
   private readonly teardowns = new Map<string, () => void>();
 
   constructor() {
-    // store is provided per device-services row; on destroy close every open stream (sse.md: never leak).
+    // store is provided per service surface; on destroy close every open stream (sse.md: never leak).
     this.destroyRef.onDestroy(() => this.closeAll());
   }
 

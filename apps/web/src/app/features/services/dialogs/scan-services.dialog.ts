@@ -9,7 +9,7 @@ import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { HlmDialogDescription, HlmDialogFooter, HlmDialogHeader, HlmDialogTitle } from '@spartan-ng/helm/dialog';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 
-// context the device-services component passes into the dialog. the store instance
+// context the devices fleet view passes into the dialog. the store instance
 // rides the context (not DI) because the dialog renders in a cdk overlay outside
 // the component injector that provides ServicesStore (per device-form.dialog.ts).
 export interface ScanServicesDialogContext {

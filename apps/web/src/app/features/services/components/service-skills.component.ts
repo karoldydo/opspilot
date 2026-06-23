@@ -42,7 +42,7 @@ export class ServiceSkillsComponent {
     );
   });
 
-  // load runs after inputs bind — the constructor is too early for a required input (reading it throws ng0950). mirrors device-services.component's loadEffect.
+  // load runs after inputs bind — the constructor is too early for a required input (reading it throws ng0950). uses an effect-driven load.
   private readonly loadEffect = effect(() => {
     void this.load(this.deviceId());
   });
