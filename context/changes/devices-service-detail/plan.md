@@ -432,31 +432,31 @@ links, imports, query-param "device"/"service" wiring that fed the hero).
 
 #### Automated
 
-- [x] 2.1 Typecheck passes (web)
-- [x] 2.2 Web tests pass
-- [x] 2.3 Lint passes (web)
-- [x] 2.4 Build passes (web)
+- [x] 2.1 Typecheck passes (web) — 02485fb
+- [x] 2.2 Web tests pass — 02485fb
+- [x] 2.3 Lint passes (web) — 02485fb
+- [x] 2.4 Build passes (web) — 02485fb
 
 #### Manual
 
-- [x] 2.5 Deep-link resolves service, seeds latest run without auto-stream, shows unknown for no-runs
-- [x] 2.6 Re-run streams to result; problems/suggestions render; skills run; replay renders statically
-- [x] 2.7 Edit renames; Delete confirms and returns to /devices
-- [x] 2.8 Not-found / loading / error states render sensibly
+- [x] 2.5 Deep-link resolves service, seeds latest run without auto-stream, shows unknown for no-runs — 02485fb
+- [x] 2.6 Re-run streams to result; problems/suggestions render; skills run; replay renders statically — 02485fb
+- [x] 2.7 Edit renames; Delete confirms and returns to /devices — 02485fb
+- [x] 2.8 Not-found / loading / error states render sensibly — 02485fb
 
 ### Phase 3: Slim the services list
 
 #### Automated
 
-- [ ] 3.1 Typecheck passes (web)
-- [ ] 3.2 Web tests pass
-- [ ] 3.3 Lint passes (web)
+- [x] 3.1 Typecheck passes (web)
+- [x] 3.2 Web tests pass
+- [x] 3.3 Lint passes (web)
 
 #### Manual
 
-- [ ] 3.4 Rows show only dot · name · container · status · Edit/Delete; no operational UI remains
-- [ ] 3.5 Row click navigates; Edit/Delete do not navigate
-- [ ] 3.6 Status dot reflects latest run (grey for no-runs); row is keyboard-accessible
+- [x] 3.4 Rows show only dot · name · container · status · Edit/Delete; no operational UI remains
+- [x] 3.5 Row click navigates; Edit/Delete do not navigate
+- [x] 3.6 Status dot reflects latest run (grey for no-runs); row is keyboard-accessible
 
 ### Phase 4: Device-level status dot
 

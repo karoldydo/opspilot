@@ -25,143 +25,57 @@
     <div
       class="text-op-mute border-op-hairline-strong flex gap-3 border-b px-0.5 py-[7px] text-[10.5px] font-bold tracking-[0.5px] uppercase"
     >
-      <span class="w-[130px] flex-none">name</span>
+      <span class="w-[150px] flex-none">name</span>
       <span class="flex-1">container</span>
+      <span class="w-[88px] flex-none">status</span>
       <span class="flex-none">actions</span>
     </div>
     @for (service of store.services(); track service.id) {
-      @let diag = diagnosis.entry(service.id);
-      @let view = diag.result ?? diag.partial;
-      <div class="border-op-hairline border-b">
-        <div class="flex flex-wrap items-center gap-3 px-0.5 py-[11px]">
-          <span class="w-[130px] flex-none truncate text-[13.5px] font-semibold">{{ service.name }}</span>
-          <div class="min-w-[130px] flex-1">
-            <span class="text-op-body text-[12.5px]">{{ service.containerName }}</span>
-          </div>
-          <div class="flex flex-none flex-wrap justify-end gap-1.5">
-            <button
-              class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[11px] py-1 text-xs font-medium whitespace-nowrap"
-              type="button"
-              [disabled]="diag.loading"
-              (click)="diagnose(service)"
-              appClickable
-              variant="primary"
-            >
-              {{ diag.loading ? 'diagnosing…' : 'diagnose' }}
-            </button>
-            <a
-              class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs whitespace-nowrap"
-              [queryParams]="{ device: deviceName(), service: service.name }"
-              [routerLink]="['/devices', deviceId(), 'services', service.id, 'diagnose']"
-              appClickable
-              variant="secondary"
-              >open →</a
-            >
-            <app-service-skills [deviceId]="deviceId()" [service]="service" />
-            <button
-              class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs"
-              type="button"
-              (click)="openRename(service)"
-              appClickable
-              variant="secondary"
-            >
-              edit
-            </button>
-            <button
-              class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs"
-              type="button"
-              (click)="requestDelete(service, deleteDialog)"
-              appClickable
-              variant="danger"
-            >
-              delete
-            </button>
-          </div>
+      @let status = diagnosis.entry(service.id).runs[0]?.synthesis?.status ?? null;
+      <div
+        class="border-op-hairline flex flex-wrap items-center gap-3 border-b px-0.5 py-[11px]"
+        role="link"
+        [attr.aria-label]="'open ' + service.name"
+        (click)="goToService(service)"
+        (keydown.enter)="goToService(service)"
+        (keydown.space)="$event.preventDefault(); goToService(service)"
+        appClickable
+        tabindex="0"
+        variant="primary"
+      >
+        <span class="flex w-[150px] flex-none items-center gap-2">
+          <span class="text-[10px] {{ dotClass(status) }}">●</span>
+          <span class="truncate text-[13.5px] font-semibold">{{ service.name }}</span>
+        </span>
+        <div class="min-w-[130px] flex-1">
+          <span class="text-op-body text-[12.5px]">{{ service.containerName }}</span>
         </div>
-
-        @if (diag.error || view || diag.loading || diag.runs.length) {
-          <div class="space-y-3 px-0.5 pt-0.5 pb-4">
-            @if (diag.error) {
-              <p class="text-op-danger-text text-sm" role="alert">{{ diag.error }}</p>
-            } @else if (diag.loading && !view) {
-              <div class="bg-op-ink flex items-center gap-2 rounded-[4px] px-4 py-[14px]">
-                <span class="text-op-ash text-xs">running diagnosis…</span>
-                <span class="animate-op-blink bg-op-cream inline-block h-[13px] w-[7px]"></span>
-              </div>
-            }
-
-            @if (view; as v) {
-              <div class="border-op-hairline bg-op-cream animate-op-fade rounded-[4px] border px-[18px] py-4">
-                <div class="mb-3 flex flex-wrap items-center gap-2.5">
-                  @if (v.status; as status) {
-                    <span
-                      class="text-op-cream rounded-[4px] px-[9px] py-0.5 text-[10.5px] font-bold tracking-[0.5px] uppercase {{
-                        badgeClass(status)
-                      }}"
-                      >{{ status }}</span
-                    >
-                  }
-                  <span class="text-op-ink text-[13.5px]">{{ v.summary || 'diagnosing…' }}</span>
-                </div>
-                <div class="grid gap-5 sm:grid-cols-2">
-                  <div>
-                    <div class="text-op-warning-text mb-1.5 text-[11px] font-bold tracking-[0.5px] uppercase">
-                      problems
-                    </div>
-                    @if (v.problems; as problems) {
-                      @if (problems.length) {
-                        @for (problem of problems; track $index) {
-                          <div class="text-op-body flex gap-2 py-1 text-[12.5px]">
-                            <span class="text-op-danger flex-none font-bold">[x]</span><span>{{ problem }}</span>
-                          </div>
-                        }
-                      } @else {
-                        <div class="text-op-ash text-[12.5px]">none detected.</div>
-                      }
-                    }
-                  </div>
-                  <div>
-                    <div class="text-op-success-text mb-1.5 text-[11px] font-bold tracking-[0.5px] uppercase">
-                      suggestions
-                    </div>
-                    @if (v.suggestions; as suggestions) {
-                      @if (suggestions.length) {
-                        @for (suggestion of suggestions; track $index) {
-                          <div class="text-op-body flex gap-2 py-1 text-[12.5px]">
-                            <span class="text-op-success-text flex-none font-bold">[+]</span
-                            ><span>{{ suggestion }}</span>
-                          </div>
-                        }
-                      } @else {
-                        <div class="text-op-ash text-[12.5px]">none.</div>
-                      }
-                    }
-                  </div>
-                </div>
-              </div>
-            }
-
-            @if (diag.runs.length) {
-              <div>
-                <div class="text-op-mute mb-1.5 text-[10.5px] font-bold tracking-[0.5px] uppercase">recent runs</div>
-                <div class="flex flex-wrap gap-[7px]">
-                  @for (run of diag.runs; track run.id) {
-                    <button
-                      class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-[11.5px]"
-                      type="button"
-                      (click)="replay(service, run)"
-                      appClickable
-                      variant="secondary"
-                    >
-                      <span class="font-bold {{ dotClass(run.synthesis.status) }}">●</span>
-                      {{ run.createdAt | date: 'short' }} · {{ run.synthesis.status }}
-                    </button>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        }
+        <span
+          class="w-[88px] flex-none rounded-[4px] px-[9px] py-0.5 text-center text-[10.5px] font-bold tracking-[0.5px] uppercase {{
+            badgeClass(status)
+          }}"
+          >{{ status ?? 'unknown' }}</span
+        >
+        <div class="flex flex-none flex-wrap justify-end gap-1.5">
+          <button
+            class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs"
+            type="button"
+            (click)="$event.stopPropagation(); openRename(service)"
+            appClickable
+            variant="secondary"
+          >
+            edit
+          </button>
+          <button
+            class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[10px] py-1 text-xs"
+            type="button"
+            (click)="$event.stopPropagation(); requestDelete(service, deleteDialog)"
+            appClickable
+            variant="danger"
+          >
+            delete
+          </button>
+        </div>
       </div>
     }
   }

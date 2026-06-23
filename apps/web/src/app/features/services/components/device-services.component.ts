@@ -1,9 +1,7 @@
-import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { DiagnosisClient } from '@app/features/diagnosis/data/diagnosis.client';
 import { DiagnosisStore } from '@app/features/diagnosis/data/diagnosis.store';
-import { ServiceSkillsComponent } from '@app/features/services/components/service-skills.component';
 import { ServicesClient } from '@app/features/services/data/services.client';
 import { ServicesStore } from '@app/features/services/data/services.store';
 import {
@@ -16,42 +14,57 @@ import {
 } from '@app/features/services/dialogs/scan-services.dialog';
 import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
-import { type DiagnosisSynthesis, type RunRecord, type Service } from '@opspilot/shared';
+import { type DiagnosisSynthesis, type Service } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 
-// status → synthesis-badge fill (cream text on the on-cream status ramp, mockup statusBadge()).
+// status → status-label badge fill (cream text on the on-cream status ramp, mockup statusBadge()).
 const BADGE_CLASS: Record<DiagnosisSynthesis['status'], string> = {
   degraded: 'bg-op-warning text-op-cream',
   down: 'bg-op-danger text-op-cream',
   healthy: 'bg-op-success-text text-op-cream',
 };
 
-// status → recent-run dot text color (the ● glyph in a replay chip).
+// unknown is client-only (not in the wire enum) — a neutral grey badge for a service with no
+// runs, so its status never reads as green. kept off BADGE_CLASS, which is keyed on the three
+// real statuses only.
+const UNKNOWN_BADGE = 'bg-op-surface-card text-op-mute';
+
+// status → status-dot text color (the ● glyph at the head of a row).
 const DOT_CLASS: Record<DiagnosisSynthesis['status'], string> = {
   degraded: 'text-op-warning',
   down: 'text-op-danger',
   healthy: 'text-op-success-text',
 };
 
-// managed-services section for one device row (scan + curated table with rename/delete). each instance provides its own ServicesClient + ServicesStore (not providedIn: 'root', per angular.md) so rows stay isolated; the dialogs get the store via context since they render in a cdk overlay outside this injector.
+// grey dot for a service with no runs (unknown), mirroring UNKNOWN_BADGE.
+const UNKNOWN_DOT = 'text-op-mute';
+
+// managed-services section for one device row (scan + slim curated table). each row shows
+// status · name · container · status label · edit/delete and navigates into the service detail
+// page; everything operational (diagnose/skills/replay) now lives on that page. each instance
+// provides its own ServicesClient + ServicesStore (not providedIn: 'root', per angular.md) so rows
+// stay isolated; the DiagnosisStore here only feeds each row's status dot/label from the latest
+// saved run. dialogs get the store via context since they render in a cdk overlay outside this
+// injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, RouterLink, ...HlmAlertDialogImports, ServiceSkillsComponent, ClickableDirective],
+  imports: [...HlmAlertDialogImports, ClickableDirective],
   providers: [ServicesClient, ServicesStore, DiagnosisClient, DiagnosisStore],
   selector: 'app-device-services',
   templateUrl: './device-services.component.html',
 })
 export class DeviceServicesComponent {
   private readonly dialog = inject(HlmDialogService);
+  private readonly router = inject(Router);
 
   readonly deviceId = input.required<string>();
 
   readonly deviceName = input.required<string>();
 
-  // per-service diagnosis slices (loading/result/error), keyed by service id so
-  // diagnosing one row never clobbers another's panel.
+  // per-service diagnosis slices — in the slim list only the latest saved run is read, to colour
+  // each row's status dot/label.
   protected readonly diagnosis = inject(DiagnosisStore);
 
   protected readonly store = inject(ServicesStore);
@@ -73,8 +86,8 @@ export class DeviceServicesComponent {
     void this.store.load(this.deviceId());
   });
 
-  // once the curated services resolve, fetch each row's recent runs so the replay list
-  // is populated on first render (and after a reload). the set keeps it one fetch per row.
+  // once the curated services resolve, fetch each row's recent runs so the status dot/label is
+  // populated on first render (and after a reload). the set keeps it one fetch per row.
   private readonly runsEffect = effect(() => {
     const deviceId = this.deviceId();
     for (const service of this.store.services()) {
@@ -85,8 +98,9 @@ export class DeviceServicesComponent {
     }
   });
 
-  badgeClass(status: DiagnosisSynthesis['status']): string {
-    return BADGE_CLASS[status];
+  // status → status-label badge fill; null (unknown) falls back to the neutral grey badge.
+  badgeClass(status: DiagnosisSynthesis['status'] | null): string {
+    return status ? BADGE_CLASS[status] : UNKNOWN_BADGE;
   }
 
   async confirmDelete(dialog: { close: () => void }): Promise<void> {
@@ -98,15 +112,15 @@ export class DeviceServicesComponent {
     dialog.close();
   }
 
-  // status → recent-run dot text color.
-  dotClass(status: DiagnosisSynthesis['status']): string {
-    return DOT_CLASS[status];
+  // status → status-dot text color; null (unknown) falls back to grey.
+  dotClass(status: DiagnosisSynthesis['status'] | null): string {
+    return status ? DOT_CLASS[status] : UNKNOWN_DOT;
   }
 
-  // opens a fresh live diagnosis stream for one service row; the store keys the
-  // progressive partial + final result by id and tears the stream down on completion.
-  diagnose(service: Service): void {
-    this.diagnosis.stream(this.deviceId(), service.id);
+  // navigates into the service detail page (the row's primary action). the edit/delete buttons
+  // stopPropagation so they never trigger this.
+  goToService(service: Service): void {
+    void this.router.navigate(['/devices', this.deviceId(), 'services', service.id]);
   }
 
   openRename(service: Service): void {
@@ -127,11 +141,6 @@ export class DeviceServicesComponent {
       contentClass: 'w-fit max-w-[calc(100vw-2rem)] overflow-x-auto sm:max-w-[calc(100vw-2rem)]',
       context,
     });
-  }
-
-  // renders a saved run statically in the row's card — no re-stream (frame d5).
-  replay(service: Service, run: RunRecord): void {
-    this.diagnosis.replay(service.id, run);
   }
 
   requestDelete(service: Service, dialog: { open: () => void }): void {
