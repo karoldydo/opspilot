@@ -41,6 +41,13 @@ export class ServiceController {
     return this.serviceService.findAll(deviceId);
   }
 
+  // single managed service for deep-link/refresh on the service detail page; the existing
+  // findOne 404s on an absent or cross-device id. sibling of the patch/delete routes below.
+  @Get('services/:serviceId')
+  findOne(@Param('deviceId') deviceId: string, @Param('serviceId') serviceId: string): Promise<Service> {
+    return this.serviceService.findOne(deviceId, serviceId);
+  }
+
   @Post('services')
   create(
     @Param('deviceId') deviceId: string,

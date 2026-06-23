@@ -115,6 +115,33 @@ describe('ServiceController (e2e)', () => {
       .expect((r) => expect(r.body).toHaveLength(0));
   });
 
+  it('returns a single managed service for a valid device/service pair', async () => {
+    const created = await request(server())
+      .post(`/devices/${inputDeviceId}/services`)
+      .send({ containerName: 'web', deviceId: inputDeviceId, name: 'Web' })
+      .expect(201);
+    const id = created.body.id;
+
+    const fetched = await request(server()).get(`/devices/${inputDeviceId}/services/${id}`).expect(200);
+    expect(fetched.body).toEqual(created.body);
+  });
+
+  it('404s a single-service read for an absent service id', async () => {
+    await request(server()).get(`/devices/${inputDeviceId}/services/33333333-3333-4333-8333-333333333333`).expect(404);
+  });
+
+  it('404s a single-service read for a cross-device service id', async () => {
+    const otherDeviceId = '44444444-4444-4444-8444-444444444444';
+    db.insert(device).values({ host: '10.0.0.2', id: otherDeviceId, name: 'host-b' }).run();
+    const created = await request(server())
+      .post(`/devices/${inputDeviceId}/services`)
+      .send({ containerName: 'web', deviceId: inputDeviceId, name: 'Web' })
+      .expect(201);
+
+    // the service exists, but not under otherDeviceId — findOne scopes by both ids.
+    await request(server()).get(`/devices/${otherDeviceId}/services/${created.body.id}`).expect(404);
+  });
+
   it('rejects a service body whose deviceId contradicts the path', async () => {
     const res = await request(server())
       .post(`/devices/${inputDeviceId}/services`)

@@ -63,6 +63,26 @@ describe('ServicesClient', () => {
     await expect(promise).rejects.toThrow();
   });
 
+  it('parses a single managed service at the boundary', async () => {
+    const promise = client.getService(deviceId, service.id);
+    const request = httpMock.expectOne(`/api/devices/${deviceId}/services/${service.id}`);
+    expect(request.request.method).toBe('GET');
+    request.flush(service);
+
+    const result = await promise;
+    expect(result).toEqual(service);
+  });
+
+  it('rejects a single-service response carrying a leaked unknown key', async () => {
+    const promise = client.getService(deviceId, service.id);
+    const request = httpMock.expectOne(`/api/devices/${deviceId}/services/${service.id}`);
+    expect(request.request.method).toBe('GET');
+    // a leaked key must fail the strict parse at the boundary.
+    request.flush({ ...service, status: 'Up 2 hours' });
+
+    await expect(promise).rejects.toThrow();
+  });
+
   it('parses a managed-services list at the boundary', async () => {
     const promise = client.listServices(deviceId);
     const request = httpMock.expectOne(`/api/devices/${deviceId}/services`);

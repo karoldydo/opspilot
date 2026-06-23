@@ -24,6 +24,14 @@ export class ServicesClient {
     );
   }
 
+  // single-service fetch for the detail page's deep-link/refresh path, where no warm list
+  // exists. mirrors listServices but parses one object through the same contract.
+  getService(deviceId: string, serviceId: string): Promise<Service> {
+    return firstValueFrom(this.http.get<unknown>(`/api/devices/${deviceId}/services/${serviceId}`)).then((row) =>
+      serviceSchema.parse(row)
+    );
+  }
+
   listServices(deviceId: string): Promise<Service[]> {
     return firstValueFrom(this.http.get<unknown[]>(`/api/devices/${deviceId}/services`)).then((rows) =>
       serviceSchema.array().parse(rows)
