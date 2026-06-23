@@ -167,7 +167,7 @@ Add the fleet read that returns every service (for the authed user) with its lat
 #### Manual Verification:
 
 - `GET /api/services` returns every service for the user with correct latest-run `status`; services with zero runs return `status: null`.
-- Cross-user isolation: a second user's services are not returned.
+- Single-tenant: device/service have no userId column, so the read returns the whole fleet (consistent with GET /devices); the endpoint is still guarded by AuthAppGuard.
 
 **Implementation Note**: Pause for manual confirmation after automated verification.
 
@@ -481,7 +481,7 @@ No data migration. The new endpoint is additive; the device-scoped service route
 #### Manual
 
 - [x] 2.6 `GET /api/services` returns correct latest status; no-runs ⇒ null — 198dc91
-- [x] 2.7 Cross-user isolation verified — 198dc91
+- [x] 2.7 Single-tenant fleet read: device/service carry no userId, whole fleet returned (guarded by AuthAppGuard) — 198dc91
 
 ### Phase 3: Extract app-synthesis-card (adopt in service-detail)
 
