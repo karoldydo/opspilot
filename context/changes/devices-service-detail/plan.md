@@ -474,14 +474,14 @@ links, imports, query-param "device"/"service" wiring that fed the hero).
 
 #### Automated
 
-- [x] 5.1 No references to diagnose-hero / DiagnoseHeroComponent remain
-- [x] 5.2 Lint passes (all)
-- [x] 5.3 Typecheck passes (web + api)
-- [x] 5.4 Tests pass (all)
-- [x] 5.5 Build passes (all)
-- [x] 5.6 Format check clean
+- [x] 5.1 No references to diagnose-hero / DiagnoseHeroComponent remain — 6c2e4b8
+- [x] 5.2 Lint passes (all) — 6c2e4b8
+- [x] 5.3 Typecheck passes (web + api) — 6c2e4b8
+- [x] 5.4 Tests pass (all) — 6c2e4b8
+- [x] 5.5 Build passes (all) — 6c2e4b8
+- [x] 5.6 Format check clean — 6c2e4b8
 
 #### Manual
 
-- [x] 5.7 No navigation to old /diagnose; all diagnosis on the detail page
-- [x] 5.8 Full smoke: list → row → detail → diagnose → skill → replay → rename → delete; nav stays active
+- [x] 5.7 No navigation to old /diagnose; all diagnosis on the detail page — 6c2e4b8
+- [x] 5.8 Full smoke: list → row → detail → diagnose → skill → replay → rename → delete; nav stays active — 6c2e4b8
