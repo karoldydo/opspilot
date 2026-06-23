@@ -457,31 +457,31 @@ No data migration. The new endpoint is additive; the device-scoped service route
 
 #### Automated
 
-- [x] 1.1 Type checking passes: `npx nx typecheck shared && npx nx typecheck web`
-- [x] 1.2 Lint passes: `npx nx lint shared && npx nx lint web`
-- [x] 1.3 `clientTable<T>` unit tests pass
-- [x] 1.4 `status` util unit tests pass
-- [x] 1.5 Shared lib builds: `npx nx build shared`
+- [x] 1.1 Type checking passes: `npx nx typecheck shared && npx nx typecheck web` — f48f935
+- [x] 1.2 Lint passes: `npx nx lint shared && npx nx lint web` — f48f935
+- [x] 1.3 `clientTable<T>` unit tests pass — f48f935
+- [x] 1.4 `status` util unit tests pass — f48f935
+- [x] 1.5 Shared lib builds: `npx nx build shared` — f48f935
 
 #### Manual
 
-- [x] 1.6 `@spartan-ng/helm/pagination` resolves and renders in isolation
-- [x] 1.7 Status colors match app voice (grey unknown, never green)
+- [x] 1.6 `@spartan-ng/helm/pagination` resolves and renders in isolation — f48f935
+- [x] 1.7 Status colors match app voice (grey unknown, never green) — f48f935
 
 ### Phase 2: Backend aggregate GET /api/services + FE fleet client
 
 #### Automated
 
-- [ ] 2.1 Service data-layer tests pass
-- [ ] 2.2 Aggregate controller tests pass
-- [ ] 2.3 Type checking passes: `npx nx typecheck api`
-- [ ] 2.4 Lint passes: `npx nx lint api`
-- [ ] 2.5 API builds: `npx nx build api`
+- [x] 2.1 Service data-layer tests pass
+- [x] 2.2 Aggregate controller tests pass
+- [x] 2.3 Type checking passes: `npx nx typecheck api`
+- [x] 2.4 Lint passes: `npx nx lint api`
+- [x] 2.5 API builds: `npx nx build api`
 
 #### Manual
 
-- [ ] 2.6 `GET /api/services` returns correct latest status; no-runs ⇒ null
-- [ ] 2.7 Cross-user isolation verified
+- [x] 2.6 `GET /api/services` returns correct latest status; no-runs ⇒ null
+- [x] 2.7 Cross-user isolation verified
 
 ### Phase 3: Extract app-synthesis-card (adopt in service-detail)
 

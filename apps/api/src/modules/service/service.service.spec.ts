@@ -4,7 +4,7 @@ import { databaseConfig } from '@api/config/database.config';
 import { DatabaseModule } from '@api/core/database/database.module';
 import { MigrationService } from '@api/core/database/migration/migration.service';
 import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
-import { device } from '@api/core/database/schema';
+import { device, runRecord } from '@api/core/database/schema';
 import { user } from '@api/core/database/schema/auth.schema';
 import { SshCommandTimeoutError } from '@api/integrations/executor/executor.errors';
 import { ExecResult } from '@api/integrations/executor/executor.interface';
@@ -12,6 +12,7 @@ import { EXECUTOR } from '@api/integrations/executor/executor.token';
 import { AuditService } from '@api/modules/audit/audit.service';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { randomUUID } from 'node:crypto';
 import { readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
@@ -263,6 +264,92 @@ describe('ServiceService', () => {
     await expect(
       service.create({ containerName: 'dup', deviceId: inputDeviceId, name: 'second' }, userId)
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  // seed one run_record so findAllWithStatus has a latest synthesis to derive from. createdAt is
+  // explicit so "newest wins" ordering is deterministic; userId defaults to the session user.
+  function seedRun(
+    serviceId: string,
+    deviceId: string,
+    status: 'degraded' | 'down' | 'healthy',
+    createdAt: Date
+  ): void {
+    db.insert(runRecord)
+      .values({
+        createdAt,
+        deviceId,
+        id: randomUUID(),
+        serviceId,
+        synthesis: JSON.stringify({ problems: [], status, suggestions: [], summary: 's' }),
+        userId,
+      })
+      .run();
+  }
+
+  it('findAllWithStatus returns every service with its latest-run status; no-runs ⇒ null', async () => {
+    const withRun = await service.create({ containerName: 'web', deviceId: inputDeviceId, name: 'Web' }, userId);
+    const noRun = await service.create({ containerName: 'db', deviceId: otherDeviceId, name: 'Db' }, userId);
+    seedRun(withRun.id, inputDeviceId, 'degraded', new Date(1000));
+
+    const fleet = await service.findAllWithStatus();
+
+    expect(fleet).toHaveLength(2);
+    const byId = new Map(fleet.map((row) => [row.id, row]));
+    expect(byId.get(withRun.id)?.status).toBe('degraded');
+    expect(byId.get(noRun.id)?.status).toBeNull();
+    // iso-normalized timestamp survives the with-status projection (serviceSchema.shape reuse).
+    expect(byId.get(withRun.id)?.createdAt).toEqual(expect.any(String));
+  });
+
+  it('findAllWithStatus picks the newest run per service (multiple runs ⇒ latest wins)', async () => {
+    const svc = await service.create({ containerName: 'web', deviceId: inputDeviceId, name: 'Web' }, userId);
+    seedRun(svc.id, inputDeviceId, 'down', new Date(1000));
+    seedRun(svc.id, inputDeviceId, 'healthy', new Date(2000));
+
+    const fleet = await service.findAllWithStatus();
+
+    expect(fleet.find((row) => row.id === svc.id)?.status).toBe('healthy');
+  });
+
+  it('derives status from the latest run regardless of which user ran it (global fleet)', async () => {
+    // device/service carry no userId — the fleet is single-tenant. a run written by another
+    // user still sets the service's status; there is no per-user isolation of the service set
+    // or its status (the decision that replaced the unattainable cross-user-isolation check).
+    const otherUserId = 'user-other';
+    db.insert(user).values({ email: 'u2@example.com', id: otherUserId, name: 'u2' }).run();
+    const svc = await service.create({ containerName: 'web', deviceId: inputDeviceId, name: 'Web' }, userId);
+    db.insert(runRecord)
+      .values({
+        createdAt: new Date(1000),
+        deviceId: inputDeviceId,
+        id: randomUUID(),
+        serviceId: svc.id,
+        synthesis: JSON.stringify({ problems: [], status: 'down', suggestions: [], summary: 's' }),
+        userId: otherUserId,
+      })
+      .run();
+
+    const fleet = await service.findAllWithStatus();
+
+    expect(fleet.find((row) => row.id === svc.id)?.status).toBe('down');
+  });
+
+  it('treats a malformed run synthesis as null status (defensive, no 500)', async () => {
+    const svc = await service.create({ containerName: 'web', deviceId: inputDeviceId, name: 'Web' }, userId);
+    db.insert(runRecord)
+      .values({
+        createdAt: new Date(1000),
+        deviceId: inputDeviceId,
+        id: randomUUID(),
+        serviceId: svc.id,
+        synthesis: 'not-json',
+        userId,
+      })
+      .run();
+
+    const fleet = await service.findAllWithStatus();
+
+    expect(fleet.find((row) => row.id === svc.id)?.status).toBeNull();
   });
 
   it('isolates services per device (no cross-device read or mutation)', async () => {

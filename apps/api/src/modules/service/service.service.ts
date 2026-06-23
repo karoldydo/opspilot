@@ -1,10 +1,11 @@
 import { DATABASE_CONNECTION, DatabaseConnection } from '@api/core/database/providers/database-connection.provider';
-import { service } from '@api/core/database/schema';
+import { runRecord, service } from '@api/core/database/schema';
 import { IExecutor } from '@api/integrations/executor/executor.interface';
 import { EXECUTOR } from '@api/integrations/executor/executor.token';
 import { AuditService } from '@api/modules/audit/audit.service';
 import { ConflictException, Inject, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import {
+  diagnosisSynthesisSchema,
   ScannedContainer,
   scannedContainerSchema,
   ScanResult,
@@ -13,8 +14,10 @@ import {
   ServiceCreateRequest,
   serviceSchema,
   ServiceUpdateRequest,
+  ServiceWithStatus,
+  serviceWithStatusSchema,
 } from '@opspilot/shared';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
 import { DockerDaemonDownError, DockerNotFoundError } from './service.errors';
@@ -67,6 +70,27 @@ export class ServiceService {
   async findAll(deviceId: string): Promise<Service[]> {
     const rows = this.db.select().from(service).where(eq(service.deviceId, deviceId)).all();
     return rows.map((row) => this.toContract(row));
+  }
+
+  // fleet read: every service joined to the status of its newest run. the device/service
+  // domain carries no userId (single-tenant), so this returns the whole fleet — consistent
+  // with findAll(deviceId) and GET /devices, no user filter. sqlite has no DISTINCT ON, so we
+  // scan run_records newest-first and keep the first synthesis seen per serviceId (= its latest
+  // run); zero-run services fall through to null. small dataset (perf notes) — no per-row fan-out.
+  async findAllWithStatus(): Promise<ServiceWithStatus[]> {
+    const services = this.db.select().from(service).all();
+    const latestSynthesis = new Map<string, string>();
+    const runs = this.db
+      .select({ serviceId: runRecord.serviceId, synthesis: runRecord.synthesis })
+      .from(runRecord)
+      .orderBy(desc(runRecord.createdAt))
+      .all();
+    for (const run of runs) {
+      if (!latestSynthesis.has(run.serviceId)) {
+        latestSynthesis.set(run.serviceId, run.synthesis);
+      }
+    }
+    return services.map((row) => this.toContractWithStatus(row, latestSynthesis.get(row.id) ?? null));
   }
 
   // single managed service scoped to its device (404 if absent or cross-device);
@@ -199,6 +223,20 @@ export class ServiceService {
     return row;
   }
 
+  // extract the wire status from a run_record.synthesis json blob; a null synthesis (no runs)
+  // or a malformed historical row both yield null — the web renders that as grey 'unknown',
+  // never green. mirrors overview.service's defensive parse: one bad row must not 500 the fleet.
+  private latestStatus(synthesisJson: null | string): ServiceWithStatus['status'] {
+    if (synthesisJson === null) {
+      return null;
+    }
+    try {
+      return diagnosisSynthesisSchema.parse(JSON.parse(synthesisJson)).status;
+    } catch {
+      return null;
+    }
+  }
+
   // project safe fields; iso-normalize timestamps; never spread
   private toContract(row: ServiceRow): Service {
     return serviceSchema.parse({
@@ -209,6 +247,21 @@ export class ServiceService {
       deviceId: row.deviceId,
       id: row.id,
       name: row.name,
+      updatedAt: row.updatedAt,
+    });
+  }
+
+  // project safe fields + the derived latest-run status; iso-normalize timestamps; never spread.
+  private toContractWithStatus(row: ServiceRow, synthesisJson: null | string): ServiceWithStatus {
+    return serviceWithStatusSchema.parse({
+      composePath: row.composePath,
+      composeProject: row.composeProject,
+      containerName: row.containerName,
+      createdAt: row.createdAt,
+      deviceId: row.deviceId,
+      id: row.id,
+      name: row.name,
+      status: this.latestStatus(synthesisJson),
       updatedAt: row.updatedAt,
     });
   }
