@@ -36,7 +36,10 @@
       <div class="border-op-hairline mb-[18px] border">
         <div class="border-op-hairline flex items-center gap-4 border-b px-[18px] py-[15px]">
           <div class="min-w-0 flex-1">
-            <div class="text-[15px] font-bold">{{ device.name }}</div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] {{ deviceDotClass(device.id) }}">●</span>
+              <span class="text-[15px] font-bold">{{ device.name }}</span>
+            </div>
             <div class="text-op-mute mt-0.5 text-[11.5px]">{{ device.host }}</div>
           </div>
           <div class="text-op-ash flex-none text-right text-[11px] leading-relaxed">
@@ -65,7 +68,11 @@
           </div>
         </div>
         <div class="bg-op-surface-soft px-[18px] py-[14px]">
-          <app-device-services [deviceId]="device.id" [deviceName]="device.name" />
+          <app-device-services
+            [deviceId]="device.id"
+            [deviceName]="device.name"
+            (statusChange)="setDeviceStatus(device.id, $event)"
+          />
         </div>
       </div>
     }

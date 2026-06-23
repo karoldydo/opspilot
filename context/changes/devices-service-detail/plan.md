@@ -448,27 +448,27 @@ links, imports, query-param "device"/"service" wiring that fed the hero).
 
 #### Automated
 
-- [x] 3.1 Typecheck passes (web)
-- [x] 3.2 Web tests pass
-- [x] 3.3 Lint passes (web)
+- [x] 3.1 Typecheck passes (web) — adc901e
+- [x] 3.2 Web tests pass — adc901e
+- [x] 3.3 Lint passes (web) — adc901e
 
 #### Manual
 
-- [x] 3.4 Rows show only dot · name · container · status · Edit/Delete; no operational UI remains
-- [x] 3.5 Row click navigates; Edit/Delete do not navigate
-- [x] 3.6 Status dot reflects latest run (grey for no-runs); row is keyboard-accessible
+- [x] 3.4 Rows show only dot · name · container · status · Edit/Delete; no operational UI remains — adc901e
+- [x] 3.5 Row click navigates; Edit/Delete do not navigate — adc901e
+- [x] 3.6 Status dot reflects latest run (grey for no-runs); row is keyboard-accessible — adc901e
 
 ### Phase 4: Device-level status dot
 
 #### Automated
 
-- [ ] 4.1 Typecheck passes (web)
-- [ ] 4.2 Web tests pass
-- [ ] 4.3 Lint passes (web)
+- [x] 4.1 Typecheck passes (web)
+- [x] 4.2 Web tests pass
+- [x] 4.3 Lint passes (web)
 
 #### Manual
 
-- [ ] 4.4 Device dot = worst of services' latest-run statuses; grey when empty; updates as runs load
+- [x] 4.4 Device dot = worst of services' latest-run statuses; grey when empty; updates as runs load
 
 ### Phase 5: Retire diagnose-hero + cleanup + full gate
 

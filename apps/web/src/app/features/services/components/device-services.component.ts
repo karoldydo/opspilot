@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DiagnosisClient } from '@app/features/diagnosis/data/diagnosis.client';
 import { DiagnosisStore } from '@app/features/diagnosis/data/diagnosis.store';
@@ -41,6 +41,14 @@ const DOT_CLASS: Record<DiagnosisSynthesis['status'], string> = {
 // grey dot for a service with no runs (unknown), mirroring UNKNOWN_BADGE.
 const UNKNOWN_DOT = 'text-op-mute';
 
+// a device's aggregate status — the wire statuses plus the client-only 'unknown' (no runs /
+// no services), surfaced to the parent so it can colour the device-level dot.
+export type DeviceStatus = 'unknown' | DiagnosisSynthesis['status'];
+
+// rank so a device rolls up to the worst status across its services' latest runs
+// (down > degraded > healthy > unknown).
+const STATUS_RANK: Record<DeviceStatus, number> = { degraded: 2, down: 3, healthy: 1, unknown: 0 };
+
 // managed-services section for one device row (scan + slim curated table). each row shows
 // status · name · container · status label · edit/delete and navigates into the service detail
 // page; everything operational (diagnose/skills/replay) now lives on that page. each instance
@@ -62,6 +70,11 @@ export class DeviceServicesComponent {
   readonly deviceId = input.required<string>();
 
   readonly deviceName = input.required<string>();
+
+  // surfaces this device's aggregate status (worst across its services) to the parent, which
+  // owns the device-level dot. emitted reactively from the worstStatus computed below — the
+  // DiagnosisStore is provided per-row, so the parent can't read it directly.
+  readonly statusChange = output<DeviceStatus>();
 
   // per-service diagnosis slices — in the slim list only the latest saved run is read, to colour
   // each row's status dot/label.
@@ -97,6 +110,23 @@ export class DeviceServicesComponent {
       }
     }
   });
+
+  // the worst status across this device's services' latest runs; empty list / no runs → unknown.
+  // recomputes as each row's runs land (loadRuns patches the diagnosis store).
+  protected readonly worstStatus = computed<DeviceStatus>(() => {
+    let worst: DeviceStatus = 'unknown';
+    for (const service of this.store.services()) {
+      const status: DeviceStatus = this.diagnosis.entry(service.id).runs[0]?.synthesis?.status ?? 'unknown';
+      if (STATUS_RANK[status] > STATUS_RANK[worst]) {
+        worst = status;
+      }
+    }
+    return worst;
+  });
+
+  // surface the aggregate to the parent whenever it changes — the parent keeps a
+  // per-device record and renders the dot from it.
+  private readonly statusEffect = effect(() => this.statusChange.emit(this.worstStatus()));
 
   // status → status-label badge fill; null (unknown) falls back to the neutral grey badge.
   badgeClass(status: DiagnosisSynthesis['status'] | null): string {
