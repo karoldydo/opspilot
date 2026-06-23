@@ -38,7 +38,7 @@ export class LayoutComponent {
     classes: { toast: 'shadow-[0_10px_30px_rgba(15,0,0,0.28)]' },
   };
 
-  // 5 real top-level routes; diagnose is reached by drilling into a service, not a nav item.
+  // 5 real top-level routes; service detail is reached by drilling into a service, not a nav item.
   protected readonly navItems: readonly NavItem[] = [
     { label: 'overview', options: { exact: true }, path: '/' },
     { label: 'devices', options: { exact: false }, path: '/devices' },

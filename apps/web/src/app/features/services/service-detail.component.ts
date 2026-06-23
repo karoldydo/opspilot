@@ -39,7 +39,7 @@ const DOT_CLASS: Record<DiagnosisSynthesis['status'], string> = {
   healthy: 'text-op-success-text',
 };
 
-// step kind → terminal prefix glyph + line color (mockup palette, mirrors diagnose-hero).
+// step kind → terminal prefix glyph + line color (mockup palette).
 const STEP_CLASS: Record<RunStep['kind'], { colorClass: string; prefix: string }> = {
   cmd: { colorClass: 'text-op-cream', prefix: '$' },
   ok: { colorClass: 'text-op-success', prefix: '+' },
@@ -49,9 +49,9 @@ const STEP_CLASS: Record<RunStep['kind'], { colorClass: string; prefix: string }
 };
 
 // the service detail page: the full operational surface for one service (identity, operations,
-// the live diagnosis stream + result, and replay history), reachable by deep-link. generalizes
-// diagnose-hero by resolving the Service via the single-service read and seeding the result card
-// from the latest saved run on entry (no auto-stream). store + clients provided here (not
+// the live diagnosis stream + result, and replay history), reachable by deep-link. resolves the
+// Service via the single-service read and seeds the result card from the latest saved run on
+// entry (no auto-stream). store + clients provided here (not
 // providedIn: 'root', per angular.md) so the screen owns its lifecycle; dialogs get the store via
 // context since they render in a cdk overlay outside this injector.
 @Component({
@@ -117,7 +117,7 @@ export class ServiceDetailComponent {
   // — drives the "last run · {date}" label.
   protected readonly isLatest = computed(() => !this.entry().result && !this.entry().partial && !!this.latestRun());
 
-  // opening narration burst — every step but a trailing `result` done-line (mirrors diagnose-hero).
+  // opening narration burst — every step but a trailing `result` done-line.
   protected readonly leadSteps = computed(() => {
     const steps = this.entry().steps;
     return steps[steps.length - 1]?.kind === 'result' ? steps.slice(0, -1) : steps;

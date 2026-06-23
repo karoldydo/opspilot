@@ -462,26 +462,26 @@ links, imports, query-param "device"/"service" wiring that fed the hero).
 
 #### Automated
 
-- [x] 4.1 Typecheck passes (web)
-- [x] 4.2 Web tests pass
-- [x] 4.3 Lint passes (web)
+- [x] 4.1 Typecheck passes (web) — 87b64a0
+- [x] 4.2 Web tests pass — 87b64a0
+- [x] 4.3 Lint passes (web) — 87b64a0
 
 #### Manual
 
-- [x] 4.4 Device dot = worst of services' latest-run statuses; grey when empty; updates as runs load
+- [x] 4.4 Device dot = worst of services' latest-run statuses; grey when empty; updates as runs load — 87b64a0
 
 ### Phase 5: Retire diagnose-hero + cleanup + full gate
 
 #### Automated
 
-- [ ] 5.1 No references to diagnose-hero / DiagnoseHeroComponent remain
-- [ ] 5.2 Lint passes (all)
-- [ ] 5.3 Typecheck passes (web + api)
-- [ ] 5.4 Tests pass (all)
-- [ ] 5.5 Build passes (all)
-- [ ] 5.6 Format check clean
+- [x] 5.1 No references to diagnose-hero / DiagnoseHeroComponent remain
+- [x] 5.2 Lint passes (all)
+- [x] 5.3 Typecheck passes (web + api)
+- [x] 5.4 Tests pass (all)
+- [x] 5.5 Build passes (all)
+- [x] 5.6 Format check clean
 
 #### Manual
 
-- [ ] 5.7 No navigation to old /diagnose; all diagnosis on the detail page
-- [ ] 5.8 Full smoke: list → row → detail → diagnose → skill → replay → rename → delete; nav stays active
+- [x] 5.7 No navigation to old /diagnose; all diagnosis on the detail page
+- [x] 5.8 Full smoke: list → row → detail → diagnose → skill → replay → rename → delete; nav stays active
