@@ -3,17 +3,37 @@ import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { SkillsClient } from '@app/features/skills/data/skills.client';
 import { SkillsStore } from '@app/features/skills/data/skills.store';
 import { SkillFormDialog, type SkillFormDialogContext } from '@app/features/skills/dialogs/skill-form.dialog';
+import { clientTable } from '@app/shared/client-table';
+import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
 import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type Device, type Skill } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmTableImports } from '@spartan-ng/helm/table';
 
-// skill catalog view (global + per-device). store/client + DevicesClient (for the scope select) provided here (not providedIn: 'root', per angular.md); the form dialog gets the store + device list via context since it renders in a cdk overlay outside this injector.
+// a skill row carries its resolved scope label so the table can search and sort by scope
+// without re-deriving the device name per cell.
+interface SkillRow extends Skill {
+  scope: string;
+}
+
+// skill catalog view (global + per-device) as a datatable. store/client + DevicesClient (for the
+// scope select) provided here (not providedIn: 'root', per angular.md); the form dialog gets the
+// store + device list via context since it renders in a cdk overlay outside this injector.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...HlmAlertDialogImports, ClickableDirective],
+  imports: [
+    ...HlmAlertDialogImports,
+    ...HlmTableImports,
+    ...HlmSelectImports,
+    ClickableDirective,
+    HlmInput,
+    TablePaginationComponent,
+  ],
   providers: [SkillsClient, SkillsStore, DevicesClient],
   selector: 'app-skills',
   templateUrl: './skills.component.html',
@@ -36,6 +56,30 @@ export class SkillsComponent {
 
   // device id → name lookup so a per-device skill renders its device name.
   private readonly deviceNames = computed(() => new Map(this.devices().map((device) => [device.id, device.name])));
+
+  // skill rows enriched with their scope label for display, search and sort.
+  private readonly rows = computed<SkillRow[]>(() =>
+    this.store.skills().map((skill) => ({ ...skill, scope: this.scopeLabel(skill) }))
+  );
+
+  // the shared datatable: name-sorted by default, free-text search across name/command,
+  // a global/host-scoped column filter, client pagination.
+  protected readonly table = clientTable<SkillRow>({
+    filters: {
+      scope: (row, value) => (value === 'global' ? row.deviceId === null : row.deviceId !== null),
+    },
+    initialSort: { dir: 'asc', key: 'name' },
+    searchText: (row) => `${row.name} ${row.commandTemplate}`,
+    sorters: {
+      name: (row) => row.name.toLowerCase(),
+      params: (row) => row.parameters.length,
+      scope: (row) => row.scope.toLowerCase(),
+    },
+    source: this.rows,
+  });
+
+  // the active scope filter value, mirrored back onto the toolbar select.
+  protected readonly scopeFilter = computed(() => this.table.filterValues()['scope'] ?? 'all');
 
   constructor() {
     void this.store.load();
@@ -64,13 +108,22 @@ export class SkillsComponent {
     dialog.open();
   }
 
-  // global skills (deviceId null) render "Global"; a per-device skill renders its
+  // global skills (deviceId null) render "global"; a per-device skill renders its
   // device name, falling back to the raw id if the device list hasn't loaded yet.
   scopeLabel(skill: Skill): string {
     if (skill.deviceId === null) {
-      return 'Global';
+      return 'global';
     }
     return this.deviceNames().get(skill.deviceId) ?? skill.deviceId;
+  }
+
+  // a header's sort caret: ▲/▼ for the active column, blank otherwise.
+  sortIcon(key: string): string {
+    const sort = this.table.sort();
+    if (!sort || sort.key !== key) {
+      return '';
+    }
+    return sort.dir === 'asc' ? '▲' : '▼';
   }
 
   private async loadDevices(): Promise<void> {

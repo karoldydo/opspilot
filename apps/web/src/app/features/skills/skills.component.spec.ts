@@ -75,7 +75,7 @@ describe('SkillsComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const remove = rowButton(fixture, 'delete');
+    const remove = rowButton(fixture, 'del');
     expect(remove).toBeDefined();
     expect(remove?.classList.contains('cursor-pointer')).toBe(true);
     expect(remove?.classList.contains('focus-visible:ring-op-danger')).toBe(true);

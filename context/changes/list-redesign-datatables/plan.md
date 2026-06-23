@@ -499,29 +499,29 @@ No data migration. The new endpoint is additive; the device-scoped service route
 
 #### Automated
 
-- [x] 4.1 Type checking passes: `npx nx typecheck web`
-- [x] 4.2 Lint passes: `npx nx lint web`
-- [x] 4.3 Web unit tests pass
-- [x] 4.4 No dangling `device-services` references
+- [x] 4.1 Type checking passes: `npx nx typecheck web` — ae04321
+- [x] 4.2 Lint passes: `npx nx lint web` — ae04321
+- [x] 4.3 Web unit tests pass — ae04321
+- [x] 4.4 No dangling `device-services` references — ae04321
 
 #### Manual
 
-- [x] 4.5 Fleet table + host strip + per-host actions + header add-device work
-- [x] 4.6 Status-first sort; unknown rows grey
-- [x] 4.7 Row click/keyboard → service-detail; Edit/Delete don't navigate; Devices nav active
-- [x] 4.8 Search/filter/sort reset to page 1; range label accurate; no cards/sub-lists remain
+- [x] 4.5 Fleet table + host strip + per-host actions + header add-device work — ae04321
+- [x] 4.6 Status-first sort; unknown rows grey — ae04321
+- [x] 4.7 Row click/keyboard → service-detail; Edit/Delete don't navigate; Devices nav active — ae04321
+- [x] 4.8 Search/filter/sort reset to page 1; range label accurate; no cards/sub-lists remain — ae04321
 
 ### Phase 5: /skills datatable
 
 #### Automated
 
-- [ ] 5.1 Type checking passes: `npx nx typecheck web`
-- [ ] 5.2 Lint passes: `npx nx lint web`
-- [ ] 5.3 Web unit tests pass
+- [x] 5.1 Type checking passes: `npx nx typecheck web`
+- [x] 5.2 Lint passes: `npx nx lint web`
+- [x] 5.3 Web unit tests pass
 
 #### Manual
 
-- [ ] 5.4 Search + scope filter + sort + pagination work; dialogs function
+- [x] 5.4 Search + scope filter + sort + pagination work; dialogs function
 
 ### Phase 6: /providers datatable
 
