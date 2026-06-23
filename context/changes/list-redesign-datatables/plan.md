@@ -539,25 +539,25 @@ No data migration. The new endpoint is additive; the device-scoped service route
 
 #### Automated
 
-- [x] 7.1 Type checking passes: `npx nx typecheck web`
-- [x] 7.2 Lint passes: `npx nx lint web`
-- [x] 7.3 Web unit tests pass
+- [x] 7.1 Type checking passes: `npx nx typecheck web` — a50991d
+- [x] 7.2 Lint passes: `npx nx lint web` — a50991d
+- [x] 7.3 Web unit tests pass — a50991d
 
 #### Manual
 
-- [x] 7.4 Search + action filter + sort (Time desc) + pagination; synthesis expands; Result column correct
+- [x] 7.4 Search + action filter + sort (Time desc) + pagination; synthesis expands; Result column correct — a50991d
 
 ### Phase 8: Compact density, cleanup & full verification
 
 #### Automated
 
-- [ ] 8.1 Lint passes: `npm run lint`
-- [ ] 8.2 Type checking passes (all projects): `npx nx run-many -t typecheck`
-- [ ] 8.3 All tests pass: `npm run test`
-- [ ] 8.4 Build passes: `npm run build`
-- [ ] 8.5 Formatting clean: `npm run format:check`
+- [x] 8.1 Lint passes: `npm run lint`
+- [x] 8.2 Type checking passes (all projects): `npx nx run-many -t typecheck`
+- [x] 8.3 All tests pass: `npm run test`
+- [x] 8.4 Build passes: `npm run build`
+- [x] 8.5 Formatting clean: `npm run format:check`
 
 #### Manual
 
-- [ ] 8.6 All four tables visually compact + consistent
-- [ ] 8.7 No regressions on overview / service-detail
+- [x] 8.6 All four tables visually compact + consistent
+- [x] 8.7 No regressions on overview / service-detail
