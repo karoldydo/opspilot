@@ -527,25 +527,25 @@ No data migration. The new endpoint is additive; the device-scoped service route
 
 #### Automated
 
-- [x] 6.1 Type checking passes: `npx nx typecheck web`
-- [x] 6.2 Lint passes: `npx nx lint web`
-- [x] 6.3 Web unit tests pass
+- [x] 6.1 Type checking passes: `npx nx typecheck web` — 0547c7c
+- [x] 6.2 Lint passes: `npx nx lint web` — 0547c7c
+- [x] 6.3 Web unit tests pass — 0547c7c
 
 #### Manual
 
-- [x] 6.4 Search + status filter + sort (Updated desc) + pagination; Activate keeps one active
+- [x] 6.4 Search + status filter + sort (Updated desc) + pagination; Activate keeps one active — 0547c7c
 
 ### Phase 7: /audit datatable (expandable synthesis)
 
 #### Automated
 
-- [ ] 7.1 Type checking passes: `npx nx typecheck web`
-- [ ] 7.2 Lint passes: `npx nx lint web`
-- [ ] 7.3 Web unit tests pass
+- [x] 7.1 Type checking passes: `npx nx typecheck web`
+- [x] 7.2 Lint passes: `npx nx lint web`
+- [x] 7.3 Web unit tests pass
 
 #### Manual
 
-- [ ] 7.4 Search + action filter + sort (Time desc) + pagination; synthesis expands; Result column correct
+- [x] 7.4 Search + action filter + sort (Time desc) + pagination; synthesis expands; Result column correct
 
 ### Phase 8: Compact density, cleanup & full verification
 

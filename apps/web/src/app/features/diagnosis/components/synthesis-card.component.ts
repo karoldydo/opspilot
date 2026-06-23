@@ -49,27 +49,29 @@ const DENSITY: Record<
           >{{ status }}</span
         >
       }
-      <span class="{{ tokens().summary }}">{{ synthesis().summary || 'diagnosing…' }}</span>
+      <span class="min-w-0 break-words {{ tokens().summary }}">{{ synthesis().summary || 'diagnosing…' }}</span>
     </div>
     <div class="grid sm:grid-cols-2 {{ tokens().grid }}">
-      <div>
+      <div class="min-w-0">
         <div class="text-op-warning-text font-bold {{ tokens().header }}">problems</div>
         @if (synthesis().problems; as problems) {
           @for (problem of problems; track $index) {
             <div class="text-op-body flex {{ tokens().row }}">
-              <span class="text-op-danger flex-none font-bold">[x]</span><span>{{ problem }}</span>
+              <span class="text-op-danger flex-none font-bold">[x]</span
+              ><span class="min-w-0 break-words">{{ problem }}</span>
             </div>
           } @empty {
             <div class="{{ tokens().empty }}">none detected.</div>
           }
         }
       </div>
-      <div>
+      <div class="min-w-0">
         <div class="text-op-success-text font-bold {{ tokens().header }}">suggestions</div>
         @if (synthesis().suggestions; as suggestions) {
           @for (suggestion of suggestions; track $index) {
             <div class="text-op-body flex {{ tokens().row }}">
-              <span class="text-op-success-text flex-none font-bold">[+]</span><span>{{ suggestion }}</span>
+              <span class="text-op-success-text flex-none font-bold">[+]</span
+              ><span class="min-w-0 break-words">{{ suggestion }}</span>
             </div>
           } @empty {
             <div class="{{ tokens().empty }}">none.</div>
