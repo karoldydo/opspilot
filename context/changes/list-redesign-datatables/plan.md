@@ -551,13 +551,13 @@ No data migration. The new endpoint is additive; the device-scoped service route
 
 #### Automated
 
-- [x] 8.1 Lint passes: `npm run lint`
-- [x] 8.2 Type checking passes (all projects): `npx nx run-many -t typecheck`
-- [x] 8.3 All tests pass: `npm run test`
-- [x] 8.4 Build passes: `npm run build`
-- [x] 8.5 Formatting clean: `npm run format:check`
+- [x] 8.1 Lint passes: `npm run lint` — 2cf173b
+- [x] 8.2 Type checking passes (all projects): `npx nx run-many -t typecheck` — 2cf173b
+- [x] 8.3 All tests pass: `npm run test` — 2cf173b
+- [x] 8.4 Build passes: `npm run build` — 2cf173b
+- [x] 8.5 Formatting clean: `npm run format:check` — 2cf173b
 
 #### Manual
 
-- [x] 8.6 All four tables visually compact + consistent
-- [x] 8.7 No regressions on overview / service-detail
+- [x] 8.6 All four tables visually compact + consistent — 2cf173b
+- [x] 8.7 No regressions on overview / service-detail — 2cf173b

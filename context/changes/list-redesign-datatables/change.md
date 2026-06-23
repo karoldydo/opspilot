@@ -1,9 +1,9 @@
 ---
 change_id: list-redesign-datatables
 title: Fleet services datatable + skills/providers/audit datatables for scannable lists
-status: implementing
+status: implemented
 created: 2026-06-23
-updated: 2026-06-23
+updated: 2026-06-24
 archived_at: null
 ---
 
