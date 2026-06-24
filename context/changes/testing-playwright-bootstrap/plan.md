@@ -102,25 +102,25 @@ violations). Dev `opspilot.db` is untouched. The Nx graph shows the inferred `e2
 
 #### Automated
 
-- [x] 1.1 `@nx/playwright@22.7.2` installed and `@nx/playwright/plugin` registered in `nx.json`
-- [x] 1.2 Chromium engine installed (`npx playwright install --with-deps chromium`)
-- [x] 1.3 `tests/e2e/{project.json,tsconfig.json,eslint.config.mjs}` created; `scope:e2e` depConstraint added; `.gitignore` updated
-- [x] 1.4 `npx nx show project e2e --web` lists project + `e2e` target with tag `scope:e2e`
-- [x] 1.5 `npx nx lint e2e` passes
+- [x] 1.1 `@nx/playwright@22.7.2` installed and `@nx/playwright/plugin` registered in `nx.json` — 478a25a
+- [x] 1.2 Chromium engine installed (`npx playwright install --with-deps chromium`) — 478a25a
+- [x] 1.3 `tests/e2e/{project.json,tsconfig.json,eslint.config.mjs}` created; `scope:e2e` depConstraint added; `.gitignore` updated — 478a25a
+- [x] 1.4 `npx nx show project e2e --web` lists project + `e2e` target with tag `scope:e2e` — 478a25a
+- [x] 1.5 `npx nx lint e2e` passes — 478a25a
 
 #### Manual
 
-- [x] 1.6 No module-boundary regression elsewhere (`npx nx lint web api shared` still green)
+- [x] 1.6 No module-boundary regression elsewhere (`npx nx lint web api shared` still green) — 478a25a
 
 ### Phase 2: Playwright config, auth fixture, smoke test
 
 #### Automated
 
-- [ ] 2.1 `tests/e2e/playwright.config.ts` + `specs/auth.setup.ts` + `specs/smoke.spec.ts` created; npm scripts added
-- [ ] 2.2 `npx nx e2e e2e` green (servers start, setup writes storageState, smoke passes)
-- [ ] 2.3 Formatting clean: `npm run format:check`
+- [x] 2.1 `tests/e2e/playwright.config.ts` + `specs/auth.setup.ts` + `specs/smoke.spec.ts` created; npm scripts added
+- [x] 2.2 `npx nx e2e e2e` green (servers start, setup writes storageState, smoke passes)
+- [x] 2.3 Formatting clean: `npm run format:check`
 
 #### Manual
 
-- [ ] 2.4 Isolation verified: `data/opspilot.e2e.db*` created, `data/opspilot.db` (dev) untouched
-- [ ] 2.5 `npm run e2e:report` renders the HTML report
+- [x] 2.4 Isolation verified: `data/opspilot.e2e.db*` created, `data/opspilot.db` (dev) untouched
+- [x] 2.5 `npm run e2e:report` renders the HTML report
