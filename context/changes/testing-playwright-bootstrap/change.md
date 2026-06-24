@@ -1,7 +1,7 @@
 ---
 change_id: testing-playwright-bootstrap
 title: Playwright E2E bootstrap (test-plan Phase 4 enabler)
-status: implemented
+status: impl_reviewed
 created: 2026-06-24
 updated: 2026-06-25
 archived_at: null

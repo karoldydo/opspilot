@@ -17,11 +17,12 @@ setup('authenticate via better-auth signup', async ({ page }) => {
   const response = await page.request.post('/api/auth/sign-up/email', {
     data: { email, name: 'e2e user', password },
   });
-  expect(response.ok()).toBeTruthy();
+  // surface the server body in the failure message — a bare ok() hides e.g. a 422 password-policy error
+  expect(response.ok(), await response.text()).toBeTruthy();
 
   // prove the cookie really authenticates before we trust the stored state
   const session = await page.request.get('/api/auth/get-session');
-  expect(session.ok()).toBeTruthy();
+  expect(session.ok(), await session.text()).toBeTruthy();
   const body = await session.json();
   expect(body?.user?.email).toBe(email);
 

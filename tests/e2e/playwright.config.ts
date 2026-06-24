@@ -35,7 +35,9 @@ export default defineConfig({
     trace: 'on-first-retry',
     video: 'retain-on-failure',
   },
-  // nx starts both apps; reuse a running dev server locally, always boot fresh in ci
+  // nx starts both apps. the api never reuses an existing server — a dev api already on :3000
+  // serves the dev db, so reusing it would silently defeat the e2e db isolation below. the web
+  // dev server holds no state, so reusing it locally (and booting fresh in ci) is safe.
   webServer: [
     {
       // env is inlined into the command (not playwright's `env` option) because nx forks the
@@ -44,7 +46,9 @@ export default defineConfig({
       // would silently fall back to the dev db (`./data/opspilot.db`) and break isolation.
       command: `DATABASE_PATH=${DATABASE_PATH} NODE_ENV=test PORT=3000 npx nx run api:serve`,
       cwd: rootDir,
-      reuseExistingServer: !process.env.CI,
+      // unconditional fresh boot — a port clash with a running dev api fails loudly instead of
+      // silently reusing the dev-db server and polluting it with e2e signup users.
+      reuseExistingServer: false,
       timeout: 120_000,
       url: 'http://localhost:3000/api/health',
     },
