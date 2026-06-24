@@ -378,13 +378,13 @@ Pure front-end template/component migration — no data, schema, or API contract
 
 #### Automated
 
-- [x] 5.1 Lint passes: `npx nx lint web`
-- [x] 5.2 Build passes: `npx nx build web`
-- [x] 5.3 Unit tests pass: `npx nx test web`
+- [x] 5.1 Lint passes: `npx nx lint web` — b825924
+- [x] 5.2 Build passes: `npx nx build web` — b825924
+- [x] 5.3 Unit tests pass: `npx nx test web` — b825924
 
 #### Manual
 
-- [x] 5.4 Status badges render with correct variant/color across all sites
-- [x] 5.5 llm-providers shows the status dot next to the new badge
-- [x] 5.6 Spinners animate during loading and clear when done
-- [x] 5.7 Spinner has accessible `role="status"` label
+- [x] 5.4 Status badges render with correct variant/color across all sites — b825924
+- [x] 5.5 llm-providers shows the status dot next to the new badge — b825924
+- [x] 5.6 Spinners animate during loading and clear when done — b825924
+- [x] 5.7 Spinner has accessible `role="status"` label — b825924
