@@ -9,7 +9,11 @@
         size="sm"
         variant="outline"
       >
-        {{ entry().pending === skill.id ? 'running…' : skill.name }}
+        @if (entry().pending === skill.id) {
+          <hlm-spinner aria-label="running" /> running…
+        } @else {
+          {{ skill.name }}
+        }
       </button>
     }
   </div>

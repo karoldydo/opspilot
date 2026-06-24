@@ -6,13 +6,14 @@ import { SkillsClient } from '@app/features/skills/data/skills.client';
 import { type Service, type Skill, type SkillParameter } from '@opspilot/shared';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 // run affordance for one service row: lists the in-scope skills whose required `service` params are satisfiable, reproducing the old canCompose() gating. owns its client + run store (provided here, not providedIn: 'root', per angular.md) keyed by serviceId so one row's run never bleeds into another.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   // display: contents so the inner block joins the actions cell's flex row instead of nesting a stray inline host box.
   host: { class: 'contents' },
-  imports: [HlmButton],
+  imports: [HlmButton, ...HlmSpinnerImports],
   providers: [SkillsClient, SkillRunClient, SkillRunStore],
   selector: 'app-service-skills',
   templateUrl: './service-skills.component.html',

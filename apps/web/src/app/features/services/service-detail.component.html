@@ -9,7 +9,9 @@
   @if (serviceError(); as error) {
     <p class="text-op-danger-text text-sm" role="alert">{{ error }}</p>
   } @else if (serviceLoading() && !service()) {
-    <p class="text-op-ash text-[12.5px]">loading service…</p>
+    <p class="text-op-ash flex items-center gap-2 text-[12.5px]">
+      <hlm-spinner aria-label="loading service" /> loading service…
+    </p>
   } @else if (service(); as svc) {
     <!-- identity header -->
     <div class="flex flex-wrap items-start justify-between gap-3">
@@ -17,9 +19,10 @@
         <div class="flex flex-wrap items-center gap-2.5">
           <h1 class="text-[24px] font-bold tracking-[-0.4px]">{{ svc.name }}</h1>
           <span
-            class="rounded-[4px] px-[10px] py-[3px] text-[11px] font-bold tracking-[0.5px] uppercase {{
-              headerBadgeClass()
-            }}"
+            class="text-[11px] font-bold tracking-[0.5px] uppercase"
+            [class]="headerBadgeClass()"
+            hlmBadge
+            variant="ghost"
             >{{ headerStatus() }}</span
           >
         </div>
@@ -49,7 +52,11 @@
       <div class="mb-2 flex flex-wrap items-center justify-between gap-3">
         <div class="text-op-mute text-[10.5px] font-bold tracking-[0.5px] uppercase">diagnose</div>
         <button class="flex-none" type="button" [disabled]="entry().loading" (click)="rerun()" hlmBtn>
-          {{ entry().loading ? 'diagnosing…' : '↻ re-run' }}
+          @if (entry().loading) {
+            <hlm-spinner aria-label="diagnosing" /> diagnosing…
+          } @else {
+            ↻ re-run
+          }
         </button>
       </div>
 

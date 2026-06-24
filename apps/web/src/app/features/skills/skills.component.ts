@@ -12,6 +12,7 @@ import { lucideEllipsis } from '@ng-icons/lucide';
 import { type Device, type Skill } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
@@ -36,6 +37,7 @@ interface SkillRow extends Skill {
     ...HlmTableImports,
     ...HlmSelectImports,
     ...HlmDropdownMenuImports,
+    HlmBadge,
     HlmButton,
     HlmIcon,
     HlmInput,

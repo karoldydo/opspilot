@@ -362,29 +362,29 @@ Pure front-end template/component migration — no data, schema, or API contract
 
 #### Automated
 
-- [x] 4.1 Lint passes: `npx nx lint web`
-- [x] 4.2 Build passes: `npx nx build web`
-- [x] 4.3 Unit tests pass: `npx nx test web`
+- [x] 4.1 Lint passes: `npx nx lint web` — 16434db
+- [x] 4.2 Build passes: `npx nx build web` — 16434db
+- [x] 4.3 Unit tests pass: `npx nx test web` — 16434db
 
 #### Manual
 
-- [x] 4.4 Opening a per-row kebab does not navigate the row; items run their actions
-- [x] 4.5 llm-providers activate item appears only for inactive providers
-- [x] 4.6 Action bars group visually and all buttons work
-- [x] 4.7 Delete actions still open confirm dialogs
-- [x] 4.8 Dropdown keyboard navigation works; no overlay z-index issues
+- [x] 4.4 Opening a per-row kebab does not navigate the row; items run their actions — 16434db
+- [x] 4.5 llm-providers activate item appears only for inactive providers — 16434db
+- [x] 4.6 Action bars group visually and all buttons work — 16434db
+- [x] 4.7 Delete actions still open confirm dialogs — 16434db
+- [x] 4.8 Dropdown keyboard navigation works; no overlay z-index issues — 16434db
 
 ### Phase 5: Badges + spinner
 
 #### Automated
 
-- [ ] 5.1 Lint passes: `npx nx lint web`
-- [ ] 5.2 Build passes: `npx nx build web`
-- [ ] 5.3 Unit tests pass: `npx nx test web`
+- [x] 5.1 Lint passes: `npx nx lint web`
+- [x] 5.2 Build passes: `npx nx build web`
+- [x] 5.3 Unit tests pass: `npx nx test web`
 
 #### Manual
 
-- [ ] 5.4 Status badges render with correct variant/color across all sites
-- [ ] 5.5 llm-providers shows the status dot next to the new badge
-- [ ] 5.6 Spinners animate during loading and clear when done
-- [ ] 5.7 Spinner has accessible `role="status"` label
+- [x] 5.4 Status badges render with correct variant/color across all sites
+- [x] 5.5 llm-providers shows the status dot next to the new badge
+- [x] 5.6 Spinners animate during loading and clear when done
+- [x] 5.7 Spinner has accessible `role="status"` label

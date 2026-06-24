@@ -83,13 +83,9 @@
               <td class="text-[12.5px] font-semibold" hlmTd>{{ skill.name }}</td>
               <td hlmTd>
                 @if (skill.deviceId === null) {
-                  <span class="border-op-hairline text-op-mute rounded-[4px] border px-2 py-[2px] text-[11.5px]"
-                    >global</span
-                  >
+                  <span hlmBadge variant="outline">global</span>
                 } @else {
-                  <span class="border-op-ink text-op-ink rounded-[4px] border px-2 py-[2px] text-[11.5px]">{{
-                    skill.scope
-                  }}</span>
+                  <span hlmBadge>{{ skill.scope }}</span>
                 }
               </td>
               <td class="text-op-body truncate text-[11.5px]" hlmTd>{{ skill.commandTemplate }}</td>

@@ -15,6 +15,7 @@ import { lucideEllipsis } from '@ng-icons/lucide';
 import { type LlmProvider } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
@@ -34,6 +35,7 @@ import { HlmTableImports } from '@spartan-ng/helm/table';
     ...HlmSelectImports,
     ...HlmDropdownMenuImports,
     DatePipe,
+    HlmBadge,
     HlmButton,
     HlmIcon,
     HlmInput,

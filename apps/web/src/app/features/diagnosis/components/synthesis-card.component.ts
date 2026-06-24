@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { badgeClass } from '@app/shared/status';
 import { type DiagnosisSynthesis } from '@opspilot/shared';
+import { HlmBadge } from '@spartan-ng/helm/badge';
 
 // the two synthesis treatments this card serves: 'full' reproduces the canonical
 // service-detail result card 1:1; 'compact' mirrors the tighter audit expansion row.
@@ -40,12 +41,15 @@ const DENSITY: Record<
 // stay hidden until their fields land, matching the prior inline behavior.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [HlmBadge],
   selector: 'app-synthesis-card',
   template: `
     <div class="mb-4 flex flex-wrap items-center {{ tokens().topRow }}">
       @if (synthesis().status; as status) {
         <span
-          class="rounded-[4px] font-bold tracking-[0.5px] uppercase {{ tokens().badge }} {{ badgeClass(status) }}"
+          class="font-bold tracking-[0.5px] uppercase {{ tokens().badge }} {{ badgeClass(status) }}"
+          hlmBadge
+          variant="ghost"
           >{{ status }}</span
         >
       }

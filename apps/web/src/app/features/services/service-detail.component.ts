@@ -20,9 +20,11 @@ import { badgeClass, dotClass, statusFromSynthesis } from '@app/shared/status';
 import { type Device, type RunRecord, type RunStep, type Service } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmButtonGroupImports } from '@spartan-ng/helm/button-group';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 // step kind → terminal prefix glyph + line color (mockup palette).
 const STEP_CLASS: Record<RunStep['kind'], { colorClass: string; prefix: string }> = {
@@ -46,8 +48,10 @@ const STEP_CLASS: Record<RunStep['kind'], { colorClass: string; prefix: string }
     DecimalPipe,
     RouterLink,
     ClickableDirective,
+    HlmBadge,
     HlmButton,
     ...HlmButtonGroupImports,
+    ...HlmSpinnerImports,
     ServiceSkillsComponent,
     SynthesisCardComponent,
     ...HlmAlertDialogImports,
