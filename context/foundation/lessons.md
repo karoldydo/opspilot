@@ -50,3 +50,10 @@
 - **Problem**: Reading a required input in the constructor throws `NG0950` (inputs aren't bound yet), and an empty `catch` around `load()` swallows it silently — no fetch, no data, clean console. In `ServiceSkillsComponent` this hid the missing per-service skill buttons on `/devices` for months with no trace; contrast `DeviceServicesComponent`, which loads from an `effect()` and works.
 - **Rule**: Never read `input.required()` (or trigger an input-dependent load) from the constructor — do it from a named `effect()` field that reads the input after binding (mirror `DeviceServicesComponent`). A `catch` around a fetch must not silently swallow programming errors — log/surface them.
 - **Applies to**: all
+
+## Isolate the e2e DB in Nx+Playwright: inline env, no server reuse, repo-root cwd
+
+- **Context**: Any Nx monorepo phase that adds a Playwright (or similar) E2E harness that auto-starts the apps via `webServer` and must isolate the test DB from the dev DB.
+- **Problem**: Playwright's `webServer.env` does not reach the node process Nx forks for the served app (`DATABASE_PATH` silently falls back to the default dev DB), and `reuseExistingServer: !CI` silently reuses a running dev api on :3000 (dev DB) instead of booting an isolated server — so E2E signups write into the dev database. This actually happened (3 leaked test users into the dev DB before the fix).
+- **Rule**: In a Playwright `webServer` under Nx: pass env (`DATABASE_PATH`, etc.) INLINE in the `command`, not via the `env:` option; set `reuseExistingServer: false` for the stateful server (the api that owns the DB); anchor `cwd` to the repo root. After a run, verify isolation — dev DB unchanged, test DB in the expected location.
+- **Applies to**: plan, implement, impl-review
