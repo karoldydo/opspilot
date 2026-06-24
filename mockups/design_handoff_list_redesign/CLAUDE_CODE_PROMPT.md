@@ -130,10 +130,12 @@ Replace the per-device cards (`devices.component.*`) and fold the per-device
 - **Host filter strip** (chips, above the table): `all hosts · {N} services`, then one chip
   per device showing a worst-status dot + service count. Selecting a chip filters the table
   to that device; "all hosts" clears the host filter.
-- **Active-host action bar** (visible only when a specific host is selected): a line
-  `managing {device} · {host}` with `scan` (`ScanServicesDialog`), `edit host`
-  (`DeviceFormDialog`), `delete host` (alert-dialog confirm → `DevicesStore.remove`).
-  `+ add device` lives in the **page header** (always visible).
+- **Host action bar** (always rendered, directly under the chips): when a specific host is
+  selected it shows `managing {device} · {host}` + `scan` (`ScanServicesDialog`), `edit
+  host` (`DeviceFormDialog`), `delete host` (alert-dialog confirm → `DevicesStore.remove`);
+  when **all hosts** is selected it shows a muted hint — *"select a host above to scan it
+  for new services, or edit / remove the host"* — so the per-host **scan** action stays
+  discoverable. `+ add device` lives in the **page header** (always visible).
 - **Toolbar:** `HlmInput` search (matches service / container / host) + a status `Select`
   (all / healthy / degraded / down).
 - **Columns:** status dot (sortable) · **Service** (sortable) · **Device** (sortable) ·

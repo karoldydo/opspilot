@@ -205,16 +205,21 @@
         </sc-for>
       </div>
 
-      <sc-if value="{{ tblSvc.hasActiveHost }}" hint-placeholder-val="{{ false }}">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; border:1px solid rgba(15,0,0,0.12); border-bottom:none; background:#f8f7f7; font-size:12px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; border:1px solid rgba(15,0,0,0.12); border-bottom:none; background:#f8f7f7; font-size:12px;">
+        <sc-if value="{{ tblSvc.hasActiveHost }}" hint-placeholder-val="{{ false }}">
           <span style="color:#646262;">managing <span style="color:#201d1d; font-weight:700;">{{ tblSvc.activeName }}</span> · {{ tblSvc.activeHost }}</span>
+        </sc-if>
+        <sc-if value="{{ tblSvc.noActiveHost }}" hint-placeholder-val="{{ true }}">
+          <span style="color:#9a9898;">select a host above to <span style="color:#646262; font-weight:600;">scan</span> it for new services, or edit / remove the host</span>
+        </sc-if>
+        <sc-if value="{{ tblSvc.hasActiveHost }}" hint-placeholder-val="{{ false }}">
           <span style="display:flex; gap:7px;">
             <button type="button" onClick="{{ tblSvc.onScanActive }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:4px 12px; font-family:inherit; font-size:11.5px; font-weight:500; cursor:pointer;">scan</button>
             <button type="button" onClick="{{ tblSvc.onEditActive }}" style="border:1px solid #646262; background:#fdfcfc; color:#201d1d; border-radius:4px; padding:4px 12px; font-family:inherit; font-size:11.5px; font-weight:500; cursor:pointer;">edit host</button>
             <button type="button" onClick="{{ tblSvc.onDeleteActive }}" style="border:1px solid #ff3b30; background:#fdfcfc; color:#c01a12; border-radius:4px; padding:4px 12px; font-family:inherit; font-size:11.5px; font-weight:500; cursor:pointer;">delete host</button>
           </span>
-        </div>
-      </sc-if>
+        </sc-if>
+      </div>
 
       <div style="display:flex; gap:9px; align-items:center; padding:12px 14px; border:1px solid rgba(15,0,0,0.12); border-bottom:none; background:#fdfcfc;">
         <div style="position:relative; flex:1; min-width:0;"><span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:13px; color:#9a9898; pointer-events:none;">/</span><input value="{{ tblSvc.q }}" onInput="{{ tblSvc.onQ }}" placeholder="search every service, container or host…" style="width:100%; height:36px; border:1px solid rgba(15,0,0,0.14); background:#f8f7f7; border-radius:4px; padding:8px 12px 8px 25px; font-family:inherit; font-size:13px; color:#201d1d;"></div>
@@ -1205,7 +1210,7 @@ class Component extends DCLogic {
     const svcPg=this.paginate(svcRows, sCfg.page, 10);
     const dtServices = Object.assign({
       q:sCfg.q, status:sCfg.status, device:sCfg.device, empty:svcPg.total===0, hosts,
-      hasActiveHost: !!activeDev, activeName: activeDev?activeDev.name:'', activeHost: activeDev?activeDev.host:'',
+      hasActiveHost: !!activeDev, noActiveHost: !activeDev, activeName: activeDev?activeDev.name:'', activeHost: activeDev?activeDev.host:'',
       onScanActive: activeDev?(()=>this.openScan(activeDev)):(()=>{}),
       onEditActive: activeDev?(()=>this.openModal('device','edit',{ name:activeDev.name, host:activeDev.host, ctx:activeDev.agentContext, user:'root', authType:'key' })):(()=>{}),
       onDeleteActive: activeDev?(()=>this.deleteDeviceConfirm(activeDev)):(()=>{}),
