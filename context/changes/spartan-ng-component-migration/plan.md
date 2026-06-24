@@ -321,27 +321,27 @@ Pure front-end template/component migration — no data, schema, or API contract
 
 #### Automated
 
-- [x] 1.1 Lint passes (web + ui)
-- [x] 1.2 Build passes: `npx nx build web`
+- [x] 1.1 Lint passes (web + ui) — a0ee144
+- [x] 1.2 Build passes: `npx nx build web` — a0ee144
 
 #### Manual
 
-- [x] 1.3 Three primitive folders exist with `Hlm*Imports` exported
-- [x] 1.4 `@angular/cdk` resolves with no peer-dep warning
+- [x] 1.3 Three primitive folders exist with `Hlm*Imports` exported — a0ee144
+- [x] 1.4 `@angular/cdk` resolves with no peer-dep warning — a0ee144
 
 ### Phase 2: Auth screens
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npx nx lint web`
-- [ ] 2.2 Build passes: `npx nx build web`
-- [ ] 2.3 Unit tests pass: `npx nx test web`
+- [x] 2.1 Lint passes: `npx nx lint web`
+- [x] 2.2 Build passes: `npx nx build web`
+- [x] 2.3 Unit tests pass: `npx nx test web`
 
 #### Manual
 
-- [ ] 2.4 Login/register render with consistent input/label/button styling
-- [ ] 2.5 Validation errors still appear on touched+invalid fields
-- [ ] 2.6 Submit buttons full-width and trigger sign-in / create-account
+- [x] 2.4 Login/register render with consistent input/label/button styling
+- [x] 2.5 Validation errors still appear on touched+invalid fields
+- [x] 2.6 Submit buttons full-width and trigger sign-in / create-account
 
 ### Phase 3: Button swaps + shared sort-header
 
