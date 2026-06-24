@@ -1,0 +1,9 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "implicitDependencies": ["web", "api"],
+  "name": "e2e",
+  "projectType": "application",
+  "sourceRoot": "tests/e2e",
+  "tags": ["scope:e2e"],
+  "targets": {}
+}

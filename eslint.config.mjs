@@ -42,6 +42,10 @@ export default [
               sourceTag: 'scope:web',
               onlyDependOnLibsWithTags: ['scope:web', 'scope:shared'],
             },
+            {
+              sourceTag: 'scope:e2e',
+              onlyDependOnLibsWithTags: ['scope:e2e', 'scope:shared'],
+            },
           ],
         },
       ],

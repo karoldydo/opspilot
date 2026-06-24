@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "outDir": "../../dist/out-tsc/tests/e2e",
+    "sourceMap": false,
+    "types": ["node", "@playwright/test"]
+  },
+  "exclude": ["node_modules"],
+  "extends": "../../tsconfig.base.json",
+  "include": ["**/*.ts", "**/*.spec.ts", "**/*.setup.ts", "playwright.config.ts"]
+}

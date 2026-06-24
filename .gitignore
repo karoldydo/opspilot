@@ -54,6 +54,10 @@ Thumbs.db
 
 # playwright
 .playwright-mcp
+tests/e2e/.auth/
+playwright-report/
+test-results/
+data/opspilot.e2e.db*
 
 # claude code scheduled-tasks runtime lock (ephemeral pid/session marker)
 .claude/scheduled_tasks.lock
