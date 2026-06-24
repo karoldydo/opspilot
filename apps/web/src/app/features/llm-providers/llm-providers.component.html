@@ -1,15 +1,7 @@
 <main class="text-op-ink max-w-[1040px] px-11 pt-10 pb-16">
   <header class="mb-1.5 flex items-end justify-between gap-4">
     <h1 class="text-[24px] font-bold tracking-[-0.4px]">llm providers</h1>
-    <button
-      class="bg-op-ink text-op-cream rounded-[4px] px-4 py-[9px] text-[13px] font-medium whitespace-nowrap"
-      type="button"
-      (click)="openCreate()"
-      appClickable
-      variant="solid"
-    >
-      + add provider
-    </button>
+    <button type="button" (click)="openCreate()" hlmBtn>+ add provider</button>
   </header>
   <p class="text-op-mute mb-7 text-[13.5px]">your own endpoints and keys — exactly one is active.</p>
 
@@ -20,15 +12,7 @@
   @if (store.isEmpty()) {
     <div class="border-op-hairline border px-[18px] py-12 text-center">
       <p class="text-op-ash mb-4 text-[12.5px]">no providers yet. add your first to power the agent.</p>
-      <button
-        class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
-        type="button"
-        (click)="openCreate()"
-        appClickable
-        variant="primary"
-      >
-        + add provider
-      </button>
+      <button type="button" (click)="openCreate()" hlmBtn size="sm" variant="outline">+ add provider</button>
     </div>
   } @else {
     <!-- toolbar: free-text search + status filter -->
@@ -62,32 +46,29 @@
         <thead hlmTHead>
           <tr class="bg-op-surface-soft" hlmTr>
             <th class="text-op-mute w-[120px] text-[10px] font-bold tracking-[0.5px] uppercase" hlmTh>status</th>
-            <th class="cursor-pointer" hlmTh>
-              <button
-                class="text-op-mute flex w-full cursor-pointer items-center gap-1 text-[10px] font-bold tracking-[0.5px] uppercase"
-                type="button"
-                (click)="table.toggleSort('endpoint')"
-              >
-                endpoint {{ sortIcon('endpoint') }}
-              </button>
+            <th hlmTh>
+              <app-sort-header
+                [key]="'endpoint'"
+                [label]="'endpoint'"
+                [sort]="table.sort()"
+                (sortChange)="table.toggleSort($event)"
+              />
             </th>
-            <th class="w-[200px] cursor-pointer" hlmTh>
-              <button
-                class="text-op-mute flex w-full cursor-pointer items-center gap-1 text-[10px] font-bold tracking-[0.5px] uppercase"
-                type="button"
-                (click)="table.toggleSort('model')"
-              >
-                model {{ sortIcon('model') }}
-              </button>
+            <th class="w-[200px]" hlmTh>
+              <app-sort-header
+                [key]="'model'"
+                [label]="'model'"
+                [sort]="table.sort()"
+                (sortChange)="table.toggleSort($event)"
+              />
             </th>
-            <th class="w-[150px] cursor-pointer" hlmTh>
-              <button
-                class="text-op-mute flex w-full cursor-pointer items-center gap-1 text-[10px] font-bold tracking-[0.5px] uppercase"
-                type="button"
-                (click)="table.toggleSort('updated')"
-              >
-                updated {{ sortIcon('updated') }}
-              </button>
+            <th class="w-[150px]" hlmTh>
+              <app-sort-header
+                [key]="'updated'"
+                [label]="'updated'"
+                [sort]="table.sort()"
+                (sortChange)="table.toggleSort($event)"
+              />
             </th>
             <th class="text-op-mute w-[180px] text-right text-[10px] font-bold tracking-[0.5px] uppercase" hlmTh>
               actions

@@ -7,12 +7,14 @@ import {
   type LlmProviderFormDialogContext,
 } from '@app/features/llm-providers/dialogs/llm-provider-form.dialog';
 import { clientTable } from '@app/shared/client-table';
+import { SortHeaderComponent } from '@app/shared/components/sort-header.component';
 import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
 import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type LlmProvider } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
@@ -29,7 +31,9 @@ import { HlmTableImports } from '@spartan-ng/helm/table';
     ...HlmSelectImports,
     ClickableDirective,
     DatePipe,
+    HlmButton,
     HlmInput,
+    SortHeaderComponent,
     TablePaginationComponent,
   ],
   providers: [LlmProvidersClient, LlmProvidersStore],
@@ -96,15 +100,6 @@ export class LlmProvidersComponent {
   requestDelete(provider: LlmProvider, dialog: { open: () => void }): void {
     this.providerToDelete.set(provider);
     dialog.open();
-  }
-
-  // a header's sort caret: ▲/▼ for the active column, blank otherwise.
-  sortIcon(key: string): string {
-    const sort = this.table.sort();
-    if (!sort || sort.key !== key) {
-      return '';
-    }
-    return sort.dir === 'asc' ? '▲' : '▼';
   }
 
   private openForm(mode: 'create' | 'edit', provider: LlmProvider | null): void {

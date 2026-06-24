@@ -4,12 +4,14 @@ import { SkillsClient } from '@app/features/skills/data/skills.client';
 import { SkillsStore } from '@app/features/skills/data/skills.store';
 import { SkillFormDialog, type SkillFormDialogContext } from '@app/features/skills/dialogs/skill-form.dialog';
 import { clientTable } from '@app/shared/client-table';
+import { SortHeaderComponent } from '@app/shared/components/sort-header.component';
 import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
 import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type Device, type Skill } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
@@ -31,7 +33,9 @@ interface SkillRow extends Skill {
     ...HlmTableImports,
     ...HlmSelectImports,
     ClickableDirective,
+    HlmButton,
     HlmInput,
+    SortHeaderComponent,
     TablePaginationComponent,
   ],
   providers: [SkillsClient, SkillsStore, DevicesClient],
@@ -115,15 +119,6 @@ export class SkillsComponent {
       return 'global';
     }
     return this.deviceNames().get(skill.deviceId) ?? skill.deviceId;
-  }
-
-  // a header's sort caret: ▲/▼ for the active column, blank otherwise.
-  sortIcon(key: string): string {
-    const sort = this.table.sort();
-    if (!sort || sort.key !== key) {
-      return '';
-    }
-    return sort.dir === 'asc' ? '▲' : '▼';
   }
 
   private async loadDevices(): Promise<void> {

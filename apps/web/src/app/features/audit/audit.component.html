@@ -47,23 +47,21 @@
       <table class="table-fixed" hlmTable>
         <thead hlmTHead>
           <tr class="bg-op-surface-soft" hlmTr>
-            <th class="w-[150px] cursor-pointer" hlmTh>
-              <button
-                class="text-op-mute flex w-full cursor-pointer items-center gap-1 text-[10px] font-bold tracking-[0.5px] uppercase"
-                type="button"
-                (click)="table.toggleSort('time')"
-              >
-                time {{ sortIcon('time') }}
-              </button>
+            <th class="w-[150px]" hlmTh>
+              <app-sort-header
+                [key]="'time'"
+                [label]="'time'"
+                [sort]="table.sort()"
+                (sortChange)="table.toggleSort($event)"
+              />
             </th>
-            <th class="w-[170px] cursor-pointer" hlmTh>
-              <button
-                class="text-op-mute flex w-full cursor-pointer items-center gap-1 text-[10px] font-bold tracking-[0.5px] uppercase"
-                type="button"
-                (click)="table.toggleSort('action')"
-              >
-                action {{ sortIcon('action') }}
-              </button>
+            <th class="w-[170px]" hlmTh>
+              <app-sort-header
+                [key]="'action'"
+                [label]="'action'"
+                [sort]="table.sort()"
+                (sortChange)="table.toggleSort($event)"
+              />
             </th>
             <th class="text-op-mute text-[10px] font-bold tracking-[0.5px] uppercase" hlmTh>target</th>
             <th class="text-op-mute w-[110px] text-[10px] font-bold tracking-[0.5px] uppercase" hlmTh>result</th>

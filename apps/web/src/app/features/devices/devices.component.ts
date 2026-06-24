@@ -16,6 +16,7 @@ import {
   type ScanServicesDialogContext,
 } from '@app/features/services/dialogs/scan-services.dialog';
 import { clientTable } from '@app/shared/client-table';
+import { SortHeaderComponent } from '@app/shared/components/sort-header.component';
 import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
 import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
@@ -23,6 +24,7 @@ import { dotClass, STATUS_RANK, statusFromSynthesis, worstStatus } from '@app/sh
 import { type Device, type ServiceWithStatus } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
@@ -48,7 +50,9 @@ interface FleetRow extends ServiceWithStatus {
     ...HlmTableImports,
     ...HlmSelectImports,
     ClickableDirective,
+    HlmButton,
     HlmInput,
+    SortHeaderComponent,
     TablePaginationComponent,
   ],
   providers: [DevicesClient, DevicesStore, FleetServicesClient, ServicesClient, ServicesStore],
@@ -241,15 +245,6 @@ export class DevicesComponent {
   // sets the host filter from a strip chip; 'all' clears it back to the whole fleet.
   selectHost(deviceId: string): void {
     this.table.setFilter('host', deviceId);
-  }
-
-  // a header's sort caret: ▲/▼ for the active column, blank otherwise.
-  sortIcon(key: string): string {
-    const sort = this.table.sort();
-    if (!sort || sort.key !== key) {
-      return '';
-    }
-    return sort.dir === 'asc' ? '▲' : '▼';
   }
 
   // navigates into the service-detail page (the row's primary action); the edit/delete

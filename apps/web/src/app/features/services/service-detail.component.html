@@ -64,14 +64,7 @@
     <section class="mt-8">
       <div class="mb-2 flex flex-wrap items-center justify-between gap-3">
         <div class="text-op-mute text-[10.5px] font-bold tracking-[0.5px] uppercase">diagnose</div>
-        <button
-          class="bg-op-ink text-op-cream flex-none rounded-[4px] px-4 py-[9px] text-[13px] font-medium whitespace-nowrap"
-          type="button"
-          [disabled]="entry().loading"
-          (click)="rerun()"
-          appClickable
-          variant="primary"
-        >
+        <button class="flex-none" type="button" [disabled]="entry().loading" (click)="rerun()" hlmBtn>
           {{ entry().loading ? 'diagnosing…' : '↻ re-run' }}
         </button>
       </div>
@@ -157,13 +150,7 @@
         <div class="text-op-mute mb-2 text-[10.5px] font-bold tracking-[0.5px] uppercase">run history</div>
         <div class="flex flex-wrap gap-[7px]">
           @for (run of entry().runs; track run.id) {
-            <button
-              class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-1 text-[11.5px]"
-              type="button"
-              (click)="replay(run)"
-              appClickable
-              variant="secondary"
-            >
+            <button type="button" (click)="replay(run)" hlmBtn size="sm" variant="outline">
               <span class="font-bold {{ dotClass(run.synthesis.status) }}">●</span>
               {{ run.createdAt | date: 'short' }} · {{ run.synthesis.status }}
             </button>

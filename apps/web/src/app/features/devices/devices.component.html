@@ -1,15 +1,7 @@
 <main class="text-op-ink max-w-[1040px] px-11 pt-10 pb-16">
   <header class="mb-1.5 flex items-end justify-between gap-4">
     <h1 class="text-[24px] font-bold tracking-[-0.4px]">devices</h1>
-    <button
-      class="bg-op-ink text-op-cream rounded-[4px] px-4 py-[9px] text-[13px] font-medium whitespace-nowrap"
-      type="button"
-      (click)="openCreate()"
-      appClickable
-      variant="solid"
-    >
-      + add device
-    </button>
+    <button type="button" (click)="openCreate()" hlmBtn>+ add device</button>
   </header>
   <p class="text-op-mute mb-7 text-[13.5px]">
     every service across the fleet — filter by host or status, search the lot.
@@ -26,15 +18,7 @@
     <div class="border-op-hairline border px-5 py-10 text-center">
       <p class="text-op-ink text-sm font-semibold">no devices yet</p>
       <p class="text-op-mute mt-1 mb-4 text-[12.5px]">add your first device to start managing it from opspilot.</p>
-      <button
-        class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
-        type="button"
-        (click)="openCreate()"
-        appClickable
-        variant="primary"
-      >
-        + add device
-      </button>
+      <button type="button" (click)="openCreate()" hlmBtn size="sm" variant="outline">+ add device</button>
     </div>
   } @else {
     <!-- host filter strip: all-hosts chip + one chip per device (worst-status dot + count) -->
@@ -129,41 +113,38 @@
       <table hlmTable>
         <thead hlmTHead>
           <tr class="bg-op-surface-soft" hlmTr>
-            <th class="w-8 cursor-pointer" hlmTh>
-              <button
-                class="text-op-mute flex w-full cursor-pointer items-center justify-center text-[10px] font-bold tracking-[0.5px] uppercase"
-                type="button"
-                (click)="table.toggleSort('status')"
-              >
-                <span class="sr-only">sort by status</span><span aria-hidden="true">·{{ sortIcon('status') }}</span>
-              </button>
+            <th class="w-8 text-center" hlmTh>
+              <app-sort-header
+                [iconOnly]="true"
+                [key]="'status'"
+                [label]="'status'"
+                [sort]="table.sort()"
+                (sortChange)="table.toggleSort($event)"
+              />
             </th>
-            <th class="w-[180px] cursor-pointer" hlmTh>
-              <button
-                class="text-op-mute flex w-full cursor-pointer items-center gap-1 text-[10px] font-bold tracking-[0.5px] uppercase"
-                type="button"
-                (click)="table.toggleSort('service')"
-              >
-                service {{ sortIcon('service') }}
-              </button>
+            <th class="w-[180px]" hlmTh>
+              <app-sort-header
+                [key]="'service'"
+                [label]="'service'"
+                [sort]="table.sort()"
+                (sortChange)="table.toggleSort($event)"
+              />
             </th>
-            <th class="w-[150px] cursor-pointer" hlmTh>
-              <button
-                class="text-op-mute flex w-full cursor-pointer items-center gap-1 text-[10px] font-bold tracking-[0.5px] uppercase"
-                type="button"
-                (click)="table.toggleSort('device')"
-              >
-                device {{ sortIcon('device') }}
-              </button>
+            <th class="w-[150px]" hlmTh>
+              <app-sort-header
+                [key]="'device'"
+                [label]="'device'"
+                [sort]="table.sort()"
+                (sortChange)="table.toggleSort($event)"
+              />
             </th>
-            <th class="cursor-pointer" hlmTh>
-              <button
-                class="text-op-mute flex w-full cursor-pointer items-center gap-1 text-[10px] font-bold tracking-[0.5px] uppercase"
-                type="button"
-                (click)="table.toggleSort('container')"
-              >
-                container {{ sortIcon('container') }}
-              </button>
+            <th hlmTh>
+              <app-sort-header
+                [key]="'container'"
+                [label]="'container'"
+                [sort]="table.sort()"
+                (sortChange)="table.toggleSort($event)"
+              />
             </th>
             <th class="text-op-mute w-[150px] text-[10px] font-bold tracking-[0.5px] uppercase" hlmTh>compose</th>
             <th class="text-op-mute w-[120px] text-right text-[10px] font-bold tracking-[0.5px] uppercase" hlmTh>

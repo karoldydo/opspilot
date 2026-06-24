@@ -4,6 +4,7 @@ import { AuditClient } from '@app/features/audit/data/audit.client';
 import { AuditStore } from '@app/features/audit/data/audit.store';
 import { SynthesisCardComponent } from '@app/features/diagnosis/components/synthesis-card.component';
 import { clientTable } from '@app/shared/client-table';
+import { SortHeaderComponent } from '@app/shared/components/sort-header.component';
 import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type AuditEvent } from '@opspilot/shared';
@@ -24,6 +25,7 @@ import { HlmTableImports } from '@spartan-ng/helm/table';
     DatePipe,
     HlmInput,
     NgTemplateOutlet,
+    SortHeaderComponent,
     SynthesisCardComponent,
     TablePaginationComponent,
   ],
@@ -92,14 +94,5 @@ export class AuditComponent {
       return typeof outcome === 'string' ? outcome : '';
     }
     return event.synthesis?.status ?? '';
-  }
-
-  // a header's sort caret: ▲/▼ for the active column, blank otherwise.
-  sortIcon(key: string): string {
-    const sort = this.table.sort();
-    if (!sort || sort.key !== key) {
-      return '';
-    }
-    return sort.dir === 'asc' ? '▲' : '▼';
   }
 }

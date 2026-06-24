@@ -333,24 +333,24 @@ Pure front-end template/component migration — no data, schema, or API contract
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npx nx lint web`
-- [x] 2.2 Build passes: `npx nx build web`
-- [x] 2.3 Unit tests pass: `npx nx test web`
+- [x] 2.1 Lint passes: `npx nx lint web` — 0e6f8b8
+- [x] 2.2 Build passes: `npx nx build web` — 0e6f8b8
+- [x] 2.3 Unit tests pass: `npx nx test web` — 0e6f8b8
 
 #### Manual
 
-- [x] 2.4 Login/register render with consistent input/label/button styling
-- [x] 2.5 Validation errors still appear on touched+invalid fields
-- [x] 2.6 Submit buttons full-width and trigger sign-in / create-account
+- [x] 2.4 Login/register render with consistent input/label/button styling — 0e6f8b8
+- [x] 2.5 Validation errors still appear on touched+invalid fields — 0e6f8b8
+- [x] 2.6 Submit buttons full-width and trigger sign-in / create-account — 0e6f8b8
 
 ### Phase 3: Button swaps + shared sort-header
 
 #### Automated
 
-- [ ] 3.1 Lint passes: `npx nx lint web`
-- [ ] 3.2 Build passes: `npx nx build web`
-- [ ] 3.3 Unit tests pass: `npx nx test web`
-- [ ] 3.4 `app-sort-header` unit test covers render + sort-toggle output
+- [x] 3.1 Lint passes: `npx nx lint web`
+- [x] 3.2 Build passes: `npx nx build web`
+- [x] 3.3 Unit tests pass: `npx nx test web`
+- [x] 3.4 `app-sort-header` unit test covers render + sort-toggle output
 
 #### Manual
 
