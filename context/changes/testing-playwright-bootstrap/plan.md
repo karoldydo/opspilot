@@ -116,11 +116,11 @@ violations). Dev `opspilot.db` is untouched. The Nx graph shows the inferred `e2
 
 #### Automated
 
-- [x] 2.1 `tests/e2e/playwright.config.ts` + `specs/auth.setup.ts` + `specs/smoke.spec.ts` created; npm scripts added
-- [x] 2.2 `npx nx e2e e2e` green (servers start, setup writes storageState, smoke passes)
-- [x] 2.3 Formatting clean: `npm run format:check`
+- [x] 2.1 `tests/e2e/playwright.config.ts` + `specs/auth.setup.ts` + `specs/smoke.spec.ts` created; npm scripts added — a9eed53
+- [x] 2.2 `npx nx e2e e2e` green (servers start, setup writes storageState, smoke passes) — a9eed53
+- [x] 2.3 Formatting clean: `npm run format:check` — a9eed53
 
 #### Manual
 
-- [x] 2.4 Isolation verified: `data/opspilot.e2e.db*` created, `data/opspilot.db` (dev) untouched
-- [x] 2.5 `npm run e2e:report` renders the HTML report
+- [x] 2.4 Isolation verified: `data/opspilot.e2e.db*` created, `data/opspilot.db` (dev) untouched — a9eed53
+- [x] 2.5 `npm run e2e:report` renders the HTML report — a9eed53
