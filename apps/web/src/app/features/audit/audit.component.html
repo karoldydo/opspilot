@@ -89,9 +89,17 @@
               <td class="w-[110px] text-[11px] font-semibold {{ resultClass(event) }}" hlmTd>
                 {{ resultText(event) }}
               </td>
-              <td class="text-op-mute w-[70px] text-right text-xs" hlmTd>
+              <td class="w-[70px] text-right" hlmTd>
                 @if (event.synthesis) {
-                  {{ store.selectedId() === event.id ? 'hide' : 'view' }}
+                  <button
+                    type="button"
+                    (click)="$event.stopPropagation(); store.select(event.id)"
+                    hlmBtn
+                    size="sm"
+                    variant="ghost"
+                  >
+                    {{ store.selectedId() === event.id ? 'hide' : 'view' }}
+                  </button>
                 }
               </td>
             </ng-template>

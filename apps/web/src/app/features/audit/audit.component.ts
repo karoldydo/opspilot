@@ -8,6 +8,7 @@ import { SortHeaderComponent } from '@app/shared/components/sort-header.componen
 import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type AuditEvent } from '@opspilot/shared';
+import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
@@ -23,6 +24,7 @@ import { HlmTableImports } from '@spartan-ng/helm/table';
     ...HlmSelectImports,
     ClickableDirective,
     DatePipe,
+    HlmButton,
     HlmInput,
     NgTemplateOutlet,
     SortHeaderComponent,

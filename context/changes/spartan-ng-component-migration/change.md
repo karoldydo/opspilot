@@ -1,7 +1,7 @@
 ---
 change_id: spartan-ng-component-migration
 title: Migrate apps/web native HTML to @opspilot/ui spartan-ng components everywhere possible
-status: implemented
+status: impl_reviewed
 created: 2026-06-24
 updated: 2026-06-24
 archived_at: null
