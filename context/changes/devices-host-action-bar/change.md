@@ -1,7 +1,7 @@
 ---
 change_id: devices-host-action-bar
 title: Make scan / edit / delete host discoverable via an always-rendered host action bar on /devices
-status: planned
+status: implemented
 created: 2026-06-24
 updated: 2026-06-24
 archived_at: null
