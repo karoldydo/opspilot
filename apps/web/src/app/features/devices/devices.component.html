@@ -52,11 +52,11 @@
       }
     </div>
 
-    <!-- active-host action bar: only when a specific host is selected -->
-    @if (selectedDevice(); as device) {
-      <div
-        class="border-op-hairline bg-op-surface-soft flex items-center justify-between gap-3 border border-b-0 px-[14px] py-2.5 text-xs"
-      >
+    <!-- host action bar: always rendered so scan/edit/delete stay discoverable; hint when no host is selected -->
+    <div
+      class="border-op-hairline bg-op-surface-soft flex min-h-[47px] items-center justify-between gap-3 border border-b-0 px-[14px] py-2.5 text-xs"
+    >
+      @if (selectedDevice(); as device) {
         <span class="text-op-mute"
           >managing <span class="text-op-ink font-bold">{{ device.name }}</span> · {{ device.host }}</span
         >
@@ -89,8 +89,13 @@
             delete host
           </button>
         </span>
-      </div>
-    }
+      } @else {
+        <span class="text-op-ash"
+          >select a host above to <span class="text-op-mute font-semibold">scan</span> it for new services, or edit /
+          remove the host</span
+        >
+      }
+    </div>
 
     <!-- toolbar: free-text search + status filter -->
     <div class="border-op-hairline bg-op-cream flex items-center gap-[9px] border border-b-0 px-[14px] py-3">
