@@ -347,32 +347,32 @@ Pure front-end template/component migration — no data, schema, or API contract
 
 #### Automated
 
-- [x] 3.1 Lint passes: `npx nx lint web`
-- [x] 3.2 Build passes: `npx nx build web`
-- [x] 3.3 Unit tests pass: `npx nx test web`
-- [x] 3.4 `app-sort-header` unit test covers render + sort-toggle output
+- [x] 3.1 Lint passes: `npx nx lint web` — 7b01031
+- [x] 3.2 Build passes: `npx nx build web` — 7b01031
+- [x] 3.3 Unit tests pass: `npx nx test web` — 7b01031
+- [x] 3.4 `app-sort-header` unit test covers render + sort-toggle output — 7b01031
 
 #### Manual
 
-- [ ] 3.5 All 12 column headers sort identically (active column + direction)
-- [ ] 3.6 Add / empty-state / re-run / replay / run-skill / sign-out buttons work and look consistent
-- [ ] 3.7 No visual regression in list/detail toolbars
+- [x] 3.5 All 12 column headers sort identically (active column + direction) — 7b01031
+- [x] 3.6 Add / empty-state / re-run / replay / run-skill / sign-out buttons work and look consistent — 7b01031
+- [x] 3.7 No visual regression in list/detail toolbars — 7b01031
 
 ### Phase 4: Action redesign — button-group + dropdown kebab
 
 #### Automated
 
-- [ ] 4.1 Lint passes: `npx nx lint web`
-- [ ] 4.2 Build passes: `npx nx build web`
-- [ ] 4.3 Unit tests pass: `npx nx test web`
+- [x] 4.1 Lint passes: `npx nx lint web`
+- [x] 4.2 Build passes: `npx nx build web`
+- [x] 4.3 Unit tests pass: `npx nx test web`
 
 #### Manual
 
-- [ ] 4.4 Opening a per-row kebab does not navigate the row; items run their actions
-- [ ] 4.5 llm-providers activate item appears only for inactive providers
-- [ ] 4.6 Action bars group visually and all buttons work
-- [ ] 4.7 Delete actions still open confirm dialogs
-- [ ] 4.8 Dropdown keyboard navigation works; no overlay z-index issues
+- [x] 4.4 Opening a per-row kebab does not navigate the row; items run their actions
+- [x] 4.5 llm-providers activate item appears only for inactive providers
+- [x] 4.6 Action bars group visually and all buttons work
+- [x] 4.7 Delete actions still open confirm dialogs
+- [x] 4.8 Dropdown keyboard navigation works; no overlay z-index issues
 
 ### Phase 5: Badges + spinner
 

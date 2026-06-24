@@ -7,12 +7,15 @@ import { clientTable } from '@app/shared/client-table';
 import { SortHeaderComponent } from '@app/shared/components/sort-header.component';
 import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
 import { clickableClasses } from '@app/shared/directives/clickable-classes';
-import { ClickableDirective } from '@app/shared/directives/clickable.directive';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideEllipsis } from '@ng-icons/lucide';
 import { type Device, type Skill } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
+import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
@@ -32,13 +35,15 @@ interface SkillRow extends Skill {
     ...HlmAlertDialogImports,
     ...HlmTableImports,
     ...HlmSelectImports,
-    ClickableDirective,
+    ...HlmDropdownMenuImports,
     HlmButton,
+    HlmIcon,
     HlmInput,
+    NgIcon,
     SortHeaderComponent,
     TablePaginationComponent,
   ],
-  providers: [SkillsClient, SkillsStore, DevicesClient],
+  providers: [SkillsClient, SkillsStore, DevicesClient, provideIcons({ lucideEllipsis })],
   selector: 'app-skills',
   templateUrl: './skills.component.html',
 })

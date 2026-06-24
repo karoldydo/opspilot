@@ -44,35 +44,13 @@
         <span class="text-op-mute"
           >managing <span class="text-op-ink font-bold">{{ device.name }}</span> · {{ device.host }}</span
         >
-        <span class="flex gap-[7px]">
-          <button
-            class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-3 py-1 text-[11.5px] font-medium"
-            type="button"
-            (click)="openScan(device)"
-            appClickable
-            variant="secondary"
-          >
-            scan
-          </button>
-          <button
-            class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-3 py-1 text-[11.5px] font-medium"
-            type="button"
-            (click)="openEdit(device)"
-            appClickable
-            variant="secondary"
-          >
-            edit host
-          </button>
-          <button
-            class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-3 py-1 text-[11.5px] font-medium"
-            type="button"
-            (click)="requestDeleteDevice(device, deviceDeleteDialog)"
-            appClickable
-            variant="danger"
-          >
+        <div hlmButtonGroup>
+          <button type="button" (click)="openScan(device)" hlmBtn variant="outline">scan</button>
+          <button type="button" (click)="openEdit(device)" hlmBtn variant="outline">edit host</button>
+          <button type="button" (click)="requestDeleteDevice(device, deviceDeleteDialog)" hlmBtn variant="destructive">
             delete host
           </button>
-        </span>
+        </div>
       } @else {
         <span class="text-op-ash"
           >select a host above to <span class="text-op-mute font-semibold">scan</span> it for new services, or edit /
@@ -173,25 +151,30 @@
               <td class="text-op-mute truncate text-[11.5px]" hlmTd>{{ row.containerName }}</td>
               <td class="text-op-ash text-[11px]" hlmTd>{{ composeLabel(row) }}</td>
               <td hlmTd>
-                <div class="flex justify-end gap-1.5">
+                <div class="flex justify-end">
                   <button
-                    class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-0.5 text-[11px]"
                     type="button"
-                    (click)="$event.stopPropagation(); openRename(row)"
-                    appClickable
-                    variant="secondary"
+                    [hlmDropdownMenuTrigger]="rowMenu"
+                    (click)="$event.stopPropagation()"
+                    hlmBtn
+                    size="icon-sm"
+                    variant="ghost"
                   >
-                    edit
+                    <ng-icon name="lucideEllipsis" hlm />
+                    <span class="sr-only">actions for {{ row.name }}</span>
                   </button>
-                  <button
-                    class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[10px] py-0.5 text-[11px]"
-                    type="button"
-                    (click)="$event.stopPropagation(); requestDeleteService(row, serviceDeleteDialog)"
-                    appClickable
-                    variant="danger"
-                  >
-                    del
-                  </button>
+                  <ng-template #rowMenu>
+                    <hlm-dropdown-menu>
+                      <button (click)="openRename(row)" hlmDropdownMenuItem>edit</button>
+                      <button
+                        (click)="requestDeleteService(row, serviceDeleteDialog)"
+                        hlmDropdownMenuItem
+                        variant="destructive"
+                      >
+                        delete
+                      </button>
+                    </hlm-dropdown-menu>
+                  </ng-template>
                 </div>
               </td>
             </tr>

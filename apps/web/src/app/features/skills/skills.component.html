@@ -95,25 +95,19 @@
               <td class="text-op-body truncate text-[11.5px]" hlmTd>{{ skill.commandTemplate }}</td>
               <td class="text-op-body text-right text-[11.5px]" hlmTd>{{ skill.parameters.length }}</td>
               <td hlmTd>
-                <div class="flex justify-end gap-1.5">
-                  <button
-                    class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-0.5 text-[11px]"
-                    type="button"
-                    (click)="openEdit(skill)"
-                    appClickable
-                    variant="secondary"
-                  >
-                    edit
+                <div class="flex justify-end">
+                  <button type="button" [hlmDropdownMenuTrigger]="rowMenu" hlmBtn size="icon-sm" variant="ghost">
+                    <ng-icon name="lucideEllipsis" hlm />
+                    <span class="sr-only">actions for {{ skill.name }}</span>
                   </button>
-                  <button
-                    class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[10px] py-0.5 text-[11px]"
-                    type="button"
-                    (click)="requestDelete(skill, deleteDialog)"
-                    appClickable
-                    variant="danger"
-                  >
-                    del
-                  </button>
+                  <ng-template #rowMenu>
+                    <hlm-dropdown-menu>
+                      <button (click)="openEdit(skill)" hlmDropdownMenuItem>edit</button>
+                      <button (click)="requestDelete(skill, deleteDialog)" hlmDropdownMenuItem variant="destructive">
+                        delete
+                      </button>
+                    </hlm-dropdown-menu>
+                  </ng-template>
                 </div>
               </td>
             </tr>

@@ -1,7 +1,10 @@
+import { OverlayContainer } from '@angular/cdk/overlay';
 import { TestBed } from '@angular/core/testing';
 import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { SkillsClient } from '@app/features/skills/data/skills.client';
 import { SkillsStore } from '@app/features/skills/data/skills.store';
+import { provideIcons } from '@ng-icons/core';
+import { lucideEllipsis } from '@ng-icons/lucide';
 import { type Skill } from '@opspilot/shared';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 
@@ -18,6 +21,13 @@ const skill: Skill = {
   updatedAt: '2026-06-11T00:00:00.000Z',
 };
 
+// the per-row actions collapsed into a kebab dropdown; the trigger is the only menu-popup
+// button in the row, and its items only render into the cdk overlay once it opens.
+function kebabTrigger(fixture: ReturnType<typeof setup>): HTMLButtonElement | undefined {
+  const buttons = Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[];
+  return buttons.find((button) => button.getAttribute('aria-haspopup') === 'menu');
+}
+
 function makeMocks() {
   const list = vi.fn().mockResolvedValue([skill]);
   const listDevices = vi.fn().mockResolvedValue([]);
@@ -27,8 +37,9 @@ function makeMocks() {
   return { devicesClient, dialog, list, listDevices, skillsClient };
 }
 
-function rowButton(fixture: ReturnType<typeof setup>, label: string): HTMLButtonElement | undefined {
-  const buttons = Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[];
+function menuItem(label: string): HTMLButtonElement | undefined {
+  const overlay = TestBed.inject(OverlayContainer).getContainerElement();
+  const buttons = Array.from(overlay.querySelectorAll('button')) as HTMLButtonElement[];
   return buttons.find((button) => button.textContent?.trim() === label);
 }
 
@@ -44,6 +55,8 @@ function setup(mocks: ReturnType<typeof makeMocks>) {
         { provide: SkillsClient, useValue: mocks.skillsClient },
         SkillsStore,
         { provide: DevicesClient, useValue: mocks.devicesClient },
+        // re-supply the kebab icon since `set` replaces the component's own provideIcons.
+        provideIcons({ lucideEllipsis }),
       ],
     },
   });
@@ -51,34 +64,46 @@ function setup(mocks: ReturnType<typeof makeMocks>) {
 }
 
 describe('SkillsComponent', () => {
-  it('applies the secondary clickable affordance to the edit button', async () => {
+  it('opens the row kebab and wires the edit item to openEdit', async () => {
     const fixture = setup(makeMocks());
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const edit = rowButton(fixture, 'edit');
+    const trigger = kebabTrigger(fixture);
+    expect(trigger).toBeDefined();
+
+    const openEdit = vi.spyOn(fixture.componentInstance, 'openEdit');
+    trigger?.click();
+    fixture.detectChanges();
+    // flush the trigger's post-open position timer while the overlay is still alive,
+    // so it does not fire against a torn-down overlayRef after the test ends.
+    await new Promise((resolve) => setTimeout(resolve));
+
+    // the menu items live in the cdk overlay, rendered only after the trigger opens.
+    const edit = menuItem('edit');
     expect(edit).toBeDefined();
-    // the opClickable directive (secondary variant) renders the shared surface affordance
-    // plus the bordered hover — this is the regression guard for the directive being wired in.
-    expect(edit?.classList.contains('cursor-pointer')).toBe(true);
-    expect(edit?.classList.contains('hover:bg-op-surface-card')).toBe(true);
-    expect(edit?.classList.contains('focus-visible:ring-op-ink')).toBe(true);
-    expect(edit?.classList.contains('hover:border-op-hairline-strong')).toBe(true);
-    // existing static color classes are preserved, not clobbered.
-    expect(edit?.classList.contains('bg-op-cream')).toBe(true);
+    edit?.click();
+    // the table row is the skill enriched with a derived scope label, so match by identity.
+    expect(openEdit).toHaveBeenCalledWith(expect.objectContaining({ id: skill.id }));
   });
 
-  it('applies the danger clickable affordance to the delete button', async () => {
+  it('exposes a destructive delete item wired to requestDelete', async () => {
     const fixture = setup(makeMocks());
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const remove = rowButton(fixture, 'del');
+    const requestDelete = vi.spyOn(fixture.componentInstance, 'requestDelete');
+    kebabTrigger(fixture)?.click();
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    const remove = menuItem('delete');
     expect(remove).toBeDefined();
-    expect(remove?.classList.contains('cursor-pointer')).toBe(true);
-    expect(remove?.classList.contains('focus-visible:ring-op-danger')).toBe(true);
-    expect(remove?.classList.contains('focus-visible:ring-op-ink')).toBe(false);
+    // the destructive variant surfaces through the helm item's data attribute.
+    expect(remove?.getAttribute('data-variant')).toBe('destructive');
+    remove?.click();
+    expect(requestDelete).toHaveBeenCalled();
   });
 });

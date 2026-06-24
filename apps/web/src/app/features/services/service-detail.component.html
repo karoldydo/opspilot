@@ -32,25 +32,9 @@
           <span class="text-op-ash"> · {{ composeLabel() }}</span>
         </p>
       </div>
-      <div class="flex flex-none gap-[7px]">
-        <button
-          class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
-          type="button"
-          (click)="openRename()"
-          appClickable
-          variant="secondary"
-        >
-          edit
-        </button>
-        <button
-          class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[13px] py-[5px] text-xs font-medium"
-          type="button"
-          (click)="deleteDialog.open()"
-          appClickable
-          variant="danger"
-        >
-          delete
-        </button>
+      <div class="flex-none" hlmButtonGroup>
+        <button type="button" (click)="openRename()" hlmBtn variant="outline">edit</button>
+        <button type="button" (click)="deleteDialog.open()" hlmBtn variant="destructive">delete</button>
       </div>
     </div>
 

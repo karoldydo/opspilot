@@ -10,12 +10,15 @@ import { clientTable } from '@app/shared/client-table';
 import { SortHeaderComponent } from '@app/shared/components/sort-header.component';
 import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
 import { clickableClasses } from '@app/shared/directives/clickable-classes';
-import { ClickableDirective } from '@app/shared/directives/clickable.directive';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideEllipsis } from '@ng-icons/lucide';
 import { type LlmProvider } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
+import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
@@ -29,14 +32,16 @@ import { HlmTableImports } from '@spartan-ng/helm/table';
     ...HlmAlertDialogImports,
     ...HlmTableImports,
     ...HlmSelectImports,
-    ClickableDirective,
+    ...HlmDropdownMenuImports,
     DatePipe,
     HlmButton,
+    HlmIcon,
     HlmInput,
+    NgIcon,
     SortHeaderComponent,
     TablePaginationComponent,
   ],
-  providers: [LlmProvidersClient, LlmProvidersStore],
+  providers: [LlmProvidersClient, LlmProvidersStore, provideIcons({ lucideEllipsis })],
   selector: 'app-llm-providers',
   templateUrl: './llm-providers.component.html',
 })

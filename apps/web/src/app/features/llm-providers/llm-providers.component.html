@@ -98,36 +98,22 @@
               <td class="text-op-body text-[11.5px]" hlmTd>{{ provider.model }}</td>
               <td class="text-op-ash text-[11.5px]" hlmTd>{{ provider.updatedAt | date: 'short' }}</td>
               <td hlmTd>
-                <div class="flex justify-end gap-1.5">
-                  @if (!provider.active) {
-                    <button
-                      class="border-op-hairline-strong bg-op-cream text-op-ink rounded-[4px] border px-[10px] py-0.5 text-[11px] font-medium"
-                      type="button"
-                      (click)="activate(provider)"
-                      appClickable
-                      variant="primary"
-                    >
-                      activate
-                    </button>
-                  }
-                  <button
-                    class="border-op-hairline text-op-body bg-op-cream rounded-[4px] border px-[10px] py-0.5 text-[11px]"
-                    type="button"
-                    (click)="openEdit(provider)"
-                    appClickable
-                    variant="secondary"
-                  >
-                    edit
+                <div class="flex justify-end">
+                  <button type="button" [hlmDropdownMenuTrigger]="rowMenu" hlmBtn size="icon-sm" variant="ghost">
+                    <ng-icon name="lucideEllipsis" hlm />
+                    <span class="sr-only">actions for {{ provider.baseURL }}</span>
                   </button>
-                  <button
-                    class="border-op-danger text-op-danger-text bg-op-cream rounded-[4px] border px-[10px] py-0.5 text-[11px]"
-                    type="button"
-                    (click)="requestDelete(provider, deleteDialog)"
-                    appClickable
-                    variant="danger"
-                  >
-                    del
-                  </button>
+                  <ng-template #rowMenu>
+                    <hlm-dropdown-menu>
+                      @if (!provider.active) {
+                        <button (click)="activate(provider)" hlmDropdownMenuItem>activate</button>
+                      }
+                      <button (click)="openEdit(provider)" hlmDropdownMenuItem>edit</button>
+                      <button (click)="requestDelete(provider, deleteDialog)" hlmDropdownMenuItem variant="destructive">
+                        delete
+                      </button>
+                    </hlm-dropdown-menu>
+                  </ng-template>
                 </div>
               </td>
             </tr>

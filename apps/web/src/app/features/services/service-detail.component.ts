@@ -21,6 +21,7 @@ import { type Device, type RunRecord, type RunStep, type Service } from '@opspil
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmButtonGroupImports } from '@spartan-ng/helm/button-group';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 
 // step kind → terminal prefix glyph + line color (mockup palette).
@@ -46,6 +47,7 @@ const STEP_CLASS: Record<RunStep['kind'], { colorClass: string; prefix: string }
     RouterLink,
     ClickableDirective,
     HlmButton,
+    ...HlmButtonGroupImports,
     ServiceSkillsComponent,
     SynthesisCardComponent,
     ...HlmAlertDialogImports,

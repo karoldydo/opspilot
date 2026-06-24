@@ -21,11 +21,16 @@ import { TablePaginationComponent } from '@app/shared/components/table-paginatio
 import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { dotClass, STATUS_RANK, statusFromSynthesis, worstStatus } from '@app/shared/status';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideEllipsis } from '@ng-icons/lucide';
 import { type Device, type ServiceWithStatus } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmButtonGroupImports } from '@spartan-ng/helm/button-group';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
+import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
@@ -49,13 +54,24 @@ interface FleetRow extends ServiceWithStatus {
     ...HlmAlertDialogImports,
     ...HlmTableImports,
     ...HlmSelectImports,
+    ...HlmButtonGroupImports,
+    ...HlmDropdownMenuImports,
     ClickableDirective,
     HlmButton,
+    HlmIcon,
     HlmInput,
+    NgIcon,
     SortHeaderComponent,
     TablePaginationComponent,
   ],
-  providers: [DevicesClient, DevicesStore, FleetServicesClient, ServicesClient, ServicesStore],
+  providers: [
+    DevicesClient,
+    DevicesStore,
+    FleetServicesClient,
+    ServicesClient,
+    ServicesStore,
+    provideIcons({ lucideEllipsis }),
+  ],
   selector: 'app-devices',
   templateUrl: './devices.component.html',
 })
