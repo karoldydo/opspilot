@@ -6,9 +6,8 @@ import { SkillFormDialog, type SkillFormDialogContext } from '@app/features/skil
 import { clientTable } from '@app/shared/client-table';
 import { SortHeaderComponent } from '@app/shared/components/sort-header.component';
 import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
-import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideEllipsis } from '@ng-icons/lucide';
+import { lucideEllipsisVertical } from '@ng-icons/lucide';
 import { type Device, type Skill } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
@@ -45,7 +44,7 @@ interface SkillRow extends Skill {
     SortHeaderComponent,
     TablePaginationComponent,
   ],
-  providers: [SkillsClient, SkillsStore, DevicesClient, provideIcons({ lucideEllipsis })],
+  providers: [SkillsClient, SkillsStore, DevicesClient, provideIcons({ lucideEllipsisVertical })],
   selector: 'app-skills',
   templateUrl: './skills.component.html',
 })
@@ -55,13 +54,8 @@ export class SkillsComponent {
 
   protected readonly store = inject(SkillsStore);
 
-  // op-* affordance for the alert-dialog confirm/cancel buttons; merged over hlmBtn's cva through classes()/twmerge.
-  protected readonly dangerSolidAffordance = clickableClasses('danger-solid');
-
   // devices drive the scope select in the form and the scope label in the table.
   protected readonly devices = signal<Device[]>([]);
-
-  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly skillToDelete = signal<null | Skill>(null);
 

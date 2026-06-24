@@ -106,20 +106,21 @@
 
             @if (event.synthesis) {
               <tr
+                class="op-clickable h-[49px]"
                 role="button"
                 [attr.aria-expanded]="store.selectedId() === event.id"
                 (click)="store.select(event.id)"
                 (keydown.enter)="store.select(event.id)"
                 (keydown.space)="$event.preventDefault(); store.select(event.id)"
-                appClickable
                 hlmTr
                 tabindex="0"
-                variant="primary"
               >
                 <ng-container [ngTemplateOutlet]="cells" />
               </tr>
             } @else {
-              <tr hlmTr>
+              <!-- same fixed height as synthesis rows (whose view button is the tallest cell) so
+                   row height never depends on content and the table doesn't jump between pages. -->
+              <tr class="h-[49px]" hlmTr>
                 <ng-container [ngTemplateOutlet]="cells" />
               </tr>
             }

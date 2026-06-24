@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthStore } from '@app/core/auth/auth.store';
-import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmToaster } from '@spartan-ng/helm/sonner';
 
@@ -16,7 +15,7 @@ interface NavItem {
 // router-outlet. session state comes from the root AuthStore; standalone, OnPush.
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, HlmToaster, ClickableDirective, HlmButton],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, HlmToaster, HlmButton],
   selector: 'app-layout',
   templateUrl: './layout.component.html',
 })

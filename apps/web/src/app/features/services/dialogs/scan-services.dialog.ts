@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { type ServicesStore } from '@app/features/services/data/services.store';
-import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { type ScannedContainer } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
 import { toast } from '@spartan-ng/brain/sonner';
@@ -43,11 +42,6 @@ export class ScanServicesDialog {
   protected readonly deviceName = this.context.deviceName;
 
   protected readonly errorMessage = signal<null | string>(null);
-
-  // op-* affordance for the footer buttons; merged over hlmBtn's cva through classes()/twmerge so op-* hover wins.
-  protected readonly solidAffordance = clickableClasses('solid');
-
-  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly store = this.context.store;
 

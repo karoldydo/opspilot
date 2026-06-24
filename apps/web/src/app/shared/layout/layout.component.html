@@ -14,7 +14,7 @@
     <nav class="flex flex-1 flex-col gap-[2px] px-[10px] py-[14px]">
       @for (item of navItems; track item.path) {
         <a
-          class="flex items-center gap-[10px] rounded-[4px] px-[10px] py-2 text-[13.5px]"
+          class="op-link flex items-center gap-[10px] rounded-[4px] px-[10px] py-2 text-[13.5px]"
           #rla="routerLinkActive"
           [class.bg-op-surface-card]="rla.isActive"
           [class.font-bold]="rla.isActive"
@@ -23,9 +23,7 @@
           [class.text-op-ink]="rla.isActive"
           [routerLink]="item.path"
           [routerLinkActiveOptions]="item.options"
-          appClickable
           routerLinkActive
-          variant="link"
         >
           <span class="text-op-ink w-[18px]">{{ rla.isActive ? '▸' : '' }}</span>
           <span>{{ item.label }}</span>

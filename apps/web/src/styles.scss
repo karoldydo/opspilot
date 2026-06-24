@@ -167,6 +167,22 @@
   --sidebar-ring: #201d1d;
 }
 
+// clickable-affordance utilities for native elements (links, clickable rows/cards) that
+// can't ride the hlm button cva. helm buttons get these baked into buttonVariants instead;
+// these mirror that recipe for plain <a>/<tr>/<div>. every one carries cursor-pointer.
+@utility op-link {
+  @apply focus-visible:ring-op-ink cursor-pointer underline-offset-4 transition-colors hover:underline focus-visible:ring-1 focus-visible:outline-none;
+}
+@utility op-clickable {
+  @apply hover:bg-op-surface-card active:bg-op-surface-soft focus-visible:ring-op-ink cursor-pointer transition-colors focus-visible:ring-1 focus-visible:outline-none;
+}
+@utility op-clickable-bordered {
+  @apply hover:bg-op-surface-card hover:border-op-hairline-strong active:bg-op-surface-soft focus-visible:ring-op-ink cursor-pointer transition-colors focus-visible:ring-1 focus-visible:outline-none;
+}
+@utility op-clickable-solid {
+  @apply hover:bg-op-ink-deep active:bg-op-ink-deep focus-visible:ring-op-cream cursor-pointer transition-colors focus-visible:ring-1 focus-visible:outline-none;
+}
+
 // design keyframes (DESIGN.md / mockup): caret blink, entrance, reveal
 @keyframes opBlink {
   0%,

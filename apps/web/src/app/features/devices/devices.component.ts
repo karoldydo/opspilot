@@ -18,16 +18,13 @@ import {
 import { clientTable } from '@app/shared/client-table';
 import { SortHeaderComponent } from '@app/shared/components/sort-header.component';
 import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
-import { clickableClasses } from '@app/shared/directives/clickable-classes';
-import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { dotClass, STATUS_RANK, statusFromSynthesis, worstStatus } from '@app/shared/status';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideEllipsis } from '@ng-icons/lucide';
+import { lucideEllipsisVertical } from '@ng-icons/lucide';
 import { type Device, type ServiceWithStatus } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmButtonGroupImports } from '@spartan-ng/helm/button-group';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmIcon } from '@spartan-ng/helm/icon';
@@ -54,9 +51,7 @@ interface FleetRow extends ServiceWithStatus {
     ...HlmAlertDialogImports,
     ...HlmTableImports,
     ...HlmSelectImports,
-    ...HlmButtonGroupImports,
     ...HlmDropdownMenuImports,
-    ClickableDirective,
     HlmButton,
     HlmIcon,
     HlmInput,
@@ -70,7 +65,7 @@ interface FleetRow extends ServiceWithStatus {
     FleetServicesClient,
     ServicesClient,
     ServicesStore,
-    provideIcons({ lucideEllipsis }),
+    provideIcons({ lucideEllipsisVertical }),
   ],
   selector: 'app-devices',
   templateUrl: './devices.component.html',
@@ -83,11 +78,6 @@ export class DevicesComponent {
   private readonly services = inject(ServicesStore);
 
   protected readonly store = inject(DevicesStore);
-
-  // op-* affordance for the alert-dialog confirm/cancel buttons; merged over hlmBtn's cva.
-  protected readonly dangerSolidAffordance = clickableClasses('danger-solid');
-
-  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   // status → dot color, from the shared status util (single source of truth).
   protected readonly dotClass = dotClass;
@@ -192,7 +182,7 @@ export class DevicesComponent {
   }
 
   // host-strip chip classes: a black (selected) chip deepens on hover so the cream text gains
-  // contrast; an unselected cream chip lifts to the card surface. hand-rolled (not appClickable)
+  // contrast; an unselected cream chip lifts to the card surface. hand-rolled (not a shared util)
   // because the chip toggles between the dark and light ranges, which one variant can't serve.
   chipClass(id: string): string {
     const active = this.activeHostId() === id;

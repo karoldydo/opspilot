@@ -4,7 +4,7 @@ import { DevicesClient } from '@app/features/devices/data/devices.client';
 import { SkillsClient } from '@app/features/skills/data/skills.client';
 import { SkillsStore } from '@app/features/skills/data/skills.store';
 import { provideIcons } from '@ng-icons/core';
-import { lucideEllipsis } from '@ng-icons/lucide';
+import { lucideEllipsisVertical } from '@ng-icons/lucide';
 import { type Skill } from '@opspilot/shared';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 
@@ -56,7 +56,7 @@ function setup(mocks: ReturnType<typeof makeMocks>) {
         SkillsStore,
         { provide: DevicesClient, useValue: mocks.devicesClient },
         // re-supply the kebab icon since `set` replaces the component's own provideIcons.
-        provideIcons({ lucideEllipsis }),
+        provideIcons({ lucideEllipsisVertical }),
       ],
     },
   });

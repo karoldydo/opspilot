@@ -6,7 +6,6 @@ import { SynthesisCardComponent } from '@app/features/diagnosis/components/synth
 import { clientTable } from '@app/shared/client-table';
 import { SortHeaderComponent } from '@app/shared/components/sort-header.component';
 import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
-import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { type AuditEvent } from '@opspilot/shared';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmInput } from '@spartan-ng/helm/input';
@@ -22,7 +21,6 @@ import { HlmTableImports } from '@spartan-ng/helm/table';
   imports: [
     ...HlmTableImports,
     ...HlmSelectImports,
-    ClickableDirective,
     DatePipe,
     HlmButton,
     HlmInput,

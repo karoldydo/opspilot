@@ -44,7 +44,7 @@
         <span class="text-op-mute"
           >managing <span class="text-op-ink font-bold">{{ device.name }}</span> · {{ device.host }}</span
         >
-        <div hlmButtonGroup>
+        <div class="flex gap-2">
           <button type="button" (click)="openScan(device)" hlmBtn variant="outline">scan</button>
           <button type="button" (click)="openEdit(device)" hlmBtn variant="outline">edit host</button>
           <button type="button" (click)="requestDeleteDevice(device, deviceDeleteDialog)" hlmBtn variant="destructive">
@@ -133,15 +133,14 @@
         <tbody hlmTBody>
           @for (row of table.pageRows(); track row.id) {
             <tr
+              class="op-clickable"
               role="link"
               [attr.aria-label]="'open ' + row.name"
               (click)="toService(row)"
               (keydown.enter)="toService(row)"
               (keydown.space)="$event.preventDefault(); toService(row)"
-              appClickable
               hlmTr
               tabindex="0"
-              variant="primary"
             >
               <td hlmTd>
                 <span class="text-[10px] {{ dotClass(statusFromSynthesis(row.status)) }}">●</span>
@@ -158,9 +157,9 @@
                     (click)="$event.stopPropagation()"
                     hlmBtn
                     size="icon-sm"
-                    variant="ghost"
+                    variant="outline"
                   >
-                    <ng-icon name="lucideEllipsis" hlm />
+                    <ng-icon name="lucideEllipsisVertical" hlm />
                     <span class="sr-only">actions for {{ row.name }}</span>
                   </button>
                   <ng-template #rowMenu>
@@ -209,10 +208,8 @@
       </p>
     </hlm-alert-dialog-header>
     <hlm-alert-dialog-footer>
-      <button [class]="secondaryAffordance" (click)="deviceDeleteDialog.close()" hlmAlertDialogCancel>cancel</button>
-      <button [class]="dangerSolidAffordance" (click)="confirmDeleteDevice(deviceDeleteDialog)" hlmAlertDialogAction>
-        delete
-      </button>
+      <button (click)="deviceDeleteDialog.close()" hlmAlertDialogCancel>cancel</button>
+      <button (click)="confirmDeleteDevice(deviceDeleteDialog)" hlmAlertDialogAction>delete</button>
     </hlm-alert-dialog-footer>
   </hlm-alert-dialog-content>
 </hlm-alert-dialog>
@@ -227,10 +224,8 @@
       </p>
     </hlm-alert-dialog-header>
     <hlm-alert-dialog-footer>
-      <button [class]="secondaryAffordance" (click)="serviceDeleteDialog.close()" hlmAlertDialogCancel>cancel</button>
-      <button [class]="dangerSolidAffordance" (click)="confirmDeleteService(serviceDeleteDialog)" hlmAlertDialogAction>
-        delete
-      </button>
+      <button (click)="serviceDeleteDialog.close()" hlmAlertDialogCancel>cancel</button>
+      <button (click)="confirmDeleteService(serviceDeleteDialog)" hlmAlertDialogAction>delete</button>
     </hlm-alert-dialog-footer>
   </hlm-alert-dialog-content>
 </hlm-alert-dialog>

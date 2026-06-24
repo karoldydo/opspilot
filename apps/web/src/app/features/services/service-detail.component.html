@@ -1,7 +1,7 @@
 <main class="text-op-ink max-w-[1040px] px-11 pt-10 pb-16">
   <!-- breadcrumb -->
   <nav class="text-op-mute mb-4 text-[12px]">
-    <a class="underline underline-offset-4" appClickable routerLink="/devices" variant="link">devices</a>
+    <a class="op-link underline underline-offset-4" routerLink="/devices">devices</a>
     <span class="text-op-ash"> / {{ deviceName() }} / </span>
     <span class="text-op-ink font-semibold">{{ serviceName() }}</span>
   </nav>
@@ -14,8 +14,8 @@
     </p>
   } @else if (service(); as svc) {
     <!-- identity header -->
-    <div class="flex flex-wrap items-start justify-between gap-3">
-      <div class="min-w-0">
+    <div class="min-w-0">
+      <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-2.5">
           <h1 class="text-[24px] font-bold tracking-[-0.4px]">{{ svc.name }}</h1>
           <span
@@ -26,19 +26,19 @@
             >{{ headerStatus() }}</span
           >
         </div>
-        <p class="text-op-mute mt-1.5 text-[13.5px]">
-          <span class="text-op-body">{{ svc.containerName }}</span>
-          <span class="text-op-ash">&#64; {{ deviceName() }}</span>
-          @if (device()?.host; as host) {
-            <span class="text-op-ash"> · {{ host }}</span>
-          }
-          <span class="text-op-ash"> · {{ composeLabel() }}</span>
-        </p>
+        <div class="flex flex-none gap-2">
+          <button type="button" (click)="openRename()" hlmBtn variant="outline">edit</button>
+          <button type="button" (click)="deleteDialog.open()" hlmBtn variant="destructive">delete</button>
+        </div>
       </div>
-      <div class="flex-none" hlmButtonGroup>
-        <button type="button" (click)="openRename()" hlmBtn variant="outline">edit</button>
-        <button type="button" (click)="deleteDialog.open()" hlmBtn variant="destructive">delete</button>
-      </div>
+      <p class="text-op-mute mt-1.5 text-[13.5px]">
+        <span class="text-op-body">{{ svc.containerName }}</span>
+        <span class="text-op-ash">&#64; {{ deviceName() }}</span>
+        @if (device()?.host; as host) {
+          <span class="text-op-ash"> · {{ host }}</span>
+        }
+        <span class="text-op-ash"> · {{ composeLabel() }}</span>
+      </p>
     </div>
 
     <!-- operations -->
@@ -162,8 +162,8 @@
       </p>
     </hlm-alert-dialog-header>
     <hlm-alert-dialog-footer>
-      <button [class]="secondaryAffordance" (click)="deleteDialog.close()" hlmAlertDialogCancel>cancel</button>
-      <button [class]="dangerSolidAffordance" (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>delete</button>
+      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>cancel</button>
+      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>delete</button>
     </hlm-alert-dialog-footer>
   </hlm-alert-dialog-content>
 </hlm-alert-dialog>

@@ -9,9 +9,8 @@ import {
 import { clientTable } from '@app/shared/client-table';
 import { SortHeaderComponent } from '@app/shared/components/sort-header.component';
 import { TablePaginationComponent } from '@app/shared/components/table-pagination.component';
-import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideEllipsis } from '@ng-icons/lucide';
+import { lucideEllipsisVertical } from '@ng-icons/lucide';
 import { type LlmProvider } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
@@ -43,7 +42,7 @@ import { HlmTableImports } from '@spartan-ng/helm/table';
     SortHeaderComponent,
     TablePaginationComponent,
   ],
-  providers: [LlmProvidersClient, LlmProvidersStore, provideIcons({ lucideEllipsis })],
+  providers: [LlmProvidersClient, LlmProvidersStore, provideIcons({ lucideEllipsisVertical })],
   selector: 'app-llm-providers',
   templateUrl: './llm-providers.component.html',
 })
@@ -51,11 +50,6 @@ export class LlmProvidersComponent {
   private readonly dialog = inject(HlmDialogService);
 
   protected readonly store = inject(LlmProvidersStore);
-
-  // op-* affordance for the alert-dialog confirm/cancel buttons; merged over hlmBtn's cva through classes()/twmerge.
-  protected readonly dangerSolidAffordance = clickableClasses('danger-solid');
-
-  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly providerToDelete = signal<LlmProvider | null>(null);
 

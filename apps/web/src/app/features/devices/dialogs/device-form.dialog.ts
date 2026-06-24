@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { type DeviceActionResult, type DevicesStore } from '@app/features/devices/data/devices.store';
-import { clickableClasses } from '@app/shared/directives/clickable-classes';
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { credentialCreateRequestSchema, type Device, deviceCreateRequestSchema } from '@opspilot/shared';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
@@ -56,11 +55,6 @@ export class DeviceFormDialog {
   });
 
   protected readonly isEdit = this.context.mode === 'edit';
-
-  // op-* affordance for the footer buttons; merged over hlmBtn's cva through classes()/twmerge so op-* hover wins.
-  protected readonly solidAffordance = clickableClasses('solid');
-
-  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   protected readonly submitting = signal(false);
 

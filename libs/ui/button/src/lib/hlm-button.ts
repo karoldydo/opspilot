@@ -8,7 +8,7 @@ import { classes } from '../../../utils/src/lib/hlm';
 import { injectBrnButtonConfig } from './hlm-button.token';
 
 export const buttonVariants = cva(
-  "focus-visible:border-ring focus-visible:ring-ring/50 data-[matches-spartan-invalid=true]:ring-destructive/20 dark:data-[matches-spartan-invalid=true]:ring-destructive/40 data-[matches-spartan-invalid=true]:border-destructive dark:data-[matches-spartan-invalid=true]:border-destructive/50 rounded-md border border-transparent bg-clip-padding text-sm font-medium focus-visible:ring-3 data-[matches-spartan-invalid=true]:ring-3 [&_ng-icon:not([class*='text-'])]:text-[calc(var(--spacing)*4)] group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_ng-icon]:pointer-events-none [&_ng-icon]:shrink-0",
+  "focus-visible:border-ring focus-visible:ring-ring/50 data-[matches-spartan-invalid=true]:ring-destructive/20 dark:data-[matches-spartan-invalid=true]:ring-destructive/40 data-[matches-spartan-invalid=true]:border-destructive dark:data-[matches-spartan-invalid=true]:border-destructive/50 rounded-md border border-transparent bg-clip-padding text-sm font-medium focus-visible:ring-3 data-[matches-spartan-invalid=true]:ring-3 [&_ng-icon:not([class*='text-'])]:text-[calc(var(--spacing)*4)] group/button inline-flex shrink-0 cursor-pointer items-center justify-center whitespace-nowrap transition-all outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_ng-icon]:pointer-events-none [&_ng-icon]:shrink-0",
   {
     defaultVariants: {
       size: 'default',
@@ -28,14 +28,22 @@ export const buttonVariants = cva(
         xs: "h-6 gap-1 rounded-[min(var(--radius-md),8px)] px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_ng-icon:not([class*='text-'])]:text-[calc(var(--spacing)*3)]",
       },
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/80',
+        // dark ink fill: deepen (never lighten) on hover so the cream text keeps contrast.
+        // op-* affordance baked in here so call sites never override via [class].
+        default:
+          'bg-primary text-primary-foreground cursor-pointer transition-colors hover:bg-op-ink-deep active:bg-op-ink-deep focus-visible:ring-1 focus-visible:ring-op-cream focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60',
         destructive:
           'bg-destructive/10 hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/20 text-destructive focus-visible:border-destructive/40 dark:hover:bg-destructive/30',
+        // dark destructive confirm (alert-dialog action): dark fill like default, danger focus ring.
+        'destructive-solid':
+          'bg-primary text-primary-foreground cursor-pointer transition-colors hover:bg-op-ink-deep active:bg-op-ink-deep focus-visible:ring-1 focus-visible:ring-op-danger focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60',
         ghost:
           'hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 aria-expanded:bg-muted aria-expanded:text-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
+        // light surface-filling control: card-fill hover, darker border, soft active, ink ring.
+        // open-dropdown (aria-expanded) state matches the hover fill for consistency.
         outline:
-          'border-border bg-background hover:bg-muted hover:text-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-muted aria-expanded:text-foreground shadow-xs',
+          'border-border bg-background cursor-pointer transition-colors hover:bg-op-surface-card hover:text-foreground hover:border-op-hairline-strong active:bg-op-surface-soft dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-op-surface-card aria-expanded:text-foreground shadow-xs focus-visible:ring-1 focus-visible:ring-op-ink focus-visible:outline-none',
         secondary:
           'bg-secondary text-secondary-foreground aria-expanded:bg-secondary aria-expanded:text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]',
       },

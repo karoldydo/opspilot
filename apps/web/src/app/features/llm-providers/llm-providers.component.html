@@ -101,8 +101,8 @@
               <td class="text-op-ash text-[11.5px]" hlmTd>{{ provider.updatedAt | date: 'short' }}</td>
               <td hlmTd>
                 <div class="flex justify-end">
-                  <button type="button" [hlmDropdownMenuTrigger]="rowMenu" hlmBtn size="icon-sm" variant="ghost">
-                    <ng-icon name="lucideEllipsis" hlm />
+                  <button type="button" [hlmDropdownMenuTrigger]="rowMenu" hlmBtn size="icon-sm" variant="outline">
+                    <ng-icon name="lucideEllipsisVertical" hlm />
                     <span class="sr-only">actions for {{ provider.baseURL }}</span>
                   </button>
                   <ng-template #rowMenu>
@@ -151,8 +151,8 @@
       </p>
     </hlm-alert-dialog-header>
     <hlm-alert-dialog-footer>
-      <button [class]="secondaryAffordance" (click)="deleteDialog.close()" hlmAlertDialogCancel>cancel</button>
-      <button [class]="dangerSolidAffordance" (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>delete</button>
+      <button (click)="deleteDialog.close()" hlmAlertDialogCancel>cancel</button>
+      <button (click)="confirmDelete(deleteDialog)" hlmAlertDialogAction>delete</button>
     </hlm-alert-dialog-footer>
   </hlm-alert-dialog-content>
 </hlm-alert-dialog>

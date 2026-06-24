@@ -14,15 +14,12 @@ import {
   RenameServiceDialog,
   type RenameServiceDialogContext,
 } from '@app/features/services/dialogs/rename-service.dialog';
-import { clickableClasses } from '@app/shared/directives/clickable-classes';
-import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { badgeClass, dotClass, statusFromSynthesis } from '@app/shared/status';
 import { type Device, type RunRecord, type RunStep, type Service } from '@opspilot/shared';
 import { toast } from '@spartan-ng/brain/sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmButtonGroupImports } from '@spartan-ng/helm/button-group';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
@@ -47,10 +44,8 @@ const STEP_CLASS: Record<RunStep['kind'], { colorClass: string; prefix: string }
     DatePipe,
     DecimalPipe,
     RouterLink,
-    ClickableDirective,
     HlmBadge,
     HlmButton,
-    ...HlmButtonGroupImports,
     ...HlmSpinnerImports,
     ServiceSkillsComponent,
     SynthesisCardComponent,
@@ -93,11 +88,6 @@ export class ServiceDetailComponent {
   protected readonly deviceName = computed(() => this.device()?.name ?? this.deviceId());
 
   protected readonly serviceName = computed(() => this.service()?.name ?? this.serviceId());
-
-  // op-* affordances for the alert-dialog confirm/cancel buttons; merged over hlmBtn's cva.
-  protected readonly dangerSolidAffordance = clickableClasses('danger-solid');
-
-  protected readonly secondaryAffordance = clickableClasses('secondary');
 
   // the live diagnosis slice for this service; reads the store's entries signal so the template
   // tracks each streamed frame.

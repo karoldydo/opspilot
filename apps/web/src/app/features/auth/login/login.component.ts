@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from '@app/core/auth/auth.store';
-import { ClickableDirective } from '@app/shared/directives/clickable.directive';
 import { schemaValidator } from '@app/shared/validators/schema.validator';
 import { authLoginRequestSchema } from '@opspilot/shared';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -11,7 +10,7 @@ import { HlmLabel } from '@spartan-ng/helm/label';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, ClickableDirective, HlmButton, HlmInput, HlmLabel],
+  imports: [ReactiveFormsModule, RouterLink, HlmButton, HlmInput, HlmLabel],
   selector: 'app-login',
   templateUrl: './login.component.html',
 })

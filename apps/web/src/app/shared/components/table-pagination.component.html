@@ -12,7 +12,7 @@
           (click)="go(page() - 1)"
           hlmBtn
           size="sm"
-          variant="ghost"
+          variant="outline"
         >
           ‹ prev
         </button>
@@ -27,7 +27,7 @@
               class="cursor-pointer"
               type="button"
               [attr.aria-current]="token === page() ? 'page' : null"
-              [variant]="token === page() ? 'default' : 'ghost'"
+              [variant]="token === page() ? 'default' : 'outline'"
               (click)="go(token)"
               hlmBtn
               size="icon"
@@ -47,7 +47,7 @@
           (click)="go(page() + 1)"
           hlmBtn
           size="sm"
-          variant="ghost"
+          variant="outline"
         >
           next ›
         </button>
