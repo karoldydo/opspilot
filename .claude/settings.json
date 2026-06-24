@@ -28,5 +28,29 @@
   },
   "enabledPlugins": {
     "skill-creator@claude-plugins-official": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 15000,
+            "command": "bash -c 'FILE=$(jq -r \".tool_input.file_path // empty\"); [ -z \"$FILE\" ] && exit 0; case \"$FILE\" in *.ts|*.js|*.mjs|*.cjs) npx eslint --fix --no-warn-ignored \"$FILE\" 1>&2 || exit 2 ;; esac'"
+          },
+          {
+            "type": "command",
+            "timeout": 30000,
+            "command": "bash -c 'FILE=$(jq -r \".tool_input.file_path // empty\"); case \"$FILE\" in *.ts) npx nx run-many -t typecheck 1>&2 || exit 2 ;; esac'"
+          },
+          {
+            "type": "command",
+            "timeout": 30000,
+            "command": "bash -c 'export AI_AGENT=1; FILE=$(jq -r \".tool_input.file_path // empty\"); case \"$FILE\" in apps/api/*) npx nx test api -- related \"${FILE#apps/api/}\" --run 1>&2 || exit 2 ;; libs/shared/*) npx nx test shared -- related \"${FILE#libs/shared/}\" --run 1>&2 || exit 2 ;; esac'"
+          }
+        ]
+      }
+    ]
   }
 }
