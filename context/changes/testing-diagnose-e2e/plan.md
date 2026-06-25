@@ -293,11 +293,11 @@ None — no schema, no data migration.
 
 #### Automated
 
-- [x] 2.1 §6.5 references the new spec path
-- [x] 2.2 Phase 4 row reads `complete`
-- [x] 2.3 Format clean: `npm run format:check`
+- [x] 2.1 §6.5 references the new spec path — 9895134
+- [x] 2.2 Phase 4 row reads `complete` — 9895134
+- [x] 2.3 Format clean: `npm run format:check` — 9895134
 
 #### Manual
 
-- [x] 2.4 §6.5 facet (c) + pagination note read consistently
-- [x] 2.5 Phase 4 status change justified
+- [x] 2.4 §6.5 facet (c) + pagination note read consistently — 9895134
+- [x] 2.5 Phase 4 status change justified — 9895134
