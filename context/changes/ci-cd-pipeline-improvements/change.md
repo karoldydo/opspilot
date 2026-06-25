@@ -1,7 +1,7 @@
 ---
 change_id: ci-cd-pipeline-improvements
 title: Improve CI/CD pipeline with unit and e2e test gates
-status: implemented
+status: impl_reviewed
 created: 2026-06-25
 updated: 2026-06-25
 archived_at: null
