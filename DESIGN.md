@@ -5,34 +5,34 @@ description: |
   A terminal-native marketing system rendered entirely in Berkeley Mono — every word on the page, from the hero headline down to the footer fine print, is monospaced. The page itself reads like a manpage or a static-site README: warm cream canvas (`#fdfcfc`), nearly-black ink (`#201d1d`), 4px-radius rectangles for the few interactive elements, and bracketed `[+]`/`[-]` ASCII markers used as bullets. The brand's only "visual moment" is a single dark hero card that mocks up the OpenCode TUI itself — black background, monospaced terminal output, ASCII pipe characters, and a wordmark rendered as block-pixel ASCII. Every section sits as a hairline-bordered text block on the cream canvas with no shadows, no gradients, no decorative imagery, and no non-monospaced character anywhere in the system.
 
 colors:
-  primary: "#201d1d"
-  on-primary: "#fdfcfc"
-  ink: "#201d1d"
-  ink-deep: "#0f0000"
-  charcoal: "#302c2c"
-  body: "#424245"
-  mute: "#646262"
-  stone: "#6e6e73"
-  ash: "#9a9898"
-  canvas: "#fdfcfc"
-  surface-soft: "#f8f7f7"
-  surface-card: "#f1eeee"
-  surface-dark: "#201d1d"
-  surface-dark-elevated: "#302c2c"
-  hairline: "rgba(15,0,0,0.12)"
-  hairline-strong: "#646262"
-  on-dark: "#fdfcfc"
-  on-dark-mute: "#9a9898"
-  accent: "#007aff"
-  accent-hover: "#0056b3"
-  accent-active: "#004085"
-  warning: "#ff9f0a"
-  warning-hover: "#cc7f08"
-  warning-active: "#995f06"
-  danger: "#ff3b30"
-  danger-hover: "#d70015"
-  danger-active: "#a50011"
-  success: "#30d158"
+  primary: '#201d1d'
+  on-primary: '#fdfcfc'
+  ink: '#201d1d'
+  ink-deep: '#0f0000'
+  charcoal: '#302c2c'
+  body: '#424245'
+  mute: '#646262'
+  stone: '#6e6e73'
+  ash: '#9a9898'
+  canvas: '#fdfcfc'
+  surface-soft: '#f8f7f7'
+  surface-card: '#f1eeee'
+  surface-dark: '#201d1d'
+  surface-dark-elevated: '#302c2c'
+  hairline: 'rgba(15,0,0,0.12)'
+  hairline-strong: '#646262'
+  on-dark: '#fdfcfc'
+  on-dark-mute: '#9a9898'
+  accent: '#007aff'
+  accent-hover: '#0056b3'
+  accent-active: '#004085'
+  warning: '#ff9f0a'
+  warning-hover: '#cc7f08'
+  warning-active: '#995f06'
+  danger: '#ff3b30'
+  danger-hover: '#d70015'
+  danger-active: '#a50011'
+  success: '#30d158'
 
 typography:
   display-xl:
@@ -101,123 +101,123 @@ spacing:
 
 components:
   button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.button-md}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.primary}'
+    textColor: '{colors.on-primary}'
+    typography: '{typography.button-md}'
+    rounded: '{rounded.sm}'
     padding: 4px 20px
     height: 36px
   button-primary-active:
-    backgroundColor: "{colors.ink-deep}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.button-md}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.ink-deep}'
+    textColor: '{colors.on-primary}'
+    typography: '{typography.button-md}'
+    rounded: '{rounded.sm}'
   button-secondary:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.button-md}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.button-md}'
+    rounded: '{rounded.sm}'
     padding: 4px 20px
   button-tab:
-    backgroundColor: "transparent"
-    textColor: "{colors.mute}"
-    typography: "{typography.button-md}"
-    rounded: "{rounded.none}"
+    backgroundColor: 'transparent'
+    textColor: '{colors.mute}'
+    typography: '{typography.button-md}'
+    rounded: '{rounded.none}'
     padding: 8px 16px
   button-tab-active:
-    backgroundColor: "transparent"
-    textColor: "{colors.ink}"
-    typography: "{typography.button-md}"
-    rounded: "{rounded.none}"
+    backgroundColor: 'transparent'
+    textColor: '{colors.ink}'
+    typography: '{typography.button-md}'
+    rounded: '{rounded.none}'
   button-disabled:
-    backgroundColor: "{colors.surface-card}"
-    textColor: "{colors.ash}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.surface-card}'
+    textColor: '{colors.ash}'
+    rounded: '{rounded.sm}'
   badge-news:
-    backgroundColor: "{colors.surface-dark}"
-    textColor: "{colors.on-dark}"
-    typography: "{typography.caption-md}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.surface-dark}'
+    textColor: '{colors.on-dark}'
+    typography: '{typography.caption-md}'
+    rounded: '{rounded.sm}'
     padding: 2px 8px
   text-input:
-    backgroundColor: "{colors.surface-soft}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.surface-soft}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body-md}'
+    rounded: '{rounded.sm}'
     padding: 8px 12px
     height: 40px
   text-input-focused:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    rounded: '{rounded.sm}'
   textarea:
-    backgroundColor: "{colors.surface-soft}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.surface-soft}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body-md}'
+    rounded: '{rounded.sm}'
     padding: 12px
   install-snippet:
-    backgroundColor: "{colors.surface-card}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.surface-card}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body-md}'
+    rounded: '{rounded.sm}'
     padding: 12px 16px
   hero-tui-mockup:
-    backgroundColor: "{colors.surface-dark}"
-    textColor: "{colors.on-dark}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.none}"
+    backgroundColor: '{colors.surface-dark}'
+    textColor: '{colors.on-dark}'
+    typography: '{typography.body-md}'
+    rounded: '{rounded.none}'
     padding: 64px 32px
   tui-prompt-row:
-    backgroundColor: "{colors.surface-dark-elevated}"
-    textColor: "{colors.on-dark}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.surface-dark-elevated}'
+    textColor: '{colors.on-dark}'
+    typography: '{typography.body-md}'
+    rounded: '{rounded.sm}'
     padding: 8px 12px
   list-row:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.body}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.none}"
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.body}'
+    typography: '{typography.body-md}'
+    rounded: '{rounded.none}'
     padding: 8px 0px
   faq-row:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.none}"
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body-md}'
+    rounded: '{rounded.none}'
     padding: 12px 0px
   testimonial-row:
-    backgroundColor: "{colors.surface-soft}"
-    textColor: "{colors.body}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.surface-soft}'
+    textColor: '{colors.body}'
+    typography: '{typography.body-md}'
+    rounded: '{rounded.sm}'
     padding: 16px 20px
   chart-tile:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.body}"
-    typography: "{typography.caption-md}"
-    rounded: "{rounded.none}"
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.body}'
+    typography: '{typography.caption-md}'
+    rounded: '{rounded.none}'
     padding: 16px
   primary-nav:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-strong}"
-    rounded: "{rounded.none}"
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body-strong}'
+    rounded: '{rounded.none}'
     height: 56px
   footer-section:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.body}"
-    typography: "{typography.caption-md}"
-    rounded: "{rounded.none}"
+    backgroundColor: '{colors.canvas}'
+    textColor: '{colors.body}'
+    typography: '{typography.caption-md}'
+    rounded: '{rounded.none}'
     padding: 32px 0px
   link-inline:
-    textColor: "{colors.ink}"
-    typography: "{typography.link-md}"
+    textColor: '{colors.ink}'
+    typography: '{typography.link-md}'
   badge-section-label:
-    backgroundColor: "transparent"
-    textColor: "{colors.ink}"
-    typography: "{typography.heading-md}"
-    rounded: "{rounded.none}"
+    backgroundColor: 'transparent'
+    textColor: '{colors.ink}'
+    typography: '{typography.heading-md}'
+    rounded: '{rounded.none}'
 ---
 
 ## Overview
@@ -293,7 +293,7 @@ The single-font decision is the brand. There is no display face, no body sans, n
 ### Hierarchy
 
 | Token                      | Size | Weight | Line Height | Letter Spacing | Use                                                                   |
-|----------------------------|------|--------|-------------|----------------|-----------------------------------------------------------------------|
+| -------------------------- | ---- | ------ | ----------- | -------------- | --------------------------------------------------------------------- |
 | `{typography.display-xl}`  | 38px | 700    | 1.5         | 0              | Hero headline ("The open source AI coding agent")                     |
 | `{typography.heading-md}`  | 16px | 700    | 1.5         | 0              | Section label ("What is OpenCode?", "FAQ", "Built for privacy first") |
 | `{typography.body-md}`     | 16px | 400    | 1.5         | 0              | Body copy, paragraph text, list-row text, install-snippet code        |
@@ -339,7 +339,7 @@ Whitespace is structural and generous. Sections sit 96px apart with no decorativ
 ## Elevation & Depth
 
 | Level               | Treatment                                             | Use                                                                                          |
-|---------------------|-------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| ------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | 0 — Flat            | No border, no shadow                                  | Default for body sections, list rows, hero text block, footer                                |
 | 1 — Hairline rule   | 1px solid `{colors.hairline}` (translucent warm tint) | Section dividers, between major content blocks                                               |
 | 2 — Hairline strong | 1px solid `{colors.hairline-strong}`                  | Tab strip bottom rule, in-list emphasized divider                                            |
@@ -360,7 +360,7 @@ Depth comes from typography density and the single dark TUI mockup, not from CSS
 ### Border Radius Scale
 
 | Token            | Value  | Use                                                                                                       |
-|------------------|--------|-----------------------------------------------------------------------------------------------------------|
+| ---------------- | ------ | --------------------------------------------------------------------------------------------------------- |
 | `{rounded.none}` | 0px    | Sections, hero TUI mockup, primary nav, footer, list rows — every container that isn't a button           |
 | `{rounded.sm}`   | 4px    | Every interactive element — primary CTA, secondary CTA, text inputs, install snippet, badges, prompt rows |
 | `{rounded.full}` | 9999px | Avatar circles in testimonials                                                                            |
@@ -517,7 +517,7 @@ There is no photography. Visual elements are limited to:
 ### Breakpoints
 
 | Name          | Width   | Key Changes                                                                         |
-|---------------|---------|-------------------------------------------------------------------------------------|
+| ------------- | ------- | ----------------------------------------------------------------------------------- |
 | desktop-large | 1280px+ | Default — 960px content column, 5-up footer link grid                               |
 | desktop       | 1024px  | Same layout; nav remains horizontal                                                 |
 | tablet        | 850px   | Footer collapses to 2-up grid; `/enterprise` two-column form stacks                 |

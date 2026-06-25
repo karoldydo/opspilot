@@ -6,6 +6,6 @@ The load-bearing names registry referenced by `CLAUDE.md`. Every cross-boundary
 lives, and which side(s) consume it.
 
 | Schema                 | Inferred type    | File                                                    | Consumed by            |
-|------------------------|------------------|---------------------------------------------------------|------------------------|
+| ---------------------- | ---------------- | ------------------------------------------------------- | ---------------------- |
 | `apiErrorSchema`       | `ApiError`       | `libs/shared/src/lib/schemas/api-error.schema.ts`       | `api`, `web` (planned) |
 | `healthResponseSchema` | `HealthResponse` | `libs/shared/src/lib/schemas/health-response.schema.ts` | `api` (`/api/health`)  |

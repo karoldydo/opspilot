@@ -11,6 +11,49 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  quality:
+    name: quality gates (lint, format, typecheck, unit)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    # throwaway boot env so the api config/joi validation passes when nx test api
+    # boots the nest app; non-production values tied to a fresh e2e db (no real data).
+    env:
+      CI: true
+      BETTER_AUTH_SECRET: 8b47068deb2f96c65512f09eba1f36ff48acd3281f8d29ad9a78e4a73fb97dec
+      ENCRYPTION_KEY: /8bldWhgAaozhiMMICDRCXXJJIJYv6FLkNEMx9Meu9s=
+      BETTER_AUTH_URL: http://localhost:3000
+      TRUSTED_ORIGINS: http://localhost:3000,http://localhost:4200
+    steps:
+      - name: checkout
+        uses: actions/checkout@v5
+
+      - name: set up node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: install deps
+        run: npm ci
+
+      - name: lint
+        run: npx nx run-many -t lint
+
+      - name: format check
+        run: npx nx format:check --all
+
+      # typecheck covers api + shared only; web's type-check is `nx build web` below.
+      - name: typecheck
+        run: npx nx run-many -t typecheck
+
+      - name: unit tests
+        run: npx nx run-many -t test --projects=api,shared,web
+
+      # web has no typecheck target; the production build is its type-check.
+      - name: build web (web type-check)
+        run: npx nx build web
+
   deploy:
     name: build & push (multi-arch -> ghcr)
     runs-on: ubuntu-latest
