@@ -1,6 +1,6 @@
 name: pipeline
 
-# deploy + cleanup only (no linters/tests/security yet - those come later).
+# quality + e2e gates run on every push; deploy + cleanup only fire when both gates are green.
 on:
   push:
     branches: [main]
@@ -104,6 +104,8 @@ jobs:
 
   deploy:
     name: build & push (multi-arch -> ghcr)
+    # only push to ghcr when both gates are green; a red gate skips deploy (and cleanup).
+    needs: [quality, e2e]
     runs-on: ubuntu-latest
     permissions:
       contents: read

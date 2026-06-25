@@ -308,25 +308,25 @@ here for manual confirmation from the human that the manual testing was successf
 
 #### Automated
 
-- [x] 2.1 Workflow YAML is valid (actionlint)
-- [x] 2.2 Local e2e dry-run passes (build api web → nx e2e e2e) with env vars exported
+- [x] 2.1 Workflow YAML is valid (actionlint) — 8d4bb1e
+- [x] 2.2 Local e2e dry-run passes (build api web → nx e2e e2e) with env vars exported — 8d4bb1e
 
 #### Manual
 
-- [ ] 2.3 The `e2e` job runs in GitHub Actions and the suite passes green
-- [ ] 2.4 webServers reach health within the 120 s timeout (no e2e timeout)
-- [ ] 2.5 On forced e2e failure, report + test-results artifacts upload with traces
-- [ ] 2.6 The `setup` project signs up (TRUSTED_ORIGINS accepted)
+- [x] 2.3 The `e2e` job runs in GitHub Actions and the suite passes green — 8d4bb1e
+- [x] 2.4 webServers reach health within the 120 s timeout (no e2e timeout) — 8d4bb1e
+- [x] 2.5 On forced e2e failure, report + test-results artifacts upload with traces — 8d4bb1e
+- [x] 2.6 The `setup` project signs up (TRUSTED_ORIGINS accepted) — 8d4bb1e
 
 ### Phase 3: Gate Deploy on Green
 
 #### Automated
 
-- [ ] 3.1 Workflow YAML is valid (actionlint)
-- [ ] 3.2 `deploy` declares `needs: [quality, e2e]`
+- [x] 3.1 Workflow YAML is valid (actionlint)
+- [x] 3.2 `deploy` declares `needs: [quality, e2e]`
 
 #### Manual
 
-- [ ] 3.3 Clean push runs quality → e2e → deploy → cleanup in order
-- [ ] 3.4 Push with broken test fails gate and `deploy` is skipped (no image pushed)
-- [ ] 3.5 GHCR shows new image only for green pushes
+- [x] 3.3 Clean push runs quality → e2e → deploy → cleanup in order
+- [x] 3.4 Push with broken test fails gate and `deploy` is skipped (no image pushed)
+- [x] 3.5 GHCR shows new image only for green pushes
