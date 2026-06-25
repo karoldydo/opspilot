@@ -54,6 +54,54 @@ jobs:
       - name: build web (web type-check)
         run: npx nx build web
 
+  e2e:
+    name: e2e (playwright against built api + web)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    # same throwaway boot env as `quality`; the nx serve child processes the playwright
+    # webservers spawn inherit it, so the api's joi validation passes and the better auth
+    # signup in the setup project is not origin-rejected (trusted_origins includes :4200).
+    env:
+      CI: true
+      BETTER_AUTH_SECRET: 8b47068deb2f96c65512f09eba1f36ff48acd3281f8d29ad9a78e4a73fb97dec
+      ENCRYPTION_KEY: /8bldWhgAaozhiMMICDRCXXJJIJYv6FLkNEMx9Meu9s=
+      BETTER_AUTH_URL: http://localhost:3000
+      TRUSTED_ORIGINS: http://localhost:3000,http://localhost:4200
+    steps:
+      - name: checkout
+        uses: actions/checkout@v5
+
+      - name: set up node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: install deps
+        run: npm ci
+
+      - name: install playwright chromium
+        run: npx playwright install --with-deps chromium
+
+      # pre-warm builds so the api:serve (dependsOn build) + web dev-server reach health
+      # well under the 120s webserver timeout on a cold runner; build is also web's type-check.
+      - name: pre-warm builds
+        run: npx nx run-many -t build -p api web
+
+      - name: e2e
+        run: npx nx e2e e2e
+
+      # traces/screenshots/videos only exist on failure and are exactly what's needed then.
+      - name: upload playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+
   deploy:
     name: build & push (multi-arch -> ghcr)
     runs-on: ubuntu-latest

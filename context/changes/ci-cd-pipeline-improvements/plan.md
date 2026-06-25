@@ -294,22 +294,22 @@ here for manual confirmation from the human that the manual testing was successf
 
 #### Automated
 
-- [x] 1.1 Workflow YAML is valid (actionlint / action-validator)
-- [x] 1.2 Local dry-run of gate commands passes with env vars exported
-- [x] 1.3 `.nvmrc` exists and contains `24`
+- [x] 1.1 Workflow YAML is valid (actionlint / action-validator) — 55c4e15
+- [x] 1.2 Local dry-run of gate commands passes with env vars exported — 55c4e15
+- [x] 1.3 `.nvmrc` exists and contains `24` — 55c4e15
 
 #### Manual
 
-- [ ] 1.4 Pushing a commit triggers the `quality` job and it completes green
-- [ ] 1.5 A deliberately broken lint/format/test makes `quality` fail
-- [ ] 1.6 Job logs show `nx test api` booting without Joi fail-fast
+- [x] 1.4 Pushing a commit triggers the `quality` job and it completes green — 55c4e15
+- [x] 1.5 A deliberately broken lint/format/test makes `quality` fail — 55c4e15
+- [x] 1.6 Job logs show `nx test api` booting without Joi fail-fast — 55c4e15
 
 ### Phase 2: E2E Job
 
 #### Automated
 
-- [ ] 2.1 Workflow YAML is valid (actionlint)
-- [ ] 2.2 Local e2e dry-run passes (build api web → nx e2e e2e) with env vars exported
+- [x] 2.1 Workflow YAML is valid (actionlint)
+- [x] 2.2 Local e2e dry-run passes (build api web → nx e2e e2e) with env vars exported
 
 #### Manual
 
