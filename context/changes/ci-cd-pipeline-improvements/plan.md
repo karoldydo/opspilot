@@ -322,11 +322,11 @@ here for manual confirmation from the human that the manual testing was successf
 
 #### Automated
 
-- [x] 3.1 Workflow YAML is valid (actionlint)
-- [x] 3.2 `deploy` declares `needs: [quality, e2e]`
+- [x] 3.1 Workflow YAML is valid (actionlint) — dba8a61
+- [x] 3.2 `deploy` declares `needs: [quality, e2e]` — dba8a61
 
 #### Manual
 
-- [x] 3.3 Clean push runs quality → e2e → deploy → cleanup in order
-- [x] 3.4 Push with broken test fails gate and `deploy` is skipped (no image pushed)
-- [x] 3.5 GHCR shows new image only for green pushes
+- [x] 3.3 Clean push runs quality → e2e → deploy → cleanup in order — dba8a61
+- [x] 3.4 Push with broken test fails gate and `deploy` is skipped (no image pushed) — dba8a61
+- [x] 3.5 GHCR shows new image only for green pushes — dba8a61
