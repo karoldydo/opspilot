@@ -1,10 +1,10 @@
 ---
 change_id: testing-diagnose-e2e
 title: Testing diagnose e2e
-status: implemented
+status: archived
 created: 2026-06-25
 updated: 2026-06-25
-archived_at: null
+archived_at: 2026-06-25T11:51:42Z
 ---
 
 ## Notes
