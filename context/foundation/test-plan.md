@@ -298,8 +298,55 @@ exercised against actual storage.
 
 ### 6.5 Adding an e2e test
 
-- TBD — see §3 Phase 4 (Playwright bootstrap; full diagnoseLogs UI→synthesis
-  path + SSE narration with heartbeats; authored via `/10x-e2e`).
+Browser-level coverage with Playwright. Authored via `/10x-e2e` — one reviewed,
+deliberate-break-verified test per risk, never a per-page sweep.
+
+- **Location**: one test per file in `tests/e2e/specs/<feature>.spec.ts`; shared
+  fixtures (db seeds) in `tests/e2e/helpers/` (outside the `./specs` testDir so they
+  are never collected as tests). Each spec carries a provenance header naming the
+  `test-plan.md` risk it protects.
+- **Auth**: never log in through the UI. `specs/auth.setup.ts` signs up a unique
+  user (`e2e+${Date.now()}@…`) and persists `storageState`; the `chromium` project
+  starts already authenticated. Hit the api with the authenticated `page.request` /
+  `request` fixtures.
+- **Locators + waits**: `getByRole` / `getByText` only (no CSS/XPath); web-first
+  assertions (`toBeVisible`, `toBeEnabled`, `toHaveText`) — never `waitForTimeout`.
+  Unique timestamp-suffixed data; clean up in `afterEach` (delete the device → FK
+  cascade removes its services + runs).
+- **Hard rule — the live diagnose stream cannot be driven deterministically.** The
+  SSE stream runs SSH + the LLM **server-side**; `page.route()` cannot intercept a
+  server-side call, and `NODE_ENV=test` does **not** swap in fakes (no test seam in
+  the running app). So a live UI→synthesis run needs real SSH + a reachable LLM —
+  neither deterministic. Two feasible patterns cover Risk #1 instead (both keep auth,
+  routing, the real `/api`, and the real db unmocked):
+  - **(a) Clean-error / no-hang facet** — create a device + service over the api
+    (neither tests SSH/docker on create), open service-detail, click **re-run** with
+    **no active llm provider**: `narrate()` rejects 409 in pre-flight, the native
+    `EventSource` fires `onerror`, and the store must surface a clean error
+    (`could not diagnose service`) and re-enable the button (no infinite spinner).
+    Proves the "no result → clean error, never hang" half of Risk #1.
+    **Canonical example**: `tests/e2e/specs/diagnosis-clean-error.spec.ts`.
+  - **(b) Saved-run 4-field render facet** — api-create device + service, then seed a
+    completed `run_record` row directly (there is **no api endpoint** to create a run
+    — runs are only persisted by the live stream). On entry `loadRuns()` seeds the
+    result card; assert all four synthesis fields reach the screen. `problems` /
+    `suggestions` render only in the card (so they pin it); `status` / `summary` also
+    appear elsewhere on the page, so `.first()` is enough.
+    **Canonical examples**: `tests/e2e/specs/diagnosis-synthesis-renders.spec.ts`,
+    `tests/e2e/helpers/seed-run-record.ts` (a `better-sqlite3` insert against the e2e
+    db; opens a second wal connection with `busy_timeout`).
+- **Risk #6 (SSE heartbeat / `X-Accel-Buffering: no` through the edge) is NOT e2e.**
+  Its protection is a response-header + `ping`-frame contract, caught deterministically
+  at integration (`diagnose.controller.spec.ts` parses `event: ping`;
+  `diagnose.service.spec.ts` "emits a keep-alive ping frame on the ~30s heartbeat").
+  Reaching for e2e here is the §2 anti-pattern — and the real edge reap (>100 s through
+  Cloudflare) is not reproducible in a local Playwright run.
+- **Run locally** (the `webServer` block boots both apps; the api binds an isolated
+  `./data/opspilot.e2e.db` and **does not reuse** a dev api on `:3000` — free that
+  port first):
+  - all e2e: `npm run e2e` (`nx e2e e2e`)
+  - one spec: `npx nx e2e e2e -- specs/diagnosis-clean-error.spec.ts`
+  - report: `npm run e2e:report`
 
 ### 6.6 Per-rollout-phase notes
 
