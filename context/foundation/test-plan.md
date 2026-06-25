@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-21 (Phase 1–3 complete; Phase 4 not started)
+> Last updated: 2026-06-25 (Phase 1–4 complete)
 
 ## 1. Strategy
 
@@ -83,7 +83,7 @@ orchestrator updates Status as artifacts appear on disk.
 | 1 | Agent diagnosis under failure           | Prove `diagnoseLogs` returns a clean error (never crash/hang) on bad LLM output and times out within bound                     | #1            | integration (api, fake LLM)                | complete      | context/archive/2026-06-16-testing-agent-diagnosis-under-failure/ |
 | 2 | SSH executor lifecycle + timeout        | Prove connections are disposed after a run and a command/scan aborts within its bounded timeout                                | #2            | integration (api, fake SSH)                | complete      | context/changes/testing-ssh-executor-lifecycle-timeout/ |
 | 3 | Security guardrails                     | Prove secrets never reach plaintext/transcript, the agent stays confined to per-device skills (incl. custom), and unauth → 401 | #4, #3, #5    | integration / contract (api, real temp DB) | complete      | context/changes/testing-security-guardrails/           |
-| 4 | diagnoseLogs e2e + SSE through the edge | Prove the full UI→synthesis path renders the 4-field result and SSE narration streams with heartbeats                          | #1, #6        | e2e (Playwright)                           | not started   | —                                                      |
+| 4 | diagnoseLogs e2e + SSE through the edge | Prove the full UI→synthesis path renders the 4-field result and SSE narration streams with heartbeats                          | #1, #6        | e2e (Playwright)                           | complete      | context/changes/testing-diagnose-e2e/                  |
 
 **Status vocabulary** (fixed — parser literals): `not started` →
 `change opened` → `researched` → `planned` → `implementing` → `complete`.
@@ -335,6 +335,20 @@ deliberate-break-verified test per risk, never a per-page sweep.
     **Canonical examples**: `tests/e2e/specs/diagnosis-synthesis-renders.spec.ts`,
     `tests/e2e/helpers/seed-run-record.ts` (a `better-sqlite3` insert against the e2e
     db; opens a second wal connection with `busy_timeout`).
+  - **(c) Run-history replay facet** — api-create device + service, then seed **≥2** completed
+    `run_record` rows with distinct `created_at` + `status`. on entry the newest run owns the
+    card and each run renders one `getByRole('button')` replay chip whose accessible name
+    carries the run's `status`, so seeding distinct statuses makes each chip uniquely locatable
+    without leaning on the brittle `date:'short'` string. clicking an older chip swaps the
+    synthesis card **statically** and opens **no** live stream — proven belt-and-suspenders by
+    the `agent run · idle` header + enabled re-run button (dom) and a negative
+    `**/diagnose/stream` network assertion. the multi-run extension of facet (b): replay is a
+    static history view, not a re-run.
+    **Canonical example**: `tests/e2e/specs/diagnosis-run-history-replay.spec.ts`.
+  - **UI pagination is NOT e2e.** `diagnosis.client.ts` `recentRuns()` calls
+    `GET /diagnose/runs` with **no** `limit`/`offset` params — the UI never paginates — so the
+    0–100 slicing is an api/integration concern (`diagnose.controller.spec.ts`), never a
+    browser interaction.
 - **Risk #6 (SSE heartbeat / `X-Accel-Buffering: no` through the edge) is NOT e2e.**
   Its protection is a response-header + `ping`-frame contract, caught deterministically
   at integration (`diagnose.controller.spec.ts` parses `event: ping`;
@@ -388,6 +402,15 @@ here capturing anything surprising the rollout phase taught.)
   positive-session control) plus a `DiscoveryService` `@Public` metadata
   sweep that pins the allowlist to `{ AuthController, HealthController }`.
   The author-trust / `commandTemplate` exclusion is recorded in §7.
+- **2026-06-25 — Phase 4 (Risks #1/#6), deterministic e2e ceiling reached:** Playwright was
+  bootstrapped earlier; this phase added the final deterministic browser facet for Risk #1 —
+  run-history **replay** (`diagnosis-run-history-replay.spec.ts`), proving a saved-run chip
+  click swaps the synthesis card with **no** new `/diagnose/stream` (dom `idle`/enabled +
+  negative network assertion). with facets (a) clean-error and (b) saved-run render already
+  shipped (`9804435`), the deterministic e2e backlog is complete. The live UI→synthesis happy
+  path stays **out of scope** pending an app-side test seam (no fake-LLM/fake-SSH swap;
+  `page.route()` cannot intercept the server-side SSE), and Risk #6 stays integration-only per
+  §6.5.
 
 ## 7. What We Deliberately Don't Test
 

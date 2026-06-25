@@ -277,27 +277,27 @@ None — no schema, no data migration.
 
 #### Automated
 
-- [x] 1.1 Spec file exists: `tests/e2e/specs/diagnosis-run-history-replay.spec.ts`
-- [x] 1.2 Spec passes green: `npx nx e2e e2e -- specs/diagnosis-run-history-replay.spec.ts`
-- [x] 1.3 Full e2e suite still passes: `npm run e2e`
-- [x] 1.4 Lint passes: `npx nx lint e2e`
-- [x] 1.5 Format clean: `npm run format:check`
+- [x] 1.1 Spec file exists: `tests/e2e/specs/diagnosis-run-history-replay.spec.ts` — c801943
+- [x] 1.2 Spec passes green: `npx nx e2e e2e -- specs/diagnosis-run-history-replay.spec.ts` — c801943
+- [x] 1.3 Full e2e suite still passes: `npm run e2e` — c801943
+- [x] 1.4 Lint passes: `npx nx lint e2e` — c801943
+- [x] 1.5 Format clean: `npm run format:check` — c801943
 
 #### Manual
 
-- [ ] 1.6 Deliberate-break confirmed red then reverted to green
-- [ ] 1.7 Locator/wait discipline verified (getByRole/getByText, web-first, no waitForTimeout)
-- [ ] 1.8 afterEach cleanup verified; spec independent across consecutive runs
+- [x] 1.6 Deliberate-break confirmed red then reverted to green — c801943
+- [x] 1.7 Locator/wait discipline verified (getByRole/getByText, web-first, no waitForTimeout) — c801943
+- [x] 1.8 afterEach cleanup verified; spec independent across consecutive runs — c801943
 
 ### Phase 2: Documentation sync
 
 #### Automated
 
-- [ ] 2.1 §6.5 references the new spec path
-- [ ] 2.2 Phase 4 row reads `complete`
-- [ ] 2.3 Format clean: `npm run format:check`
+- [x] 2.1 §6.5 references the new spec path
+- [x] 2.2 Phase 4 row reads `complete`
+- [x] 2.3 Format clean: `npm run format:check`
 
 #### Manual
 
-- [ ] 2.4 §6.5 facet (c) + pagination note read consistently
-- [ ] 2.5 Phase 4 status change justified
+- [x] 2.4 §6.5 facet (c) + pagination note read consistently
+- [x] 2.5 Phase 4 status change justified
