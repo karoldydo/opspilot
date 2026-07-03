@@ -1,10 +1,10 @@
 ---
 change_id: create-readme
 title: Create a README based on the Best-README-Template
-status: implemented
+status: archived
 created: 2026-07-03
-updated: 2026-07-04
-archived_at: null
+updated: 2026-07-03
+archived_at: 2026-07-03T23:01:45Z
 ---
 
 ## Notes
