@@ -307,13 +307,13 @@ None — no data or schema changes.
 
 #### Automated
 
-- [x] 2.1 LICENSE exists at repo root (`ls LICENSE`)
-- [ ] 2.2 GitHub recognizes the license (`gh repo view --json licenseInfo` non-null)
-- [x] 2.3 GitHub description is set (`gh repo view --json description` non-empty)
-- [x] 2.4 package.json is valid JSON with new fields (`node -e "require('./package.json')"`)
-- [x] 2.5 Prettier passes on touched files (`npm run format:check`)
+- [x] 2.1 LICENSE exists at repo root (`ls LICENSE`) — 6d965c3
+- [ ] 2.2 GitHub recognizes the license (`gh repo view --json licenseInfo` non-null) — deferred: requires `git push origin main`
+- [x] 2.3 GitHub description is set (`gh repo view --json description` non-empty) — 6d965c3
+- [x] 2.4 package.json is valid JSON with new fields (`node -e "require('./package.json')"`) — 6d965c3
+- [x] 2.5 Prettier passes on touched files (`npm run format:check`) — 6d965c3
 
 #### Manual
 
-- [x] 2.6 CLAUDE.md no longer claims a bare scaffold and reads correctly
-- [x] 2.7 README License section links to the present LICENSE
+- [x] 2.6 CLAUDE.md no longer claims a bare scaffold and reads correctly — 6d965c3
+- [x] 2.7 README License section links to the present LICENSE — 6d965c3
