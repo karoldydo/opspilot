@@ -10,7 +10,7 @@ OpsPilot is a self-hosted homelab ops tool. The repo is an **Nx 22 monorepo (npm
 - `apps/api` — NestJS 11 service, built with webpack via `@nx/webpack`, global route prefix `/api`, default port `3000`.
 - `libs/shared` — framework-agnostic pure-TS library exposed as `@opspilot/shared` (path alias in `tsconfig.base.json`), consumed by both `api` and `web`.
 
-The PRD/tech-stack hand-off in `@context/foundation/prd.md` and `@context/foundation/tech-stack.md` describes the *target* stack (Drizzle + SQLite, spartan/ng + Tailwind v4, Vercel AI SDK, Better Auth, node-ssh, SSE, Playwright). Most of those are not yet wired up — the current source tree is the Nx scaffold output plus the shared lib. Treat the foundation docs as direction, not as already-implemented architecture.
+The PRD/tech-stack hand-off in `@context/foundation/prd.md` and `@context/foundation/tech-stack.md` describes the *target* stack (Drizzle + SQLite, spartan/ng + Tailwind v4, Vercel AI SDK, Better Auth, node-ssh, SSE, Playwright). The MVP is implemented — all of these are wired up and the app is runnable and deployed. See `README.md` for the current feature set, stack, and getting-started steps; treat the foundation docs as the original direction, not as the sole description of what exists today.
 
 ## Commands
 

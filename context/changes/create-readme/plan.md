@@ -293,27 +293,27 @@ None — no data or schema changes.
 
 #### Automated
 
-- [x] 1.1 README.md exists at repo root (`ls README.md`)
-- [x] 1.2 Prettier formatting passes (`npm run format:check`)
-- [x] 1.3 No dangling reference-style links (grep-sweep)
+- [x] 1.1 README.md exists at repo root (`ls README.md`) — da78159
+- [x] 1.2 Prettier formatting passes (`npm run format:check`) — da78159
+- [x] 1.3 No dangling reference-style links (grep-sweep) — da78159
 
 #### Manual
 
-- [x] 1.4 README renders on GitHub with working badges, ToC, back-to-top; no broken screenshot
-- [x] 1.5 Content matches implemented state; no non-goals listed as features/roadmap
-- [x] 1.6 Getting Started is followable end-to-end
+- [x] 1.4 README renders on GitHub with working badges, ToC, back-to-top; no broken screenshot — da78159
+- [x] 1.5 Content matches implemented state; no non-goals listed as features/roadmap — da78159
+- [x] 1.6 Getting Started is followable end-to-end — da78159
 
 ### Phase 2: Align supporting artifacts
 
 #### Automated
 
-- [ ] 2.1 LICENSE exists at repo root (`ls LICENSE`)
+- [x] 2.1 LICENSE exists at repo root (`ls LICENSE`)
 - [ ] 2.2 GitHub recognizes the license (`gh repo view --json licenseInfo` non-null)
-- [ ] 2.3 GitHub description is set (`gh repo view --json description` non-empty)
-- [ ] 2.4 package.json is valid JSON with new fields (`node -e "require('./package.json')"`)
-- [ ] 2.5 Prettier passes on touched files (`npm run format:check`)
+- [x] 2.3 GitHub description is set (`gh repo view --json description` non-empty)
+- [x] 2.4 package.json is valid JSON with new fields (`node -e "require('./package.json')"`)
+- [x] 2.5 Prettier passes on touched files (`npm run format:check`)
 
 #### Manual
 
-- [ ] 2.6 CLAUDE.md no longer claims a bare scaffold and reads correctly
-- [ ] 2.7 README License section links to the present LICENSE
+- [x] 2.6 CLAUDE.md no longer claims a bare scaffold and reads correctly
+- [x] 2.7 README License section links to the present LICENSE

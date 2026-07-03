@@ -2,7 +2,13 @@
   "name": "opspilot",
   "version": "0.0.0",
   "private": true,
+  "description": "Self-hosted homelab ops tool with an agentic AI diagnostic layer.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/karoldydo/opspilot.git"
+  },
   "license": "MIT",
+  "author": "Karol Dydo <contact@karoldydo.dev>",
   "scripts": {
     "affected:build": "nx affected -t build",
     "affected:lint": "nx affected -t lint",
