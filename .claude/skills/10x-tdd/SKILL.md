@@ -262,7 +262,7 @@ Let me know when manual testing is complete so I can commit.
 
 6. **Propose a Conventional-Commits message** and approve it via `AskUserQuestion` (approve as proposed / edit subject / override). Subject: `<type>(<change-id>): <phase title> (p<N>)`. For TDD'd phases, prefer `test`/`feat` and mention the test-first nature in the body. Include a `Refs:` line if the conversation contains real Jira/Linear/GitHub references (never invent them from the change-id or branch).
 
-7. **Commit** via a single `git commit` with a heredoc body, per the global commit-message protocol: the approved subject line, then a short body listing the tests added + production code touched (and the `Refs:` line when applicable), then the `Co-Authored-By` trailer the protocol mandates. Never pass `--no-verify` / `--amend` / signing-bypass flags. If a pre-commit hook fails, fix the cause and make a NEW commit.
+7. **Commit** via a single `git commit` with a heredoc body, per the global commit-message protocol: the approved subject line, then a short body listing the tests added + production code touched (and the `Refs:` line when applicable). Never pass `--no-verify` / `--amend` / signing-bypass flags. If a pre-commit hook fails, fix the cause and make a NEW commit.
 
 8. **Capture and write back the SHA.** `git rev-parse --short HEAD` → `SHA`. For every Progress row flipped this phase, Edit `- [x] N.M <title>` → `- [x] N.M <title> — <SHA>` (skip rows that already carry a SHA; if `SHA=""`, skip — `/10x-archive` surfaces SHA-less rows as informational warnings).
 

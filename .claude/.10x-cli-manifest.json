@@ -1,9 +1,9 @@
 {
   "package": "@przeprogramowani/10x-cli",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "manifestVersion": 3,
-  "lastApplied": "2026-06-21T21:34:56.320Z",
-  "lessonId": "m5l5",
+  "lastApplied": "2026-07-03T21:37:22.839Z",
+  "lessonId": "m4l1",
   "course": "10xdevs3",
   "tool": "claude-code",
   "files": {
@@ -140,10 +140,12 @@
       },
       "10x-new": {
         "files": [
+          "references/change-md.md",
           "SKILL.md"
         ],
         "contentHashes": {
-          "SKILL.md": "ce01ddf560d39a53f4f07eca01ac20ee6326a088b28eaf56b014574e883fd57f"
+          "SKILL.md": "8bbe7d326e94571d207de315483df8dafdac92ca986bd83d77d50e7a369a2ef8",
+          "references/change-md.md": "c3f2678136edaee584f555cdbe80de207dee467e840f3d66554dd90092e7fc52"
         }
       },
       "10x-plan": {
@@ -185,7 +187,7 @@
           "SKILL.md"
         ],
         "contentHashes": {
-          "SKILL.md": "daf014f7060e6db75ac037d223fb1e05c0e7e4169cef5013da551e36d53957f6"
+          "SKILL.md": "35f411842641123a9a9bcab3928794d259ae9451595b78783169af82a35317c6"
         }
       },
       "10x-frame": {
@@ -219,7 +221,7 @@
           "SKILL.md"
         ],
         "contentHashes": {
-          "SKILL.md": "58943e0630cc874e019aa1f196bf8e0cf6ca95f9f3fb238c533b1ab2a32b0802"
+          "SKILL.md": "142707eba64cdb7a7bc9901e2de9a221c3a41a2cc0109f49820f684e2ec5a1ad"
         }
       },
       "10x-e2e": {
@@ -237,7 +239,7 @@
           "references/e2e-prompt-template.md": "7d934d3b6f0e3f36e7abdf0ab7ff4a23b645d12cb80603e3a962ce7d6babb95b",
           "references/e2e-quality-rules.md": "d161cf3659ae5321b7f597987664e4017aecc7e15f5caa7a15a1eaf73bf4162b",
           "references/seed-test-pattern.md": "90fa8778a557d0c88320e839c6a8879735b3390b68ed89b3487258f2562b2f80",
-          "SKILL.md": "994b511efafdcbe7526bb32a9908b330bd78326c42c5e41896983e497c61cd54"
+          "SKILL.md": "85a9ab63aedcac669951aa90a98e7e3d4e4e5fa59b0340ee3f62505bbfed4ad1"
         }
       },
       "10x-opportunity-map": {
@@ -330,7 +332,8 @@
       "m5l4-github-packages-spec-pack.md",
       "m5l4-github-packages-spec-cicd.md",
       "m5l4-codeartifact-spec-cicd.md",
-      "m5l4-codeartifact-spec-terraform.md"
+      "m5l4-codeartifact-spec-terraform.md",
+      "mvp-check.md"
     ],
     "configs": [
       "m5l4-github-packages-package.json.template",
@@ -368,7 +371,8 @@
       "m5l4-github-packages-spec-pack.md": "2f88d2d5ea99111bb29e4d4738186faea22d130ab00f7695955eb2eeedc0b9f4",
       "m5l4-github-packages-spec-cicd.md": "fc2c73044682dddf89f06001c02b8f50ba34e35713f614e3615f6364b6542e1c",
       "m5l4-codeartifact-spec-cicd.md": "49cc310354df0df3dddf2c124a0680d1160cdd557d6e67c2d101fb5a91f41ba9",
-      "m5l4-codeartifact-spec-terraform.md": "4dac6deb9695a02688f140c2c5c7a74ad7529155cb420cf57ff3c4d3c03e9db3"
+      "m5l4-codeartifact-spec-terraform.md": "4dac6deb9695a02688f140c2c5c7a74ad7529155cb420cf57ff3c4d3c03e9db3",
+      "mvp-check.md": "925dbc3beb572cb90e858c8ec1ed6c813803cc7169bbf8be727cf29a83ccd839"
     }
   },
   "lessons": {
@@ -687,7 +691,7 @@
       "catalogContentHash": "084add9b325da4a4500a279544aca3795df5832b87af709c0fdb39e09f7f8c34"
     },
     "m2l2": {
-      "appliedAt": "2026-06-21T21:34:53.298Z",
+      "appliedAt": "2026-07-03T21:37:20.754Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -768,6 +772,7 @@
         },
         "10x-new": {
           "files": [
+            "references/change-md.md",
             "SKILL.md"
           ]
         },
@@ -801,10 +806,10 @@
         "m1l5-4-store-plan.md"
       ],
       "configs": [],
-      "catalogContentHash": "689f3bb75ba63ac84ed3c3bdfd1eb3cc8a9ac61127f997094ef98351524bbc99"
+      "catalogContentHash": "190cb4d9d2c08b83f2bdc21906348afff41fa2d964efe0a9593ae4211ccabd30"
     },
     "m2l3": {
-      "appliedAt": "2026-06-21T21:34:53.531Z",
+      "appliedAt": "2026-07-03T21:37:21.008Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -885,6 +890,7 @@
         },
         "10x-new": {
           "files": [
+            "references/change-md.md",
             "SKILL.md"
           ]
         },
@@ -923,10 +929,10 @@
         "m1l5-4-store-plan.md"
       ],
       "configs": [],
-      "catalogContentHash": "36cab01a4b9a745a46acaac3b8df5c8530bc865d06aca465517cd19b27ab02fc"
+      "catalogContentHash": "268f58b5cdaa05ef9583e8bd4b54c02a636cb1343a4896a144e6e6463bebbe42"
     },
     "m2l4": {
-      "appliedAt": "2026-06-21T21:34:53.725Z",
+      "appliedAt": "2026-07-03T21:37:21.251Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1007,6 +1013,7 @@
         },
         "10x-new": {
           "files": [
+            "references/change-md.md",
             "SKILL.md"
           ]
         },
@@ -1055,10 +1062,10 @@
         "m1l5-4-store-plan.md"
       ],
       "configs": [],
-      "catalogContentHash": "b8e3df6c778d9e028775ffba1eaba1e37620990c7b7829c14ba330fc1badf05c"
+      "catalogContentHash": "48c30bc4739d415c0c81569c666bb0ebdc878c3c43b97a83b0c1bed4e2623219"
     },
     "m2l5": {
-      "appliedAt": "2026-06-21T21:34:53.950Z",
+      "appliedAt": "2026-07-03T21:37:21.479Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1139,6 +1146,7 @@
         },
         "10x-new": {
           "files": [
+            "references/change-md.md",
             "SKILL.md"
           ]
         },
@@ -1187,10 +1195,10 @@
         "m1l5-4-store-plan.md"
       ],
       "configs": [],
-      "catalogContentHash": "0e01e0f465ecd1dd87894371e6498925773c76eb312a52f3e75664a522f1c102"
+      "catalogContentHash": "ede918fb3fae7c1f5b262ec0048281037a6d116b22c54154e2f04529a567ee07"
     },
     "m3l1": {
-      "appliedAt": "2026-06-21T21:34:54.150Z",
+      "appliedAt": "2026-07-03T21:37:21.722Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1271,6 +1279,7 @@
         },
         "10x-new": {
           "files": [
+            "references/change-md.md",
             "SKILL.md"
           ]
         },
@@ -1325,10 +1334,10 @@
         "m1l5-4-store-plan.md"
       ],
       "configs": [],
-      "catalogContentHash": "ef6ad3aba9fe35352b798115566f58dbd8e2fabad0a676920db39daca964e601"
+      "catalogContentHash": "485be8a3dc741fd7061facf15fe22458ab6ff7c7b405768333a102ad23d21b97"
     },
     "m3l2": {
-      "appliedAt": "2026-06-21T21:34:54.363Z",
+      "appliedAt": "2026-07-03T21:37:21.950Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1409,6 +1418,7 @@
         },
         "10x-new": {
           "files": [
+            "references/change-md.md",
             "SKILL.md"
           ]
         },
@@ -1469,10 +1479,10 @@
         "m3l2-ad-hoc-testing.md"
       ],
       "configs": [],
-      "catalogContentHash": "08a0fafb639deb8f1f3bf8b36ed33ae8dff35e0ce50882668d99e404759510a8"
+      "catalogContentHash": "3f389c566d9cec440973a24fd4ce722132c0dcb8ec4a3a97b653bf848008513e"
     },
     "m3l3": {
-      "appliedAt": "2026-06-21T21:34:54.571Z",
+      "appliedAt": "2026-07-03T21:37:22.197Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1553,6 +1563,7 @@
         },
         "10x-new": {
           "files": [
+            "references/change-md.md",
             "SKILL.md"
           ]
         },
@@ -1613,10 +1624,10 @@
         "m3l2-ad-hoc-testing.md"
       ],
       "configs": [],
-      "catalogContentHash": "d3da2609d058b9b463e8ec92e145a6e4bfa8de0c5ac4d81bbf61d6916e791f2d"
+      "catalogContentHash": "b9fb5d58e1c32e1e4cfe2f51dca6e5364d008a75f6a7e5cd34f2ee225d1dab11"
     },
     "m3l4": {
-      "appliedAt": "2026-06-21T21:34:54.772Z",
+      "appliedAt": "2026-07-03T21:37:22.455Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1697,6 +1708,7 @@
         },
         "10x-new": {
           "files": [
+            "references/change-md.md",
             "SKILL.md"
           ]
         },
@@ -1767,10 +1779,10 @@
         "m3l2-ad-hoc-testing.md"
       ],
       "configs": [],
-      "catalogContentHash": "36713b11254dcee46cd486ec7ed8d3f636545029362f6b8584b373579b6ef2e0"
+      "catalogContentHash": "c6371bb2f21b8476e936a95a9765b4fe21419a27814c728c17641f80a4c5d570"
     },
     "m3l5": {
-      "appliedAt": "2026-06-21T21:34:54.970Z",
+      "appliedAt": "2026-07-03T21:37:22.688Z",
       "skills": {
         "10x-init": {
           "files": [
@@ -1851,6 +1863,7 @@
         },
         "10x-new": {
           "files": [
+            "references/change-md.md",
             "SKILL.md"
           ]
         },
@@ -1921,7 +1934,7 @@
         "m3l2-ad-hoc-testing.md"
       ],
       "configs": [],
-      "catalogContentHash": "192ad96daaddc18a11f0c9bb35ffb311d8945e52d062d636ac11c276c93df282"
+      "catalogContentHash": "7ce2283ae517e51e404b38b202c4e9fc407c163aa3e957abdbe6e7b2cf9acd12"
     },
     "m0l1": {
       "appliedAt": "2026-06-21T21:34:51.981Z",
@@ -2000,7 +2013,7 @@
       "catalogContentHash": "89b903a90b80bba6e9019f30120e9fdc1b01cf6dc41f61c785f65ca3745661bd"
     },
     "m4l1": {
-      "appliedAt": "2026-06-21T21:34:55.094Z",
+      "appliedAt": "2026-07-03T21:37:22.839Z",
       "skills": {},
       "prompts": [],
       "configs": []
@@ -2143,6 +2156,16 @@
       "prompts": [],
       "configs": [],
       "catalogContentHash": "e50b3d7c4300eed85737ea47bbac4a91aac173e7dc28ef29b34d3abdf01f4373"
+    },
+    "m0l0": {
+      "appliedAt": "2026-07-03T21:37:20.315Z",
+      "skills": {},
+      "prompts": [
+        "skill-explainer.md",
+        "mvp-check.md"
+      ],
+      "configs": [],
+      "catalogContentHash": "e5e41cdf01b2efabc5d8a3c79779f16392b4dcf1848b5f7693efaf95bd6961b5"
     }
   }
 }
