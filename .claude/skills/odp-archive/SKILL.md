@@ -35,6 +35,10 @@ This skill is self-contained and language/stack agnostic. It depends on exactly 
 
 `references/progress-format.md` travels with the skill: it is the `## Progress` contract this skill parses to count pending rows, shared verbatim with `/odp-plan`, `/odp-implement` and `/odp-review`. It is a copy, not a link — drop the `odp-archive/` folder into another project's skills directory and it works there unchanged.
 
+## Language
+
+**Every question put to the user is asked in Polish** — the `question` text, the `header`, and each option's `label` and `description`. This holds for every `AskUserQuestion` call in this skill, including the ones whose templates below are written in English; those templates fix the *shape* of a question, never the words. Everything else stays in English: narration lines, the files written under `.context/`, report bodies, and the commands printed for the user to copy.
+
 ## Positioning & invocation
 
 This skill closes the odp loop: **`/odp-plan` → `/odp-implement` → `/odp-review` → manual tests by a human → `/odp-archive`**.

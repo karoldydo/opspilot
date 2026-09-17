@@ -42,6 +42,10 @@ This skill is self-contained and language/stack agnostic. It depends on exactly 
 
 Drop the `odp-implement/` folder into another project's skills directory and it works there unchanged.
 
+## Language
+
+**Every question put to the user is asked in Polish** — the `question` text, the `header`, and each option's `label` and `description`. This holds for every `AskUserQuestion` call in this skill, including the ones whose templates below are written in English; those templates fix the *shape* of a question, never the words. Everything else stays in English: narration lines, the files written under `.context/`, report bodies, and the commands printed for the user to copy.
+
 ## Positioning & invocation
 
 This skill is the middle step of the odp loop: **`/odp-plan` → `/odp-implement` → `/odp-review` → manual tests by a human → `/odp-archive`**. It runs standalone and needs no wrapper.
@@ -311,7 +315,14 @@ When every Automated row in the entire `## Progress` section is `- [x]`:
 
 1. Update `change.md`: set `status: implemented`, `updated: <today>`. (Do NOT set `archived_at` — it stays `null` until `/odp-archive` writes it; that skill is its only writer.) Pending Manual rows do not block this flip; they are surfaced in the run report instead.
 2. **Write the final snapshot.** The last phase's `change.md` flip and Progress edits land after that phase's snapshot was taken, so stage `.context/changes/<change-id>/plan.md` and `.context/changes/<change-id>/change.md` and refresh the final snapshot: `git diff HEAD > .context/changes/<change-id>/phases/p<final>.diff`.
-3. Print the run report.
+3. **Copy the next command to the clipboard** — `/odp-review <change-id>`, best effort and cross-platform:
+
+   ```bash
+   printf '%s' "/odp-review <change-id>" | pbcopy 2>/dev/null || printf '%s' "/odp-review <change-id>" | clip.exe 2>/dev/null || printf '%s' "/odp-review <change-id>" | xclip -selection clipboard 2>/dev/null || true
+   ```
+
+   If no clipboard tool is available, drop the `(✓ copied)` annotation from the report but still print the line.
+4. Print the run report.
 
 ## Run report
 
@@ -340,11 +351,11 @@ Pending manual verification (human checklist):
 - <phase>.<index> <title>
 - ...
 
-Suggested follow-up: /odp-review <change-id>, then work the manual checklist above,
-then /odp-archive <change-id> to close the change.
+Suggested follow-up: /odp-review <change-id>        (✓ copied)
+Then work the manual checklist above, then /odp-archive <change-id> to close the change.
 ```
 
-List pending Manual rows verbatim from Progress. If the run stopped early, the STOP block precedes the report and the report reflects the truncated state honestly.
+List pending Manual rows verbatim from Progress. If the run stopped early, the STOP block precedes the report and the report reflects the truncated state honestly — and nothing is copied to the clipboard, because the next command is then the STOP block's `Resume:` line, not `/odp-review`. Drop the `(✓ copied)` annotation on that path.
 
 ## Recommended environment
 

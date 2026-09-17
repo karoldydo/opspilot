@@ -49,6 +49,10 @@ This skill is self-contained and language/stack agnostic. It depends on exactly 
 
 Drop the `odp-review/` folder into another project's skills directory and it works there unchanged.
 
+## Language
+
+**Every question put to the user is asked in Polish** — the `question` text, the `header`, and each option's `label` and `description`. This holds for every `AskUserQuestion` call in this skill, including the ones whose templates below are written in English; those templates fix the *shape* of a question, never the words. Everything else stays in English: narration lines, the files written under `.context/`, report bodies, and the commands printed for the user to copy.
+
 ## Working on an uncommitted tree
 
 `/odp-implement` makes **no commits**: the entire change sits in the working tree, staged and unstaged, and `git log` is untouched. Two consequences shape this skill:
@@ -527,10 +531,18 @@ Pending manual verification (your checklist):
 - <phase>.<index> <title>
 - ...
 
-When the checklist is clear: /odp-archive <change-id>
+When the checklist is clear: /odp-archive <change-id>        (✓ copied)
 ```
 
 Copy the Manual rows verbatim from `## Progress`, in document order, across every phase in scope. If there are none, print `- none`.
+
+**Put `/odp-archive <change-id>` on the clipboard** before printing the block — on every path that reaches it, since archiving is the next step from all of them:
+
+```bash
+printf '%s' "/odp-archive <change-id>" | pbcopy 2>/dev/null || printf '%s' "/odp-archive <change-id>" | clip.exe 2>/dev/null || printf '%s' "/odp-archive <change-id>" | xclip -selection clipboard 2>/dev/null || true
+```
+
+If no clipboard tool is available, drop the `(✓ copied)` annotation but still print the line.
 
 ## Notes
 
