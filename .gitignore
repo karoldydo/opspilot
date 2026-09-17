@@ -73,3 +73,7 @@ vitest.config.*.timestamp*
 .nx/polygraph
 .nx/self-healing
 __screenshots__/
+
+# odp: per-phase diff snapshots are a rollback fallback for the uncommitted run,
+# not history — the commit replaces them
+.context/**/phases/
