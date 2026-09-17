@@ -121,6 +121,7 @@ Before any reading, identify what kinds of upstream artifacts the user passed in
    - Identify any discrepancies or misunderstandings
    - Note assumptions that need verification
    - Determine true scope based on codebase reality
+   - **Run a smallest-counterexample pass before choosing interview questions, and keep the result as a working note.** It fires on the ranking, selection and state words the request uses without defining — "top N", "winner", "best", "latest", "first", "duplicate", "active", "until the end". For ordered selections, place equal comparison values across the cutoff; for counted sets, vary the identity/equivalence rule; for state thresholds, vary inclusivity and governing clock. For each case jot one line for yourself — the term, the counterexample, what the user would see differently — *before* looking up what the code does there; then read the implementation and add its answer as one more line. A tiebreak the code performs by id, insertion order or array position is not a decision anyone made, so it never closes the note. Every note whose outcomes differ on screen becomes a first-round question; existing behaviour supplies one option, not the answer. The note is scaffolding for the interview, not a plan section.
 
 5. **Present informed understanding and assess complexity**:
 
@@ -133,6 +134,7 @@ Before any reading, identify what kinds of upstream artifacts the user passed in
    - [Key discovery — code reference, existing asset, prior work, or domain constraint]
    - [Relevant pattern, convention, or constraint discovered]
    - [Potential complexity or edge case identified]
+   - [Optional: a word in the request I'm reading two ways — the counterexample and what the code does there today — that I'll ask about first]
    ```
 
    Then assess the task complexity and present it to the user for confirmation:
@@ -224,7 +226,7 @@ Before any reading, identify what kinds of upstream artifacts the user passed in
 
    **Universal categories (all domains, all levels):**
    - **Scope boundaries** `[D]`: What's in vs out
-   - **Edge cases / failure modes** `[S]`: What happens when things go wrong or get weird (implementation handling, even if a frame named the observation class)
+   - **Edge cases / failure modes** `[S]`: What happens when things go wrong or get weird (implementation handling, even if a frame named the observation class). Start from the counterexample notes of Step 1.1 item 4: put the concrete data in the question, and when the code already implements one reading, list it as an option labelled `(current behaviour)` — star it only if its outcome is one the user would defend without mentioning the implementation
    - **Success criteria** `[D]`: How do we know this worked — from the end user's or stakeholder's perspective
    - **Priority** `[D]`: Must-have vs nice-to-have — what gets cut if time is tight
 
@@ -397,6 +399,7 @@ After structure approval:
    - Otherwise derive a kebab-case `<change-id>` from the topic and create the folder + `change.md` (mirroring `/10x-new` semantics) before writing.
    - Refuse if the resolved path starts with `context/archive/` — print: "This change is archived. Open a new change with `/10x-new` instead." and STOP.
    - Update `change.md`: set `status: planned` and `updated: <today>`.
+   - **Sync the roadmap** (best effort): if `context/foundation/roadmap.md` carries an item whose `Change ID` equals `<change-id>`, flip that item to `Status: planning`. See "## Roadmap status sync" below. Never blocks; most changes won't trace to a roadmap.
 2. **Use this template structure** (Phase blocks contain plain bullets — `- ` not `- [ ]` — and a single canonical `## Progress` section at the bottom owns the checkbox state, see `references/progress-format.md` for the contract):
 
 ````markdown
@@ -663,10 +666,30 @@ For non-software: structure, workflow, key dependencies.]
 
 5. **Continue refining** until the user is satisfied
 
+## Roadmap status sync
+
+`context/foundation/roadmap.md` (produced by `/10x-roadmap`) indexes each Foundation/Slice by a stable **Change ID**. As planning turns a roadmap item into a concrete change folder + plan, mark that item **`planning`** so the roadmap reflects that the item has left the backlog and entered active work. `/10x-implement` later advances the same item to `in-progress`, and `/10x-archive` closes it to `done`.
+
+Do this in Step 4 (right after the `change.md` → `planned` stamp). The lookup is **mandatory**; "best effort" scopes only the *edits* — a missing roadmap or a not-found target is skipped silently and never blocks, prompts, or aborts the run. Do not skip the check on the assumption there's no roadmap.
+
+1. `test -f context/foundation/roadmap.md`. If absent, skip this step silently.
+2. Read the file. Look for `<change-id>` used as a `Change ID`:
+   - in the `## At a glance` table — the row whose **Change ID** column cell equals `<change-id>` exactly;
+   - and in the `## Foundations` / `## Slices` bodies — the `### <ID>: …` block that contains a `- **Change ID:** <change-id>` line.
+
+   Match is exact-string only. **No match** → print `ℹ context/foundation/roadmap.md has no item with Change ID "<change-id>" — roadmap left untouched.` and stop here.
+3. **Match found** → if the item's `- **Status:**` is already `planning`, `in-progress`, or `done`, leave it untouched (**forward-only**: never regress a more-advanced status) and stop. Otherwise apply both edits with the Edit tool — each independent and best effort; skip a sub-edit whose target isn't where the `/10x-roadmap` template puts it, and note the skip. Touch only the `Status` field:
+   1. **`## At a glance`** — set the matched row's **Status** cell to `planning`.
+   2. **Item body** — rewrite the item's `- **Status:**` line to `- **Status:** planning`.
+
+   Then bump the roadmap frontmatter `updated:` to `<today>` (skip if there is no frontmatter).
+4. `/10x-plan` does not commit its own artifacts; leave the flip in the working tree. It is committed later alongside the change's first `/10x-implement` phase (which re-flips the same item to `in-progress`).
+
 ## Important Guidelines
 
 1. **Be Skeptical**:
    - Question vague requirements
+   - A ranking or selection word the request uses without defining stays undecided until its counterexample has been put to the user (Step 1.1 item 4)
    - Identify potential issues early
    - Ask "why" and "what about"
    - Don't assume - verify with code, files, or context
@@ -709,6 +732,7 @@ For non-software: structure, workflow, key dependencies.]
    - Do NOT write the plan with unresolved questions
    - The implementation plan must be complete and actionable
    - Every decision must be made before finalizing the plan
+   - A counterexample the user decided lands in sections that already exist — a named test or success criterion when accepted, "What We're NOT Doing" when declined. No new section for it
    - "Critical Implementation Details" subsections are opt-in: include them only when a real constraint, gotcha, or ordering requirement applies. Default to omission. A plan without that section is not incomplete.
 
 8. **Describe intent, not implementation**:

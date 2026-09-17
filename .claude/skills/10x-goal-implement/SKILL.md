@@ -1,12 +1,14 @@
 ---
 name: 10x-goal-implement
 description: >
-  Autonomously implement technical plans from context/changes/<change-id>/plan.md
-  under Claude Code's /goal — no human interaction at any point. Sibling of
-  /10x-implement for unattended runs, in an interactive /goal session or headless
-  via claude -p. Flips the plan's Automated Progress rows, verifies each phase
-  through an automatic quality-gate stack (plan success criteria, deliberate-break
-  check, full suite), commits each phase on green with Conventional Commits, and
+  Autonomously implement technical plans from
+  context/changes/<change-id>/plan.md under Claude Code's
+  /goal — no human interaction at any point. Sibling of /10x-implement for
+  unattended runs, in an interactive /goal session or headless via claude -p.
+  Delegates each phase's code changes to a subagent, flips the
+  plan's Automated Progress rows, verifies each phase through an automatic
+  quality-gate stack (plan success criteria, deliberate-break check, full suite),
+  commits each phase on green with Conventional Commits, and
   surfaces pending Manual rows as a closing human checklist. Use when the user
   wants autonomous or unattended plan execution, pairs /goal with a plan, asks to
   "run the plan under /goal", or needs headless implementation.
@@ -66,13 +68,13 @@ When this command is invoked:
 
 2. **Load context**:
    - Read the plan completely. The `## Progress` section at the bottom is authoritative for execution state — checkmarks (`- [x]`) live ONLY there. Phase blocks contain plain `- ` bullets (no checkboxes).
-   - Read `context/foundation/lessons.md` if present and internalize each entry before starting any phase — these are the team's accepted recurring rules and must shape every implementation choice in this run.
+   - Read `context/foundation/lessons.md` if present and internalize each entry before starting any phase — these are the team's accepted recurring rules and must shape every implementation choice in this run. Because implementation is delegated (see "Per-phase execution model"), pass every lessons entry into each phase's dispatch — the subagent cannot see the file unless you carry it.
    - Read all files mentioned in the plan (referenced research, frame, source files in the same change folder).
    - **Read files fully** — never use limit/offset parameters; you need complete context.
 
 3. **Preflight the gates**: collect the commands from every phase's Automated success criteria and verify each is runnable in this environment (the binary or package script exists — e.g. check `package.json` scripts, `command -v`, `Makefile` targets). A criterion whose command cannot run is a structural mismatch for the phase that needs it: narrate the missing command now (`PREFLIGHT: <command> not runnable — Phase <N> will stop unless fixed`), and when execution reaches that phase, print the STOP block and halt. Do not silently skip an unverifiable criterion.
 
-4. **Update `change.md`**: set `status: implementing` (only if currently in `{planned, plan_reviewed}`) and `updated: <today>`.
+4. **Update `change.md`**: set `status: implementing` (only if currently in `{planned, plan_reviewed}`) and `updated: <today>`. Then **sync the roadmap** (best effort) — if `context/foundation/roadmap.md` carries an item whose `Change ID` equals `<change-id>`, flip it to `Status: in-progress`, the open-work counterpart to `/10x-archive`'s `done` flip. See "## Roadmap status sync" below; narrate the outcome, never halt on it.
 
 5. **Create phase tasks**: count total phases (from `## Phase N:` headers) and create one TaskCreate entry per phase (`subject: "Phase N: [Phase Name]"`, `activeForm: "Implementing Phase N"`). Set the current phase `in_progress` via TaskUpdate before starting work; mark it `completed` when its gates pass and its commit lands.
 
@@ -80,7 +82,7 @@ When this command is invoked:
 
 ## Mismatch taxonomy
 
-Plans are carefully designed, but reality can be messy. When the codebase does not match what the plan describes, classify the mismatch and act — never edit Phase blocks to make the plan fit.
+Plans are carefully designed, but reality can be messy. When the codebase does not match what the plan describes, classify the mismatch and act — never edit Phase blocks to make the plan fit. During a phase the implementation subagent hits these mismatches first-hand: it adapts **Minor** ones and reports them, and on a **Structural** one it stops and hands the detail back to main, which prints the STOP block.
 
 **Minor** — a moved file, a renamed symbol, import drift, a trivial API or config delta. The plan's intent is intact; only a coordinate changed. Adapt the implementation to reality, narrate the adaptation in one or two lines (`ADAPT: plan says src/auth.ts, file is now src/auth/index.ts`), and include it in the run report.
 
@@ -88,9 +90,42 @@ Plans are carefully designed, but reality can be messy. When the codebase does n
 
 When in doubt between the two, treat it as structural. A wrong guess that halts costs one resume; a wrong guess that adapts can ship a redesign nobody approved.
 
+## Per-phase execution model
+
+Each phase runs in two parts with a hard division of labor:
+
+- **Implementation is delegated.** Dispatch a single `Task` subagent to write the phase's code changes. The bulky work — reading source files, reasoning through the changes, applying edits — happens in the subagent's own context, so the main transcript stays lean across a long multi-phase run.
+- **Everything the goal evaluator must see stays in main.** Gate execution, verdict lines, staging, commits, SHAs, Progress flips, STOP blocks, and the run report all run in the main context and are narrated in your response text. The goal evaluator reads only the main transcript — a subagent's internal work is invisible to it, so nothing the goal condition tests for may live inside a subagent.
+
+### Dispatching the implementation subagent
+
+For each phase, before the gate stack, dispatch one `Task` call (`subagent_type: general-purpose`) whose prompt carries:
+
+- The change-id and the phase number + title.
+- The phase's full plan section verbatim — Overview, Changes Required, Success Criteria. (Success Criteria is context so the subagent knows the target; it does NOT run the gates — main does.)
+- **The implementation discipline to follow.** Resolve `references/implementation-discipline.md` (sits next to this `SKILL.md`) to an **absolute path** and instruct the subagent to Read and apply it — a spawned `Task` agent has no notion of this skill's directory, so a relative path or "read this skill's reference" will not resolve. That file is the shared craft layer: read referenced code fully, adapt to reality without redesigning, verify the change fits the surrounding codebase, apply lessons, and `Explore`-search before editing unfamiliar territory. Keep it as the single source — point at it, do not restate it inline.
+- Every entry from `context/foundation/lessons.md`, if present (the subagent cannot read the file unless you paste the entries).
+- The mismatch taxonomy in force: adapt **Minor** mismatches directly and report them; on a **Structural** mismatch, STOP and report it rather than adapting or redesigning.
+- Hard boundaries: implement code changes ONLY. Do not run the gate stack, do not stage, do not commit, do not touch the `## Progress` section or any checkbox, do not edit Phase blocks, do not go outside the plan's scope, never invoke interactive tools.
+
+Require a structured final message as the return value (not a human-facing note):
+
+```
+STATUS: completed | structural-mismatch
+TOUCHED: <repo-relative path>, <path>, ...      # every file created or edited
+ADAPTATIONS: <one line each, or none>
+STRUCTURAL: <plan assumption vs. what exists — only when STATUS is structural-mismatch>
+UNCERTAINTIES: <ambiguous decisions, or none>
+```
+
+On return:
+
+- **`structural-mismatch`** → do not run gates. Print the STOP block using the subagent's `STRUCTURAL` detail and halt.
+- **`completed`** → seed the phase's touched-file set from `TOUCHED` (see "Tracking files touched during a phase"), carry `ADAPTATIONS` and `UNCERTAINTIES` into the run report, and proceed to the gate stack. Never trust `TOUCHED` blindly — the `git status --porcelain` reconciliation at staging is the cross-check for a file the subagent touched but omitted.
+
 ## Per-phase gate stack
 
-Implement the phase fully, then run this fixed sequence — the single canonical order for everything between "code written" and "commit landed." Gates run cheap-first; staging sits where the break-check needs it; the commit ritual is the tail. After each gate, print a one-line verdict in your response text — `GATE <name>: PASS` or `GATE <name>: FAIL (<summary>, attempt <k>/2)` — so the goal evaluator sees it.
+With the implementation subagent returned `completed` and the touched-file set seeded from its `TOUCHED` list, run this fixed sequence in the main context — the single canonical order for everything between "code written" and "commit landed." Gates run cheap-first; staging sits where the break-check needs it; the commit ritual is the tail. After each gate, print a one-line verdict in your response text — `GATE <name>: PASS` or `GATE <name>: FAIL (<summary>, attempt <k>/2)` — so the goal evaluator sees it.
 
 1. **(a) Plan criteria** — run the phase's `#### Automated` success-criteria commands from the plan, in order. Each command is one gate with its own verdict line.
 
@@ -112,6 +147,8 @@ Implement the phase fully, then run this fixed sequence — the single canonical
 ## Self-fix escalation
 
 A failing gate gets at most **2** self-fix attempts. Number them in the verdict lines (`attempt 1/2`, `attempt 2/2`). If the same gate fails a third time, the problem is deeper than mechanical drift — print the STOP block and halt rather than burning turns.
+
+Apply a code fix the same way you apply the initial implementation: dispatch a focused `Task` subagent carrying the failing gate's output and the offending files, and union its returned `TOUCHED` paths into the phase's touched-file set before re-staging and re-running the gate. Trivial, mechanical fixes (a stray import, a rename) may be applied directly in main. Either way the 2-attempt budget is unchanged, and the break-check's worktree-only edit + unconditional restore always stays in main — never delegate it.
 
 Boundaries on what a fix may do:
 
@@ -136,17 +173,33 @@ Before halting, leave the working tree honest: completed Progress rows stay flip
 
 The commit ritual stages files from a **touched-file set** maintained in working memory throughout each phase. This set is the canonical input to `git add` — never fall back to `git status` heuristics for staging decisions.
 
-- Every time you call `Edit` or `Write` on a file during the current phase, add its repo-relative path to the set.
+- **Seed the set from the implementation subagent's `TOUCHED` list** when it returns `completed`, and union in any path returned by a self-fix subagent. When you edit a file directly in the main context — the `## Progress` checkboxes in `plan.md`, a `change.md` status flip — add its path too.
 - The set always contains `context/changes/<change-id>/plan.md` — add it on entry to a phase, before any checkboxes flip.
 - **Phase 1 bootstrap**: on the first phase of a change, also seed the set with all untracked or modified files inside `context/changes/<change-id>/` (typically `change.md`, `research.md`, `plan.md`) so the change's context files land in the first commit.
 - The set **resets at each phase boundary**, after the phase commit completes.
 - The set overrides `git status`. A file that is dirty but not in the set is unrelated — it is never staged.
 
-**Staging the set (gate-stack step 2):** stage the touched-file set ∪ `{context/changes/<change-id>/plan.md}` (Phase 1: bootstrap-seeded set). Run `git status --porcelain`; any dirty path outside the staging set is **never staged** — list it as `DIRTY (not staged): <paths>` in your response text (so it appears in the transcript and run report) and continue with the planned set only. Stage by name with `git add` each file; never `git add -A` or `git add .`.
+**Staging the set (gate-stack step 2):** stage the touched-file set ∪ `{context/changes/<change-id>/plan.md}` (Phase 1: bootstrap-seeded set). Run `git status --porcelain`; any dirty path outside the staging set is **never staged** — list it as `DIRTY (not staged): <paths>` in your response text (so it appears in the transcript and run report) and continue with the planned set only. This reconciliation is also the safety net against a delegated subagent that touched a file but left it off `TOUCHED` — the omission surfaces as DIRTY rather than slipping silently past the commit boundary. Stage by name with `git add` each file; never `git add -A` or `git add .`.
 
 ## Tracking issue/task references for commits
 
 Before composing any phase or epilogue commit message, scan the conversation context for tracking-system references tied to this work: Jira keys (`ABC-123`), Linear IDs (`ENG-123`), GitHub issues/PRs (`#123`, `GH-123`, full URLs), or explicit task links. If present, add a `Refs:` line to the commit body, preserving the exact identifiers; multiple references go comma-separated on one line. Never invent or infer references from the change-id, branch name, or filenames — only use what is visible in context. Apply the same `Refs:` line to every phase commit and the epilogue.
+
+## Roadmap status sync
+
+`context/foundation/roadmap.md` (produced by `/10x-roadmap`) indexes each Foundation/Slice by a stable **Change ID**. `/10x-archive` flips the matching item to `Status: done` when a change archives; this step wires the near end — when autonomous implementation *starts*, mark the matching item **`in-progress`** so the roadmap shows live work.
+
+Run it **once, on entry** (right after the `change.md` → `implementing` stamp), not per phase. The lookup is **mandatory**; "best effort" scopes only the *edits* — a missing roadmap or a not-found target is skipped silently and never halts the run, triggers the STOP block, or counts against the self-fix budget. Do not skip the check assuming there's no roadmap; narrate the outcome (matched + flipped, already-advanced, or no-match) in your response text either way so the goal evaluator sees it.
+
+1. `test -f context/foundation/roadmap.md`. If absent, narrate `ROADMAP: none — skipped.` and skip this step.
+2. Capture dirty state: `ROADMAP_PREDIRTY=$(git status --porcelain context/foundation/roadmap.md 2>/dev/null)` (used in step 5).
+3. Read the file. Find `<change-id>` used as a `Change ID`:
+   - in the `## At a glance` table — the row whose **Change ID** cell equals `<change-id>` exactly;
+   - and in the `## Foundations` / `## Slices` bodies — the `### <ID>: …` block containing a `- **Change ID:** <change-id>` line.
+
+   `<ID>` is the item's roadmap-local id (`F-NN` / `S-NN`). Match is exact-string only. **No match** → narrate `ROADMAP: no item with Change ID "<change-id>" — left untouched.` and skip the rest.
+4. **Match found** → if the item's `- **Status:**` is already `in-progress` or `done`, leave it (**forward-only** — never regress) and narrate `ROADMAP: <ID> already <status> — left untouched.`; skip to step 5. Otherwise set the **Status** cell in `## At a glance` and the `- **Status:**` line in the item body to `in-progress` (each edit independent and best effort — skip a sub-edit that isn't where the template puts it, and narrate the skip), bump the frontmatter `updated:` to `<today>`, and narrate `ROADMAP: flipped <ID> → in-progress.` Touch only the `Status` field.
+5. If `git` is available **and** `ROADMAP_PREDIRTY` was empty, add `context/foundation/roadmap.md` to the current phase's touched-file set so the flip commits with the phase. If `ROADMAP_PREDIRTY` was non-empty, keep it OUT of the touched-file set, leave the flip in the working tree, and narrate `DIRTY (not staged): context/foundation/roadmap.md had pre-existing edits — roadmap flip left in worktree.`
 
 ## Autonomous commit ritual
 
