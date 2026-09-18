@@ -22,7 +22,7 @@ allowed-tools:
 
 Move a completed change folder from `.context/changes/<change-id>/` to `.context/archive/<created-date>-<change-id>/`, stamp `change.md` with `status: archived` + `archived_at`, and — if `.context/foundation/roadmap.md` carries a roadmap item whose `Change ID` equals `<change-id>` — close that item too: flip its `Status` to `done` and append an entry to the roadmap's `## Done` section.
 
-The gate on the **state of the work** is warn-only: incomplete Progress, missing impl-review, rows without a commit SHA, and a status outside `{implemented, impl_reviewed}` are surfaced as warnings followed by a confirmation prompt, and the user can still archive. The hard stops are structural — a change that isn't there, one already archived, a `change.md` that can't name a destination folder — plus one git stop: uncommitted work inside the change folder, which would otherwise be swept into the archive commit half-finished.
+The gate on the **state of the work** is warn-only: a status outside `{implemented, impl_reviewed}`, incomplete Progress, a missing impl-review, rows without a commit SHA, and a review that came back `REJECTED` or still carries `PENDING` findings are surfaced as warnings followed by a confirmation prompt, and the user can still archive. The hard stops are structural — a change that isn't there, one already archived, a `change.md` that can't name a destination folder, a destination that already exists, a change whose workspace is a different worktree or a different branch — plus two git stops: uncommitted work inside the change folder, and anything already staged anywhere. Both would otherwise be swept into the archive commit.
 
 The one thing this skill asks about rather than merely warning is the **manual pass**. Unchecked `#### Manual` rows get their own question, because they are the loop's only real gate and nothing else in it can tell whether a human actually ran them.
 
@@ -37,6 +37,8 @@ This skill is self-contained and language/stack agnostic. It depends on exactly 
 
 Two files under `references/` travel with the skill, both shared verbatim with `/odp-plan`, `/odp-implement` and `/odp-review`: `progress-format.md`, the `## Progress` contract this skill parses to count pending rows and to tick the Manual ones, and `change-md.md`, the `change.md` contract it stamps. They are copies, not links — drop the `odp-archive/` folder into another project's skills directory and it works there unchanged.
 
+**One execution note that both of the above depend on.** Your Bash calls share a working directory — a `cd` in one call is still in effect in the next — but they do **not** share shell state. A variable assigned in one block is gone in the next, and the `Edit`, `Write` and `Read` tools never expand one at all. So every value this document computes in a command block is **printed** and then substituted as a literal further down; nothing below re-expands a `$VAR`.
+
 ## Language
 
 **Everything this skill writes for a human to read is in Polish** — every question put to the user (the `question` text, the `header`, and each option's `label` and `description`), every narration line, every report body, and **the prose of every document it writes under `.context/`**.
@@ -45,7 +47,7 @@ Four things stay in English, because they are contracts rather than prose:
 
 - **Structural headings and keys.** In documents: `## Progress`, `### Phase N:`, `#### Automated`, `#### Manual`, `### Changes Required:`, `#### Automated Verification:`, `#### Manual Verification:`, and the other template headings reproduced below. In `change.md`: every YAML key, and every `status:` value (`new`, `planned`, `implementing`, `implemented`, `impl_reviewed`, `archived`). Other skills parse these by exact string; translating one breaks the loop silently.
 - **Fixed narration tokens.** Any `ALL-CAPS:` label that opens a narration line is a token and stays as written — `BOOTSTRAP:`, `MANUAL:`, `Committed as:`, and every other one this document spells out. The label is a token; the sentence after it is Polish. The same holds for the `✓` / `✗` / `⚠` / `→` prefixes.
-- **Verbatim diagnostic blocks.** Where this document gives a multi-line block to print — a `Cannot start:` / `Cannot archive:` stop, an `Expected:` / `Current:` pair, a `STOPPED —` block's field names — the field labels are fixed and English; what you fill in beside them is Polish. These are read by whoever debugs the loop, and their shape is part of the contract.
+- **Verbatim diagnostic blocks.** Where this document gives a multi-line block to print — a `Cannot archive:` stop, an `Expected:` / `Current:` pair, the `✓ Archived` confirmation's field names — the field labels are fixed and English; what you fill in beside them is Polish. These are read by whoever debugs the loop, and their shape is part of the contract. The same holds for the single-line diagnostics this document spells out: the `error:` / `warning:` / `Cannot …:` prefix is a fixed English token, and the sentence after it is Polish.
 - **Commit messages, file names, change-ids, and copy-paste commands.** Conventional Commits subjects and bodies are English, as is anything printed for the user to paste into a terminal.
 
 Every template below is written in English. A template fixes the *shape* of the output — its headings, its field order, its structure — never the words that go in it.
@@ -98,7 +100,14 @@ The result is `<change-id>`.
 
 1. Resolve `<change-id>` to `.context/changes/<change-id>/`. If that path does not exist:
    - Check `.context/archive/` for a directory matching `*-<change-id>` (archive folders carry a `<created>-` date prefix) — if found, print: `error: change "<change-id>" is already archived at <path>.` and STOP.
-   - Otherwise print: ``error: no change folder at .context/changes/<change-id>/. Run `ls .context/changes/` to list active changes.`` and STOP.
+   - **Otherwise do not STOP yet — look for a worktree holding it first.** A change opened with `/odp-plan`'s worktree option keeps its whole folder in that other directory, so from here the path is simply absent, which looks identical to a change-id that was never opened:
+
+     ```bash
+     git worktree list --porcelain \
+       | awk -v id="<change-id>" '/^worktree /{p=substr($0,10)} /^branch /{if ($2 ~ "/" id "$") print p}'
+     ```
+
+     Non-empty output is the absolute path to open — print that path, not the branch name, say the change lives there and must be archived from there, and STOP. Only when the lookup comes back empty print: ``error: no change folder at .context/changes/<change-id>/. Run `ls .context/changes/` to list active changes.`` and STOP. A missing folder is not proof the change does not exist, and this check has to sit inside this step rather than after it — a reader working top-down never reaches an escape hatch printed below the STOP it is meant to avoid.
 2. Read `.context/changes/<change-id>/change.md` frontmatter (`status`, `created`).
    - If `change.md` is missing, print: `error: no change.md in .context/changes/<change-id>/; cannot derive archive folder name.` and STOP.
    - If `status: archived`, print: `error: change "<change-id>" is already archived in change.md but its folder is still under .context/changes/. Inspect manually before re-running.` and STOP.
@@ -148,18 +157,18 @@ Either failure → STOP. Do not proceed to the warn prompt; these are hard block
 
 If `git` is unavailable or the repo is not a git repo, print `warning: not a git repository — skipping the uncommitted-changes checks.` and continue. Archiving still works; the move just loses its rename history and there is no archive commit.
 
-**Wrong worktree.** If `change.md` records a `worktree:` that is not the current repository root, the change's folder and branch are in another directory. Print both paths, tell the user to open that one and re-run, and STOP.
+**Wrong worktree.** When `change.md` records a `worktree:`, compare it against the current repository root with **both sides normalized** — `cd "<path>" && pwd -P` on the recorded value, `cd "$(git rev-parse --show-toplevel)" && pwd -P` on this one. A literal string compare gives a false STOP on macOS (`/tmp` versus `/private/tmp`), through a symlinked checkout, or on a trailing slash, and this STOP has no override. If the recorded path does not exist any more, `cd` fails and there is nothing to compare — say that instead of printing an empty `Expected:`. If the normalized paths differ, the change's folder and branch are in another directory. Print both paths, tell the user to open that one and re-run, and STOP. This check does not depend on git working — it compares two paths — so it runs even when the pre-flight above was skipped.
 
-The same applies one step earlier, in "Resolution": before reporting `no change folder at .context/changes/<change-id>/`, look for a worktree holding it:
+**Wrong branch.** Read `branch:` from the same `change.md`. When it is `null` or absent, or git is unavailable, continue. Otherwise compare it against `git rev-parse --abbrev-ref HEAD`. A mismatch means the change folder is visible from a branch that is not the change's own, and the close-out commit — the rename, the stamp, the ticked Manual rows, the roadmap close — would land on the wrong history. Print and STOP:
 
-```bash
-git worktree list --porcelain \
-  | awk -v id="<change-id>" '/^worktree /{p=substr($0,10)} /^branch /{if ($2 ~ "/" id "$") print p}'
+```
+Cannot archive: <change-id> belongs to a different branch.
+Expected: <branch from change.md>
+Current:  <git rev-parse --abbrev-ref HEAD>
+Check out that branch and re-run /odp-archive <change-id>.
 ```
 
-Empty output means no worktree holds this change. Non-empty output is the absolute path to open — print that path, not the branch name.
-
-A hit means the change exists in another worktree — name that directory instead of claiming the change is not there.
+Never switch branches yourself — the current branch may carry work the user has not finished.
 
 ## Soft warnings (non-blocking)
 
@@ -251,10 +260,18 @@ If the queue is empty at this point, skip the prompt and proceed directly.
 
 ## Move and stamp
 
-1. **Compute archive destination**:
-   - `CREATED=$(awk '/^created:/ {print $2; exit}' .context/changes/<change-id>/change.md)` (date prefix, e.g., `2026-04-29`).
-   - `DEST=".context/archive/${CREATED}-<change-id>"`.
-   - If `$DEST` already exists, print: `error: archive destination "<DEST>" already exists. Inspect manually.` and STOP.
+1. **Compute archive destination.** Do it in **one** command block and have it print the value — a
+   shell variable does not survive into your next Bash call, and the `Edit` tool never expands one at
+   all, so every step below substitutes the **literal** path:
+
+   ```bash
+   CREATED=$(awk '/^created:/ {print $2; exit}' .context/changes/<change-id>/change.md) \
+     && echo "DEST=.context/archive/${CREATED}-<change-id>"
+   ```
+
+   `<CREATED>` is the date prefix (e.g. `2026-04-29`). Copy the printed `DEST=` value into your
+   working memory now: **`<DEST>` below means that path written out in full, never `$DEST`.**
+   - If `<DEST>` already exists, print: `error: archive destination "<DEST>" already exists. Inspect manually.` and STOP.
 
 2. **Bootstrap the archive directory**: if `.context/archive/` does not exist, create it (`mkdir -p .context/archive`) and narrate `BOOTSTRAP: created .context/archive/`. Nothing else in this toolkit creates that directory — this skill is the only writer to it, so on the first archive in a repository it will always be missing. That is expected, not a sign the repo is unprepared.
 
@@ -266,21 +283,32 @@ If the queue is empty at this point, skip the prompt and proceed directly.
 
 4. **Move the folder.** `git mv` is the expected path — `/odp-plan` committed this folder, so git knows it and records the move as a rename:
 
-   1. Run `git ls-files -- ".context/changes/<change-id>/"`. **Non-empty output** → `git mv ".context/changes/<change-id>" "$DEST"`, so history and the index follow.
-   2. **Empty output**, or `git` unavailable, or not a git repository → `mv ".context/changes/<change-id>" "$DEST"`. Narrate one line saying the folder was untracked, so the missing rename history is on the record. A folder git has never seen means planning ran without a commit — possible, just not the normal path.
+   1. Run `git ls-files -- ".context/changes/<change-id>/"`. **Non-empty output** → `git mv ".context/changes/<change-id>" "<DEST>"`, so history and the index follow.
+   2. **Empty output**, or `git` unavailable, or not a git repository → `mv ".context/changes/<change-id>" "<DEST>"`. Narrate one line saying the folder was untracked, so the missing rename history is on the record. A folder git has never seen means planning ran without a commit — possible, just not the normal path.
    3. If `git mv` fails anyway, fall back to `mv` and narrate one line saying so.
-   4. Confirm post-move: `[ -d "$DEST" ] && [ ! -d ".context/changes/<change-id>" ]`. If either check fails, print a diagnostic and STOP.
+   4. Confirm post-move: `[ -d "<DEST>" ] && [ ! -d ".context/changes/<change-id>" ]`. If either check fails, print a diagnostic and STOP.
 
-5. **Apply the manual-pass answer**, now that the folder has actually moved and `$DEST` is where the change lives:
+5. **Apply the manual-pass answer**, now that the folder has actually moved and `<DEST>` is where the change lives:
 
-   - **If the manual-pass question was answered "Manual pass done"**: flip that change's `#### Manual` rows in `$DEST/plan.md` from `- [ ]` to `- [x]`, and set `manual_tests_confirmed: <today as YYYY-MM-DD>` in `$DEST/change.md`. Never touch an `#### Automated` row, and never append a SHA to a manual row — no commit produced it, and a fabricated SHA is worse than none. Narrate `MANUAL: <Y> row(s) confirmed by the user and ticked.`
+   - **If the manual-pass question was answered "Manual pass done"**: flip that change's `#### Manual` rows in `<DEST>/plan.md` from `- [ ]` to `- [x]`, and set `manual_tests_confirmed: <today as YYYY-MM-DD>` in `<DEST>/change.md`. Never touch an `#### Automated` row, and never append a SHA to a manual row — no commit produced it, and a fabricated SHA is worse than none. Narrate `MANUAL: <Y> row(s) confirmed by the user and ticked.`
    - On any other answer, leave `manual_tests_confirmed` as `null` and leave every Manual row alone.
 
    **Why this waits until after the move.** Every step from here on either succeeds or leaves a partial close-out that the error handling already documents. Ticking before the move would put the same edits at risk from a failed `git mv`, and a re-run would then hard-refuse on dirt this run created — the exact outcome deferring the flip exists to prevent.
 
 6. **Close the matching roadmap item.** Run this on **every** archive — the roadmap lookup is mandatory. "Best effort" scopes only the *edits*: a missing roadmap or an edit target that isn't found is skipped silently and never blocks, rolls back, or prompts the archive. It does NOT mean "assume there's no roadmap and skip the check." Not looking is a defect — the confirmation block (step 9) must report the outcome either way.
 
-   1. `test -f .context/foundation/roadmap.md`. If absent, skip this step silently. Otherwise **capture its dirty state before touching it**: `ROADMAP_PREDIRTY=$(git status --porcelain .context/foundation/roadmap.md 2>/dev/null)`. Step 7 needs it, and once this step has edited the file the question can no longer be answered.
+   1. `test -f .context/foundation/roadmap.md`. If absent, skip this step silently. Otherwise **capture its dirty state before touching it**, with a command that *prints* the answer:
+
+      ```bash
+      git status --porcelain .context/foundation/roadmap.md 2>/dev/null || echo "NO GIT"
+      ```
+
+      Empty output means the roadmap was clean before you touched it; anything else means the user
+      already had uncommitted edits in it. **Remember which it was now** — step 7 reads that answer out
+      of your working memory, never out of a shell variable. A bare `PREDIRTY=$(…)` assignment would
+      print nothing, so the value would never reach you at all, and it would not survive into the next
+      Bash call even if it did. Once this step has edited the file the question can no longer be
+      answered, because the file is dirty because you made it dirty.
    2. Read `.context/foundation/roadmap.md`. Look for `<change-id>` used as a `Change ID`:
       - in the `## At a glance` table — the row whose **Change ID** column cell equals `<change-id>` exactly;
       - and in the `## Foundations` / `## Slices` bodies — the `### <ID>: …` block that contains a `- **Change ID:** <change-id>` line.
@@ -298,14 +326,15 @@ If the queue is empty at this point, skip the prompt and proceed directly.
 
          `<today>` is `date -u +%F` (`YYYY-MM-DD`); `<CREATED>` is the value computed in step 1. If the roadmap has no `## Done` heading, append the heading and this bullet at the end of the file.
    5. Bump the roadmap frontmatter: set `updated: <today as YYYY-MM-DD>`. Leave every other key (`created`, `version`, `status`, `prd_version`, `main_goal`, `top_blocker`, …) untouched. If the file has no YAML frontmatter, skip this sub-step.
-   6. The roadmap close goes into the archive commit together with the move and the stamp — one commit for the whole close-out, **unless `ROADMAP_PREDIRTY` was non-empty**. In that case the file already carried the user's own uncommitted edits; step 7 leaves it out of the commit and says so, rather than committing work nobody asked it to commit.
+   6. The roadmap close goes into the archive commit together with the move and the stamp — one commit for the whole close-out, **unless the roadmap was already dirty when sub-step 1 looked**. In that case the file already carried the user's own uncommitted edits; step 7 leaves it out of the commit and says so, rather than committing work nobody asked it to commit.
    7. Remember `<ID>` and `<Outcome>` for the confirmation output.
 
 7. **Commit the close-out.** One commit covering the rename, the `change.md` stamp, the ticked Manual rows if there were any, and the roadmap close:
 
    ```bash
-   git add "$DEST" ".context/changes/<change-id>"
-   git add .context/foundation/roadmap.md     # only when step 6 edited it AND $ROADMAP_PREDIRTY was empty
+   git add -A -- "<DEST>"
+   git add -A -- ".context/changes/<change-id>" 2>/dev/null || true
+   git add .context/foundation/roadmap.md     # only on the conditions spelled out below
    git commit -m "$(cat <<'EOF'
    chore(<change-id>): archive change
    EOF
@@ -316,15 +345,29 @@ If the queue is empty at this point, skip the prompt and proceed directly.
 
    No body — the subject is mechanical and the diff (a rename, a frontmatter stamp, and the roadmap close when one matched) explains itself.
 
-   **Stage by path, never by directory.** `$DEST` covers the renamed folder with its stamp and its ticked Manual rows; `.context/changes/<change-id>` covers the deleted side of the rename. Staging `.context/changes/` as a whole would sweep in **every other active change** in the repository — the pre-flight only checked this change's folder (`git status --porcelain ".context/changes/<change-id>/"`) and the index, so a dirty `plan.md` under a sibling change passes both checks and rides into a commit that claims to archive something else. Every other skill in the loop stages by explicit path; this one is no exception.
+   **Stage by path, never by directory.** `<DEST>` covers the renamed folder with its stamp and its ticked Manual rows; `.context/changes/<change-id>` covers the deleted side of the rename. Staging `.context/changes/` as a whole would sweep in **every other active change** in the repository — the pre-flight only checked this change's folder (`git status --porcelain ".context/changes/<change-id>/"`) and the index, so a dirty `plan.md` under a sibling change passes both checks and rides into a commit that claims to archive something else. Every other skill in the loop stages by explicit path; this one is no exception.
 
-   **The roadmap is conditional on both halves**: step 6 must have edited it, **and** `ROADMAP_PREDIRTY` must have been empty. If it was non-empty, leave the file out and print `⚠ .context/foundation/roadmap.md already had uncommitted edits; the roadmap close was applied but NOT staged. Commit it yourself.`
+   **Why two separate `git add`s, and why the second may fail.** `git mv` in step 4 already removed
+   every index entry under `.context/changes/<change-id>/` and deleted the path on disk, so on that
+   path the second pathspec matches neither the index nor the worktree. `git add` treats that as
+   `fatal: pathspec … did not match any files` and **writes no index at all** — which would silently
+   drop the first pathspec too. Hence one command per pathspec, and `|| true` on the second: it is a
+   no-op after `git mv` and does the real work only on the plain-`mv` fallback (step 4.2), where the
+   old index entries survive.
+
+   **The first add is not optional bookkeeping.** `git mv` staged the rename carrying the file's
+   **HEAD** content, not the stamp step 3 wrote into the working tree. Without `git add -- "<DEST>"`
+   the close-out commit is a bare rename: the archived `change.md` still reads `status: impl_reviewed`
+   with `archived_at: null`, and step 5's ticked `#### Manual` rows stay dirty inside a folder this
+   skill has just declared read-only.
+
+   **The roadmap is conditional on both halves**: step 6 must have edited it, **and** sub-step 6.1 must have found it clean. If it was non-empty, leave the file out and print `⚠ .context/foundation/roadmap.md already had uncommitted edits; the roadmap close was applied but NOT staged. Commit it yourself.`
 
    Never pass `--no-verify` or signing-bypass flags; if a pre-commit hook fails, fix the underlying issue and create a new commit.
 
    Skip this step entirely if `git` is unavailable or the repo is not a git repo; the pre-flight already said so. Capture the short SHA for the confirmation.
 
-8. **Report where the branch stands.** The change record is closed; the branch it was built on is still there, unmerged. Read `branch` from the `change.md` you just stamped (it moved with the folder) and count what is ahead of the base:
+8. **Report where the branch stands.** The change record is closed; the branch it was built on is still there, unmerged. Read `branch` **and `base_sha`** from the `change.md` you just stamped (it moved with the folder — read it at `<DEST>/change.md`) and count what is ahead of the base:
 
    ```bash
    git rev-list --count <base_sha>..HEAD
@@ -349,8 +392,9 @@ roadmap.md:     closed <ID> "<Outcome>"  →  Status: done, entry added to ## Do
 
 Committed as: <short SHA> chore(<change-id>): archive change    ← omit the line when step 7 was skipped or its commit did not land
 
-Branch <branch> now carries <c> commit(s) and is not merged anywhere.
-Merging it — or not — is yours to decide.
+Branch <branch> now carries <c> commit(s) and is not merged anywhere.    ← omit both lines when step 8
+Merging it — or not — is yours to decide.                                   could not count (no git, or
+                                                                            no usable base_sha)
 
 The folder is now read-only by convention.
 Next change: /odp-plan <describe the work>

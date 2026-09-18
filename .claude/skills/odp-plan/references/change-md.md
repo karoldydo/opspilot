@@ -49,11 +49,20 @@ rather than as separate stages, there is no plan-review skill, and a blocked cha
 | `implementing`                   | `implemented`   | `/odp-implement`, last phase complete       |
 | `implemented`                    | `impl_reviewed` | `/odp-review`                               |
 | `implementing`                   | `impl_reviewed` | `/odp-review`, run mid-implementation       |
+| `planned`                        | `impl_reviewed` | `/odp-review`, on work implemented by hand  |
 | `implemented` or `impl_reviewed` | `archived`      | `/odp-archive`                              |
 
 **Forward-only.** No skill regresses a status. `/odp-plan` re-entered on an open change leaves
-anything at `planned` or later untouched; `/odp-implement` refuses to start on `implemented` or later.
-The file is record-only — nothing enforces the table, and skipping `/odp-review` is allowed.
+anything at `planned` or later untouched; `/odp-implement` never writes a status behind the one it
+finds, so a change already at `implemented` or `impl_reviewed` keeps it. Re-running a skill on a
+change it has already finished is safe rather than forbidden: `/odp-implement` finds no pending
+`#### Automated` row, stops at its run report, and commits nothing. The file is record-only —
+nothing enforces the table, and skipping `/odp-review` is allowed.
+
+The `planned` → `impl_reviewed` row is the one transition that skips a stage: a change `/odp-plan`
+opened and a human implemented by hand never passes through `/odp-implement`, so nothing ever writes
+`implementing`. `/odp-review` accepts it, but only when real implementation work exists — a change
+carrying nothing but its own planning commit is refused rather than stamped.
 
 ## The four workspace keys
 
@@ -61,8 +70,11 @@ These four are what make the loop work across several changes in flight at once.
 by `/odp-plan` and read by the skills that follow.
 
 - **`branch`** — the change's own branch, `<type>/<change-id>` where `<type>` is a Conventional Commit
-  type. Written when the branch is opened. `/odp-implement` checks it on entry so phase commits cannot
-  land on the wrong branch; `/odp-archive` reports what the branch carries at the end.
+  type. Written when the branch is opened. `/odp-implement`, `/odp-review` and `/odp-archive` all
+  compare it against `git rev-parse --abbrev-ref HEAD` on entry and refuse to run from anywhere else:
+  phase commits would land on the wrong branch, `base_sha..HEAD` would span someone else's work, and
+  the close-out commit would go to the wrong history. `/odp-archive` also reports what the branch
+  carries at the end.
 - **`base_sha`** — the **full** sha of the commit the branch was rooted on, captured before anything
   was committed to it. This is the anchor of the whole review: `/odp-review` diffs `base_sha..HEAD` to
   see the change as one piece, and `/odp-archive` counts commits from it. **Never overwrite a

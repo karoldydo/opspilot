@@ -49,8 +49,8 @@ Three files under `references/` travel with the skill: `progress-format.md` and 
 Four things stay in English, because they are contracts rather than prose:
 
 - **Structural headings and keys** — `## Progress`, `### Phase N:`, `#### Automated`, `#### Manual`, `### Changes Required:`, `#### Automated Verification:`, `#### Manual Verification:`, every YAML key in `change.md` frontmatter, and every `status:` value (`new`, `planned`, `implementing`, `implemented`, `impl_reviewed`, `archived`). Other skills parse these.
-- **Fixed narration tokens.** Any `ALL-CAPS:` label that opens a narration line is a token and stays as written — `GATE <name>:`, `GATES RESOLVED:`, `PREFLIGHT:`, `COMMIT p<N>:`, `DIRTY (not staged):`, `PRE-STAGED:`, `ADAPT:`, `ROADMAP:`, `STOPPED —`, `RUN REPORT —`, and every other one this document spells out. The label is a token; the sentence after it is Polish. The same holds for the `✓` / `✗` / `⚠` / `→` prefixes.
-- **Verbatim diagnostic blocks.** Where this document gives a multi-line block to print — a `Cannot start:` / `Cannot archive:` stop, an `Expected:` / `Current:` pair, a `STOPPED —` block's field names — the field labels are fixed and English; what you fill in beside them is Polish. These are read by whoever debugs the loop, and their shape is part of the contract.
+- **Fixed narration tokens.** Any `ALL-CAPS:` label that opens a narration line is a token and stays as written — `GATE <name>:`, `GATES RESOLVED:`, `PREFLIGHT:`, `COMMIT p<N>:`, `DIRTY (not staged):`, `ADAPT:`, `ROADMAP:`, `STOPPED —`, `RUN REPORT —`, and every other one this document spells out. The label is a token; the sentence after it is Polish. The same holds for the `✓` / `✗` / `⚠` / `→` prefixes.
+- **Verbatim diagnostic blocks.** Where this document gives a multi-line block to print — a `Cannot start:` stop, an `Expected:` / `Current:` pair, a `STOPPED —` block's `Expected:` / `Found:` / `Why:` / `Resume:` field names — the field labels are fixed and English; what you fill in beside them is Polish. These are read by whoever debugs the loop, and their shape is part of the contract. The same holds for the single-line diagnostics this document spells out: the `error:` / `warning:` / `Cannot …:` prefix is a fixed English token, and the sentence after it is Polish.
 - **Commit messages and copy-paste commands.** Conventional Commits subjects and bodies are English, as is anything printed for the user to paste into a terminal.
 
 When a template below is written in English, it fixes the *shape* of the output, never the words.
@@ -121,7 +121,7 @@ When this command is invoked:
 
 2. **Check you are in the right working tree and on the right branch.** Read `worktree:` and `branch:` from `.context/changes/<change-id>/change.md`.
 
-   **The worktree.** If `worktree:` is `null` or absent, continue. Otherwise compare it against the current repository root, **both sides normalized** — `cd "<path>" && pwd -P` on the recorded value, `cd "$(git rev-parse --show-toplevel)" && pwd -P` on this one. A literal string compare gives a false STOP on macOS (`/tmp` versus `/private/tmp`), through a symlinked checkout, or on a trailing slash, and this STOP has no override. If the normalized paths match, continue. Otherwise `/odp-plan` opened this change in a **separate git worktree** and you are standing somewhere else — the branch with the change's commits is checked out there, not here. Print and STOP:
+   **The worktree.** If `worktree:` is `null` or absent, continue. Otherwise compare it against the current repository root, **both sides normalized** — `cd "<path>" && pwd -P` on the recorded value, `cd "$(git rev-parse --show-toplevel)" && pwd -P` on this one. A literal string compare gives a false STOP on macOS (`/tmp` versus `/private/tmp`), through a symlinked checkout, or on a trailing slash, and this STOP has no override. If the recorded path does not exist any more, `cd` fails and there is nothing to compare — say that instead of printing an empty `Expected:`. If the normalized paths match, continue. Otherwise `/odp-plan` opened this change in a **separate git worktree** and you are standing somewhere else — the branch with the change's commits is checked out there, not here. Print and STOP:
 
    ```
    Cannot start: <change-id> lives in a separate worktree.
@@ -153,11 +153,21 @@ When this command is invoked:
    - Collect the commands from every phase's Automated success criteria and verify each is runnable in this environment (the binary or package script exists — e.g. check `package.json` scripts, `command -v`, `Makefile` targets). A criterion whose command cannot run is a structural mismatch for the phase that needs it: narrate the missing command now (`PREFLIGHT: <command> not runnable — Phase <N> will stop unless fixed`), and when execution reaches that phase, print the STOP block and halt. Do not silently skip an unverifiable criterion.
    - **Resolve the repo checks** for gate (c) once, here, and narrate the resolved list (see "Resolving the repo checks" below).
 
-5. **Update `change.md`**: set `status: implementing` (only if currently `planned`, `new`, or absent — never regress `implemented` or later) and `updated: <today>`. Then **sync the roadmap** (best effort) — if `.context/foundation/roadmap.md` exists and carries an item whose `Change ID` equals `<change-id>`, flip it to `Status: in-progress`. See "## Roadmap status sync" below; narrate the outcome, never halt on it.
+5. **Refuse to start on a dirty index.** Run `git diff --cached --name-only`. Anything already staged is the user's, staged before this run started, and `git commit` commits the whole index — so it would ride into phase 1's commit no matter how carefully the phase stages its own files. There is no safe way around it: committing a subset with `git commit -- <paths>` is a *partial* commit that reads the working tree and ignores the index, which would break the deliberate-break restore in gate (b) (`git checkout -- <file>` resets to the index, and that is the whole reason staging happens mid-gate-stack). Print and STOP:
 
-6. **Create phase tasks**: count total phases (from `## Phase N:` headers) and create one TaskCreate entry per phase (`subject: "Phase N: [Phase Name]"`, `activeForm: "Implementing Phase N"`). Set the current phase `in_progress` via TaskUpdate before starting work; mark it `completed` when its gates pass and its commit lands.
+   ```
+   Cannot start: <paths> are already staged.
+   The phase commit would sweep them in.
+   Either commit them first or `git reset` to unstage, then re-run /odp-implement <change-id>.
+   ```
 
-7. **Find the next pending step**: scan the `## Progress` section for the first `- [ ]` row **under a `#### Automated` subsection** in document order — that is where you start. Rows under `#### Manual` are outside your jurisdiction (see "Manual rows" below); skip over them when locating the resume point. If a `phase N` argument was passed, jump to the first Automated `- [ ]` inside `### Phase N:` instead.
+   `/odp-archive` refuses on the same condition for the same reason. Skip this check when `git` is unavailable.
+
+6. **Update `change.md`**: set `status: implementing` (only if currently `planned`, `new`, or absent — never regress `implemented` or later) and `updated: <today>`. Then **sync the roadmap** (best effort) — if `.context/foundation/roadmap.md` exists and carries an item whose `Change ID` equals `<change-id>`, flip it to `Status: in-progress`. See "## Roadmap status sync" below; narrate the outcome, never halt on it.
+
+7. **Create phase tasks**: count total phases (from `## Phase N:` headers) and create one TaskCreate entry per phase (`subject: "Phase N: [Phase Name]"`, `activeForm: "Implementing Phase N"`). Set the current phase `in_progress` via TaskUpdate before starting work; mark it `completed` when its gates pass and its commit lands.
+
+8. **Find the next pending step**: scan the `## Progress` section for the first `- [ ]` row **under a `#### Automated` subsection** in document order — that is where you start. Rows under `#### Manual` are outside your jurisdiction (see "Manual rows" below); skip over them when locating the resume point. If a `phase N` argument was passed, jump to the first Automated `- [ ]` inside `### Phase N:` instead.
 
 ## Mismatch taxonomy
 
@@ -214,7 +224,7 @@ Scope each command to the touched-file set where the tool accepts a file list; r
 
 **Never run the test suite here.** One consequence is worth stating rather than leaving implicit: **phase commits are not regression-gated.** A change that breaks an existing test lands on the branch anyway, and the only things between it and `/odp-archive` are `/odp-review`, which reads code rather than running it, and the human's manual pass. That is the trade the odp loop makes — the loop moves without waiting on a suite, and the human's pass is the real gate.
 
- Under the odp loop, verification of behavior is manual and happens after `/odp-review`; the `#### Manual` rows are that checklist. Existing tests are neither run nor modified by this gate. If a plan phase explicitly lists a test command in its `#### Automated` success criteria, that command runs as part of gate (a), where the plan put it — this exclusion applies only to the blanket repo-wide suite.
+Under the odp loop, verification of behavior is manual and happens after `/odp-review`; the `#### Manual` rows are that checklist. Existing tests are neither run nor modified by this gate. If a plan phase explicitly lists a test command in its `#### Automated` success criteria, that command runs as part of gate (a), where the plan put it — this exclusion applies only to the blanket repo-wide suite.
 
 Worked example, a repo whose `.husky/pre-commit` is `lint-staged --relative && nx run-many -t typecheck` with `lint-staged` mapping `*.{ts,js,mjs}` to `eslint --fix` + `nx format:write --files`:
 
@@ -277,11 +287,11 @@ The commit ritual stages files from a **touched-file set** maintained in working
 
 - **Seed the set from the implementation subagent's `TOUCHED` list** when it returns `completed`, and union in any path returned by a self-fix subagent. When you edit a file directly in the main context — the `## Progress` checkboxes in `plan.md`, a `change.md` status flip — add its path too.
 - The set always contains `.context/changes/<change-id>/plan.md` — add it on entry to a phase, before any checkboxes flip.
-- **Phase 1 bootstrap**: on the first phase of a change, also seed the set with any untracked or modified file inside `.context/changes/<change-id>/` (typically `change.md`, `frame.md`, `research.md`, `plan.md`, `plan-brief.md`) so the change's context files land in the first commit. Under the odp loop `/odp-plan` normally committed them already, in which case this seed finds nothing — that is the expected case, not a problem.
+- **Phase 1 bootstrap**: on the first phase of a change, also seed the set with any untracked or modified file inside `.context/changes/<change-id>/` (typically `change.md`, `frame.md`, `research.md`, `plan.md`, `plan-brief.md`) so the change's context files land in the first commit. Under the odp loop `/odp-plan` normally committed them already, in which case this seed finds nothing — that is the expected case, not a problem. Phase 1's set also takes `.context/foundation/roadmap.md` when the entry sync flipped it and found it clean (see "## Roadmap status sync", step 5) — that flip happens before any phase exists, so phase 1 is the only set it can ride in.
 - The set **resets at each phase boundary**, after the phase commit completes.
 - The set overrides `git status`. A file that is dirty but not in the set is unrelated — it is never staged.
 
-**Check the index before phase 1.** Run `git diff --cached --name-only` once during Setup. Anything already staged there is the user's, staged before this run started, and `git commit` would sweep it into phase 1's commit no matter how carefully the phase stages its own files. Print `PRE-STAGED: <paths> — these are already in the index and will ride into the first phase commit.` and, from then on, commit with an explicit pathspec — `git commit -- <the phase's staged paths>` — so the phase commit contains the phase and nothing else. When the index is clean, the plain `git commit` below is equivalent and is what you use.
+**The index is empty when a phase starts.** Setup step 5 refuses to run otherwise, so the staging set below is the whole of what a phase commit contains and the plain `git commit` in the ritual needs no pathspec. That refusal is what makes this section's central claim — the touched-file set is the canonical input to the commit — true rather than aspirational.
 
 **Staging the set (gate-stack step 2):** stage the touched-file set ∪ `{.context/changes/<change-id>/plan.md}` (Phase 1: bootstrap-seeded set). Run `git status --porcelain`; any dirty path outside the staging set is **never staged** — list it as `DIRTY (not staged): <paths>` in your response text (so it appears in the transcript and run report) and continue with the planned set only. This reconciliation is also the safety net against a delegated subagent that touched a file but left it off `TOUCHED` — the omission surfaces as DIRTY rather than slipping silently past the commit boundary. Stage by name with `git add` each file; never `git add -A` or `git add .`.
 
@@ -298,14 +308,14 @@ If the project keeps `.context/foundation/roadmap.md`, it indexes work items by 
 Run it **once, on entry** (right after the `change.md` → `implementing` stamp), not per phase. The lookup is **mandatory**; "best effort" scopes only the *edits* — a missing roadmap or a not-found target is skipped silently and never halts the run, triggers the STOP block, or counts against the self-fix budget. Do not skip the check assuming there's no roadmap; narrate the outcome (matched + flipped, already-advanced, or no-match) in your response text either way.
 
 1. `test -f .context/foundation/roadmap.md`. If absent, narrate `ROADMAP: none — skipped.` and skip this step.
-2. Capture dirty state: `ROADMAP_PREDIRTY=$(git status --porcelain .context/foundation/roadmap.md 2>/dev/null)` (used in step 5).
+2. Capture its dirty state with a command that *prints* the answer — `git status --porcelain .context/foundation/roadmap.md 2>/dev/null || echo "NO GIT"`. Empty output means the file was clean before you touched it. **Remember which it was**: step 5 reads that answer out of your working memory, never out of a shell variable. A bare `PREDIRTY=$(…)` assignment prints nothing, so the value never reaches you, and it would not survive into the next Bash call even if it did.
 3. Read the file. Find `<change-id>` used as a `Change ID`:
    - in an `## At a glance` table, if present — the row whose **Change ID** cell equals `<change-id>` exactly;
    - and in the item bodies — the `### <ID>: …` block containing a `- **Change ID:** <change-id>` line.
 
    `<ID>` is the item's roadmap-local id. Match is exact-string only. **No match** → narrate `ROADMAP: no item with Change ID "<change-id>" — left untouched.` and skip the rest.
 4. **Match found** → if the item's `- **Status:**` is already `in-progress` or `done`, leave it (**forward-only** — never regress) and narrate `ROADMAP: <ID> already <status> — left untouched.`; skip to step 5. Otherwise set the **Status** cell in the table and the `- **Status:**` line in the item body to `in-progress` (each edit independent and best effort — skip a sub-edit that isn't where the file puts it, and narrate the skip), bump the frontmatter `updated:` to `<today>`, and narrate `ROADMAP: flipped <ID> → in-progress.` Touch only the `Status` field.
-5. If `git` is available **and** `ROADMAP_PREDIRTY` was empty, add `.context/foundation/roadmap.md` to the current phase's touched-file set so the flip commits with the phase. If `ROADMAP_PREDIRTY` was non-empty, keep it OUT of the touched-file set, leave the flip in the working tree, and narrate `DIRTY (not staged): .context/foundation/roadmap.md had pre-existing edits — roadmap flip left in worktree.`
+5. If `git` is available **and** step 2 found the file clean, add `.context/foundation/roadmap.md` to **phase 1's** touched-file set so the flip commits with the first phase. This sync runs once, on entry, before any phase has started — so "the current phase" does not exist yet, and the set is reset at every phase boundary. Naming phase 1 explicitly is what keeps the flip from falling through every set and surfacing as `DIRTY (not staged)` for the rest of the run. If step 2 found the file dirty, keep it OUT of the touched-file set, leave the flip in the working tree, and narrate `DIRTY (not staged): .context/foundation/roadmap.md had pre-existing edits — roadmap flip left in worktree.`
 
 ## Autonomous commit ritual
 
@@ -351,7 +361,7 @@ git revert --no-edit <sha>   # keeps history, safe on a shared branch
 
 Surface `git revert` first, and usually only. A hard reset to the phase before also throws away the Progress rows and the `change.md` stamp that rode along, which is rarely what someone wants, and it is only defensible on a branch nobody else has.
 
-One thing a revert does not clean up: a phase's SHA suffix is written *after* its commit and rides into the **next** phase's commit, so reverting phase N un-ticks its rows but leaves the ` — <sha>` suffix pointing at a commit that no longer applies. `/odp-review` would then `git show` a reverted commit. Say so — the plan's `## Progress` needs a manual touch-up after a revert.
+One thing a revert does not clean up, and it is not the obvious one. Phase N's commit carries its own `[ ]`→`[x]` flips, but the ` — <sha>` suffix is appended afterwards and rides into phase N+1's commit — **on the same lines**. So `git revert` of phase N does not quietly un-tick those rows; it conflicts on them. Say so up front: the plan's `## Progress` needs resolving by hand, dropping the tick and the suffix together, and `/odp-review` would otherwise `git show` a commit that no longer applies.
 
 ## Manual rows
 
@@ -373,7 +383,7 @@ Rows under `#### Manual` are a human's jurisdiction, never yours. The policy:
 
 When every Automated row in the entire `## Progress` section is `- [x]`:
 
-1. Update `change.md`: set `status: implemented`, `updated: <today>`. (Do NOT set `archived_at` — it stays `null` until `/odp-archive` writes it; that skill is its only writer.) Pending Manual rows do not block this flip; they are surfaced in the run report instead.
+1. Update `change.md`: set `status: implemented` and `updated: <today>` — **forward-only, like the entry stamp**: write `implemented` only when the current status is `implementing`, `planned`, `new` or absent. A change reviewed mid-implementation already reads `impl_reviewed`, which is ahead of `implemented`; leave it and narrate `change.md: status impl_reviewed left untouched (forward-only).` Refresh `updated` either way. (Do NOT set `archived_at` — it stays `null` until `/odp-archive` writes it; that skill is its only writer.) Pending Manual rows do not block this flip; they are surfaced in the run report instead.
 2. **Run the epilogue commit.** The final phase's commit cannot contain its own SHA, so the SHA write-back plus the `change.md` status flip sit uncommitted after the final phase's ritual:
    1. Stage exactly `.context/changes/<change-id>/plan.md` and `.context/changes/<change-id>/change.md`.
    2. `git diff --cached --quiet` — if empty, skip the epilogue.

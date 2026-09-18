@@ -48,10 +48,11 @@ The headings are a machine contract and stay in English — `## Progress`, `### 
   - `#### Manual` lists steps that require a human to look at the result (UI, smoke tests, eyeball
     checks). Under the odp loop this is also where behavioral verification lives, because the
     implementer runs no test suite.
-  - A phase may have only `#### Automated`, or both. Omit empty subsections. A phase that changes
-    files must carry at least one `#### Automated` row: every consumer keys off Automated rows, so a
-    Manual-only phase is never implemented, never committed and never reviewed, while the run still
-    reports success.
+  - A phase may carry only `#### Automated`, or both subsections. Omit empty subsections. A phase
+    that changes files must carry at least one `#### Automated` row: every consumer keys off
+    Automated rows, so a Manual-only phase is never implemented, never committed and never reviewed,
+    while the run still reports success. A Manual-only phase is therefore legal only when the phase
+    changes no files at all.
 - **Step format**: `- [ ] <phase>.<index> <title>` (pending) or `- [x] <phase>.<index> <title>` (done),
   with ` — <sha>` appended to the done form once the commit that closed the step exists. A `[x]` row
   **without** a suffix is valid in three situations and in no others: **before the phase's commit

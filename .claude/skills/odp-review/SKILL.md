@@ -50,6 +50,8 @@ This skill is self-contained and language/stack agnostic. It depends on exactly 
 
 Two files under `references/` travel with the skill, both shared verbatim with the other three odp skills: `progress-format.md`, the `## Progress` contract it reads and never writes, and `change-md.md`, the `change.md` contract it stamps. They are copies, not links — drop the `odp-review/` folder into another project's skills directory and it works there unchanged.
 
+**One execution note that both of the above depend on.** Your Bash calls share a working directory — a `cd` in one call is still in effect in the next — but they do **not** share shell state. A variable assigned in one block is gone in the next, and the `Edit`, `Write` and `Read` tools never expand one at all. So every value this document computes in a command block is **printed** and then substituted as a literal further down; nothing below re-expands a `$VAR`.
+
 ## Language
 
 **Everything this skill writes for a human to read is in Polish** — every question put to the user (the `question` text, the `header`, and each option's `label` and `description`), every narration line, every report body, and **the prose of every document it writes under `.context/`**.
@@ -58,7 +60,7 @@ Four things stay in English, because they are contracts rather than prose:
 
 - **Structural headings and keys.** In documents: `## Progress`, `### Phase N:`, `#### Automated`, `#### Manual`, `### Changes Required:`, `#### Automated Verification:`, `#### Manual Verification:`, and the other template headings reproduced below. In `change.md`: every YAML key, and every `status:` value (`new`, `planned`, `implementing`, `implemented`, `impl_reviewed`, `archived`). Other skills parse these by exact string; translating one breaks the loop silently.
 - **Fixed narration tokens.** Any `ALL-CAPS:` label that opens a narration line is a token and stays as written — `BASE:`, `GATES RESOLVED:`, `GATE <name>:`, `REVIEW COMMIT:`, `STOPPED —`, `REVIEW DONE —`, and every other one this document spells out. The label is a token; the sentence after it is Polish. The same holds for the `✓` / `✗` / `⚠` / `→` prefixes.
-- **Verbatim diagnostic blocks.** Where this document gives a multi-line block to print — a `Cannot start:` / `Cannot archive:` stop, an `Expected:` / `Current:` pair, a `STOPPED —` block's field names — the field labels are fixed and English; what you fill in beside them is Polish. These are read by whoever debugs the loop, and their shape is part of the contract.
+- **Verbatim diagnostic blocks.** Where this document gives a multi-line block to print — a `Cannot review:` stop, an `Expected:` / `Current:` pair, a `STOPPED —` block's `Expected:` / `Found:` / `Why:` / `Resume:` field names, the `REVIEW DONE —` hand-off — the field labels are fixed and English; what you fill in beside them is Polish. These are read by whoever debugs the loop, and their shape is part of the contract. The same holds for the single-line diagnostics this document spells out: the `error:` / `warning:` / `Cannot …:` prefix is a fixed English token, and the sentence after it is Polish.
 - **Commit messages, file names, change-ids, and copy-paste commands.** Conventional Commits subjects and bodies are English, as is anything printed for the user to paste into a terminal.
 
 Every template below is written in English. A template fixes the *shape* of the output — its headings, its field order, its structure — never the words that go in it.
@@ -75,7 +77,7 @@ By the time this skill runs, the change is a branch with a readable history: `/o
 
 ## Input resolution
 
-1. Argument points to a saved review file (contains `<!-- IMPL-REVIEW-REPORT -->`) → **resume triage** (skip to Step 5, but run the two checks below first — "skip to Step 5" skips the *work* of Step 1, never its refusals)
+1. Argument points to a saved review file (contains `<!-- IMPL-REVIEW-REPORT -->`) → **resume triage** (skip to Step 5, but run every refusal below first — "skip to Step 5" skips the *work* of Step 1, never its refusals; derive `<change-id>` from the report path as Step 5 describes before applying them, since they read `change.md`)
 2. Argument is a `<change-id>` and `.context/changes/<change-id>/plan.md` exists → fresh review on that plan
 3. Plan path provided (e.g. `@.context/changes/<change-id>/plan.md`) → fresh review on that plan
 4. Phase number provided (e.g. "phase 3") → review only that phase
@@ -83,7 +85,18 @@ By the time this skill runs, the change is a branch with a readable history: `/o
 
 If the resolved plan path starts with `.context/archive/`, refuse: print "This change is archived. Reviews are not appended to archived plans." and STOP.
 
-**Check you are in the right working tree.** Read `worktree:` from `change.md`. If it is set and is not the current repository root (`git rev-parse --show-toplevel`), the change's branch and all of its commits live in another directory — reviewing from here would diff the wrong tree. Print the expected path and the current one, tell the user to open that directory and re-run, and STOP. When `worktree` is `null` or absent, continue.
+**Check you are in the right working tree.** Read `worktree:` from `change.md`. When it is `null` or absent, continue. Otherwise compare it against the current repository root with **both sides normalized** — `cd "<path>" && pwd -P` on the recorded value, `cd "$(git rev-parse --show-toplevel)" && pwd -P` on this one. A literal string compare gives a false STOP on macOS (`/tmp` versus `/private/tmp`), through a symlinked checkout, or on a trailing slash, and this STOP has no override. If the recorded path does not exist any more, `cd` fails and there is nothing to compare — say that instead of printing an empty `Expected:`. If the normalized paths differ, the change's branch and all of its commits live in another directory — reviewing from here would diff the wrong tree. Print the expected path and the current one, tell the user to open that directory and re-run, and STOP.
+
+**Check you are on the right branch.** Read `branch:` from the same `change.md`. When it is `null` or absent (a change planned without git), continue. Otherwise compare it against `git rev-parse --abbrev-ref HEAD`. A mismatch means the change folder is visible from a branch that is not the change's own — it was merged, or `/odp-plan`'s planning commit was rejected by a hook and the user moved on. Reviewing from here would diff `base_sha..HEAD` across whatever else that branch carries, and `base_sha` may not even be an ancestor of this `HEAD`, so the range would be someone else's work presented as this change. Print and STOP:
+
+```
+Cannot review: <change-id> belongs to a different branch.
+Expected: <branch from change.md>
+Current:  <git rev-parse --abbrev-ref HEAD>
+Check out that branch and re-run /odp-review <change-id>.
+```
+
+Never switch branches yourself — the current branch may carry work the user has not finished.
 
 **If the change folder is missing entirely**, do not assume the change-id is wrong — a worktree-hosted change is invisible from here. Look it up:
 
@@ -108,11 +121,15 @@ TaskCreate: "Implementation Review" / activeForm "Loading context"
 6. **Change-set detection** — everything the change produced, committed and not:
 
    ```bash
-   BASE=<base_sha from change.md>
-   git diff --name-only "$BASE" HEAD         # the phase commits
+   git diff --name-only <BASE> HEAD          # the phase commits
    git diff HEAD --name-only                 # anything still uncommitted
    git ls-files --others --exclude-standard  # untracked files
    ```
+
+   `<BASE>` is the sha you resolve just below — **write it out in full in every command that needs
+   it, here and everywhere after**. Do not assign it to a shell variable: a variable does not survive
+   into your next Bash call, so `BASE=…` in one block expands to the empty string in the next, and
+   `git diff "" HEAD` quietly diffs against nothing.
 
    The union of those three lists is the change set. Narrate what you anchored on before going further — `BASE: <sha> (from change.md)` — because that one value decides the scope of everything below, and a review that never says what it diffed against cannot be checked. Use `git ls-files --others` rather than parsing `??` lines out of `git status --porcelain`: porcelain collapses a wholly-untracked directory into a single entry and hides the files inside it.
 
@@ -125,9 +142,11 @@ TaskCreate: "Implementation Review" / activeForm "Loading context"
 
    Then **separate `.context/`**: changes to `plan.md`, `change.md`, `research.md` and friends are expected bookkeeping, not implementation. List them once as "change artifacts" and keep them out of the safety/quality scan and out of the "unplanned change" classification below.
 
-   **Empty union** → print `Nothing to review: no commits since <BASE> and the working tree is clean for <change-id>. Did /odp-implement run?` and STOP. A silent empty review is worse than no review.
+   **Empty union** → print `Nothing to review: no commits since <BASE> and the working tree is clean for <change-id>. Did /odp-implement run?` and STOP. A silent empty review is worse than no review. The union tested here is the one **after** the `.context/` split above: a change's own planning commit is bookkeeping, not implementation, and counting it would make this check unfireable.
 
-   For the hunks of any single file, `git diff "$BASE" -- <path>` for committed work and `git diff HEAD -- <path>` for the rest. The post-change state of a file is simply the file on disk.
+   **Nothing implemented** → the same STOP, for the case the emptiness test misses. If no phase has all its `#### Automated` rows `[x]` **and** the filtered union contains no path outside `.context/`, there is no implementation to review. Print `Nothing to review: <change-id> is still at status "<status>" and carries no implementation outside .context/. Run /odp-implement first.` and STOP — **without stamping `change.md`**. This is what keeps `planned` in the discovery set honest: it is there so a change planned by `/odp-plan` and implemented by hand is reachable, not so an untouched plan can be stamped `impl_reviewed`.
+
+   For the hunks of any single file, `git diff <BASE> -- <path>` for committed work and `git diff HEAD -- <path>` for the rest. The post-change state of a file is simply the file on disk.
 
 Compare changed-file list against plan-file list:
 - **In plan AND in diff** → expected change, verify content matches intent
@@ -138,7 +157,7 @@ Compare changed-file list against plan-file list:
 
 Then add `git diff HEAD` and `git ls-files --others --exclude-standard` on top, because the phase may be the one still in flight: `/odp-implement` writes a row's SHA *after* the commit, so the newest work is uncommitted by construction, and a phase interrupted by a STOP left its code in the tree. A phase review that looked only at commits would review nothing in exactly the case where it is worth the most.
 
-A phase whose rows carry **no** SHA is one of the three cases in `references/progress-format.md`: still in flight, resumed and not yet re-committed, or an empty staged diff. Fall back to the "Changes Required" file list plus the uncommitted work, and say which it was rather than implying the phase is missing.
+A phase whose rows carry **no** SHA is one of the SHA-less cases `references/progress-format.md` allows for an `#### Automated` row: the phase's commit has not landed yet (still in flight, or resumed after a STOP), or its staged diff came out empty. Fall back to the "Changes Required" file list plus the uncommitted work, and say which it was rather than implying the phase is missing.
 
 Don't pre-read every changed file into the main context — let the sub-agents read what they need. Main context should carry the plan and the diff summary, not the full source of 20 files.
 
@@ -183,7 +202,7 @@ TaskUpdate: activeForm "Verifying success criteria"
 
 For each reviewed phase:
 
-**Automated**: run each command from the "Automated Verification" checkboxes with Bash. Record command, pass/fail, actual output (truncate if huge).
+**Automated**: run each command from the phase's `#### Automated Verification:` bullets with Bash — plain `- ` bullets, never checkboxes; `/odp-plan` forbids `- [ ]` inside a phase block, because checkbox state lives only in `## Progress`. Record command, pass/fail, actual output (truncate if huge).
 
 Run **only** what the plan lists. Never add a repo-wide test suite of your own — under the odp loop behavioral verification is manual and happens after this review. A test command the plan itself put under `#### Automated` does run here, because that is where the plan put it; the exclusion is on the blanket suite, not on the plan's own criteria.
 
@@ -289,7 +308,7 @@ Sort findings by severity: CRITICAL → WARNING → OBSERVATION. Cap at 10 — c
 
 ### Report format
 
-Plain text, box-drawing. PASS dimensions appear only in the verdicts table, never as findings. Omit severity groups with zero findings. The `Verified:` line reports Step 3.5's tallies; drop it entirely when verification could not run, and replace it with a one-line warning that the findings below are unverified.
+Plain text, box-drawing. PASS dimensions appear only in the verdicts table, never as findings. Omit severity groups with zero findings. The `Verified:` line reports Step 3.5's tallies. When verification could not run it reads `Verified: not run (<reason>)` — the same form the saved report uses, so the two stay diffable — followed by a one-line warning that the findings below are unverified.
 
 ```
 ═══════════════════════════════════════════════════════════
@@ -391,7 +410,7 @@ Plain text, box-drawing. PASS dimensions appear only in the verdicts table, neve
 **Every path through this skill persists the report and stamps the change** — Triage now, Triage later, and Done all write the file. This keeps `change.md.status` correct and leaves the findings on disk regardless of what the user does next. Do this *before* presenting the proceed options — never conditionally, and never only on the "save" branches.
 
 1. **Write the report file** to `.context/changes/<change-id>/reviews/impl-review.md` (or `.context/changes/<change-id>/reviews/impl-review-phase-N.md` for a phase-scoped review), using the format below. Create the `reviews/` directory if absent.
-2. **Stamp `change.md`**: set `status: impl_reviewed` and `updated: <today>`. Once, here — independent of which proceed option the user picks. (If a `change.md` field is already `impl_reviewed`, just refresh `updated`.)
+2. **Stamp `change.md`**: set `status: impl_reviewed` and `updated: <today>`. Once, here — independent of which proceed option the user picks. **Forward-only, like every other status write in the loop**: stamp only when the current status is `planned`, `implementing` or `implemented`; when it is already `impl_reviewed`, refresh `updated` alone; when it is `archived`, refresh nothing and narrate `change.md: status archived left untouched (forward-only).` The archived refusal in Step 1 tests the resolved *path*, not the status, so a change stamped `archived` whose folder never moved (see `/odp-archive`'s error handling) is reachable from here, and regressing it would contradict `references/change-md.md`.
 3. If the user later triages, the on-disk report is the working copy: its `Decision:` fields are updated in place as each finding is decided (Step 5), and anything the user defers stays recorded in the report itself as `Decision: PENDING`, which is what `/odp-review <report-path>` resumes from.
 
 ```markdown
@@ -500,9 +519,9 @@ TaskUpdate: activeForm "Triage"
 
 ### Resume mode
 
-If entered via saved file: read it, parse `### F` headers, filter to `Decision: PENDING`. If none: print "All findings triaged.", then run Step 6 — which will find nothing staged and say so — and print the hand-off block.
+If entered via saved file: read it, parse `### F` headers, filter to `Decision: PENDING`. If none: print "All findings triaged.", then run Step 6 and print the hand-off block. Do not predict what Step 6 will find: it stages the report and `change.md` unconditionally, so whether anything is left to commit is decided by its own `git diff --cached --quiet` check. Usually a previous run already committed them — but not after a gate failure, which is exactly when someone re-enters here.
 
-**Recover the change context before triaging.** Skipping Step 1 also skipped everything Step 6 and the hand-off need — including the worktree check, which applies here exactly as it does on a fresh review: derive `<change-id>` first, read its `change.md`, and if `worktree:` names a directory that is not the current repository root, STOP with both paths rather than triaging against the wrong tree. Derive `<change-id>` from the report path — a saved report always lives at `.context/changes/<change-id>/reviews/<file>.md`, so it is the path segment directly above `reviews/` — then read `.context/changes/<change-id>/plan.md` and its `## Progress` section. Without this, the commit in Step 6 has no change-id for its subject and the hand-off has no Manual rows to copy. If the report sits somewhere that shape does not match, say so and ask for the change-id rather than guessing.
+**Recover the change context before triaging.** Skipping Step 1 also skipped everything Step 6 and the hand-off need — including the worktree check, which applies here exactly as it does on a fresh review: derive `<change-id>` first, read its `change.md`, and if `worktree:` names a directory that is not the current repository root — compared with both sides normalized through `pwd -P`, exactly as on a fresh review — STOP with both paths rather than triaging against the wrong tree. Derive `<change-id>` from the report path — a saved report always lives at `.context/changes/<change-id>/reviews/<file>.md`, so it is the path segment directly above `reviews/` — then read `.context/changes/<change-id>/plan.md` and its `## Progress` section. Without this, the commit in Step 6 has no change-id for its subject and the hand-off has no Manual rows to copy. If the report sits somewhere that shape does not match, say so and ask for the change-id rather than guessing.
 
 ### Triage loop
 
@@ -598,10 +617,16 @@ Update the saved report with the final decisions, then run Step 6. Mark the revi
    Expected: <what the check requires>
    Found:    <failing output summary>
    Why:      a triage fix left the tree failing the repo's own checks
-   Resume:   fix the above, then re-run the check; the review report is already saved at <report-path>
+   Resume:   fix the above, then commit the triage fixes yourself; the review record is already committed
    ```
 
-   then print the hand-off block and end there. The report and the `impl_reviewed` stamp are already on disk, so nothing is lost — and the manual checklist is owed to the human either way: it verifies behavior, not the repo's own checks, so a red gate is no reason to withhold it.
+   **Commit the review record before you stop.** Run sub-step 3 below with a reduced staging set — everything inside `.context/changes/<change-id>/` that this skill wrote (the report file, `change.md`, and `plan.md` if triage added an addendum), subject `docs(<change-id>): impl review`, leaving every triage-touched source file in the working tree. Then narrate `REVIEW COMMIT: <sha> (review record only — triage fixes left in the tree, gate red)` and carry that same line into the hand-off.
+
+   **If it was the hook, not a check, that went red** — sub-step 3.4 routes a hook rejection back here — do not retry the same commit from this path; you would loop. Narrate `REVIEW COMMIT: rejected by pre-commit hook — review record left in the working tree.`, say plainly that `/odp-archive` will refuse until it is committed, and end there.
+
+   This is the one path where the commit is partial, and it is partial in the safe direction. A red tree must not be committed as if it were green, but the report and the `impl_reviewed` stamp live **inside** `.context/changes/<change-id>/`, and `/odp-archive` hard-refuses a change folder with uncommitted content — so stopping without them would punish the user twice: once for the red gate, once with a change they cannot archive. The triage fixes are outside the change folder, so leaving them loose blocks nothing.
+
+   Then print the hand-off block and end there. The manual checklist is owed to the human either way: it verifies behavior, not the repo's own checks, so a red gate is no reason to withhold it.
 
 3. **Commit the review.** One commit, covering the review record and whatever triage changed.
 
@@ -636,14 +661,16 @@ Update the saved report with the final decisions, then run Step 6. Mark the revi
 
 ## Hand-off to manual testing
 
-Every path that reaches a saved report ends with this block — a completed review, a deferred triage, a finished triage, and a gate failure after triage fixes alike. It closes the loop `/odp-implement` opens with its `Suggested follow-up` line. The one exception is the empty-union refusal in Step 1, which never gets as far as a report:
+Every path that reaches a saved report ends with this block — a completed review, a deferred triage, a finished triage, and a gate failure after triage fixes alike. It closes the loop `/odp-implement` opens with its `Suggested follow-up` line. The exceptions are the Step 1 refusals — an archived plan, the wrong worktree, the wrong branch, a change that lives elsewhere, no git, an empty union, nothing implemented — none of which gets as far as a report:
 
 ```
 REVIEW DONE — <change-id>
 Report: <the report path written in Step 4 — impl-review.md, or impl-review-phase-N.md for a phase-scoped review>
 Verdict: <APPROVED | NEEDS ATTENTION | REJECTED>
 Findings: <n> reported, <m> rejected in verification
-Review commit: <sha>           <- omit this line when there was nothing to commit, or no git
+Review commit: <sha>           <- omit this line when there was nothing to commit, or no git;
+                                  on the gate-failure path it reads "<sha> (review record only —
+                                  triage fixes left in the tree, gate red)"
 
 Pending manual verification (your checklist):
 - <phase>.<index> <title>
