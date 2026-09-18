@@ -44,16 +44,17 @@ This skill is self-contained and language/stack agnostic. It depends on exactly 
 - **`git`** — to understand the repository, to open the change's workspace in Step 1 (see "Open the change's workspace"), and for exactly one commit: the planning commit in Step 7. This skill never pushes, never rebases, and never touches a branch other than the change's own. Without git both steps are skipped silently and the rest of the loop is unaffected.
 - **Whatever the repository already declares as its checks** — used only to verify that a command you put in a Success Criterion actually exists. Nothing is assumed about the toolchain.
 
-The three files under `references/` travel with the skill: `progress-format.md` (the `## Progress` contract, shared verbatim with `/odp-implement` and `/odp-review`), `frame-brief.md` and `research-doc.md` (the two dispatched agents' contracts). They are copies, not links — drop the `odp-plan/` folder into another project's skills directory and it works there unchanged.
+The four files under `references/` travel with the skill: `progress-format.md` (the `## Progress` contract) and `change-md.md` (the `change.md` contract), both shared verbatim with `/odp-implement`, `/odp-review` and `/odp-archive`, plus `frame-brief.md` and `research-doc.md` (the two dispatched agents' contracts). They are copies, not links — drop the `odp-plan/` folder into another project's skills directory and it works there unchanged.
 
 ## Language
 
 **Everything this skill writes for a human to read is in Polish** — every question put to the user (the `question` text, the `header`, and each option's `label` and `description`), every narration line, every report body, and **the prose of every document it writes under `.context/`**.
 
-Three things stay in English, because they are contracts rather than prose:
+Four things stay in English, because they are contracts rather than prose:
 
 - **Structural headings and keys.** In documents: `## Progress`, `### Phase N:`, `#### Automated`, `#### Manual`, `### Changes Required:`, `#### Automated Verification:`, `#### Manual Verification:`, and the other template headings reproduced below. In `change.md`: every YAML key, and every `status:` value (`new`, `planned`, `implementing`, `implemented`, `impl_reviewed`, `archived`). Other skills parse these by exact string; translating one breaks the loop silently.
-- **Fixed narration tokens** — the labels in lines like `WORKSPACE:`, `CHANGE ID:`, `ROADMAP:`, `PLAN COMMIT:`, `PLAN READY —`. The label is a token; the sentence after it is Polish.
+- **Fixed narration tokens.** Any `ALL-CAPS:` label that opens a narration line is a token and stays as written — `WORKSPACE:`, `CHANGE ID:`, `CHANGE:`, `REPAIR:`, `BASE:`, `WORK ROOT:`, `BOOTSTRAP:`, `FRAME:`, `RESEARCH:`, `ROADMAP:`, `PLAN COMMIT:`, `PLAN READY —`, and every other one this document spells out. The label is a token; the sentence after it is Polish. The same holds for the `✓` / `✗` / `⚠` / `→` prefixes.
+- **Verbatim diagnostic blocks.** Where this document gives a multi-line block to print — a `Cannot start:` / `Cannot archive:` stop, an `Expected:` / `Current:` pair, a `STOPPED —` block's field names — the field labels are fixed and English; what you fill in beside them is Polish. These are read by whoever debugs the loop, and their shape is part of the contract.
 - **Commit messages, file names, change-ids, and copy-paste commands.** Conventional Commits subjects and bodies are English, as is anything printed for the user to paste into a terminal.
 
 Every template below is written in English. A template fixes the *shape* of the output — its headings, its field order, its structure — never the words that go in it.
@@ -68,7 +69,7 @@ This skill is the first step of the odp loop: **`/odp-plan` → `/odp-implement`
 
 It is also the toolkit's entry point: **the change's workspace, the change folder and `change.md` are all created on entry**, before any research runs, so everything the run produces has somewhere to land and a branch of its own to sit on. The run ends by committing that folder, so `/odp-implement` starts from a clean tree.
 
-Unlike `/odp-implement`, this skill is **interactive by design** — a human is here and their decisions are the point. Three stops are unconditional: **the workspace choice** (branch or worktree, in Step 1), **one round of questions**, and **the phase-outline confirmation**. Three more are conditional, all of them in Step 1 — a change-id that collides with an open change, a change folder that already holds a `plan.md`, and a branch that has to be opened while you are standing somewhere other than the default branch. None of the three is optional: an overwritten `plan.md` is gone unless a previous run committed it, and a branch silently rooted on somebody else's work in progress is just as hard to untangle.
+Unlike `/odp-implement`, this skill is **interactive by design** — a human is here and their decisions are the point. Two stops are unconditional: **one round of questions** (Step 3) and **the phase-outline confirmation** (Step 4). Step 1 adds conditional ones — the workspace choice when the branch does not exist yet, a folder collision, a `plan.md` overwrite, a branch base outside the default branch, and a worktree path already taken. Three more are conditional, all of them in Step 1 — a change-id that collides with an open change, a change folder that already holds a `plan.md`, and a branch that has to be opened while you are standing somewhere other than the default branch. None of the three is optional: an overwritten `plan.md` is gone unless a previous run committed it, and a branch silently rooted on somebody else's work in progress is just as hard to untangle.
 
 ## Initial Response
 
@@ -130,9 +131,11 @@ The intent, whatever its source, is *guidance* for the title and the seed for `#
 
 1. **kebab-case** — applies to an id the user gave explicitly (rules 1–3); a derived one is valid by construction. On failure print `error: change-id "<id>" is not kebab-case. Use lowercase letters, digits, and single hyphens only (e.g., "oauth-login", not "OAuth Login").` and STOP.
 2. **Archived** — for an explicit id, if any directory matches `.context/archive/*-<change-id>/` (archive folders carry a `<created>-` date prefix), print `This change is archived. Open a new change with a different change-id.` and STOP. (A derived id never reaches here; it was re-derived above.)
-3. **Existing change folder**: if `.context/changes/<change-id>/` exists, it is **not** a collision — it is the normal continuation path. **Its absence does not prove the change is new**: a change opened in a worktree keeps its folder there, not here. Do not conclude anything from a missing folder until "Open the change's workspace" below has run — that step finds the worktree and stops you before anything is created in the wrong place. Use the folder as-is and inventory what it already holds; Step 2 reuses existing artifacts rather than regenerating them. Two sub-cases:
-   - **It holds a `change.md`** → keep it and apply the "On an existing `change.md`" rule below. If it also holds a `plan.md`, ask whether to refine it or overwrite it before going further.
+3. **Existing change folder**: if `.context/changes/<change-id>/` exists, it is **not** a collision — it is the normal continuation path. **Its absence does not prove the change is new**: a change opened in a worktree keeps its folder there, not here. Do not conclude anything from a missing folder until "Open the change's workspace" below has run — that step finds the worktree and stops you before anything is created in the wrong place. Use the folder as-is; Step 2 reuses existing artifacts rather than regenerating them. Two sub-cases:
+   - **It holds a `change.md`** → keep it and apply the "On an existing `change.md`" rule below. If it also holds a `plan.md`, ask whether to refine it or overwrite it — but ask it from `WORK_ROOT`, after the workspace step below, for the reason given at the end of this item.
    - **It holds no `change.md`** (an interrupted earlier run, a hand-made directory) → write one now, exactly as for a new folder. Narrate `REPAIR: folder existed without change.md — created it.` Never leave this state alone: without `change.md` the change is invisible to `/odp-review`'s discovery, gets no status stamp from `/odp-implement`, and can never be archived — `/odp-archive` hard-stops on a missing `change.md` because it cannot derive the destination folder name.
+
+   **Take the inventory after the workspace is open, not here.** What this check sees is whatever the *current* directory holds, and the workspace step below may move you: a fresh worktree is a checkout of the base commit, so uncommitted `frame.md` or `research.md` from an interrupted run in the main checkout are simply not there. Deciding "reuse the existing artifacts" — or asking about overwriting a `plan.md` — against a directory you are about to leave gets both answers wrong. So here, only note *that* a folder exists and whether it carries a `change.md`; re-run the inventory, and ask the `plan.md` question, once you are standing in `WORK_ROOT`. The same applies to the archive-collision and naming-convention scans above: they read the current checkout, which is the right place for them, because `.context/archive/` is shared history rather than per-change state.
 
 **Open the change's workspace.** Do this before anything is written, so the change folder and every artifact under it are born on their own branch. Everything the loop produces afterwards — the planning commit, every phase commit, the review fixes — lands there.
 
@@ -140,7 +143,7 @@ The intent, whatever its source, is *guidance* for the title and the seed for `#
 2. **Derive the type** from the same intent the change-id came from, using Conventional Commit vocabulary: `feat` (a new capability), `fix` (behavior that is broken), `perf`, `refactor`, `docs`, `test`, `chore` (tooling, config, dependencies), `ci`, `build`. If the repository declares its own list — `.claude/rules/commit.md`, `commitlint.config.*`, `.commitlintrc*`, a `CONTRIBUTING.md` section — take the vocabulary from there instead. **Default to `feat` when the intent does not clearly say otherwise**: nothing is committed yet at this point, so a branch named wrongly costs one `git branch -m`.
 3. The branch name is `<type>/<change-id>` — e.g. `feat/google-sign-in`, `fix/device-scan-retry`.
 4. **Already on that branch** → narrate `WORKSPACE: branch <name> (already checked out)` and move on to "Record the workspace".
-5. **The branch exists but you are somewhere else** → it may already have a worktree of its own. Resolve it with the canonical lookup (see "Finding a change's worktree" at the end of this block); a hit means that directory is the workspace, so go to "Standing in the wrong worktree" below. Otherwise `git checkout "<name>"` and narrate `WORKSPACE: branch <name> (existing, checked out)`. This is the normal re-entry path for a change that is already open.
+5. **The branch exists but you are somewhere else** → it may already have a worktree of its own. Resolve it with the canonical lookup (see "Finding a change's worktree" at the end of this block); a hit means that directory is the workspace, so go to "Standing in the wrong worktree" below. Otherwise `git checkout "<name>"` and narrate `WORKSPACE: branch <name> (existing, checked out)`. This is the normal re-entry path and the one most likely to meet a dirty tree, since the user has been working: if the checkout fails, say so plainly and stop — **never stash, reset, or discard anything to make the switch possible.** This is the normal re-entry path for a change that is already open.
 6. **The branch does not exist → ask how to open it.** Via AskUserQuestion, exactly two options:
 
    - **Branch here** (the default): the change takes over the current directory. Simple, and right when this is the only thing you are working on.
@@ -152,14 +155,18 @@ The intent, whatever its source, is *guidance* for the title and the seed for `#
    - **On the default branch** → `git checkout -b "<name>"` and narrate `WORKSPACE: branch <name> (from <default>)`.
    - **Anywhere else** → **ask once**, via AskUserQuestion: branching off somebody's work in progress is a decision, not a default. Offer exactly two options — take the current branch as the base (it keeps whatever that branch already carries), or switch to the default branch first (a clean base). On the second, run `git checkout <default>` before creating the branch; if that fails because the worktree is dirty, say so plainly and ask again. **Never stash, reset, or discard anything to make the switch possible.** Narrate the result as `WORKSPACE: branch <name> (from <base>)`.
 
-8. **Separate worktree** → the base question does not arise the same way, because a worktree is created *from* a commit rather than *on top of* your current checkout:
+8. **Separate worktree** → the base question does not arise the same way, because a worktree is created *from* a commit rather than *on top of* your current checkout. Do the whole thing in **one** command block, and have it print the two values the next steps need — a shell variable does not survive into your next Bash call, so nothing below may re-expand `$WT`:
 
    ```bash
-   REPO=$(basename "$(git rev-parse --show-toplevel)")
-   git worktree add "../${REPO}-<change-id>" -b "<type>/<change-id>"
+   WT="$(cd "$(git rev-parse --show-toplevel)/.." && pwd)/$(basename "$(git rev-parse --show-toplevel)")-<change-id>"
+   git worktree add "$WT" -b "<type>/<change-id>" \
+     && echo "WORKTREE=$WT" \
+     && echo "BASE_SHA=$(git -C "$WT" rev-parse HEAD)"
    ```
 
-   Without an explicit start point `git worktree add` roots the new branch at the current `HEAD`. If that is not the default branch, say which commit you are rooting on and offer the default branch as an alternative (`git worktree add "../${REPO}-<change-id>" -b "<name>" <default>`), the same choice as in step 7.
+   Copy both printed values into your working memory now; step 9 writes them into `change.md` **as literals**, and the `cd` below uses the literal path, never a variable.
+
+   Without an explicit start point `git worktree add` roots the new branch at the current `HEAD`. If that is not the default branch, say which commit you are rooting on and offer the default branch as an alternative — append `<default>` as a start point to the `git worktree add` above, the same choice as in step 7. Either way `BASE_SHA` is read **from the new worktree**, so it names the commit the branch actually sits on rather than wherever you happened to be standing.
 
    - **The path already exists** → never overwrite it and never `--force`. If `git worktree list` shows it belongs to this change, reuse it. Otherwise say plainly that the path is taken and ask for a different one.
    - **`git worktree` unavailable** (git older than 2.5, or a repository where it fails) → say so, fall back to "Branch here", and continue. A missing worktree is an inconvenience, never a reason to stop planning.
@@ -167,22 +174,24 @@ The intent, whatever its source, is *guidance* for the title and the seed for `#
 
 9. **Record the workspace.** Whatever the outcome, capture two values before writing `change.md`, because the rest of the loop reads them:
 
-   - **`base_sha`** — the commit the branch was rooted on, and the point `/odp-review` diffs against to see the change as a whole. **Capture it only on the paths that create the branch** (7 and 8): there, `git rev-parse HEAD` immediately after opening the workspace is exactly the root, because nothing has been committed to it yet.
+   - **`base_sha`** — the commit the branch was rooted on, and the point `/odp-review` diffs against to see the change as a whole. **Capture it only on the paths that create the branch** (7 and 8), and capture it **in the workspace the branch lives in**, because nothing has been committed to it yet so its `HEAD` *is* the root. On path 7 that is `git rev-parse HEAD` here. On path 8 it is the `BASE_SHA=` value the worktree block already printed — do not re-run `git rev-parse HEAD` in this directory, because you are still standing in the old checkout and would record the tip of whatever branch the user was on, which is not an ancestor of the change's branch at all when the worktree was rooted on an explicit start point. A wrong-but-resolvable sha passes every check downstream and silently widens `/odp-review`'s range to someone else's commits.
 
      On the re-entry paths (4 and 5) the branch already exists and `HEAD` is its **tip**, which may already carry phase commits — recording that as `base_sha` would make `/odp-review` diff a range of nothing while claiming the whole change. So on those paths: if `change.md` already carries a `base_sha`, keep it untouched. If it does not — an older change, or a repaired folder — derive it with `git merge-base <default-branch> HEAD`, write that, and narrate `BASE: derived by merge-base with <default> (no recorded base_sha)` so the weaker provenance is on the record rather than implied.
    - **`worktree`** — the absolute path of the worktree, or `null` when the change lives on a branch in the current directory.
 
    Both go into `change.md` (see "Write `change.md`").
 
-   **Then enter the workspace.** `git worktree add` does not move you — the shell stays in the original checkout, on the original branch. Every relative `.context/…` path written below, and the planning commit in Step 7, would land in the wrong directory on the wrong branch. So when a worktree was created, run one `cd` before anything else:
+   **Then enter the workspace.** `git worktree add` does not move you — the shell stays in the original checkout, on the original branch. So when a worktree was created, `cd` into it before anything else, using the **literal** path the worktree block printed:
 
    ```bash
-   cd "../${REPO}-<change-id>"
+   cd "<the WORKTREE path, written out in full>" && git rev-parse --show-toplevel && git rev-parse --abbrev-ref HEAD
    ```
 
-   Confirm it took (`git rev-parse --show-toplevel` and `git rev-parse --abbrev-ref HEAD` must now name the worktree and the change's branch) and narrate `WORK ROOT: <abs path> on <branch>`. If the `cd` fails, stop rather than continuing in the old directory — everything after this point assumes you are standing in the change's workspace. On the branch-here path you are already in it; narrate the same line with the repository root.
+   Both must now name the worktree and the change's branch. Narrate `WORK ROOT: <abs path> on <branch>`. If the `cd` fails, stop rather than continuing in the old directory — everything after this point assumes you are standing in the change's workspace. On the branch-here path you are already in it; narrate the same line with the repository root.
 
-   `WORK_ROOT` is the name this document uses for that directory. **Every `.context/…` path below is relative to it**, which after the `cd` is simply the working directory.
+   `WORK_ROOT` is the name this document uses for that directory: the worktree's absolute path, or the repository root on the branch-here path.
+
+   **Write every `.context/…` path below as `<WORK_ROOT>/.context/…`, spelled out in full.** The `cd` moves the shell and nothing else — `Write`, `Edit`, `Read` and `Glob` resolve a relative path against the session's own working directory, which is still the original checkout. A relative `Write .context/changes/<id>/change.md` after a worktree `cd` lands the change folder in the wrong directory on the wrong branch, and Step 7's `git add`, which *does* run in the worktree, then finds nothing and reports `PLAN COMMIT: nothing to commit.` This skill already applies the same discipline to dispatched agents (Step 2.1: "Resolve both reference paths yourself"); it applies to its own writes for the same reason.
 
 10. **Standing in the wrong worktree.** If `change.md` already records a `worktree` and it is not the current repository root, do not create anything here. Print the path, tell the user to open that directory and re-run, and STOP. A branch cannot be checked out in two worktrees at once, and working around that is how one change ends up split across two directories.
 
@@ -328,7 +337,7 @@ With a single round, selection matters more than count. A question earns its slo
 
    **Then read both artifacts FULLY from disk.** The returned summaries are for narration; the files are what you plan from. Reading them back guarantees you are working from what actually landed, not from a summary of it.
 
-   Narrate: `FRAME: <reframed|confirmed|reused> — .context/changes/<change-id>/frame.md` and `RESEARCH: <written|reused> — .context/changes/<change-id>/research.md`.
+   Narrate: `FRAME: <reframed|confirmed|reused> — .context/changes/<change-id>/frame.md` and `RESEARCH: <written|reused> — .context/changes/<change-id>/research.md`. Include the frame's one-line problem statement in that narration, because this is the only moment the user sees it before it starts driving decisions. **If they dispute it, take it seriously** — they know context the agent could not reach, and unlike the skill this forked from, that agent cannot ask anyone. Re-dispatch the FRAME agent with their objection as input rather than defending the reframe.
 
    **What you answer yourself, from this research — never by asking the user:**
    - What patterns does the codebase use for similar features?
@@ -761,7 +770,7 @@ Nothing is committed while this loop runs. That is the point of putting the comm
 The change folder is a record, and a record that only exists in the working tree is one `git checkout .` away from gone. Commit it once, after the user has stopped refining — not before, or every refinement becomes its own commit.
 
 1. **No git → skip silently.** Narrate `PLAN COMMIT: skipped — not a git repository.` and go straight to the hand-off block.
-2. **Stage the change folder and nothing else**: `git add .context/changes/<change-id>/`, plus `.context/foundation/roadmap.md` when — and only when — the roadmap sync actually flipped it and it was not already dirty beforehand (see "## Roadmap status sync"). Never `git add -A`; the user may have unrelated work in the tree, and it is not this skill's to commit.
+2. **Stage the change folder and nothing else**: `git add .context/changes/<change-id>/`, plus `.context/foundation/roadmap.md` when — and only when — the roadmap sync actually flipped it **and** `ROADMAP_PREDIRTY` was empty (see "## Roadmap status sync", which captures that value before editing the file). Never `git add -A`; the user may have unrelated work in the tree, and it is not this skill's to commit.
 3. `git diff --cached --quiet` → nothing staged means nothing changed since a previous run committed the same folder. Narrate `PLAN COMMIT: nothing to commit.` and move on.
 4. **Commit via heredoc**:
 
@@ -804,7 +813,9 @@ Every successful run ends with this block:
 ```
 PLAN READY — <change-id>
 
-Branch:   <type>/<change-id>   (from <base>)
+Branch:   <type>/<change-id>   (from <base>)   <- omit the line when branch is null (no git);
+                                                 drop "(from <base>)" on a re-entry path, where
+                                                 the branch already existed and no base was computed
 Worktree: <absolute path>            <- omit this line entirely when there is none
 Brief:    .context/changes/<change-id>/plan-brief.md   (start here)
 Plan:     .context/changes/<change-id>/plan.md
@@ -830,7 +841,7 @@ If the project keeps `.context/foundation/roadmap.md`, it indexes each work item
 
 Do this in Step 1 (right after `change.md` is created, while the status is still `new`) — planning has started, which is exactly what `planning` records. The lookup is **mandatory**; "best effort" scopes only the *edits* — a missing roadmap or a not-found target is skipped silently and never blocks, prompts, or aborts the run. Do not skip the check on the assumption there's no roadmap.
 
-1. `test -f .context/foundation/roadmap.md`. If absent, skip this step silently.
+1. `test -f .context/foundation/roadmap.md`. If absent, skip this step silently. Otherwise **capture its dirty state before touching it**: `ROADMAP_PREDIRTY=$(git status --porcelain .context/foundation/roadmap.md 2>/dev/null)`. Step 7 needs it, and once this step has edited the file the question can no longer be answered — the file is dirty because you made it dirty.
 2. Read the file. Look for `<change-id>` used as a `Change ID`:
    - in the `## At a glance` table, if present — the row whose **Change ID** column cell equals `<change-id>` exactly;
    - and in the item bodies — the `### <ID>: …` block that contains a `- **Change ID:** <change-id>` line.
@@ -841,7 +852,7 @@ Do this in Step 1 (right after `change.md` is created, while the status is still
    2. **Item body** — rewrite the item's `- **Status:**` line to `- **Status:** planning`.
 
    Then bump the roadmap frontmatter `updated:` to `<today>` (skip if there is no frontmatter).
-4. If the flip happened and `roadmap.md` was not already dirty before this run touched it, the planning commit in Step 7 stages it alongside the change folder. If it *was* already dirty, leave it out of the commit and say so — those pre-existing edits are the user's, not yours to commit.
+4. If the flip happened **and `ROADMAP_PREDIRTY` was empty**, the planning commit in Step 7 stages `roadmap.md` alongside the change folder. If `ROADMAP_PREDIRTY` was non-empty, the file already carried the user's own uncommitted edits: leave it out of the commit and print `⚠ .context/foundation/roadmap.md already had uncommitted edits; the flip was applied but NOT staged. Commit it yourself.` Those edits are the user's, not yours to commit.
 
 ## Important Guidelines
 
@@ -913,6 +924,7 @@ Each phase's success criteria go under `#### Automated Verification:` and `#### 
 These bullets are not documentation — they are the gates the implementer runs and the checklist the human works through. Four rules follow:
 
 - **Every `#### Automated Verification` item must be a command that is actually runnable in this repository.** `/odp-implement` preflights all of them on entry and prints a STOP block for any phase whose command cannot run. Before writing a command, verify it exists — a script in `package.json`, a target in `Makefile`/`Justfile`/`Taskfile.yml`, `command -v <binary>`. Never write a command from memory of what projects usually have.
+- **Every phase that changes files carries at least one `#### Automated` row.** The rest of the loop keys off Automated rows and nothing else: `/odp-implement` finds its next step as the first pending row under `#### Automated`, stamps `implemented` once every Automated row is `[x]`, and `/odp-review` scopes itself to phases whose Automated rows are done. A phase with only `#### Manual` rows is therefore never dispatched, never committed and never reviewed — and the run still reports success. If a phase genuinely has nothing automatable, give it one row naming what the phase produces, so the phase exists to the machinery, and put the judgement in `#### Manual` beside it.
 - **Behavioral verification defaults to `#### Manual`.** Under the odp loop a human exercises the behavior by hand, after `/odp-review`. A specific, scoped test command in `#### Automated` is allowed when the plan deliberately wants it — `/odp-implement` will run it as gate (a). What does **not** belong there is the repo-wide test suite: neither `/odp-implement` nor `/odp-review` runs it, and putting it in a phase gate makes that phase the one place where the entire suite blocks progress.
 - **Write `#### Manual` rows as steps to perform, not as judgements.** "Open /devices, add a device with an empty host, confirm the inline error names the field" — not "error handling works correctly". This is verbatim the checklist `/odp-review` hands back to the human at the end of the loop, so it has to be executable by someone who wasn't here.
 - **Every bullet from both sections gets exactly one row in `## Progress`**, under the matching `#### Automated` / `#### Manual` subsection. That split is the parsing contract: `/odp-implement` flips only Automated rows, and `/odp-review` derives its phase scope from them.

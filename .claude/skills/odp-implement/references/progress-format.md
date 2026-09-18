@@ -48,12 +48,17 @@ The headings are a machine contract and stay in English — `## Progress`, `### 
   - `#### Manual` lists steps that require a human to look at the result (UI, smoke tests, eyeball
     checks). Under the odp loop this is also where behavioral verification lives, because the
     implementer runs no test suite.
-  - A phase may have only `#### Automated`, only `#### Manual`, or both. Omit empty subsections.
+  - A phase may have only `#### Automated`, or both. Omit empty subsections. A phase that changes
+    files must carry at least one `#### Automated` row: every consumer keys off Automated rows, so a
+    Manual-only phase is never implemented, never committed and never reviewed, while the run still
+    reports success.
 - **Step format**: `- [ ] <phase>.<index> <title>` (pending) or `- [x] <phase>.<index> <title>` (done),
   with ` — <sha>` appended to the done form once the commit that closed the step exists. A `[x]` row
-  **without** a suffix is valid in three situations and in no others: mid-phase, before the phase's
-  commit lands; a phase whose diff came out empty, so there is no commit to name; and a `#### Manual`
-  row, which is ticked by a human and never by a commit.
+  **without** a suffix is valid in three situations and in no others: **before the phase's commit
+  lands** — which covers both a phase in flight and a phase resumed after a STOP, where rows ticked in
+  the earlier attempt are still waiting for the suffix the next commit gives them; **a phase whose
+  staged diff came out empty**, so there is no commit to name; and **a `#### Manual` row**, which is
+  ticked by a human and never by a commit.
 - **Step indices** are 1-based and unique within their phase. They are assigned at planning time and
   **never renumbered**. New steps added later get the next available index; deleted steps leave gaps
   (acceptable).
@@ -63,6 +68,10 @@ The headings are a machine contract and stay in English — `## Progress`, `### 
   form (7+ lowercase hex chars) of the commit that closed the step. Multiple commits per step → list
   the closing commit only. A phase whose diff was empty produces no commit; its rows stay SHA-less,
   which is legitimate and `/odp-archive` surfaces it as an informational warning, never an error.
+  Under the odp loop the empty case is rare by construction: ticking a row edits `plan.md`, which is
+  always in the phase's staged set, so the staged diff is normally non-empty even when the phase
+  produced no code. A SHA-less Automated row in a finished change therefore usually means the run
+  stopped before that phase committed, not that the phase was a no-op.
 - **`#### Manual` rows never carry a SHA.** Nothing commits them into existence — a human ticks them
   off after testing by hand. Anything scanning for SHA-less done rows must look under `#### Automated`
   only, or it will report every manual row in the plan.
@@ -72,8 +81,12 @@ The headings are a machine contract and stay in English — `## Progress`, `### 
 - **`/odp-implement` is the only writer of Automated rows.** It flips `[ ]` → `[x]` **per step**, as
   each step completes, and appends the SHA suffix **at phase end, in one shot, after the closing
   commit lands**. Mid-phase, completed rows sit `[x]` without a SHA — a valid intermediate state, not
-  drift. It confines itself to `#### Automated` rows and never flips `#### Manual` rows, leaving them
-  as the post-run human checklist.
+  drift. The append covers **every SHA-less `#### Automated` row of that phase**, not only the rows
+  flipped in the current session: a phase resumed after a STOP finds rows already ticked by the
+  earlier attempt, and scoping the write to this session's flips would strand them without a SHA
+  forever. Rows that already carry a suffix are skipped, never appended to twice. It confines itself
+  to `#### Automated` rows and never flips `#### Manual` rows, leaving them as the post-run human
+  checklist.
 - **`/odp-review` reads Progress and never writes to it.** It does read the SHA suffixes: they are how
   it scopes a single-phase review to that phase's commit.
 - **`/odp-archive` reads Progress** to count pending rows for its warn gate, and has **one narrow
