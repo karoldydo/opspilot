@@ -14,14 +14,15 @@ At the bottom of `.context/changes/<change-id>/plan.md`, after `## References`. 
 ```markdown
 ## Progress
 
-> Convention: `- [ ]` pending, `- [x]` done. Do not rename step titles.
+> Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not
+> rename step titles.
 
 ### Phase 1: <phase name>
 
 #### Automated
 
 - [ ] 1.1 <step title>
-- [x] 1.2 <step title>
+- [x] 1.2 <step title> — abc1234
 
 #### Manual
 
@@ -34,6 +35,9 @@ At the bottom of `.context/changes/<change-id>/plan.md`, after `## References`. 
 - [ ] 2.1 <step title>
 ```
 
+The headings are a machine contract and stay in English — `## Progress`, `### Phase N:`,
+`#### Automated`, `#### Manual`. Step titles are prose and follow the plan's language.
+
 ## Rules
 
 - **One `## Progress` heading**, at the bottom of the file (after `## References`).
@@ -45,25 +49,40 @@ At the bottom of `.context/changes/<change-id>/plan.md`, after `## References`. 
     checks). Under the odp loop this is also where behavioral verification lives, because the
     implementer runs no test suite.
   - A phase may have only `#### Automated`, only `#### Manual`, or both. Omit empty subsections.
-- **Step format**: `- [ ] <phase>.<index> <title>` (pending) or `- [x] <phase>.<index> <title>` (done).
+- **Step format**: `- [ ] <phase>.<index> <title>` (pending) or `- [x] <phase>.<index> <title>` (done),
+  with ` — <sha>` appended to the done form once the commit that closed the step exists. A `[x]` row
+  **without** a suffix is valid in three situations and in no others: mid-phase, before the phase's
+  commit lands; a phase whose diff came out empty, so there is no commit to name; and a `#### Manual`
+  row, which is ticked by a human and never by a commit.
 - **Step indices** are 1-based and unique within their phase. They are assigned at planning time and
   **never renumbered**. New steps added later get the next available index; deleted steps leave gaps
   (acceptable).
 - **Step titles are immutable** once the plan is reviewed. If a step's intent changes, leave the title
   and add a brief inline note in the relevant Phase block above — do not rewrite the Progress entry.
-- **No commit-SHA suffix.** The odp loop makes no commits, so a completed row is plain `- [x]` with
-  nothing appended. Do not invent a placeholder in that position.
+- **Commit SHA suffix** is appended to a step when the work lands (` — <sha>`). The SHA is the short
+  form (7+ lowercase hex chars) of the commit that closed the step. Multiple commits per step → list
+  the closing commit only. A phase whose diff was empty produces no commit; its rows stay SHA-less,
+  which is legitimate and `/odp-archive` surfaces it as an informational warning, never an error.
+- **`#### Manual` rows never carry a SHA.** Nothing commits them into existence — a human ticks them
+  off after testing by hand. Anything scanning for SHA-less done rows must look under `#### Automated`
+  only, or it will report every manual row in the plan.
 
 ## Mutation surface
 
-- **`/odp-implement` is the only writer.** It flips `[ ]` → `[x]` per step, as each step completes, and
-  confines itself to `#### Automated` rows — it never flips `#### Manual` rows, leaving them as the
-  post-run human checklist.
-- **`/odp-review` reads Progress and never writes to it.**
-- **`/odp-archive` reads Progress and never writes to it** — it counts pending rows for its warn gate.
-  Archived plans retain their final Progress state as a historical record, pending Manual rows
-  included.
-- **`/odp-plan` writes the section once** at planning time, with every step as `[ ]`.
+- **`/odp-implement` is the only writer of Automated rows.** It flips `[ ]` → `[x]` **per step**, as
+  each step completes, and appends the SHA suffix **at phase end, in one shot, after the closing
+  commit lands**. Mid-phase, completed rows sit `[x]` without a SHA — a valid intermediate state, not
+  drift. It confines itself to `#### Automated` rows and never flips `#### Manual` rows, leaving them
+  as the post-run human checklist.
+- **`/odp-review` reads Progress and never writes to it.** It does read the SHA suffixes: they are how
+  it scopes a single-phase review to that phase's commit.
+- **`/odp-archive` reads Progress** to count pending rows for its warn gate, and has **one narrow
+  write**: when the user explicitly confirms that the manual pass is done, it flips that change's
+  `#### Manual` rows to `[x]`. That confirmation is the only thing in the loop that may touch a Manual
+  row, and it never touches an Automated one. Archived plans otherwise retain their final Progress
+  state as a historical record.
+- **`/odp-plan` writes the section once** at planning time, with every step as `[ ]` and no SHA
+  suffixes.
 
 ## Parsing contract for tooling
 
@@ -73,6 +92,7 @@ Skills that need to derive state from Progress:
 - **Completion** = `count([x]) / count([ ] + [x])`.
 - **Current phase** = phase containing the first pending Automated `- [ ]`, or the last phase if all
   are done.
+- **Phase commits** = the distinct SHA suffixes under a `### Phase N:` block, in document order.
 - **Drift detection**:
   - `change.md.status = implementing` but Progress has 0 `[x]` → warn (no progress recorded).
   - `change.md.status = implementing` but all Automated items are `[x]` → warn (status should be
@@ -82,8 +102,6 @@ Skills that need to derive state from Progress:
 ## What is NOT in Progress
 
 - **No state file sidecar**: Progress is the single source of execution state — no JSON cache anywhere.
-  The per-phase diff snapshots under `.context/changes/<change-id>/phases/` are run artifacts, never
-  state; nothing is derived from them.
 - **No status-marker comments**: status lives in `change.md` frontmatter, completion is derived from
   Progress.
 - **No nested checkboxes**: a step is one bullet. Sub-tasks belong in the Phase block as Success

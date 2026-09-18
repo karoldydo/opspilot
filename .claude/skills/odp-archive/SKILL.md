@@ -4,9 +4,9 @@ description: >
   Close a completed change by moving its folder into .context/archive/, stamping
   change.md with archived status, and closing the matching roadmap item. Fourth
   and final step of the odp loop (/odp-plan -> /odp-implement -> /odp-review ->
-  manual tests -> /odp-archive). Makes no commit and never blocks on an
-  uncommitted working tree, because the odp loop leaves the whole change
-  uncommitted by construction. Use when the user asks for /odp-archive, wants a
+  manual tests -> /odp-archive). Asks the user to confirm the manual pass when
+  #### Manual rows are still unchecked, ticking them off on confirmation, then
+  commits the close-out. Use when the user asks for /odp-archive, wants a
   finished change closed out, or has worked through the manual checklist
   /odp-review handed them.
 argument-hint: "<change-id-or-path>"
@@ -22,7 +22,9 @@ allowed-tools:
 
 Move a completed change folder from `.context/changes/<change-id>/` to `.context/archive/<created-date>-<change-id>/`, stamp `change.md` with `status: archived` + `archived_at`, and — if `.context/foundation/roadmap.md` carries a roadmap item whose `Change ID` equals `<change-id>` — close that item too: flip its `Status` to `done` and append an entry to the roadmap's `## Done` section.
 
-The gate is **entirely warn-only**. Nothing hard-blocks on the state of the work: incomplete Progress, missing impl-review, and a status outside `{implemented, impl_reviewed}` are surfaced as warnings followed by a single confirmation prompt, and the user can still archive. The only hard stops are structural — a change that isn't there, one already archived, or a `change.md` that can't name a destination folder.
+The gate on the **state of the work** is warn-only: incomplete Progress, missing impl-review, rows without a commit SHA, and a status outside `{implemented, impl_reviewed}` are surfaced as warnings followed by a confirmation prompt, and the user can still archive. The hard stops are structural — a change that isn't there, one already archived, a `change.md` that can't name a destination folder — plus one git stop: uncommitted work inside the change folder, which would otherwise be swept into the archive commit half-finished.
+
+The one thing this skill asks about rather than merely warning is the **manual pass**. Unchecked `#### Manual` rows get their own question, because they are the loop's only real gate and nothing else in it can tell whether a human actually ran them.
 
 After archiving, the other odp skills refuse to write inside `.context/archive/<...>/`: `/odp-plan` refuses to reopen an archived id, `/odp-implement` refuses to implement under it, `/odp-review` refuses to append a review to it. Archived folders are read-only by convention.
 
@@ -31,27 +33,35 @@ After archiving, the other odp skills refuse to write inside `.context/archive/<
 This skill is self-contained and language/stack agnostic. It depends on exactly two things:
 
 - **`.context/`** — the toolkit's own state directory, holding `changes/<change-id>/` (the change being closed), `archive/` (created on demand) and optionally `foundation/roadmap.md`. Nothing outside `.context/` is required.
-- **`git`** — **optional**, and used for exactly one thing: preferring `git mv` over `mv` when the change folder happens to be known to git. Without git the skill works unchanged.
+- **`git`** — used for three things: the pre-flight check that nothing in the change folder is uncommitted, `git mv` for the move itself, and one commit closing the change out. All three degrade: without git the skill falls back to a plain `mv`, skips the check and the commit, and works unchanged.
 
 `references/progress-format.md` travels with the skill: it is the `## Progress` contract this skill parses to count pending rows, shared verbatim with `/odp-plan`, `/odp-implement` and `/odp-review`. It is a copy, not a link — drop the `odp-archive/` folder into another project's skills directory and it works there unchanged.
 
 ## Language
 
-**Every question put to the user is asked in Polish** — the `question` text, the `header`, and each option's `label` and `description`. This holds for every `AskUserQuestion` call in this skill, including the ones whose templates below are written in English; those templates fix the *shape* of a question, never the words. Everything else stays in English: narration lines, the files written under `.context/`, report bodies, and the commands printed for the user to copy.
+**Everything this skill writes for a human to read is in Polish** — every question put to the user (the `question` text, the `header`, and each option's `label` and `description`), every narration line, every report body, and **the prose of every document it writes under `.context/`**.
+
+Three things stay in English, because they are contracts rather than prose:
+
+- **Structural headings and keys.** In documents: `## Progress`, `### Phase N:`, `#### Automated`, `#### Manual`, `### Changes Required:`, `#### Automated Verification:`, `#### Manual Verification:`, and the other template headings reproduced below. In `change.md`: every YAML key, and every `status:` value (`new`, `planned`, `implementing`, `implemented`, `impl_reviewed`, `archived`). Other skills parse these by exact string; translating one breaks the loop silently.
+- **Fixed narration tokens** — the labels in lines like `BOOTSTRAP:`, `MANUAL:`, `Committed as:`, and the `✓ Archived` / `✗ Cannot archive` / `⚠` prefixes. The label is a token; the sentence after it is Polish.
+- **Commit messages, file names, change-ids, and copy-paste commands.** Conventional Commits subjects and bodies are English, as is anything printed for the user to paste into a terminal.
+
+Every template below is written in English. A template fixes the *shape* of the output — its headings, its field order, its structure — never the words that go in it.
 
 ## Positioning & invocation
 
 This skill closes the odp loop: **`/odp-plan` → `/odp-implement` → `/odp-review` → manual tests by a human → `/odp-archive`**.
 
-Run it **after** working through the manual checklist `/odp-review` printed in its hand-off block. That checklist is the `#### Manual` rows of `## Progress`, and nothing in the loop flips them — so at archive time they are still `- [ ]` and this skill will name them back to you one last time. That prompt is the point: it is the loop's only confirmation that the manual pass actually happened.
+Run it **after** working through the manual checklist `/odp-review` printed in its hand-off block. That checklist is the `#### Manual` rows of `## Progress`, and nothing earlier in the loop flips them — so at archive time they are still `- [ ]` and this skill names them back to you one last time and asks. That question is the point: it is the loop's only confirmation that the manual pass actually happened, and the only place a `#### Manual` row is ever allowed to be ticked.
 
-## Working on an uncommitted tree
+## Working on a committed branch
 
-`/odp-plan`, `/odp-implement` and `/odp-review` make **no commits**: the plan, the implementation and any review fixes all sit in the working tree. Three consequences shape this skill:
+By the time this skill runs the change is a branch with a full history: `/odp-plan` committed the change folder, `/odp-implement` committed each phase plus a closing epilogue, `/odp-review` committed its report and any fixes it made. Three consequences shape this skill:
 
-- **There is no hard refusal on uncommitted changes.** A sibling skill in a commit-based toolkit blocks when the change folder is dirty, to keep an archive commit clean. Under odp that folder is dirty on every single run by construction, so the same gate would fire every time and the skill would never do anything. It is removed, not relaxed.
-- **This skill commits nothing either.** The move, the `change.md` stamp and the roadmap close all land in the working tree. The user commits afterwards, if at all.
-- **`git mv` is conditional, not the default.** A folder git has never seen cannot be `git mv`'d. See "Move the folder" below.
+- **Uncommitted work inside the change folder is a hard refusal.** The archive commit renames the folder and stamps `change.md`; an uncommitted edit sitting in there would either be swept in unreviewed or left behind pointing at a path that no longer exists. Both are worse than stopping.
+- **This skill makes the loop's last commit.** The move, the `change.md` stamp and the roadmap close go in together as `chore(archive): close <change-id>`, so the branch ends clean.
+- **`git mv` is the normal path, not a special case.** `/odp-plan` committed the change folder, so git knows it and the rename is recorded as a rename. The plain-`mv` fallback survives for folders git has never seen — a change planned before this skill existed, or one made by hand. See "Move the folder" below.
 
 ## Initial Response
 
@@ -95,6 +105,61 @@ The result is `<change-id>`.
 
 `created` is load-bearing here — it is the date prefix of the destination folder, and the thing that keeps `.context/archive/` sorted chronologically by `ls`. There is no fallback to today's date: a change whose creation date was lost should be inspected, not silently filed under the wrong day.
 
+## Hard refusal: uncommitted changes
+
+Two pre-flight checks. Either failing blocks the archive. Skip both, with the note below, when `git` is unavailable or this is not a git repository.
+
+**1. Uncommitted edits inside the change folder.** Run:
+
+```bash
+git status --porcelain ".context/changes/<change-id>/"
+```
+
+Non-empty output → **block** and print:
+
+```
+✗ Cannot archive: .context/changes/<change-id>/ has uncommitted changes.
+
+  <one line per offending path from git status --porcelain>
+
+Commit them first, then re-run /odp-archive.
+```
+
+This is normally the tail end of the loop leaving something behind — a review report written but never committed, a `change.md` stamp from a run that stopped early. Committing it is the right fix; stashing it hides the record the archive is supposed to preserve.
+
+**2. Pre-existing staged changes anywhere.** The archive commit bundles whatever is staged at commit time, so unrelated staged work from earlier would silently land in `chore(archive): close …`. Run:
+
+```bash
+git diff --cached --quiet
+```
+
+Non-zero exit → **block** and print:
+
+```
+✗ Cannot archive: pre-existing staged changes would be bundled into the archive commit.
+
+  <output of git diff --cached --name-only>
+
+Either commit them first or `git reset` to unstage, then re-run /odp-archive.
+```
+
+Either failure → STOP. Do not proceed to the warn prompt; these are hard blocks.
+
+If `git` is unavailable or the repo is not a git repo, print `warning: not a git repository — skipping the uncommitted-changes checks.` and continue. Archiving still works; the move just loses its rename history and there is no archive commit.
+
+**Wrong worktree.** If `change.md` records a `worktree:` that is not the current repository root, the change's folder and branch are in another directory. Print both paths, tell the user to open that one and re-run, and STOP.
+
+The same applies one step earlier, in "Resolution": before reporting `no change folder at .context/changes/<change-id>/`, look for a worktree holding it:
+
+```bash
+git worktree list --porcelain \
+  | awk -v id="<change-id>" '/^worktree /{p=substr($0,10)} /^branch /{if ($2 ~ "/" id "$") print p}'
+```
+
+Empty output means no worktree holds this change. Non-empty output is the absolute path to open — print that path, not the branch name.
+
+A hit means the change exists in another worktree — name that directory instead of claiming the change is not there.
+
 ## Soft warnings (non-blocking)
 
 Collect the following warnings, then present them all at once with a single confirmation prompt.
@@ -108,8 +173,9 @@ Collect the following warnings, then present them all at once with a single conf
 
    **Read the two counts differently.** A pending **automated** row means implementation work the plan asked for and `/odp-implement` never marked done — a real gap. A pending **manual** row is the **expected** state: nothing in the odp loop ever flips those, and they are precisely the checklist `/odp-review` handed back to the human. Word the warning as a reminder of what you were asked to verify, not as an accusation that something is broken.
 3. **Missing impl-review check**: glob `.context/changes/<change-id>/reviews/impl-review*.md`. If none match, queue: `No impl-review found at reviews/impl-review*.md.`
+4. **Missing-SHA check**: parse the `## Progress` section of `plan.md` (if it exists). Count `- [x]` rows under `#### Automated` whose line does **not** end with ` — <sha>`, where `<sha>` is 7+ hexadecimal characters (the regex ` — [0-9a-f]{7,}$` does not match). If the count is non-zero, queue: `<N> Progress rows missing SHA suffix: <comma-separated "N.M <title>" tokens, truncated to 5 with "…" if longer>.` SHA-less rows are legitimate for phases whose diff came out empty, and for plans that completed before the SHA contract existed — this is a soft signal, not a defect. Rows under `#### Manual` never carry a SHA and are not counted here. Skip silently if `plan.md` is missing; check 2 already covered that.
 
-If at least one warning was queued, print:
+**Ask the manual-pass question before printing any of this.** It can answer one of the queued warnings outright, and a warning the user is about to resolve should never be shown to them as a problem. Once it has run, print whatever warnings remain:
 
 ```
 ⚠ /odp-archive warnings for <change-id>:
@@ -118,7 +184,43 @@ If at least one warning was queued, print:
   - <warning 2>
 ```
 
-Then use `AskUserQuestion`. **Manual-only nudge**: if the Pending Progress check above queued a warning whose breakdown was exactly `0 automated, <Y> manual` with `<Y> ≥ 1`, append ` (Recommended)` to the `Continue archiving` label so the prompt visibly nudges toward archive. Under odp this is not the exception — it is how a clean run ends, every time: all automated work done, the manual checklist outstanding by design. In the remaining cases (any automated row pending, or no Progress warning at all), present the labels verbatim.
+If nothing is left in the list, print nothing.
+
+### The manual-pass question
+
+**Ask this whenever `<Y> ≥ 1`** — there is at least one unchecked `#### Manual` row — and ask it **before** the warning block and the archive prompt. This is the loop's only confirmation that a human actually exercised the behavior, and the only place a Manual row may be ticked.
+
+Print the pending rows verbatim first, in document order, so the question is answerable without scrolling back:
+
+```
+Manual checks for <change-id>:
+
+  - <phase>.<index> <title>
+  - <phase>.<index> <title>
+```
+
+Then `AskUserQuestion` — like every template here, written in English to fix the shape; the words the user sees are Polish (see "## Language"):
+
+- label: `Manual pass done — tick them and archive`
+  description: `I ran these checks and they passed. Mark them done and archive the change.`
+- label: `Not done — archive anyway`
+  description: `Leave them unchecked. The change is archived with a visible gap in the checklist.`
+- label: `Cancel`
+  description: `Don't archive. I'm going back to testing.`
+
+Handling:
+
+- **Manual pass done** → **remember the answer; do not edit anything yet.** The flip happens in "Move and stamp" step 3, once archiving is actually going ahead. Drop the manual part of the Pending Progress warning from the queue — it has just been answered.
+- **Not done** → change nothing, replace the manual part of the Pending Progress warning with `<Y> manual check(s) not confirmed.`, and continue.
+- **Cancel** → print `Cancelled. Folder unchanged.` and STOP.
+
+**Why the flip waits.** The archive prompt that follows still offers *Resume implementation* and *Cancel*, both of which stop the run. Ticking the rows here would leave `plan.md` and `change.md` edited but uncommitted on a path that archives nothing — and the next `/odp-archive` would then hard-refuse on the dirt this one created. Deferring costs nothing: the answer is a variable until step 3 uses it.
+
+`references/progress-format.md` documents this write as archive's one narrow claim on `## Progress`: `#### Manual` rows only, only after the user says so in this session, never inferred and never defaulted.
+
+### The archive prompt
+
+Then use `AskUserQuestion`. If the only warnings left are manual-related and the user confirmed the manual pass above, append ` (Recommended)` to the `Continue archiving` label — a clean run ends exactly here, every time.
 
 - question: `Archive "<change-id>" anyway?`
   header: `Archive`
@@ -150,16 +252,18 @@ If no warnings were queued, skip the prompt and proceed directly.
    - Set `status: archived`.
    - Set `archived_at: <ISO-8601 datetime, today, UTC>` — produced by `date -u +"%Y-%m-%dT%H:%M:%SZ"`.
    - Set `updated: <today as YYYY-MM-DD>`.
-   - Use the Edit tool to update each of the three frontmatter lines. Do NOT touch any other field; in particular, leave `created` and `change_id` alone.
+   - Use the Edit tool to update each of the three frontmatter lines. Do NOT touch any other field; in particular, leave `created`, `change_id`, `branch`, `base_sha` and `worktree` alone — they are the record of where this change was built, and an archived change is exactly when someone needs that.
+   - **If the manual-pass question was answered "Manual pass done"**, apply it now, together with this stamp: flip that change's `#### Manual` rows in `plan.md` from `- [ ]` to `- [x]`, and set `manual_tests_confirmed: <today as YYYY-MM-DD>` in `change.md`. Never touch an `#### Automated` row, and never append a SHA to a manual row — no commit produced it, and a fabricated SHA is worse than none. Narrate `MANUAL: <Y> row(s) confirmed by the user and ticked.`
+   - On any other answer, leave `manual_tests_confirmed` as `null` and leave every Manual row alone.
 
-4. **Move the folder.** Which command is correct depends on whether git knows the folder at all, and under odp it often does not:
+4. **Move the folder.** `git mv` is the expected path — `/odp-plan` committed this folder, so git knows it and records the move as a rename:
 
-   1. Run `git ls-files -- ".context/changes/<change-id>/"`. **Non-empty output** → the folder has tracked or index-staged content → `git mv ".context/changes/<change-id>" "$DEST"`, so history and the index follow.
-   2. **Empty output**, or `git` unavailable, or not a git repository → `mv ".context/changes/<change-id>" "$DEST"`. Do **not** warn: under odp a never-committed change folder is the normal case, not a degradation. There is no history to preserve because nothing ever created any.
+   1. Run `git ls-files -- ".context/changes/<change-id>/"`. **Non-empty output** → `git mv ".context/changes/<change-id>" "$DEST"`, so history and the index follow.
+   2. **Empty output**, or `git` unavailable, or not a git repository → `mv ".context/changes/<change-id>" "$DEST"`. Narrate one line saying the folder was untracked, so the missing rename history is on the record. A folder git has never seen means planning ran without a commit — possible, just not the normal path.
    3. If `git mv` fails anyway, fall back to `mv` and narrate one line saying so.
    4. Confirm post-move: `[ -d "$DEST" ] && [ ! -d ".context/changes/<change-id>" ]`. If either check fails, print a diagnostic and STOP.
 
-5. **Close the matching roadmap item.** Run this on **every** archive — the roadmap lookup is mandatory. "Best effort" scopes only the *edits*: a missing roadmap or an edit target that isn't found is skipped silently and never blocks, rolls back, or prompts the archive. It does NOT mean "assume there's no roadmap and skip the check." Not looking is a defect — the confirmation (step 7) must report the outcome either way.
+5. **Close the matching roadmap item.** Run this on **every** archive — the roadmap lookup is mandatory. "Best effort" scopes only the *edits*: a missing roadmap or an edit target that isn't found is skipped silently and never blocks, rolls back, or prompts the archive. It does NOT mean "assume there's no roadmap and skip the check." Not looking is a defect — the confirmation block (step 8) must report the outcome either way.
 
    1. `test -f .context/foundation/roadmap.md`. If absent, skip this step silently.
    2. Read `.context/foundation/roadmap.md`. Look for `<change-id>` used as a `Change ID`:
@@ -179,19 +283,34 @@ If no warnings were queued, skip the prompt and proceed directly.
 
          `<today>` is `date -u +%F` (`YYYY-MM-DD`); `<CREATED>` is the value computed in step 1. If the roadmap has no `## Done` heading, append the heading and this bullet at the end of the file.
    5. Bump the roadmap frontmatter: set `updated: <today as YYYY-MM-DD>`. Leave every other key (`created`, `version`, `status`, `prd_version`, `main_goal`, `top_blocker`, …) untouched. If the file has no YAML frontmatter, skip this sub-step.
-   6. The roadmap close stays in the working tree, like everything else this skill touches. Nothing is staged and nothing is committed.
+   6. The roadmap close goes into the archive commit together with the move and the stamp — one commit for the whole close-out.
    7. Remember `<ID>` and `<Outcome>` for the confirmation output.
 
-6. **Count what is still loose.** The change record is now closed, but the code it describes is not. Derive the count exactly the way `/odp-review` derives its change set:
+6. **Commit the close-out.** One commit covering the rename, the `change.md` stamp, the ticked Manual rows if there were any, and the roadmap close:
 
    ```bash
-   git diff HEAD --name-only                 # tracked: staged + unstaged
-   git ls-files --others --exclude-standard  # untracked files
+   git add ".context/archive/" ".context/changes/" .context/foundation/roadmap.md
+   git commit -m "$(cat <<'EOF'
+   chore(<change-id>): archive change
+   EOF
+   )"
    ```
 
-   Take the union, drop anything under `.context/` (the change folder just moved, and its bookkeeping is not implementation), and report the remaining count as `<n>`. If `git` is unavailable, omit the line from the confirmation rather than guessing.
+   The scope is the change-id, the same as every other commit the loop makes on this branch — `/odp-plan`'s `docs(<change-id>)`, `/odp-implement`'s per-phase commits, `/odp-review`'s. A scope of `archive` would be the one commit in the whole loop that breaks the pattern, and the one a repository with a scope allow-list is most likely to reject.
 
-7. **Print confirmation**:
+   No body — the subject is mechanical and the diff (a rename, a frontmatter stamp, and the roadmap close when one matched) explains itself. Stage the roadmap path only when step 5 actually edited it. Never pass `--no-verify` or signing-bypass flags; if a pre-commit hook fails, fix the underlying issue and create a new commit. The pre-flight in "Hard refusal" is what makes this `git add` safe — nothing unrelated can be staged at this point.
+
+   Skip this step entirely if `git` is unavailable or the repo is not a git repo; the pre-flight already said so. Capture the short SHA for the confirmation.
+
+7. **Report where the branch stands.** The change record is closed; the branch it was built on is still there, unmerged. Read `branch` from the `change.md` you just stamped (it moved with the folder) and count what is ahead of the base:
+
+   ```bash
+   git rev-list --count <base_sha>..HEAD
+   ```
+
+   Report it as `<c>` commits on `<branch>`. Omit the line rather than guessing when `git` is unavailable, or when `base_sha` is missing, literally `null`, or does not resolve (`git cat-file -e <sha>^{commit}`) — `/odp-plan` writes `null` into these fields when it ran without git, so a present key is not the same as a usable value.
+
+8. **Print confirmation**:
 
 ```
 ✓ Archived <change-id>
@@ -202,16 +321,20 @@ change.md updated:
   archived_at:  <ISO datetime>
   updated:      <today>
 
+manual checks:  <Y> confirmed by you on <date>    ← or: left unchecked; omit the line when the plan had no Manual rows
+
 roadmap.md:     closed <ID> "<Outcome>"  →  Status: done, entry added to ## Done    ← if matched; else print: no item with Change ID "<change-id>" — checked, left untouched. Always print one of the two; it proves the lookup ran.
 
-Nothing was committed — the move, the stamp and the roadmap close all sit in the working tree.
-Implementation code: <n> file(s) still uncommitted.
+Committed as: <short SHA> chore(<change-id>): archive change
+
+Branch <branch> now carries <c> commit(s) and is not merged anywhere.
+Merging it — or not — is yours to decide.
 
 The folder is now read-only by convention.
 Next change: /odp-plan <describe the work>
 ```
 
-The `Implementation code:` line answers the question every user has at this exact moment: *the change is closed, so what happened to the code?* Archiving closes the **record** of a change, never the code. Committing the work — or not — remains entirely the user's call.
+The `Branch …` lines answer the question every user has at this exact moment: *the change is closed, so what happened to the code?* Archiving closes the **record** of a change, never the code. The commits are on the branch; merging, opening a pull request, or leaving it parked remains entirely the user's call, and this skill never does any of the three.
 
 ## Error handling
 
@@ -221,10 +344,9 @@ The `Implementation code:` line answers the question every user has at this exac
 
 ## What this skill does NOT do
 
-- **Does not commit, stage, or push.** The move, the stamp and the roadmap close all land in the working tree, consistent with every other skill in the odp loop. There is no override and no "small exception".
-- Does not write to `#### Manual` rows. `/odp-implement` is the sole writer of `## Progress`; this skill only counts pending rows for its warn gate. An archived plan keeps its final Progress state as a historical record, pending manual rows included.
-- Does not delete the `phases/*.diff` snapshots. Without commits those cumulative dumps are the only surviving trace of what each phase produced, so they travel into the archive with everything else.
-- Does not run tests, builds, or formatters as a gate — the gate is warn-only by design, and behavioral verification already happened in the human's manual pass.
+- **Does not push, merge, open a pull request, or delete the branch.** It makes exactly one commit — the close-out — on the branch that is already checked out. What happens to that branch afterwards is the user's decision, and this skill never makes it for them.
+- **Does not write to `#### Automated` rows, and never appends a SHA to anything.** Its one write into `## Progress` is ticking `#### Manual` rows after the user has confirmed the manual pass in this session, in answer to a question it asked. Nothing else in the section is touched, ever.
+- Does not run tests, builds, or formatters as a gate — the state-of-work gate is warn-only by design, and behavioral verification already happened in the human's manual pass.
 - Does not rewrite the roadmap beyond closing the one matched item. When `.context/foundation/roadmap.md` has an item whose `Change ID` equals the archived `<change-id>`, this skill flips only that item's `Status` (table cell + `### <ID>:` body line), appends one `## Done` bullet, and bumps the `updated:` date. It never reorders slices, recomputes the dependency graph, edits other items, or creates a roadmap that doesn't exist. No match (or no roadmap file) → roadmap untouched.
 - Does not write to `.context/archive/<...>/` after the move; archived folders are read-only by convention. The sibling skills enforce it on their own side: `/odp-plan` refuses an archived change-id, `/odp-implement` and `/odp-review` refuse any resolved path under `.context/archive/`.
 - Does not unarchive. To revisit an archived change, open a new one with `/odp-plan` and reference the archived folder for context.

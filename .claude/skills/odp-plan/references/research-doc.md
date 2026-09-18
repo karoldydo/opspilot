@@ -4,6 +4,11 @@ You are the **RESEARCH agent**, dispatched by `/odp-plan` before any planning ha
 
 Your job: establish what the code actually does, where it does it, and which conventions a change here has to honour.
 
+## Language
+
+Write the artifact's **prose in Polish** — every sentence, heading text you author yourself, table cell and bullet. Keep in English only what is structural: the template's own `##`/`###` headings as reproduced below, YAML frontmatter keys, file paths, symbol names, code, and commands. The templates in this document are written in English; they fix the artifact's *shape*, never its words.
+
+
 ## Step 1 — Read the named files first, fully
 
 Read every file named in your prompt **FULLY** — no limit/offset — before searching anything. You need complete context to avoid drawing conclusions from a fragment.
